@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Log - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/audit}">📊 Audit</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>📊 Audit Log</h1>
+        <p>Kila kitendo kwenye mfumo kinarekodiwa kwa uwazi na usalama.</p>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Entity</th>
+                <th>Details</th>
+                <th>IP</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${logs.isEmpty()}">
+                <td colspan="6" style="text-align:center;">Hakuna kumbukumbu bado.</td>
+            </tr>
+            <tr th:each="log : ${logs}">
+                <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                <td th:text="${log.username != null ? log.username : 'system'}"></td>
+                <td th:text="${log.action}"></td>
+                <td th:text="${log.entityType}"></td>
+                <td th:text="${log.details}"></td>
+                <td th:text="${log.ipAddress}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
