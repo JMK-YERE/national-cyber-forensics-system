@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Incident - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/audit}">📊 Audit</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>🔐 Report Security Incident</h1>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <form th:action="@{/incidents/new}" th:object="${incident}" method="post" style="margin-top:20px;">
+            <label>INCIDENT TITLE *</label>
+            <input type="text" th:field="*{title}" required>
+
+            <label>DESCRIPTION *</label>
+            <textarea th:field="*{description}" rows="5" required></textarea>
+
+            <label>REPORTER NAME *</label>
+            <input type="text" th:field="*{reporter}" required>
+
+            <label>SEVERITY</label>
+            <select th:field="*{severity}">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM" selected>Medium</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
+            </select>
+
+            <label>CATEGORY</label>
+            <select th:field="*{category}">
+                <option value="Malware">Malware</option>
+                <option value="Phishing">Phishing</option>
+                <option value="Data Breach">Data Breach</option>
+                <option value="Ransomware">Ransomware</option>
+                <option value="DDoS">DDoS</option>
+                <option value="Insider Threat">Insider Threat</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label>REGION (TANZANIA)</label>
+            <select th:field="*{region}">
+                <option value="Dar es Salaam">Dar es Salaam</option>
+                <option value="Arusha">Arusha</option>
+                <option value="Mwanza">Mwanza</option>
+                <option value="Dodoma">Dodoma</option>
+                <option value="Mbeya">Mbeya</option>
+                <option value="Morogoro">Morogoro</option>
+                <option value="Tanga">Tanga</option>
+                <option value="Zanzibar">Zanzibar</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label>ORGANIZATION</label>
+            <input type="text" th:field="*{organization}" placeholder="mfano: Bank, Hospital, Government">
+
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:15px;">
+                🚀 SUBMIT INCIDENT
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
