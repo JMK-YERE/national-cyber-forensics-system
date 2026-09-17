@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>🔍 Search Incident</h1>
+        <form th:action="@{/incidents/search}" method="get" style="margin-top:15px;">
+            <label>INCIDENT ID</label>
+            <input type="text" name="incidentId" placeholder="mfano: SEC-20250101-123" th:value="${searchId}">
+            <button type="submit" class="btn btn-primary">🔍 Search</button>
+        </form>
+    </div>
+
+    <div class="card" th:if="${results != null}">
+        <h2>Results</h2>
+        <table th:if="${!results.isEmpty()}" style="margin-top:15px;">
+            <thead>
+            <tr>
+                <th>Incident ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Severity</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="inc : ${results}" th:class="${inc.statusClass}">
+                <td th:text="${inc.incidentId}"></td>
+                <td th:text="${inc.title}"></td>
+                <td th:text="${inc.status}"></td>
+                <td th:text="${inc.severity}"></td>
+                <td><a th:href="@{'/incidents/' + ${inc.id}}">View</a></td>
+            </tr>
+            </tbody>
+        </table>
+        <p th:if="${results.isEmpty()}" class="alert alert-error">
+            Hakuna tukio lililopatikana: <span th:text="${searchId}"></span>
+        </p>
+    </div>
+</div>
+</body>
+</html>
