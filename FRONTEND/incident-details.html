@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incident Detail - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/audit}">📊 Audit</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1 th:text="'📋 ' + ${incident.title}"></h1>
+        <p><strong>Incident ID:</strong> <span th:text="${incident.incidentId}"></span></p>
+        <p><strong>Reporter:</strong> <span th:text="${incident.reporter}"></span></p>
+        <p><strong>Severity:</strong> <span th:text="${incident.severity}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${incident.status}"></span></p>
+        <p><strong>Category:</strong> <span th:text="${incident.category}"></span></p>
+        <p><strong>Region:</strong> <span th:text="${incident.region}"></span></p>
+        <p><strong>Date:</strong> <span th:text="${#temporals.format(incident.dateReported, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <hr style="border-color: rgba(0,255,157,0.2); margin: 20px 0;">
+        <h3>📝 Description</h3>
+        <p th:text="${incident.description}"></p>
+    </div>
+
+    <div class="card">
+        <h2>🔬 Digital Evidence</h2>
+        <div style="margin-top:15px;">
+            <a th:href="@{'/evidence/upload/' + ${incident.id}}" class="btn btn-primary">
+                📤 Upload Evidence
+            </a>
+        </div>
+
+        <table th:if="${!evidenceList.isEmpty()}" style="margin-top:20px;">
+            <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>SHA-256</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="ev : ${evidenceList}">
+                <td th:text="${ev.originalFilename}"></td>
+                <td th:text="${ev.fileType}"></td>
+                <td th:text="${ev.readableSize}"></td>
+                <td><span class="hash-display" th:text="${#strings.substring(ev.sha256Hash, 0, 16)} + '...'"></span></td>
+                <td>
+                    <span th:if="${ev.verified}" style="color:#00ff9d;">✅ Verified</span>
+                    <span th:unless="${ev.verified}" style="color:#ffc800;">⏳ Pending</span>
+                </td>
+                <td>
+                    <a th:href="@{'/evidence/download/' + ${ev.id}}">⬇️ Download</a>
+                    <form th:if="${!ev.verified}" th:action="@{'/evidence/verify/' + ${ev.id}}" method="post" style="display:inline;">
+                        <button type="submit" class="btn" style="padding:4px 10px;font-size:11px;">✅ Verify</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p th:if="${evidenceList.isEmpty()}" style="text-align:center;margin-top:20px;">
+            Hakuna evidence bado. Pakia kwa kubonyeza "Upload Evidence".
+        </p>
+    </div>
+</div>
+</body>
+</html>
