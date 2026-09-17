@@ -1,35 +1,138 @@
-# Maven
+# =====================================================
+# 🇹🇿 National Cyber Security & Digital Forensics System
+# .gitignore - Files zisizopaswa kuingia GitHub
+# =====================================================
+
+# ========== MAVEN ==========
 target/
 pom.xml.tag
 pom.xml.releaseBackup
-*.log
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# IntelliJ IDEA
+# ========== INTELLIJ IDEA ==========
 .idea/
 *.iml
 *.iws
 *.ipr
 out/
+.idea_modules/
+atlassian-ide-plugin.xml
+*.hprof
 
-# Eclipse
+# ========== ECLIPSE ==========
 .classpath
 .project
 .settings/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.recommenders
 
-# VS Code
+# ========== VS CODE ==========
 .vscode/
+*.code-workspace
 
-# OS
-.DS_Store
-Thumbs.db
+# ========== NETBEANS ==========
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
 
-# Uploads (evidence files)
+# ========== LOGS ==========
+logs/
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ========== UPLOADS (Evidence Files) ==========
+uploads/
 uploads/evidence/*
 !uploads/evidence/.gitkeep
+*.enc
+*.encrypted
 
-# Local config
-application-local.properties
+# ========== SECURITY / SECRETS ==========
 .env
+.env.local
+.env.production
+application-local.properties
+application-prod.properties
+application-secret.properties
+*.pem
+*.key
+*.p12
+*.jks
+secrets.yml
+secrets.properties
+
+# ========== DATABASE ==========
+*.sqlite
+*.sqlite3
+*.db
+*.mdb
+
+# ========== OS FILES ==========
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ========== JAVA ==========
 *.class
 *.jar
 *.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# ========== BACKUP FILES ==========
+*.bak
+*.backup
+*.old
+*.orig
+*~
+
+# ========== TEMPORARY ==========
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# ========== NODE (kama unatumia frontend tools) ==========
+node_modules/
+npm-debug.log*
+package-lock.json
+yarn.lock
+
+# ========== DOCKER ==========
+docker-compose.override.yml
+
+# ========== GRADLE (kama utabadilisha) ==========
+.gradle/
+build/
+
+# ========== MISC ==========
+*.pid
+*.seed
+*.pid.lock
