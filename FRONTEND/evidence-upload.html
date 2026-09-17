@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Evidence - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>📤 Upload Digital Evidence</h1>
+        <p>Evidence zote zinasimbwa kwa AES-256 na kupata SHA-256 hash kwa integrity verification.</p>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <form th:action="@{'/evidence/upload/' + ${incidentId}}" method="post" enctype="multipart/form-data" style="margin-top:20px;">
+            <label>EVIDENCE FILE * (Picha, Video, Doc, Logs, n.k.)</label>
+            <input type="file" name="file" required>
+
+            <label>DESCRIPTION</label>
+            <textarea name="description" rows="3" placeholder="Eleza evidence hii..."></textarea>
+
+            <label>SOURCE DEVICE</label>
+            <input type="text" name="sourceDevice" placeholder="mfano: Laptop, Server, Mobile Phone">
+
+            <label>ACQUISITION METHOD</label>
+            <input type="text" name="acquisitionMethod" placeholder="mfano: Forensic Imaging, Memory Dump">
+
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:15px;">
+                🔐 UPLOAD & ENCRYPT
+            </button>
+        </form>
+    </div>
+
+    <div class="card" th:if="${!evidenceList.isEmpty()}">
+        <h2>📁 Existing Evidence</h2>
+        <table style="margin-top:15px;">
+            <thead>
+            <tr>
+                <th>File</th>
+                <th>Size</th>
+                <th>SHA-256</th>
+                <th>Verified</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="ev : ${evidenceList}">
+                <td th:text="${ev.originalFilename}"></td>
+                <td th:text="${ev.readableSize}"></td>
+                <td><span class="hash-display" th:text="${#strings.substring(ev.sha256Hash, 0, 20)} + '...'"></span></td>
+                <td>
+                    <span th:if="${ev.verified}" style="color:#00ff9d;">✅</span>
+                    <span th:unless="${ev.verified}" style="color:#ffc800;">⏳</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
