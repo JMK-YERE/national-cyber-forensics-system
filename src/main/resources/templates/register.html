@@ -14,25 +14,37 @@
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
     <form th:action="@{/register}" method="post">
-        <label>USERNAME</label>
+        <label>USERNAME *</label>
         <input type="text" name="username" required>
 
-        <label>EMAIL</label>
-        <input type="email" name="email" required>
+        <label>EMAIL *</label>
+        <input type="email" name="email" required placeholder="utapata email hapa">
 
-        <label>FULL NAME</label>
+        <label>FULL NAME *</label>
         <input type="text" name="fullName" required>
 
         <label>ORGANIZATION</label>
         <input type="text" name="organization" placeholder="mfano: TCRA, Police, Bank">
 
-        <label>PASSWORD</label>
+        <label>PHONE (SMS alerts)</label>
+        <input type="text" name="phone" placeholder="+255 7XX XXX XXX">
+
+        <label>WHATSAPP NUMBER</label>
+        <input type="text" name="whatsappNumber" placeholder="+255 7XX XXX XXX">
+
+        <label>PASSWORD *</label>
         <input type="password" name="password" required minlength="6">
 
         <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px;">
             ✍️ SAJILI
         </button>
     </form>
+
+    <div style="margin-top:20px; padding:15px; background:rgba(0,255,157,0.05); border-radius:5px; font-size:11px; color:#888;">
+        📧 Utapata <strong>Welcome Email</strong> kwenye inbox yako.
+        <br>
+        📱 Kama umejaza WhatsApp, utapata <strong>WhatsApp</strong> pia.
+    </div>
 
     <p style="text-align:center;margin-top:20px;font-size:12px;">
         Una akaunti? <a th:href="@{/login}">INGIA HAPA</a>

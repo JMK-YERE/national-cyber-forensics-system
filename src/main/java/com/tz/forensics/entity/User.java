@@ -24,10 +24,26 @@ public class User {
     private String fullName;
 
     private String phone;
+
+    @Column(name = "whatsapp_number", length = 30)
+    private String whatsappNumber;
+
+    @Column(name = "whatsapp_api_key", length = 100)
+    private String whatsappApiKey;
+
     private String organization;
 
     @Column(length = 30)
     private String role = "REPORTER";
+
+    @Column(name = "notify_email")
+    private Boolean notifyEmail = true;
+
+    @Column(name = "notify_whatsapp")
+    private Boolean notifyWhatsapp = false;
+
+    @Column(name = "notify_sms")
+    private Boolean notifySms = false;
 
     private Boolean enabled = true;
 
@@ -57,10 +73,20 @@ public class User {
     public void setFullName(String fullName) { this.fullName = fullName; }
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+    public String getWhatsappNumber() { return whatsappNumber; }
+    public void setWhatsappNumber(String whatsappNumber) { this.whatsappNumber = whatsappNumber; }
+    public String getWhatsappApiKey() { return whatsappApiKey; }
+    public void setWhatsappApiKey(String whatsappApiKey) { this.whatsappApiKey = whatsappApiKey; }
     public String getOrganization() { return organization; }
     public void setOrganization(String organization) { this.organization = organization; }
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+    public Boolean getNotifyEmail() { return notifyEmail; }
+    public void setNotifyEmail(Boolean notifyEmail) { this.notifyEmail = notifyEmail; }
+    public Boolean getNotifyWhatsapp() { return notifyWhatsapp; }
+    public void setNotifyWhatsapp(Boolean notifyWhatsapp) { this.notifyWhatsapp = notifyWhatsapp; }
+    public Boolean getNotifySms() { return notifySms; }
+    public void setNotifySms(Boolean notifySms) { this.notifySms = notifySms; }
     public Boolean getEnabled() { return enabled; }
     public void setEnabled(Boolean enabled) { this.enabled = enabled; }
     public Boolean getAccountLocked() { return accountLocked; }
