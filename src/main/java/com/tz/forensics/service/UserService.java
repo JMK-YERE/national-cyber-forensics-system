@@ -48,31 +48,22 @@ public class UserService {
 
         userRepository.save(user);
 
-        // Send WELCOME via EMAIL (BURE)
+        // ===== 1. EMAIL KWA MTU MWENYEWE (BURE) =====
         try {
             emailService.sendWelcomeEmail(dto.getEmail(), dto.getUsername());
+            System.out.println("✅ Welcome email sent to: " + dto.getEmail());
         } catch (Exception e) {
-            System.err.println("Welcome email failed: " + e.getMessage());
+            System.err.println("❌ Welcome email failed: " + e.getMessage());
         }
 
-        // Send WELCOME via WhatsApp (kama whatsapp ipo)
-        if (dto.getWhatsappNumber() != null && !dto.getWhatsappNumber().isEmpty()) {
-            try {
-                // Default API key from system (admin's key) - can be configured
-                whatsAppService.sendWelcome(dto.getWhatsappNumber(), "", dto.getUsername());
-            } catch (Exception e) {
-                System.err.println("WhatsApp welcome failed: " + e.getMessage());
-            }
-        }
-
-        // Notify admin via email
+        // ===== 2. NOTIFY ADMIN =====
         try {
             emailService.sendAdminNewUserAlert(dto.getUsername(), dto.getEmail());
         } catch (Exception e) {
-            System.err.println("Admin alert failed: " + e.getMessage());
+            System.err.println("❌ Admin alert failed: " + e.getMessage());
         }
 
-        // In-app notification
+        // ===== 3. IN-APP NOTIFICATION =====
         try {
             notificationService.createNotification(
                 "👤 Mtumiaji Mpya: " + dto.getUsername(),
@@ -81,7 +72,7 @@ public class UserService {
                 "/audit"
             );
         } catch (Exception e) {
-            System.err.println("Notification failed: " + e.getMessage());
+            System.err.println("❌ Notification failed: " + e.getMessage());
         }
 
         return "SUCCESS";

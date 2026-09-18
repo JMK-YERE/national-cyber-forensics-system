@@ -30,7 +30,7 @@ public class EmailService {
 
     public void sendEmail(String to, String subject, String body) {
         if (!isConfigured()) {
-            System.out.println("⚠️ Email not configured. To: " + to);
+            System.out.println("⚠️ Email not configured. Would send to: " + to);
             return;
         }
         try {
@@ -42,28 +42,45 @@ public class EmailService {
             mailSender.send(message);
             System.out.println("✅ Email sent to " + to);
         } catch (Exception e) {
-            System.err.println("❌ Email failed: " + e.getMessage());
+            System.err.println("❌ Email failed to " + to + ": " + e.getMessage());
         }
     }
 
+    // ===== KWA MTU MWENYEWE (Welcome) =====
     public void sendWelcomeEmail(String to, String username) {
         String subject = "🇹🇿 Karibu " + appName + ", " + username + "!";
         String body = "Habari " + username + ",\n\n"
                 + "Karibu kwenye " + appName + "!\n\n"
                 + "Akaunti yako imefunguliwa kwa mafanikio.\n\n"
                 + "Unaweza:\n"
-                + "✅ Kuripoti matukio ya usalama wa mtandao\n"
-                + "✅ Kupakia ushahidi wa kidijitali (AES-256)\n"
-                + "✅ Kufuatilia chain of custody\n"
-                + "✅ Kupata notifications\n\n"
+                + "✅ Kuripoti matukio ya usalama\n"
+                + "✅ Kupakia ushahidi (AES-256)\n"
+                + "✅ Kufuatilia chain of custody\n\n"
                 + "Ingia mfumo:\n"
                 + appUrl + "/login\n\n"
                 + "Username: " + username + "\n\n"
-                + "Asante kwa kujiunga!\n\n"
+                + "Asante,\n"
                 + appName + " - Tanzania 🇹🇿";
         sendEmail(to, subject, body);
     }
 
+    // ===== KWA MTU (Incident Confirmation) =====
+    public void sendIncidentConfirmation(String to, String username, String incidentId, String title) {
+        String subject = "✅ Tukio Lako Limepokelewa: " + incidentId;
+        String body = "Habari " + username + ",\n\n"
+                + "Tukio lako limepokelewa kwa mafanikio:\n\n"
+                + "🆔 Incident ID: " + incidentId + "\n"
+                + "📝 Title: " + title + "\n\n"
+                + "Timu yetu itafuatilia tukio lako.\n"
+                + "Utapata notifications kuhusu maendeleo.\n\n"
+                + "Angalia tukio lako:\n"
+                + appUrl + "/incidents\n\n"
+                + "Asante,\n"
+                + appName + " - Tanzania 🇹🇿";
+        sendEmail(to, subject, body);
+    }
+
+    // ===== KWA ADMIN (Mtumiaji Mpya) =====
     public void sendAdminNewUserAlert(String username, String userEmail) {
         if (adminEmail == null || adminEmail.isEmpty()) return;
         String subject = "👤 Mtumiaji Mpya: " + username;
@@ -74,6 +91,7 @@ public class EmailService {
         sendEmail(adminEmail, subject, body);
     }
 
+    // ===== KWA ADMIN (Incident Mpya) =====
     public void sendIncidentAlert(String incidentId, String title, String severity) {
         if (adminEmail == null || adminEmail.isEmpty()) return;
         String subject = "🚨 Tukio Jipya: " + incidentId;
@@ -84,17 +102,5 @@ public class EmailService {
                 + "Muda: " + java.time.LocalDateTime.now() + "\n\n"
                 + appUrl + "/incidents";
         sendEmail(adminEmail, subject, body);
-    }
-
-    public void sendIncidentConfirmation(String to, String username, String incidentId, String title) {
-        String subject = "✅ Tukio Lako Limepokelewa: " + incidentId;
-        String body = "Habari " + username + ",\n\n"
-                + "Tukio lako limepokelewa:\n\n"
-                + "ID: " + incidentId + "\n"
-                + "Title: " + title + "\n\n"
-                + "Timu yetu itafuatilia.\n\n"
-                + appUrl + "/incidents\n\n"
-                + appName + " - Tanzania 🇹🇿";
-        sendEmail(to, subject, body);
     }
 }

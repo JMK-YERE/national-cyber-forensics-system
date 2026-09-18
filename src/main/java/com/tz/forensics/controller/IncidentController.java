@@ -2,6 +2,8 @@ package com.tz.forensics.controller;
 
 import com.tz.forensics.dto.IncidentDto;
 import com.tz.forensics.entity.Incident;
+import com.tz.forensics.entity.User;
+import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,17 +19,23 @@ public class IncidentController {
     private final AuditService auditService;
     private final NotificationService notificationService;
     private final EmailService emailService;
+    private final WhatsAppService whatsAppService;
+    private final UserRepository userRepository;
 
     public IncidentController(IncidentService incidentService,
                               EvidenceService evidenceService,
                               AuditService auditService,
                               NotificationService notificationService,
-                              EmailService emailService) {
+                              EmailService emailService,
+                              WhatsAppService whatsAppService,
+                              UserRepository userRepository) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.auditService = auditService;
         this.notificationService = notificationService;
         this.emailService = emailService;
+        this.whatsAppService = whatsAppService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
@@ -49,18 +57,38 @@ public class IncidentController {
         auditService.log("CREATE_INCIDENT", "Incident", saved.getIncidentId(),
                 "Created incident: " + saved.getTitle());
 
+        // ===== EMAIL KWA ADMIN =====
+        try {
+            emailService.sendIncidentAlert(saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
+        } catch (Exception e) { System.err.println("Admin email failed: " + e.getMessage()); }
+
+        // ===== EMAIL KWA REPORTER (yule aliye-report) =====
+        try {
+            User reporter = userRepository.findByUsername(auth.getName()).orElse(null);
+            if (reporter != null && reporter.getEmail() != null) {
+                emailService.sendIncidentConfirmation(
+                    reporter.getEmail(),
+                    reporter.getUsername(),
+                    saved.getIncidentId(),
+                    saved.getTitle()
+                );
+            }
+        } catch (Exception e) { System.err.println("Reporter email failed: " + e.getMessage()); }
+
+        // ===== WHATSAPP KWA ADMIN =====
+        try {
+            whatsAppService.sendIncidentAlert(saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
+        } catch (Exception e) { System.err.println("WhatsApp failed: " + e.getMessage()); }
+
+        // ===== IN-APP NOTIFICATION =====
         try {
             notificationService.createIncidentNotification(
                     saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
-        } catch (Exception e) { System.err.println("Notif failed: " + e.getMessage()); }
-
-        try {
-            emailService.sendIncidentAlert(
-                    saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
-        } catch (Exception e) { System.err.println("Email failed: " + e.getMessage()); }
+        } catch (Exception e) { System.err.println("Notification failed: " + e.getMessage()); }
 
         model.addAttribute("success",
-                "✅ Tukio limehifadhiwa! Incident ID: " + saved.getIncidentId());
+                "✅ Tukio limehifadhiwa! Incident ID: " + saved.getIncidentId()
+                + " — Email ya uthibitisho imetumwa kwenye inbox yako.");
         model.addAttribute("incident", new IncidentDto());
         return "incident-form";
     }

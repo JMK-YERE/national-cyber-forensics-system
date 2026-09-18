@@ -18,9 +18,12 @@ public class AuthController {
     @GetMapping("/login")
     public String loginPage(@RequestParam(required = false) String error,
                             @RequestParam(required = false) String logout,
+                            @RequestParam(required = false) String registered,
                             Model model) {
         if (error != null) model.addAttribute("error", "Username au password si sahihi!");
         if (logout != null) model.addAttribute("message", "Umetoka kwa mafanikio.");
+        if (registered != null) model.addAttribute("success",
+                "✅ Usajili umefanikiwa! Angalia email yako kwa ujumbe wa kukaribisha.");
         return "login";
     }
 
@@ -34,8 +37,7 @@ public class AuthController {
     public String registerUser(@ModelAttribute("user") UserRegistrationDto dto, Model model) {
         String response = userService.registerUser(dto);
         if ("SUCCESS".equals(response)) {
-            model.addAttribute("success", "Usajili umefanikiwa! Tafadhali ingia.");
-            return "login";
+            return "redirect:/login?registered=true";
         } else {
             model.addAttribute("error", response);
             return "register";
