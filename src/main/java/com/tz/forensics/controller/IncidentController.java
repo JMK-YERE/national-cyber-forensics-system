@@ -2,9 +2,7 @@ package com.tz.forensics.controller;
 
 import com.tz.forensics.dto.IncidentDto;
 import com.tz.forensics.entity.Incident;
-import com.tz.forensics.service.AuditService;
-import com.tz.forensics.service.EvidenceService;
-import com.tz.forensics.service.IncidentService;
+import com.tz.forensics.service.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,13 +15,19 @@ public class IncidentController {
     private final IncidentService incidentService;
     private final EvidenceService evidenceService;
     private final AuditService auditService;
+    private final NotificationService notificationService;
+    private final EmailService emailService;
 
     public IncidentController(IncidentService incidentService,
                               EvidenceService evidenceService,
-                              AuditService auditService) {
+                              AuditService auditService,
+                              NotificationService notificationService,
+                              EmailService emailService) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.auditService = auditService;
+        this.notificationService = notificationService;
+        this.emailService = emailService;
     }
 
     @GetMapping
@@ -44,6 +48,17 @@ public class IncidentController {
         Incident saved = incidentService.createIncident(dto, auth.getName());
         auditService.log("CREATE_INCIDENT", "Incident", saved.getIncidentId(),
                 "Created incident: " + saved.getTitle());
+
+        try {
+            notificationService.createIncidentNotification(
+                    saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
+        } catch (Exception e) { System.err.println("Notif failed: " + e.getMessage()); }
+
+        try {
+            emailService.sendIncidentAlert(
+                    saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
+        } catch (Exception e) { System.err.println("Email failed: " + e.getMessage()); }
+
         model.addAttribute("success",
                 "✅ Tukio limehifadhiwa! Incident ID: " + saved.getIncidentId());
         model.addAttribute("incident", new IncidentDto());

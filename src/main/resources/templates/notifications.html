@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/notifications}">🔔 Notifications</a>
+        <a th:href="@{/audit}">📊 Audit</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>🔔 Notifications</h1>
+        <div style="margin-top:15px;">
+            <form th:action="@{/notifications/read-all}" method="post" style="display:inline;">
+                <button type="submit" class="btn">✅ Mark All as Read</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>Status</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${notifications.isEmpty()}">
+                <td colspan="5" style="text-align:center;">Hakuna notifications bado.</td>
+            </tr>
+            <tr th:each="n : ${notifications}"
+                th:style="${!n.isRead} ? 'background:rgba(0,255,157,0.05);' : ''">
+                <td>
+                    <span th:if="${!n.isRead}" style="color:#00ff9d;">● NEW</span>
+                    <span th:if="${n.isRead}" style="color:#666;">○ Read</span>
+                </td>
+                <td th:text="${n.title}"></td>
+                <td th:text="${n.message}"></td>
+                <td th:text="${#temporals.format(n.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <form th:if="${!n.isRead}" th:action="@{'/notifications/read/' + ${n.id}}" method="post">
+                        <button type="submit" class="btn" style="padding:4px 10px;font-size:11px;">Mark Read</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
