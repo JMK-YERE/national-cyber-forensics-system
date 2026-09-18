@@ -1,5 +1,6 @@
 package com.tz.forensics.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -12,18 +13,31 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class WhatsAppService {
 
-    // CallMeBot API - BURE MILELE
+    @Value("${whatsapp.default.phone:}")
+    private String defaultPhone;
+
+    @Value("${whatsapp.default.apikey:}")
+    private String defaultApiKey;
+
+    @Value("${whatsapp.admin.phone:}")
+    private String adminPhone;
+
+    @Value("${whatsapp.admin.apikey:}")
+    private String adminApiKey;
+
     private static final String API_URL = "https://api.callmebot.com/whatsapp.php";
 
+    // ===== METHOD YA MSINGI =====
     public boolean sendWhatsApp(String phoneNumber, String apiKey, String message) {
         if (phoneNumber == null || phoneNumber.isEmpty()) {
-            System.out.println("⚠️ WhatsApp: No phone number");
+            System.out.println("⚠️ WhatsApp: No phone");
             return false;
         }
         if (apiKey == null || apiKey.isEmpty()) {
-            System.out.println("⚠️ WhatsApp: No API key. Get free at: https://www.callmebot.com/blog/free-api-whatsapp-messages/");
-            System.out.println("   Would send to: " + phoneNumber);
-            System.out.println("   Message: " + message);
+            apiKey = defaultApiKey;
+        }
+        if (apiKey == null || apiKey.isEmpty()) {
+            System.out.println("⚠️ WhatsApp: No API key");
             return false;
         }
 
@@ -40,7 +54,7 @@ public class WhatsAppService {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("✅ WhatsApp sent to " + phoneNumber + " (status: " + response.statusCode() + ")");
+            System.out.println("✅ WhatsApp sent to " + phoneNumber + " (" + response.statusCode() + ")");
             return response.statusCode() == 200;
         } catch (Exception e) {
             System.err.println("❌ WhatsApp failed: " + e.getMessage());
@@ -48,7 +62,12 @@ public class WhatsAppService {
         }
     }
 
-    public void sendIncidentAlert(String phone, String apiKey, String incidentId, String title, String severity) {
+    // ===== METHOD YA INCIDENT (args 3 — inatumika kwenye IncidentController) =====
+    public void sendIncidentAlert(String incidentId, String title, String severity) {
+        if (adminPhone == null || adminPhone.isEmpty()) {
+            System.out.println("⚠️ WhatsApp: Admin phone not set");
+            return;
+        }
         String emoji = switch (severity != null ? severity.toUpperCase() : "MEDIUM") {
             case "CRITICAL" -> "🚨";
             case "HIGH" -> "⚠️";
@@ -56,14 +75,15 @@ public class WhatsAppService {
             default -> "ℹ️";
         };
         String message = emoji + " *CYBER FORENSICS TZ*\n\n"
-                + "📋 Tukio Jipya\n"
+                + "📋 *Tukio Jipya*\n"
                 + "🆔 ID: " + incidentId + "\n"
-                + "📝 Title: " + title + "\n"
+                + "📝 " + title + "\n"
                 + "⚡ Severity: " + severity + "\n\n"
                 + "Ingia mfumo kwa maelezo zaidi 🇹🇿";
-        sendWhatsApp(phone, apiKey, message);
+        sendWhatsApp(adminPhone, adminApiKey, message);
     }
 
+    // ===== METHOD YA WELCOME =====
     public void sendWelcome(String phone, String apiKey, String username) {
         String message = "🇹🇿 *Karibu Cyber Forensics TZ*\n\n"
                 + "Habari " + username + "!\n\n"
@@ -73,11 +93,19 @@ public class WhatsAppService {
         sendWhatsApp(phone, apiKey, message);
     }
 
-    public void sendEvidenceAlert(String phone, String apiKey, String evidenceName) {
+    // ===== METHOD YA EVIDENCE =====
+    public void sendEvidenceAlert(String evidenceName) {
+        if (adminPhone == null || adminPhone.isEmpty()) return;
         String message = "🔬 *EVIDENCE MPYA*\n\n"
                 + "File: " + evidenceName + "\n"
-                + "Imehifadhiwa kwa usalama (AES-256)\n\n"
-                + "Angalia mfumo kwa maelezo 🇹🇿";
-        sendWhatsApp(phone, apiKey, message);
+                + "Imehifadhiwa kwa AES-256 ✅\n\n"
+                + "Angalia mfumo 🇹🇿";
+        sendWhatsApp(adminPhone, adminApiKey, message);
+    }
+
+    // ===== TEST =====
+    public void sendTestMessage() {
+        sendWhatsApp(adminPhone, adminApiKey,
+                "🇹🇿 *TEST MESSAGE*\n\nMfumo wako unafanya kazi! ✅\nWhatsApp notifications ziko tayari.");
     }
 }
