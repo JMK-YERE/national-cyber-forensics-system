@@ -49,8 +49,23 @@ public class Incident {
     @Column(name = "mitre_technique")
     private String mitreTechnique;
 
-    @Column(name = "financial_loss_tzs")
-    private BigDecimal financialLossTzs;
+    @Column(name = "direct_loss_tzs")
+    private BigDecimal directLossTzs;
+
+    @Column(name = "recovery_cost_tzs")
+    private BigDecimal recoveryCostTzs;
+
+    @Column(name = "downtime_cost_tzs")
+    private BigDecimal downtimeCostTzs;
+
+    @Column(name = "legal_fees_tzs")
+    private BigDecimal legalFeesTzs;
+
+    @Column(name = "reputation_damage_tzs")
+    private BigDecimal reputationDamageTzs;
+
+    @Column(name = "total_loss_tzs")
+    private BigDecimal totalLossTzs;
 
     @Column(name = "police_case_number")
     private String policeCaseNumber;
@@ -117,8 +132,18 @@ public class Incident {
     public void setMitreTactic(String mitreTactic) { this.mitreTactic = mitreTactic; }
     public String getMitreTechnique() { return mitreTechnique; }
     public void setMitreTechnique(String mitreTechnique) { this.mitreTechnique = mitreTechnique; }
-    public BigDecimal getFinancialLossTzs() { return financialLossTzs; }
-    public void setFinancialLossTzs(BigDecimal financialLossTzs) { this.financialLossTzs = financialLossTzs; }
+    public BigDecimal getDirectLossTzs() { return directLossTzs; }
+    public void setDirectLossTzs(BigDecimal directLossTzs) { this.directLossTzs = directLossTzs; }
+    public BigDecimal getRecoveryCostTzs() { return recoveryCostTzs; }
+    public void setRecoveryCostTzs(BigDecimal recoveryCostTzs) { this.recoveryCostTzs = recoveryCostTzs; }
+    public BigDecimal getDowntimeCostTzs() { return downtimeCostTzs; }
+    public void setDowntimeCostTzs(BigDecimal downtimeCostTzs) { this.downtimeCostTzs = downtimeCostTzs; }
+    public BigDecimal getLegalFeesTzs() { return legalFeesTzs; }
+    public void setLegalFeesTzs(BigDecimal legalFeesTzs) { this.legalFeesTzs = legalFeesTzs; }
+    public BigDecimal getReputationDamageTzs() { return reputationDamageTzs; }
+    public void setReputationDamageTzs(BigDecimal reputationDamageTzs) { this.reputationDamageTzs = reputationDamageTzs; }
+    public BigDecimal getTotalLossTzs() { return totalLossTzs; }
+    public void setTotalLossTzs(BigDecimal totalLossTzs) { this.totalLossTzs = totalLossTzs; }
     public String getPoliceCaseNumber() { return policeCaseNumber; }
     public void setPoliceCaseNumber(String policeCaseNumber) { this.policeCaseNumber = policeCaseNumber; }
     public String getTcraReference() { return tcraReference; }

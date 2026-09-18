@@ -70,6 +70,24 @@
             <label>ORGANIZATION</label>
             <input type="text" th:field="*{organization}" placeholder="mfano: Bank, Hospital, Government">
 
+            <hr style="border-color:rgba(0,255,157,0.2); margin:20px 0;">
+            <h3>💰 Financial Loss (TZS)</h3>
+
+            <label>DIRECT LOSS (TZS)</label>
+            <input type="number" th:field="*{directLossTzs}" placeholder="0" step="0.01">
+
+            <label>RECOVERY COST (TZS)</label>
+            <input type="number" th:field="*{recoveryCostTzs}" placeholder="0" step="0.01">
+
+            <label>DOWNTIME COST (TZS)</label>
+            <input type="number" th:field="*{downtimeCostTzs}" placeholder="0" step="0.01">
+
+            <label>LEGAL FEES (TZS)</label>
+            <input type="number" th:field="*{legalFeesTzs}" placeholder="0" step="0.01">
+
+            <label>REPUTATION DAMAGE (TZS)</label>
+            <input type="number" th:field="*{reputationDamageTzs}" placeholder="0" step="0.01">
+
             <button type="submit" class="btn btn-primary" style="width:100%;margin-top:15px;">
                 🚀 SUBMIT INCIDENT
             </button>

@@ -5,6 +5,7 @@ import com.tz.forensics.entity.Incident;
 import com.tz.forensics.repository.IncidentRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -33,6 +34,21 @@ public class IncidentService {
         incident.setCategory(dto.getCategory());
         incident.setRegion(dto.getRegion());
         incident.setOrganization(dto.getOrganization());
+
+        incident.setDirectLossTzs(dto.getDirectLossTzs());
+        incident.setRecoveryCostTzs(dto.getRecoveryCostTzs());
+        incident.setDowntimeCostTzs(dto.getDowntimeCostTzs());
+        incident.setLegalFeesTzs(dto.getLegalFeesTzs());
+        incident.setReputationDamageTzs(dto.getReputationDamageTzs());
+
+        BigDecimal total = BigDecimal.ZERO;
+        if (dto.getDirectLossTzs() != null) total = total.add(dto.getDirectLossTzs());
+        if (dto.getRecoveryCostTzs() != null) total = total.add(dto.getRecoveryCostTzs());
+        if (dto.getDowntimeCostTzs() != null) total = total.add(dto.getDowntimeCostTzs());
+        if (dto.getLegalFeesTzs() != null) total = total.add(dto.getLegalFeesTzs());
+        if (dto.getReputationDamageTzs() != null) total = total.add(dto.getReputationDamageTzs());
+        incident.setTotalLossTzs(total);
+
         return incidentRepository.save(incident);
     }
 
