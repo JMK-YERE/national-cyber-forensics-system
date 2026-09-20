@@ -36,7 +36,6 @@ public class User {
     @Column(length = 30)
     private String role = "INDIVIDUAL";
 
-    // ===== SOCIAL MEDIA ACCOUNTS =====
     @Column(name = "has_facebook")
     private Boolean hasFacebook = false;
 
@@ -55,7 +54,6 @@ public class User {
     @Column(name = "has_x")
     private Boolean hasX = false;
 
-    // ===== SECURITY SCORE =====
     @Column(name = "security_score")
     private Integer securityScore = 0;
 
@@ -65,7 +63,6 @@ public class User {
     @Column(name = "breach_checked")
     private Boolean breachChecked = false;
 
-    // ===== NOTIFICATIONS =====
     @Column(name = "notify_email")
     private Boolean notifyEmail = true;
 
@@ -91,11 +88,23 @@ public class User {
 
     public User() {}
 
-    // ===== HELPER METHODS =====
-    public boolean isAdmin() { return "ADMIN".equals(role); }
-    public boolean isProfessional() { return "CYBER_PRO".equals(role); }
-    public boolean isForensics() { return "FORENSICS".equals(role); }
-    public boolean isIndividual() { return "INDIVIDUAL".equals(role) || role == null; }
+    // ===== HELPER METHODS (FIXED) =====
+    public boolean isAdmin() {
+        return "ADMIN".equalsIgnoreCase(role);
+    }
+
+    public boolean isProfessional() {
+        return "CYBER_PRO".equalsIgnoreCase(role) || "PROFESSIONAL".equalsIgnoreCase(role);
+    }
+
+    public boolean isForensics() {
+        return "FORENSICS".equalsIgnoreCase(role);
+    }
+
+    public boolean isIndividual() {
+        // Individual ni yeyote ambaye SI admin, professional, au forensics
+        return !isAdmin() && !isProfessional() && !isForensics();
+    }
 
     public int countSocialAccounts() {
         int count = 0;

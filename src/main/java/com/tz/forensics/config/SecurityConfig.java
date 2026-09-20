@@ -60,15 +60,14 @@ public class SecurityConfig {
                 // ===== ADMIN + CYBER_PRO + FORENSICS =====
                 .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/incidents/my-tasks").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/incidents/new").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/incidents").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                .requestMatchers("/incidents/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/report-attack/all").hasAnyRole("ADMIN", "CYBER_PRO")
 
-                // ===== INDIVIDUAL ONLY =====
-                .requestMatchers("/ai/**").hasRole("INDIVIDUAL")
-                .requestMatchers("/my-accounts/**").hasRole("INDIVIDUAL")
-                .requestMatchers("/report-attack/**").hasRole("INDIVIDUAL")
+                // ===== INDIVIDUAL + EVERYONE =====
+                // AI, my-accounts, report-attack — kwa INDIVIDUAL (default role)
+                .requestMatchers("/ai/**").hasAnyRole("INDIVIDUAL", "CYBER_PRO", "FORENSICS", "ADMIN")
+                .requestMatchers("/my-accounts/**").authenticated()
+                .requestMatchers("/report-attack/**").authenticated()
 
                 // ===== EVERYONE LOGGED IN =====
                 .requestMatchers("/dashboard/**").authenticated()

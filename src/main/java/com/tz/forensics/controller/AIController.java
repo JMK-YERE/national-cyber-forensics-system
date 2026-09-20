@@ -28,17 +28,11 @@ public class AIController {
         this.auditService = auditService;
     }
 
-    // ===== ROLE GUARD: ONLY INDIVIDUAL =====
-    private boolean canUseAI(User user) {
-        return user != null && user.isIndividual();
-    }
-
     @GetMapping("/assistant")
     public String assistant(Model model, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (!canUseAI(user)) {
-            return "redirect:/access-denied";
-        }
+        if (user == null) return "redirect:/login";
+
         model.addAttribute("user", user);
         model.addAttribute("history", chatHistory.getOrDefault(auth.getName(), new ArrayList<>()));
         model.addAttribute("isConfigured", aiChatService.isConfigured());
@@ -48,9 +42,7 @@ public class AIController {
     @PostMapping("/assistant")
     public String askAI(@RequestParam String message, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (!canUseAI(user)) {
-            return "redirect:/access-denied";
-        }
+        if (user == null) return "redirect:/login";
 
         String username = auth.getName();
         String context = buildContext(user);
@@ -72,10 +64,6 @@ public class AIController {
 
     @PostMapping("/clear")
     public String clearHistory(Authentication auth) {
-        User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (!canUseAI(user)) {
-            return "redirect:/access-denied";
-        }
         chatHistory.remove(auth.getName());
         return "redirect:/ai/assistant";
     }
@@ -92,7 +80,7 @@ public class AIController {
         if (user == null) return "";
         StringBuilder sb = new StringBuilder();
         sb.append("User: ").append(user.getUsername()).append(". ");
-        sb.append("Role: Individual User. ");
+        sb.append("Role: ").append(user.getRole()).append(". ");
         if (user.getOrganization() != null) sb.append("Organization: ").append(user.getOrganization()).append(". ");
         return sb.toString();
     }

@@ -32,70 +32,55 @@ public class SecurityToolsController {
     public String socialDirect(@RequestParam String platform,
                                 @RequestParam(required = false) String username,
                                 RedirectAttributes ra) {
-        ra.addFlashAttribute("directPlatform", platform);
-        ra.addFlashAttribute("directUsername", username);
-        ra.addFlashAttribute("directInfo", socialMediaService.getPlatformInfo(platform));
+        Map<String, String> info = socialMediaService.getPlatformInfo(platform);
+        ra.addFlashAttribute("directInfo", info);
         ra.addFlashAttribute("activeTool", "social");
         return "redirect:/tools/security-center";
     }
 
-    // ===== URL REPUTATION =====
+    // ===== TOOLS =====
     @PostMapping("/url-check")
     public String checkUrl(@RequestParam String url, RedirectAttributes ra) {
         ra.addFlashAttribute("urlResult", securityService.checkUrlReputation(url));
-        ra.addFlashAttribute("activeTool", "url");
         return "redirect:/tools/security-center";
     }
 
-    // ===== SSL =====
     @PostMapping("/ssl-check")
     public String checkSSL(@RequestParam String url, RedirectAttributes ra) {
         ra.addFlashAttribute("sslResult", securityService.checkSSL(url));
-        ra.addFlashAttribute("activeTool", "ssl");
         return "redirect:/tools/security-center";
     }
 
-    // ===== DNS =====
     @PostMapping("/dns-lookup")
     public String dnsLookup(@RequestParam String domain, RedirectAttributes ra) {
         ra.addFlashAttribute("dnsResult", securityService.dnsLookup(domain));
-        ra.addFlashAttribute("activeTool", "dns");
         return "redirect:/tools/security-center";
     }
 
-    // ===== IP =====
     @PostMapping("/ip-check")
     public String checkIP(@RequestParam String ip, RedirectAttributes ra) {
         ra.addFlashAttribute("ipResult", securityService.checkIPReputation(ip));
-        ra.addFlashAttribute("activeTool", "ip");
         return "redirect:/tools/security-center";
     }
 
-    // ===== HEADERS =====
     @PostMapping("/headers-check")
     public String checkHeaders(@RequestParam String url, RedirectAttributes ra) {
         ra.addFlashAttribute("headersResult", securityService.analyzeHeaders(url));
-        ra.addFlashAttribute("activeTool", "headers");
         return "redirect:/tools/security-center";
     }
 
-    // ===== HASH =====
     @PostMapping("/hash-check")
     public String checkHash(@RequestParam String hash, RedirectAttributes ra) {
         ra.addFlashAttribute("hashResult", securityService.analyzeHash(hash));
-        ra.addFlashAttribute("activeTool", "hash");
         return "redirect:/tools/security-center";
     }
 
-    // ===== PASSWORD BREACH =====
     @PostMapping("/password-breach")
     public String checkPasswordBreach(@RequestParam String password, RedirectAttributes ra) {
         ra.addFlashAttribute("pwBreachResult", securityService.checkPasswordBreach(password));
-        ra.addFlashAttribute("activeTool", "pwbreach");
         return "redirect:/tools/security-center";
     }
 
-    // ===== PASSWORD STRENGTH =====
     @PostMapping("/password-check")
     public String checkPassword(@RequestParam String password, RedirectAttributes ra) {
         int score = 0;
@@ -108,13 +93,11 @@ public class SecurityToolsController {
         if (password.matches(".*\\d.*")) score += 10; else feedback.add("❌ Ongeza namba");
         if (password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*")) score += 10;
         else feedback.add("❌ Ongeza alama maalum");
-
         String lower = password.toLowerCase();
         if (lower.contains("password") || lower.contains("123456") || lower.contains("qwerty")) {
             score = Math.max(0, score - 30);
             feedback.add("⚠️ Password maarufu!");
         }
-
         score = Math.max(0, Math.min(100, score));
         String rating = score >= 80 ? "STRONG" : score >= 60 ? "GOOD" : score >= 40 ? "WEAK" : "VERY WEAK";
         String emoji = score >= 80 ? "🟢" : score >= 60 ? "🟡" : score >= 40 ? "🟠" : "🔴";
@@ -122,15 +105,12 @@ public class SecurityToolsController {
         ra.addFlashAttribute("pwRating", rating);
         ra.addFlashAttribute("pwEmoji", emoji);
         ra.addFlashAttribute("pwFeedback", feedback);
-        ra.addFlashAttribute("activeTool", "password");
         return "redirect:/tools/security-center";
     }
 
-    // ===== DOMAIN AGE =====
     @PostMapping("/domain-age")
     public String checkDomainAge(@RequestParam String domain, RedirectAttributes ra) {
         ra.addFlashAttribute("domainResult", securityService.checkDomainAge(domain));
-        ra.addFlashAttribute("activeTool", "domain");
         return "redirect:/tools/security-center";
     }
 
