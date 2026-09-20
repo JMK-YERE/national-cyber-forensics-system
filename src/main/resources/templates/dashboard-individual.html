@@ -36,11 +36,11 @@
             <div class="stat-label">Social Accounts</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" th:text="${user.has2fa ? '✅' : '❌'}">❌</div>
+            <div class="stat-value" th:text="${user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
             <div class="stat-label">2FA Enabled</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" th:text="${user.breachChecked ? '✅' : '❌'}">❌</div>
+            <div class="stat-value" th:text="${user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
             <div class="stat-label">Breach Checked</div>
         </div>
     </div>
@@ -49,24 +49,12 @@
         <h2>🛡️ Kulinda Accounts Zako</h2>
         <p>Chagua huduma unayotaka kulinda:</p>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; margin-top:15px;">
-            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
-                📱 Facebook
-            </a>
-            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
-                📷 Instagram
-            </a>
-            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
-                🎵 TikTok
-            </a>
-            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
-                💬 WhatsApp
-            </a>
-            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
-                📧 Gmail
-            </a>
-            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
-                🐦 X (Twitter)
-            </a>
+            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px;">📱 Facebook</a>
+            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px;">📷 Instagram</a>
+            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px;">🎵 TikTok</a>
+            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px;">💬 WhatsApp</a>
+            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px;">📧 Gmail</a>
+            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px;">🐦 X (Twitter)</a>
         </div>
     </div>
 
