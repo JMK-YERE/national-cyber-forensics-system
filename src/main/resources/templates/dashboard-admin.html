@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Admin Dashboard - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ - ADMIN</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/incidents/new}">➕ Report</a>
+        <a th:href="@{/tools/security-center}">🛡️ Security</a>
+        <a th:href="@{/audit}">📊 Audit</a>
+        <a th:href="@{/admin/users}">👥 Users</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>👑 Admin Dashboard</h1>
+        <p>Karibu, <strong th:text="${username}"></strong>! Hii ni dashboard ya msimamizi.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-value" th:text="${totalIncidents}">0</div>
+            <div class="stat-label">Total Incidents</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">👥</div>
+            <div class="stat-label">Users</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">🔬</div>
+            <div class="stat-label">Evidence</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">🇹🇿</div>
+            <div class="stat-label">System Status</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>⚡ Admin Actions</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
+            <a th:href="@{/incidents/new}" class="btn btn-primary">➕ Report Incident</a>
+            <a th:href="@{/incidents}" class="btn">📋 All Incidents</a>
+            <a th:href="@{/audit}" class="btn">📊 Audit Log</a>
+            <a th:href="@{/admin/users}" class="btn">👥 Manage Users</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

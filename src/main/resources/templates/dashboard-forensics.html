@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 Forensics Dashboard - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/audit}">📊 Audit</a>
+        <a th:href="@{/tools/security-center}">🛡️ Tools</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>🔬 Digital Forensics Dashboard</h1>
+        <p>Karibu, <strong th:text="${username}"></strong>! Dashboard yako ya uchambuzi.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-value">🔬</div>
+            <div class="stat-label">Evidence Files</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">🔐</div>
+            <div class="stat-label">Encrypted</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">📊</div>
+            <div class="stat-label">Chain of Custody</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">🇹🇿</div>
+            <div class="stat-label">Forensics Standard</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>⚡ Forensics Tools</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
+            <a th:href="@{/incidents}" class="btn btn-primary">🔬 Analyze Incidents</a>
+            <a th:href="@{/audit}" class="btn">📊 Chain of Custody</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
