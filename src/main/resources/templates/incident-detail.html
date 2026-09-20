@@ -12,6 +12,8 @@
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/incidents/my-tasks}">✅ My Tasks</a>
+        <a th:href="@{/cases}">📁 Cases</a>
         <a th:href="@{/audit}">📊 Audit</a>
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
@@ -21,27 +23,73 @@
 
 <div class="container">
     <div class="card">
-        <h1 th:text="'📋 ' + ${incident.title}"></h1>
-        <a th:href="@{'/reports/incident/{id}/pdf'(id=${incident.id})}" class="btn btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
-        <p><strong>Incident ID:</strong> <span th:text="${incident.incidentId}"></span></p>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:15px;">
+            <div>
+                <h1 th:text="'📋 ' + ${incident.title}"></h1>
+                <p><strong>Incident ID:</strong> <span th:text="${incident.incidentId}"></span></p>
+            </div>
+            <div>
+                <a th:href="@{/reports/incident/{id}/pdf(id=${incident.id})}" class="btn btn-primary" target="_blank">📄 Download PDF</a>
+            </div>
+        </div>
+
         <p><strong>Reporter:</strong> <span th:text="${incident.reporter}"></span></p>
         <p><strong>Severity:</strong> <span th:text="${incident.severity}"></span></p>
         <p><strong>Status:</strong> <span th:text="${incident.status}"></span></p>
+        <p><strong>Workflow:</strong> <span th:text="${incident.workflowStatus}"></span></p>
+        <p><strong>Priority:</strong> <span th:text="${incident.priority}"></span></p>
+        <p><strong>Assigned To:</strong> <span th:text="${incident.assignedToName != null ? incident.assignedToName : 'Unassigned'}"></span></p>
         <p><strong>Category:</strong> <span th:text="${incident.category}"></span></p>
         <p><strong>Region:</strong> <span th:text="${incident.region}"></span></p>
         <p><strong>Date:</strong> <span th:text="${#temporals.format(incident.dateReported, 'yyyy-MM-dd HH:mm')}"></span></p>
-        <hr style="border-color: rgba(0,255,157,0.2); margin: 20px 0;">
-        <h3>📝 Description</h3>
-        <p th:text="${incident.description}"></p>
     </div>
 
+    <!-- ASSIGNMENT SECTION -->
+    <div class="card" th:if="${assignableUsers != null}">
+        <h2>👥 Assignment</h2>
+        <form th:action="@{'/incidents/' + ${incident.id} + '/assign'}" method="post" style="margin-top:15px;">
+            <label>Assign to:</label>
+            <select name="assignedTo" required>
+                <option value="">-- Chagua Mtu --</option>
+                <option th:each="u : ${assignableUsers}"
+                        th:value="${u.id}"
+                        th:text="${u.username + ' (' + u.role + ')'}"></option>
+            </select>
+
+            <label>Priority:</label>
+            <select name="priority">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM" selected>Medium</option>
+                <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
+            </select>
+
+            <label>Due Date (optional):</label>
+            <input type="datetime-local" name="dueDate">
+
+            <button type="submit" class="btn btn-primary" style="margin-top:10px;">👥 Assign</button>
+        </form>
+    </div>
+
+    <!-- WORKFLOW SECTION -->
+    <div class="card" th:if="${assignableUsers != null}">
+        <h2>🔄 Update Workflow</h2>
+        <form th:action="@{'/incidents/' + ${incident.id} + '/workflow'}" method="post" style="margin-top:15px;">
+            <select name="status">
+                <option value="NEW">NEW</option>
+                <option value="ASSIGNED">ASSIGNED</option>
+                <option value="IN_PROGRESS">IN PROGRESS</option>
+                <option value="REVIEW">REVIEW</option>
+                <option value="COMPLETED">COMPLETED</option>
+            </select>
+            <button type="submit" class="btn" style="margin-left:10px;">🔄 Update</button>
+        </form>
+    </div>
+
+    <!-- EVIDENCE SECTION -->
     <div class="card">
         <h2>🔬 Digital Evidence</h2>
-        <div style="margin-top:15px;">
-            <a th:href="@{'/evidence/upload/' + ${incident.id}}" class="btn btn-primary">
-                📤 Upload Evidence
-            </a>
-        </div>
+        <a th:href="@{'/evidence/upload/' + ${incident.id}}" class="btn btn-primary" style="margin-top:15px;">📤 Upload Evidence</a>
 
         <table th:if="${!evidenceList.isEmpty()}" style="margin-top:20px;">
             <thead>
@@ -65,16 +113,16 @@
                     <span th:unless="${ev.verified}" style="color:#ffc800;">⏳ Pending</span>
                 </td>
                 <td>
-                    <a th:href="@{'/evidence/download/' + ${ev.id}}">⬇️ Download</a>
+                    <a th:href="@{'/evidence/download/' + ${ev.id}}">⬇️</a>
                     <form th:if="${!ev.verified}" th:action="@{'/evidence/verify/' + ${ev.id}}" method="post" style="display:inline;">
-                        <button type="submit" class="btn" style="padding:4px 10px;font-size:11px;">✅ Verify</button>
+                        <button type="submit" class="btn" style="padding:4px 10px;font-size:11px;">✅</button>
                     </form>
                 </td>
             </tr>
             </tbody>
         </table>
         <p th:if="${evidenceList.isEmpty()}" style="text-align:center;margin-top:20px;">
-            Hakuna evidence bado. Pakia kwa kubonyeza "Upload Evidence".
+            Hakuna evidence bado.
         </p>
     </div>
 </div>

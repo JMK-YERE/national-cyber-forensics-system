@@ -5,10 +5,14 @@ import com.tz.forensics.entity.Incident;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/incidents")
@@ -39,9 +43,24 @@ public class IncidentController {
     }
 
     @GetMapping
-    public String listIncidents(Model model) {
-        model.addAttribute("incidents", incidentService.getAllIncidents());
+    public String listIncidents(Model model, Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (user != null && (user.isProfessional() || user.isForensics() || user.isAdmin())) {
+            model.addAttribute("incidents", incidentService.getAllIncidents());
+        } else {
+            model.addAttribute("incidents", incidentService.getMyIncidents(user != null ? user.getId() : null));
+        }
         return "incidents";
+    }
+
+    @GetMapping("/my-tasks")
+    public String myTasks(Model model, Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (user == null) return "redirect:/login";
+        List<Incident> tasks = incidentService.getMyActiveIncidents(user.getId());
+        model.addAttribute("tasks", tasks);
+        model.addAttribute("user", user);
+        return "my-tasks";
     }
 
     @GetMapping("/new")
@@ -57,49 +76,74 @@ public class IncidentController {
         auditService.log("CREATE_INCIDENT", "Incident", saved.getIncidentId(),
                 "Created incident: " + saved.getTitle());
 
-        // ===== EMAIL KWA ADMIN =====
+        try {
+            notificationService.createIncidentNotification(
+                    saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
+        } catch (Exception e) { System.err.println("Notif failed: " + e.getMessage()); }
+
         try {
             emailService.sendIncidentAlert(saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
-        } catch (Exception e) { System.err.println("Admin email failed: " + e.getMessage()); }
+        } catch (Exception e) { System.err.println("Email failed: " + e.getMessage()); }
 
-        // ===== EMAIL KWA REPORTER (yule aliye-report) =====
-        try {
-            User reporter = userRepository.findByUsername(auth.getName()).orElse(null);
-            if (reporter != null && reporter.getEmail() != null) {
-                emailService.sendIncidentConfirmation(
-                    reporter.getEmail(),
-                    reporter.getUsername(),
-                    saved.getIncidentId(),
-                    saved.getTitle()
-                );
-            }
-        } catch (Exception e) { System.err.println("Reporter email failed: " + e.getMessage()); }
-
-        // ===== WHATSAPP KWA ADMIN =====
         try {
             whatsAppService.sendIncidentAlert(saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
         } catch (Exception e) { System.err.println("WhatsApp failed: " + e.getMessage()); }
 
-        // ===== IN-APP NOTIFICATION =====
-        try {
-            notificationService.createIncidentNotification(
-                    saved.getIncidentId(), saved.getTitle(), saved.getSeverity());
-        } catch (Exception e) { System.err.println("Notification failed: " + e.getMessage()); }
-
         model.addAttribute("success",
-                "✅ Tukio limehifadhiwa! Incident ID: " + saved.getIncidentId()
-                + " — Email ya uthibitisho imetumwa kwenye inbox yako.");
+                "✅ Tukio limehifadhiwa! Incident ID: " + saved.getIncidentId());
         model.addAttribute("incident", new IncidentDto());
         return "incident-form";
     }
 
     @GetMapping("/{id}")
-    public String viewIncident(@PathVariable Long id, Model model) {
+    public String viewIncident(@PathVariable Long id, Model model, Authentication auth) {
         Incident incident = incidentService.getById(id);
         if (incident == null) return "redirect:/incidents";
         model.addAttribute("incident", incident);
         model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(id));
+
+        // Load users for assignment (kama user ni professional/admin)
+        User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (currentUser != null && (currentUser.isProfessional() || currentUser.isAdmin())) {
+            List<User> assignableUsers = userRepository.findAll().stream()
+                    .filter(u -> u.isProfessional() || u.isForensics() || u.isAdmin())
+                    .toList();
+            model.addAttribute("assignableUsers", assignableUsers);
+        }
         return "incident-detail";
+    }
+
+    @PostMapping("/{id}/assign")
+    public String assignIncident(@PathVariable Long id,
+                                  @RequestParam Long assignedTo,
+                                  @RequestParam(required = false) String priority,
+                                  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDate,
+                                  Authentication auth) {
+        User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
+        User assignedUser = userRepository.findById(assignedTo).orElse(null);
+
+        if (currentUser != null && assignedUser != null) {
+            incidentService.assignIncident(id, assignedTo, assignedUser.getUsername(),
+                    currentUser.getId(), priority, dueDate);
+            auditService.log("ASSIGN_INCIDENT", "Incident", String.valueOf(id),
+                    "Assigned to: " + assignedUser.getUsername());
+            try {
+                notificationService.createNotification(
+                    "📋 Incident ime-assign kwako",
+                    "Una kazi mpya: Incident ID #" + id,
+                    "INFO", "/incidents/my-tasks"
+                );
+            } catch (Exception e) {}
+        }
+        return "redirect:/incidents/" + id;
+    }
+
+    @PostMapping("/{id}/workflow")
+    public String updateWorkflow(@PathVariable Long id, @RequestParam String status, Authentication auth) {
+        incidentService.updateWorkflowStatus(id, status);
+        auditService.log("UPDATE_WORKFLOW", "Incident", String.valueOf(id),
+                "Workflow: " + status);
+        return "redirect:/incidents/" + id;
     }
 
     @GetMapping("/search")

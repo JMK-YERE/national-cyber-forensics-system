@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>✅ My Tasks - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/incidents/my-tasks}">✅ My Tasks</a>
+        <a th:href="@{/cases}">📁 Cases</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>✅ My Tasks</h1>
+        <p>Hizi ni kazi zako ambazo hazijamalizika.</p>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>Incident ID</th>
+                <th>Title</th>
+                <th>Priority</th>
+                <th>Workflow</th>
+                <th>Due Date</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${tasks.isEmpty()}">
+                <td colspan="6" style="text-align:center;">Huna kazi bado. 🎉</td>
+            </tr>
+            <tr th:each="t : ${tasks}" th:class="${t.statusClass}">
+                <td th:text="${t.incidentId}"></td>
+                <td th:text="${t.title}"></td>
+                <td th:text="${t.priority}"></td>
+                <td th:text="${t.workflowStatus}"></td>
+                <td th:text="${t.dueDate != null ? #temporals.format(t.dueDate, 'yyyy-MM-dd HH:mm') : 'No deadline'}"></td>
+                <td><a th:href="@{'/incidents/' + ${t.id}}">View</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

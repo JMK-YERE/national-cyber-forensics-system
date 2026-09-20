@@ -34,6 +34,7 @@ public class IncidentService {
         incident.setCategory(dto.getCategory());
         incident.setRegion(dto.getRegion());
         incident.setOrganization(dto.getOrganization());
+        incident.setWorkflowStatus("NEW");
 
         incident.setDirectLossTzs(dto.getDirectLossTzs());
         incident.setRecoveryCostTzs(dto.getRecoveryCostTzs());
@@ -62,5 +63,41 @@ public class IncidentService {
 
     public List<Incident> searchByIncidentId(String incidentId) {
         return incidentRepository.findByIncidentIdContainingIgnoreCase(incidentId);
+    }
+
+    public List<Incident> getMyIncidents(Long userId) {
+        return incidentRepository.findByAssignedToOrderByDateReportedDesc(userId);
+    }
+
+    public List<Incident> getMyActiveIncidents(Long userId) {
+        return incidentRepository.findByAssignedToAndWorkflowStatusNotOrderByDateReportedDesc(userId, "COMPLETED");
+    }
+
+    public void assignIncident(Long incidentId, Long assignedTo, String assignedToName,
+                                Long assignedBy, String priority, LocalDateTime dueDate) {
+        Incident incident = incidentRepository.findById(incidentId).orElse(null);
+        if (incident != null) {
+            incident.setAssignedTo(assignedTo);
+            incident.setAssignedToName(assignedToName);
+            incident.setAssignedBy(assignedBy);
+            incident.setAssignedAt(LocalDateTime.now());
+            incident.setPriority(priority != null ? priority : "MEDIUM");
+            incident.setDueDate(dueDate);
+            incident.setWorkflowStatus("ASSIGNED");
+            incidentRepository.save(incident);
+        }
+    }
+
+    public void updateWorkflowStatus(Long incidentId, String status) {
+        Incident incident = incidentRepository.findById(incidentId).orElse(null);
+        if (incident != null) {
+            incident.setWorkflowStatus(status);
+            if ("COMPLETED".equals(status)) {
+                incident.setIsClosed(true);
+                incident.setClosedAt(LocalDateTime.now());
+                incident.setStatus("Resolved");
+            }
+            incidentRepository.save(incident);
+        }
     }
 }
