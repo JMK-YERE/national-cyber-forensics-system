@@ -13,78 +13,29 @@ import java.util.*;
 public class SecurityToolsController {
 
     private final AdvancedSecurityService securityService;
-    private final VirusTotalService virusTotalService;
-    private final URLScanService urlScanService;
-    private final IPGeolocationService ipGeoService;
+    private final SocialMediaSecurityService socialMediaService;
 
     public SecurityToolsController(AdvancedSecurityService securityService,
-                                    VirusTotalService virusTotalService,
-                                    URLScanService urlScanService,
-                                    IPGeolocationService ipGeoService) {
+                                    SocialMediaSecurityService socialMediaService) {
         this.securityService = securityService;
-        this.virusTotalService = virusTotalService;
-        this.urlScanService = urlScanService;
-        this.ipGeoService = ipGeoService;
+        this.socialMediaService = socialMediaService;
     }
 
     @GetMapping("/security-center")
     public String securityCenter(Model model) {
-        model.addAttribute("vtConfigured", virusTotalService.isConfigured());
+        model.addAttribute("socialPlatforms", socialMediaService.getAllPlatforms());
         return "security-center";
     }
 
-    // ===== VIRUSTOTAL URL =====
-    @PostMapping("/virustotal-url")
-    public String vtUrl(@RequestParam String url, RedirectAttributes ra) {
-        String json = virusTotalService.checkUrl(url);
-        int malicious = virusTotalService.parseMalicious(json);
-        int suspicious = virusTotalService.parseSuspicious(json);
-        int harmless = virusTotalService.parseHarmless(json);
-        ra.addFlashAttribute("vtUrlResult", url);
-        ra.addFlashAttribute("vtMalicious", malicious);
-        ra.addFlashAttribute("vtSuspicious", suspicious);
-        ra.addFlashAttribute("vtHarmless", harmless);
-        ra.addFlashAttribute("activeTool", "vturl");
-        return "redirect:/tools/security-center";
-    }
-
-    // ===== VIRUSTOTAL HASH =====
-    @PostMapping("/virustotal-hash")
-    public String vtHash(@RequestParam String hash, RedirectAttributes ra) {
-        String json = virusTotalService.checkFileHash(hash);
-        ra.addFlashAttribute("vtHashResult", hash);
-        ra.addFlashAttribute("vtHashMalicious", virusTotalService.parseMalicious(json));
-        ra.addFlashAttribute("vtHashSuspicious", virusTotalService.parseSuspicious(json));
-        ra.addFlashAttribute("activeTool", "vthash");
-        return "redirect:/tools/security-center";
-    }
-
-    // ===== VIRUSTOTAL IP =====
-    @PostMapping("/virustotal-ip")
-    public String vtIp(@RequestParam String ip, RedirectAttributes ra) {
-        String json = virusTotalService.checkIP(ip);
-        ra.addFlashAttribute("vtIpResult", ip);
-        ra.addFlashAttribute("vtIpMalicious", virusTotalService.parseMalicious(json));
-        ra.addFlashAttribute("activeTool", "vtip");
-        return "redirect:/tools/security-center";
-    }
-
-    // ===== VIRUSTOTAL DOMAIN =====
-    @PostMapping("/virustotal-domain")
-    public String vtDomain(@RequestParam String domain, RedirectAttributes ra) {
-        String json = virusTotalService.checkDomain(domain);
-        ra.addFlashAttribute("vtDomainResult", domain);
-        ra.addFlashAttribute("vtDomainMalicious", virusTotalService.parseMalicious(json));
-        ra.addFlashAttribute("activeTool", "vtdomain");
-        return "redirect:/tools/security-center";
-    }
-
-    // ===== IP GEOLOCATION =====
-    @PostMapping("/ip-geo")
-    public String ipGeo(@RequestParam String ip, RedirectAttributes ra) {
-        ra.addFlashAttribute("geoResult", ipGeoService.lookup(ip));
-        ra.addFlashAttribute("geoIp", ip);
-        ra.addFlashAttribute("activeTool", "geo");
+    // ===== SOCIAL MEDIA DIRECT =====
+    @PostMapping("/social-direct")
+    public String socialDirect(@RequestParam String platform,
+                                @RequestParam(required = false) String username,
+                                RedirectAttributes ra) {
+        ra.addFlashAttribute("directPlatform", platform);
+        ra.addFlashAttribute("directUsername", username);
+        ra.addFlashAttribute("directInfo", socialMediaService.getPlatformInfo(platform));
+        ra.addFlashAttribute("activeTool", "social");
         return "redirect:/tools/security-center";
     }
 
@@ -96,6 +47,7 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
+    // ===== SSL =====
     @PostMapping("/ssl-check")
     public String checkSSL(@RequestParam String url, RedirectAttributes ra) {
         ra.addFlashAttribute("sslResult", securityService.checkSSL(url));
@@ -103,6 +55,7 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
+    // ===== DNS =====
     @PostMapping("/dns-lookup")
     public String dnsLookup(@RequestParam String domain, RedirectAttributes ra) {
         ra.addFlashAttribute("dnsResult", securityService.dnsLookup(domain));
@@ -110,6 +63,7 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
+    // ===== IP =====
     @PostMapping("/ip-check")
     public String checkIP(@RequestParam String ip, RedirectAttributes ra) {
         ra.addFlashAttribute("ipResult", securityService.checkIPReputation(ip));
@@ -117,6 +71,7 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
+    // ===== HEADERS =====
     @PostMapping("/headers-check")
     public String checkHeaders(@RequestParam String url, RedirectAttributes ra) {
         ra.addFlashAttribute("headersResult", securityService.analyzeHeaders(url));
@@ -124,6 +79,7 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
+    // ===== HASH =====
     @PostMapping("/hash-check")
     public String checkHash(@RequestParam String hash, RedirectAttributes ra) {
         ra.addFlashAttribute("hashResult", securityService.analyzeHash(hash));
@@ -131,6 +87,7 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
+    // ===== PASSWORD BREACH =====
     @PostMapping("/password-breach")
     public String checkPasswordBreach(@RequestParam String password, RedirectAttributes ra) {
         ra.addFlashAttribute("pwBreachResult", securityService.checkPasswordBreach(password));
@@ -138,13 +95,7 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
-    @PostMapping("/domain-age")
-    public String checkDomainAge(@RequestParam String domain, RedirectAttributes ra) {
-        ra.addFlashAttribute("domainResult", securityService.checkDomainAge(domain));
-        ra.addFlashAttribute("activeTool", "domain");
-        return "redirect:/tools/security-center";
-    }
-
+    // ===== PASSWORD STRENGTH =====
     @PostMapping("/password-check")
     public String checkPassword(@RequestParam String password, RedirectAttributes ra) {
         int score = 0;
@@ -157,11 +108,13 @@ public class SecurityToolsController {
         if (password.matches(".*\\d.*")) score += 10; else feedback.add("❌ Ongeza namba");
         if (password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*")) score += 10;
         else feedback.add("❌ Ongeza alama maalum");
+
         String lower = password.toLowerCase();
         if (lower.contains("password") || lower.contains("123456") || lower.contains("qwerty")) {
             score = Math.max(0, score - 30);
             feedback.add("⚠️ Password maarufu!");
         }
+
         score = Math.max(0, Math.min(100, score));
         String rating = score >= 80 ? "STRONG" : score >= 60 ? "GOOD" : score >= 40 ? "WEAK" : "VERY WEAK";
         String emoji = score >= 80 ? "🟢" : score >= 60 ? "🟡" : score >= 40 ? "🟠" : "🔴";
@@ -173,19 +126,27 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
+    // ===== DOMAIN AGE =====
+    @PostMapping("/domain-age")
+    public String checkDomainAge(@RequestParam String domain, RedirectAttributes ra) {
+        ra.addFlashAttribute("domainResult", securityService.checkDomainAge(domain));
+        ra.addFlashAttribute("activeTool", "domain");
+        return "redirect:/tools/security-center";
+    }
+
     @GetMapping("/tips")
     public String securityTips(Model model) {
         List<Map<String, String>> tips = new ArrayList<>();
-        tips.add(createTip("🔐", "Password Nzuri", "Herufi 12+, kubwa/ndogo, namba, alama"));
-        tips.add(createTip("📱", "Weka 2FA", "Facebook, IG, WhatsApp, Gmail, TikTok"));
-        tips.add(createTip("🎣", "Jihadharini Phishing", "Usibonyeze links za kutiliwa shaka"));
-        tips.add(createTip("🔒", "Sasisha Programs", "OS, browsers, apps kila mara"));
-        tips.add(createTip("📶", "Tumia HTTPS", "Angalia 🔒 kwenye browser"));
+        tips.add(createTip("🔐", "Password Nzuri", "Herufi 12+, kubwa/ndogo, namba, alama (!@#$%)"));
+        tips.add(createTip("📱", "Weka 2FA", "Facebook, IG, WhatsApp, Gmail, TikTok — kila mahali"));
+        tips.add(createTip("🎣", "Jihadharini Phishing", "Usibonyeze links za kutiliwa shaka. Angalia URL vizuri."));
+        tips.add(createTip("🔒", "Sasisha Programs", "OS, browsers, apps — sasisha kila mara"));
+        tips.add(createTip("📶", "Tumia HTTPS", "Angalia 🔒 kwenye browser kila unapoingiza password"));
         tips.add(createTip("💾", "Backup Data", "Backup data muhimu kila wiki"));
         tips.add(createTip("📧", "Angalia Breaches", "Check HaveIBeenPwned kila miezi 3"));
         tips.add(createTip("🚫", "Epuka WiFi ya Public", "Usiingize password kwenye WiFi ya hoteli"));
         tips.add(createTip("👁️", "Angalia Login Activity", "Check accounts kila wiki"));
-        tips.add(createTip("🎓", "Elimu ya Usalama", "Jifunze kuhusu cyber security"));
+        tips.add(createTip("🎓", "Elimu ya Usalama", "Jifunze kuhusu cyber security kila siku"));
         model.addAttribute("tips", tips);
         return "security-tips";
     }
