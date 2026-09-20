@@ -34,8 +34,38 @@ public class User {
     private String organization;
 
     @Column(length = 30)
-    private String role = "REPORTER";
+    private String role = "INDIVIDUAL";
 
+    // ===== SOCIAL MEDIA ACCOUNTS =====
+    @Column(name = "has_facebook")
+    private Boolean hasFacebook = false;
+
+    @Column(name = "has_instagram")
+    private Boolean hasInstagram = false;
+
+    @Column(name = "has_tiktok")
+    private Boolean hasTiktok = false;
+
+    @Column(name = "has_whatsapp")
+    private Boolean hasWhatsapp = false;
+
+    @Column(name = "has_gmail")
+    private Boolean hasGmail = false;
+
+    @Column(name = "has_x")
+    private Boolean hasX = false;
+
+    // ===== SECURITY SCORE =====
+    @Column(name = "security_score")
+    private Integer securityScore = 0;
+
+    @Column(name = "has_2fa")
+    private Boolean has2fa = false;
+
+    @Column(name = "breach_checked")
+    private Boolean breachChecked = false;
+
+    // ===== NOTIFICATIONS =====
     @Column(name = "notify_email")
     private Boolean notifyEmail = true;
 
@@ -61,6 +91,24 @@ public class User {
 
     public User() {}
 
+    // ===== HELPER METHODS =====
+    public boolean isAdmin() { return "ADMIN".equals(role); }
+    public boolean isProfessional() { return "CYBER_PRO".equals(role); }
+    public boolean isForensics() { return "FORENSICS".equals(role); }
+    public boolean isIndividual() { return "INDIVIDUAL".equals(role) || role == null; }
+
+    public int countSocialAccounts() {
+        int count = 0;
+        if (Boolean.TRUE.equals(hasFacebook)) count++;
+        if (Boolean.TRUE.equals(hasInstagram)) count++;
+        if (Boolean.TRUE.equals(hasTiktok)) count++;
+        if (Boolean.TRUE.equals(hasWhatsapp)) count++;
+        if (Boolean.TRUE.equals(hasGmail)) count++;
+        if (Boolean.TRUE.equals(hasX)) count++;
+        return count;
+    }
+
+    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }
@@ -81,6 +129,24 @@ public class User {
     public void setOrganization(String organization) { this.organization = organization; }
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+    public Boolean getHasFacebook() { return hasFacebook; }
+    public void setHasFacebook(Boolean hasFacebook) { this.hasFacebook = hasFacebook; }
+    public Boolean getHasInstagram() { return hasInstagram; }
+    public void setHasInstagram(Boolean hasInstagram) { this.hasInstagram = hasInstagram; }
+    public Boolean getHasTiktok() { return hasTiktok; }
+    public void setHasTiktok(Boolean hasTiktok) { this.hasTiktok = hasTiktok; }
+    public Boolean getHasWhatsapp() { return hasWhatsapp; }
+    public void setHasWhatsapp(Boolean hasWhatsapp) { this.hasWhatsapp = hasWhatsapp; }
+    public Boolean getHasGmail() { return hasGmail; }
+    public void setHasGmail(Boolean hasGmail) { this.hasGmail = hasGmail; }
+    public Boolean getHasX() { return hasX; }
+    public void setHasX(Boolean hasX) { this.hasX = hasX; }
+    public Integer getSecurityScore() { return securityScore; }
+    public void setSecurityScore(Integer securityScore) { this.securityScore = securityScore; }
+    public Boolean getHas2fa() { return has2fa; }
+    public void setHas2fa(Boolean has2fa) { this.has2fa = has2fa; }
+    public Boolean getBreachChecked() { return breachChecked; }
+    public void setBreachChecked(Boolean breachChecked) { this.breachChecked = breachChecked; }
     public Boolean getNotifyEmail() { return notifyEmail; }
     public void setNotifyEmail(Boolean notifyEmail) { this.notifyEmail = notifyEmail; }
     public Boolean getNotifyWhatsapp() { return notifyWhatsapp; }
