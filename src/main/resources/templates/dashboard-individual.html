@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👤 My Dashboard - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/tools/security-center}">🛡️ Security Center</a>
+        <a th:href="@{/tools/tips}">📚 Tips</a>
+        <a th:href="@{/notifications}">🔔</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>👤 Karibu, <span th:text="${username}">User</span>!</h1>
+        <p>Hii ni dashboard yako ya kibinafsi — kulinda accounts zako za social media na ku-check usalama wako.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-value" th:text="${user.securityScore != null ? user.securityScore : 0}">0</div>
+            <div class="stat-label">Security Score</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${user.countSocialAccounts()}">0</div>
+            <div class="stat-label">Social Accounts</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${user.has2fa ? '✅' : '❌'}">❌</div>
+            <div class="stat-label">2FA Enabled</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${user.breachChecked ? '✅' : '❌'}">❌</div>
+            <div class="stat-label">Breach Checked</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>🛡️ Kulinda Accounts Zako</h2>
+        <p>Chagua huduma unayotaka kulinda:</p>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; margin-top:15px;">
+            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
+                📱 Facebook
+            </a>
+            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
+                📷 Instagram
+            </a>
+            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
+                🎵 TikTok
+            </a>
+            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
+                💬 WhatsApp
+            </a>
+            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
+                📧 Gmail
+            </a>
+            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px;">
+                🐦 X (Twitter)
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>⚡ Zana za Usalama</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
+            <a th:href="@{/tools/security-center}" class="btn">🛡️ Security Center</a>
+            <a th:href="@{/tools/tips}" class="btn">📚 Security Tips 10</a>
+            <a th:href="@{/notifications}" class="btn">🔔 My Notifications</a>
+        </div>
+    </div>
+
+    <div class="card" style="background:rgba(0,255,157,0.05); border-left:4px solid #00ff9d;">
+        <h3>🔒 Privacy Notice</h3>
+        <p>Dashboard yako ni <strong>yako pekee</strong>. Wala admin, wala professionals hawawezi kuona accounts zako za social media.</p>
+    </div>
+</div>
+</body>
+</html>
