@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Social Media Monitor - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .account-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(0,255,157,0.3); border-radius: 8px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; }
+        .account-card:hover { border-color: #00ff9d; box-shadow: 0 0 20px rgba(0,255,157,0.3); }
+        .account-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .account-platform { font-size: 18px; font-weight: bold; color: #00ff9d; }
+        .rec-list { margin-top: 15px; padding-left: 20px; font-size: 12px; color: #ccc; }
+        .rec-list li { margin-bottom: 6px; }
+        .badge-found { background: rgba(0,255,157,0.15); color: #00ff9d; padding: 4px 12px; border-radius: 12px; font-size: 11px; }
+        .badge-notfound { background: rgba(255,200,0,0.15); color: #ffc800; padding: 4px 12px; border-radius: 12px; font-size: 11px; }
+        .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/my-accounts}">📱 My Accounts</a>
+        <a th:href="@{/tools/security-center}">🛡️ Security Center</a>
+        <a th:href="@{/notifications}">🔔</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>📱 Social Media Security Monitor</h1>
+        <p>Weka usernames zako za social media — mfumo utaangalia usalama wa kila account na kutoa recommendations.</p>
+        <p style="font-size:11px; color:#888; margin-top:8px;">
+            🔒 <strong>Privacy:</strong> Usernames zako hazihifadhiwi. Zinatumika kwa check tu.
+        </p>
+    </div>
+
+    <!-- FORM -->
+    <div class="card">
+        <h2>🔍 Check Accounts Zako</h2>
+        <form th:action="@{/my-accounts/check}" method="post" style="margin-top:15px;">
+            <div class="grid-inputs">
+                <div>
+                    <label>👥 Facebook Username</label>
+                    <input type="text" name="facebook" placeholder="mfano: jmk.yere">
+                </div>
+                <div>
+                    <label>📷 Instagram Username</label>
+                    <input type="text" name="instagram" placeholder="mfano: jmk_yere">
+                </div>
+                <div>
+                    <label>🎵 TikTok Username</label>
+                    <input type="text" name="tiktok" placeholder="mfano: jmkyere">
+                </div>
+                <div>
+                    <label>💬 WhatsApp Number</label>
+                    <input type="text" name="whatsapp" placeholder="mfano: 255627827053">
+                </div>
+                <div>
+                    <label>🐦 X (Twitter) Username</label>
+                    <input type="text" name="x" placeholder="mfano: jmkyere">
+                </div>
+                <div>
+                    <label>📧 Gmail Address</label>
+                    <input type="email" name="gmail" placeholder="mfano: email@gmail.com">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">
+                🛡️ Check Security
+            </button>
+        </form>
+    </div>
+
+    <!-- SCORE -->
+    <div class="card" th:if="${score != null}">
+        <h2>🛡️ Security Score</h2>
+        <div style="text-align:center; margin:20px 0;">
+            <div style="font-size:60px; color:#00ff9d; text-shadow: 0 0 30px rgba(0,255,157,0.8);"
+                 th:text="${score}"></div>
+            <div style="font-size:14px; color:#00d4ff;">/ 100</div>
+            <div style="margin-top:10px; font-size:14px;"
+                 th:text="${score >= 70 ? '🟢 Nzuri sana!' : (score >= 40 ? '🟡 Inaweza kuboreshwa' : '🔴 Hatari — jihadhari!')}"></div>
+        </div>
+        <p style="text-align:center; font-size:12px;">
+            Accounts zilizochunguzwa: <strong th:text="${totalAccounts}"></strong>
+        </p>
+    </div>
+
+    <!-- RESULTS -->
+    <div th:if="${accounts != null && !accounts.isEmpty()}" style="margin-top:20px;">
+        <h2 style="color:#00ff9d; margin-bottom:15px;">📋 Matokeo ya Kila Account</h2>
+
+        <div class="account-card" th:each="acc : ${accounts}">
+            <div class="account-header">
+                <div class="account-platform">
+                    <span th:text="${acc.icon} + ' ' + ${acc.platform}"></span>
+                </div>
+                <div>
+                    <span th:if="${acc.found}" class="badge-found">✅ Inapatikana</span>
+                    <span th:unless="${acc.found}" class="badge-notfound">⚠️ Haijathibitishwa</span>
+                </div>
+            </div>
+
+            <p style="margin-top:10px; font-size:13px;">
+                <strong>Username/ID:</strong> <span th:text="${acc.username}"></span>
+            </p>
+
+            <div style="margin-top:15px;">
+                <a th:href="${acc.profileLink}" target="_blank" class="btn" style="font-size:11px;">🔗 View Profile</a>
+                <a th:href="${acc.securityLink}" target="_blank" class="btn btn-primary" style="font-size:11px;">🛡️ Security Settings</a>
+            </div>
+
+            <h4 style="color:#00d4ff; margin-top:20px; font-size:13px;">📝 Recommendations za Usalama:</h4>
+            <ul class="rec-list">
+                <li th:each="rec : ${acc.recommendations}" th:text="${rec}"></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- BREACH CHECK -->
+    <div class="card">
+        <h2>📧 Email Breach Check</h2>
+        <p>Angalia kama email yako imevuja kwenye data breaches.</p>
+        <form th:action="@{/my-accounts/breach-check}" method="post" style="margin-top:15px;">
+            <input type="email" name="email" required placeholder="email@example.com">
+            <button type="submit" class="btn btn-primary" style="margin-top:10px;">🔍 Check Breach</button>
+        </form>
+
+        <div th:if="${breachStatus == 'BREACHED'}" style="margin-top:15px; padding:15px; background:rgba(255,59,59,0.1); border-left:4px solid #ff3b3b; border-radius:5px;">
+            <h3 style="color:#ff6b6b;">🚨 Email imevuja!</h3>
+            <p>Email: <strong th:text="${breachEmail}"></strong></p>
+            <p>Badilisha password mara moja!</p>
+        </div>
+        <div th:if="${breachStatus == 'SAFE'}" style="margin-top:15px; padding:15px; background:rgba(0,255,157,0.1); border-left:4px solid #00ff9d; border-radius:5px;">
+            <h3 style="color:#00ff9d;">✅ SAFE — Haijavuja!</h3>
+            <p>Email yako haipo kwenye database ya breaches.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
