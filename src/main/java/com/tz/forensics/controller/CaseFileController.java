@@ -10,8 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/cases")
 public class CaseFileController {
@@ -28,8 +26,19 @@ public class CaseFileController {
         this.auditService = auditService;
     }
 
+    private User getCurrentUser(Authentication auth) {
+        return userRepository.findByUsername(auth.getName()).orElse(null);
+    }
+
+    private boolean canManageCases(User user) {
+        return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
+    }
+
     @GetMapping
-    public String listCases(Model model) {
+    public String listCases(Model model, Authentication auth) {
+        User user = getCurrentUser(auth);
+        if (!canManageCases(user)) return "redirect:/access-denied";
+
         model.addAttribute("cases", caseFileService.getAllCases());
         model.addAttribute("openCount", caseFileService.countOpen());
         model.addAttribute("investigatingCount", caseFileService.countInvestigating());
@@ -38,7 +47,10 @@ public class CaseFileController {
     }
 
     @GetMapping("/new")
-    public String newCaseForm(@RequestParam(required = false) Long incidentId, Model model) {
+    public String newCaseForm(@RequestParam(required = false) Long incidentId, Model model, Authentication auth) {
+        User user = getCurrentUser(auth);
+        if (!canManageCases(user)) return "redirect:/access-denied";
+
         CaseFile cf = new CaseFile();
         if (incidentId != null) cf.setIncidentId(incidentId);
         model.addAttribute("caseFile", cf);
@@ -46,15 +58,16 @@ public class CaseFileController {
     }
 
     @PostMapping("/new")
-    public String createCase(@ModelAttribute CaseFile caseFile,
-                             Authentication auth, Model model) {
-        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+    public String createCase(@ModelAttribute CaseFile caseFile, Authentication auth) {
+        User user = getCurrentUser(auth);
+        if (!canManageCases(user)) return "redirect:/access-denied";
+
         CaseFile saved = caseFileService.createCase(
                 caseFile.getIncidentId(),
                 caseFile.getTitle(),
                 caseFile.getDescription(),
                 caseFile.getPriority(),
-                user != null ? user.getId() : null,
+                user.getId(),
                 auth.getName()
         );
         auditService.log("CREATE_CASE", "CaseFile", saved.getCaseNumber(), "Created case");
@@ -62,7 +75,10 @@ public class CaseFileController {
     }
 
     @GetMapping("/{id}")
-    public String viewCase(@PathVariable Long id, Model model) {
+    public String viewCase(@PathVariable Long id, Model model, Authentication auth) {
+        User user = getCurrentUser(auth);
+        if (!canManageCases(user)) return "redirect:/access-denied";
+
         CaseFile cf = caseFileService.getById(id);
         if (cf == null) return "redirect:/cases";
         model.addAttribute("caseFile", cf);
@@ -70,7 +86,10 @@ public class CaseFileController {
     }
 
     @PostMapping("/{id}/close")
-    public String closeCase(@PathVariable Long id, @RequestParam String reason) {
+    public String closeCase(@PathVariable Long id, @RequestParam String reason, Authentication auth) {
+        User user = getCurrentUser(auth);
+        if (!canManageCases(user)) return "redirect:/access-denied";
+
         caseFileService.updateStatus(id, "CLOSED", reason);
         return "redirect:/cases";
     }

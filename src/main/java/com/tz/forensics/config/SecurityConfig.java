@@ -46,20 +46,15 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/login",
-                    "/register",
-                    "/css/**",
-                    "/js/**",
-                    "/error",
-                    "/google*.html",
-                    "/*.html",
-                    "/sitemap.xml",
-                    "/robots.txt",
-                    "/notifications/**",
-                    "/tools/**",
-                    "/cases/**",
-                    "/admin/**", "/reports/**"
+                    "/login", "/register",
+                    "/css/**", "/js/**", "/images/**",
+                    "/error", "/access-denied",
+                    "/google*.html", "/*.html",
+                    "/sitemap.xml", "/robots.txt"
                 ).permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

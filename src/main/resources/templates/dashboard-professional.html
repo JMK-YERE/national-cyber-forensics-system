@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🛡️ Professional Dashboard - Cyber Forensics</title>
+    <title>🛡️ Professional Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
@@ -12,11 +11,10 @@
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/incidents}">📋 Incidents</a>
-        <a th:href="@{/cases}">📁 Cases</a>
         <a th:href="@{/incidents/my-tasks}">✅ My Tasks</a>
-        <a th:href="@{/incidents/new}">➕ Report</a>
-        <a th:href="@{/tools/security-center}">🛡️ Security Center</a>
+        <a th:href="@{/cases}">📁 Cases</a>
         <a th:href="@{/audit}">📊 Audit</a>
+        <a th:href="@{/tools/security-center}">🛡️ Tools</a>
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
@@ -35,25 +33,55 @@
             <div class="stat-label">Total Incidents</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value">🔬</div>
-            <div class="stat-label">Evidence Analyzed</div>
+            <div class="stat-value" th:text="${openCases}">0</div>
+            <div class="stat-label">Open Cases</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value">🛡️</div>
-            <div class="stat-label">Chain of Custody</div>
+            <div class="stat-value" th:text="${investigatingCases}">0</div>
+            <div class="stat-label">Investigating</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value">🇹🇿</div>
-            <div class="stat-label">TCRA Ready</div>
+            <div class="stat-value" th:text="${closedCases}">0</div>
+            <div class="stat-label">Closed Cases</div>
         </div>
     </div>
 
     <div class="card">
-        <h2>⚡ Quick Actions (Professional)</h2>
+        <h2>✅ My Active Tasks (<span th:text="${myTasks != null ? myTasks.size() : 0}"></span>)</h2>
+        <div th:if="${myTasks != null && !myTasks.isEmpty()}" style="margin-top:15px;">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Priority</th>
+                    <th>Workflow</th>
+                    <th>Due Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${myTasks}">
+                    <td th:text="${t.incidentId}"></td>
+                    <td th:text="${t.title}"></td>
+                    <td th:text="${t.priority}"></td>
+                    <td th:text="${t.workflowStatus}"></td>
+                    <td th:text="${t.dueDate != null ? #temporals.format(t.dueDate, 'yyyy-MM-dd') : 'No deadline'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p th:if="${myTasks == null || myTasks.isEmpty()}" style="text-align:center;margin-top:20px;">
+            Huna kazi bado. 🎉
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>⚡ Quick Actions</h2>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
             <a th:href="@{/incidents/new}" class="btn btn-primary">➕ Report Incident</a>
             <a th:href="@{/incidents}" class="btn">📋 View All Incidents</a>
-            <a th:href="@{/incidents/search}" class="btn">🔍 Search</a>
+            <a th:href="@{/cases/new}" class="btn">📁 Create Case</a>
+            <a th:href="@{/cases}" class="btn">📁 All Cases</a>
             <a th:href="@{/audit}" class="btn">📊 Audit Log</a>
         </div>
     </div>

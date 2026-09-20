@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Log - Cyber Forensics</title>
+    <title>📊 Audit Log - Cyber Forensics</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
@@ -12,7 +11,9 @@
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/cases}">📁 Cases</a>
         <a th:href="@{/audit}">📊 Audit</a>
+        <a th:href="@{/admin/users}" th:if="${currentUser != null && currentUser.isAdmin()}">👥 Users</a>
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
@@ -23,6 +24,9 @@
     <div class="card">
         <h1>📊 Audit Log</h1>
         <p>Kila kitendo kwenye mfumo kinarekodiwa kwa uwazi na usalama.</p>
+        <div style="margin-top:10px; padding:10px; background:rgba(255,200,0,0.1); border-left:3px solid #ffc800; font-size:12px;">
+            🔒 <strong>Restricted Access:</strong> Audit log inaonekana kwa <strong>Admin, Cyber Professionals, na Forensics Analysts</strong> pekee.
+        </div>
     </div>
 
     <div class="card">
