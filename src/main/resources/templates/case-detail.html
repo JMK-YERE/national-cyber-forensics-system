@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Case Detail - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/cases}">📁 Cases</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1 th:text="'📁 ' + ${caseFile.caseNumber}"></h1>
+        <p><strong>Title:</strong> <span th:text="${caseFile.title}"></span></p>
+        <p><strong>Priority:</strong> <span th:text="${caseFile.priority}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${caseFile.status}"></span></p>
+        <p><strong>Created:</strong> <span th:text="${#temporals.format(caseFile.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <hr style="border-color:rgba(0,255,157,0.2);margin:20px 0;">
+        <h3>📝 Description</h3>
+        <p th:text="${caseFile.description}"></p>
+    </div>
+
+    <div class="card" th:if="${caseFile.status != 'CLOSED'}">
+        <h3>Close Case</h3>
+        <form th:action="@{'/cases/' + ${caseFile.id} + '/close'}" method="post">
+            <label>Closure Reason</label>
+            <textarea name="reason" rows="3" required></textarea>
+            <button type="submit" class="btn btn-danger" style="margin-top:10px;">Close Case</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

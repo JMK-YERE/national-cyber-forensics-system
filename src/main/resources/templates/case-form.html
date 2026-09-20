@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>📁 New Case - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/cases}">📁 Cases</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>📁 Create New Case</h1>
+        <form th:action="@{/cases/new}" method="post" style="margin-top:20px;">
+            <label>CASE TITLE *</label>
+            <input type="text" name="title" required>
+
+            <label>DESCRIPTION</label>
+            <textarea name="description" rows="5"></textarea>
+
+            <label>LINKED INCIDENT ID (Optional)</label>
+            <input type="number" name="incidentId" placeholder="Mfano: 1">
+
+            <label>PRIORITY</label>
+            <select name="priority">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM" selected>Medium</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:15px;">
+                🚀 CREATE CASE
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
