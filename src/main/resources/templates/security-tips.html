@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 Security Tips - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/tools/security-center}">🛡️ Security Center</a>
+        <a th:href="@{/notifications}">🔔</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>📚 Security Tips 10 za Tanzania</h1>
+        <p>Jifunze jinsi ya kulinda akaunti zako — Facebook, Instagram, WhatsApp, TikTok, Gmail, na benki yako.</p>
+    </div>
+
+    <div class="card" th:each="tip : ${tips}" style="margin-bottom:15px;">
+        <div style="display:flex; gap:15px; align-items:flex-start;">
+            <div style="font-size:40px;" th:text="${tip.icon}"></div>
+            <div>
+                <h3 th:text="${tip.title}" style="margin-bottom:8px;"></h3>
+                <p th:text="${tip.body}"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="text-align:center;">
+        <h3>🇹🇿 Usalama ni Jukumu Lako</h3>
+        <p>Share tips hizi kwa marafiki na familia yako.</p>
+        <a th:href="@{/tools/security-center}" class="btn">🛡️ Security Center</a>
+    </div>
+</div>
+</body>
+</html>
