@@ -20,7 +20,6 @@ public class AIController {
     private final UserRepository userRepository;
     private final AuditService auditService;
 
-    // Simple in-memory chat history per user (kwa demo)
     private static final Map<String, List<Map<String, String>>> chatHistory = new HashMap<>();
 
     public AIController(AIChatService aiChatService, UserRepository userRepository, AuditService auditService) {
@@ -29,9 +28,17 @@ public class AIController {
         this.auditService = auditService;
     }
 
+    // ===== ROLE GUARD: ONLY INDIVIDUAL =====
+    private boolean canUseAI(User user) {
+        return user != null && user.isIndividual();
+    }
+
     @GetMapping("/assistant")
     public String assistant(Model model, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (!canUseAI(user)) {
+            return "redirect:/access-denied";
+        }
         model.addAttribute("user", user);
         model.addAttribute("history", chatHistory.getOrDefault(auth.getName(), new ArrayList<>()));
         model.addAttribute("isConfigured", aiChatService.isConfigured());
@@ -39,33 +46,36 @@ public class AIController {
     }
 
     @PostMapping("/assistant")
-    public String askAI(@RequestParam String message, Authentication auth, RedirectAttributes ra) {
+    public String askAI(@RequestParam String message, Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (!canUseAI(user)) {
+            return "redirect:/access-denied";
+        }
+
         String username = auth.getName();
-        User user = userRepository.findByUsername(username).orElse(null);
-
-        // Get context kuhusu user
         String context = buildContext(user);
-
-        // Get AI response
         String response = aiChatService.chat(message, context);
 
-        // Save kwenye history
         List<Map<String, String>> history = chatHistory.computeIfAbsent(username, k -> new ArrayList<>());
         history.add(createChatEntry("user", message));
         history.add(createChatEntry("ai", response));
 
-        // Keep last 20 messages
         if (history.size() > 20) {
             history.subList(0, history.size() - 20).clear();
         }
 
-        auditService.log("AI_QUERY", "AIChat", username, "Query: " + message.substring(0, Math.min(50, message.length())));
+        auditService.log("AI_QUERY", "AIChat", username,
+                "Query: " + message.substring(0, Math.min(50, message.length())));
 
         return "redirect:/ai/assistant";
     }
 
     @PostMapping("/clear")
     public String clearHistory(Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (!canUseAI(user)) {
+            return "redirect:/access-denied";
+        }
         chatHistory.remove(auth.getName());
         return "redirect:/ai/assistant";
     }
@@ -82,7 +92,7 @@ public class AIController {
         if (user == null) return "";
         StringBuilder sb = new StringBuilder();
         sb.append("User: ").append(user.getUsername()).append(". ");
-        sb.append("Role: ").append(user.getRole()).append(". ");
+        sb.append("Role: Individual User. ");
         if (user.getOrganization() != null) sb.append("Organization: ").append(user.getOrganization()).append(". ");
         return sb.toString();
     }

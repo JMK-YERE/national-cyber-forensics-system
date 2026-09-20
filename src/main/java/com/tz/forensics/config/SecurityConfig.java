@@ -45,6 +45,7 @@ public class SecurityConfig {
         http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
+                // ===== PUBLIC =====
                 .requestMatchers(
                     "/login", "/register",
                     "/css/**", "/js/**", "/images/**",
@@ -52,9 +53,29 @@ public class SecurityConfig {
                     "/google*.html", "/*.html",
                     "/sitemap.xml", "/robots.txt"
                 ).permitAll()
+
+                // ===== ADMIN ONLY =====
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                // ===== ADMIN + CYBER_PRO + FORENSICS =====
                 .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                .requestMatchers("/incidents/my-tasks").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                .requestMatchers("/incidents/new").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                .requestMatchers("/incidents").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                .requestMatchers("/report-attack/all").hasAnyRole("ADMIN", "CYBER_PRO")
+
+                // ===== INDIVIDUAL ONLY =====
+                .requestMatchers("/ai/**").hasRole("INDIVIDUAL")
+                .requestMatchers("/my-accounts/**").hasRole("INDIVIDUAL")
+                .requestMatchers("/report-attack/**").hasRole("INDIVIDUAL")
+
+                // ===== EVERYONE LOGGED IN =====
+                .requestMatchers("/dashboard/**").authenticated()
+                .requestMatchers("/notifications/**").authenticated()
+                .requestMatchers("/tools/**").authenticated()
+                .requestMatchers("/evidence/**").authenticated()
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -68,6 +89,9 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
+            )
+            .exceptionHandling(ex -> ex
+                .accessDeniedPage("/access-denied")
             )
             .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
         return http.build();
