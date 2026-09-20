@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👥 Manage Users - Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ - ADMIN</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/cases}">📁 Cases</a>
+        <a th:href="@{/audit}">📊 Audit</a>
+        <a th:href="@{/admin/users}">👥 Users</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>👥 User Management</h1>
+        <p>Simamia watumiaji wote wa mfumo — roles, status, na ufikiaji.</p>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-value" th:text="${totalUsers}">0</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${adminCount}">0</div>
+            <div class="stat-label">Admins</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${proCount}">0</div>
+            <div class="stat-label">Cyber Pros</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${forensicsCount}">0</div>
+            <div class="stat-label">Forensics</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${individualCount}">0</div>
+            <div class="stat-label">Individuals</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📋 All Users</h2>
+        <table style="margin-top:15px;">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${users.isEmpty()}">
+                <td colspan="7" style="text-align:center;">Hakuna watumiaji bado.</td>
+            </tr>
+            <tr th:each="u : ${users}">
+                <td th:text="${u.id}"></td>
+                <td th:text="${u.username}"></td>
+                <td th:text="${u.fullName}"></td>
+                <td th:text="${u.email}"></td>
+                <td>
+                    <form th:action="@{'/admin/users/' + ${u.id} + '/role'}" method="post" style="display:flex;gap:5px;">
+                        <select name="role" style="padding:4px;font-size:11px;">
+                            <option value="INDIVIDUAL" th:selected="${u.role == 'INDIVIDUAL'}">INDIVIDUAL</option>
+                            <option value="CYBER_PRO" th:selected="${u.role == 'CYBER_PRO'}">CYBER_PRO</option>
+                            <option value="FORENSICS" th:selected="${u.role == 'FORENSICS'}">FORENSICS</option>
+                            <option value="ADMIN" th:selected="${u.role == 'ADMIN'}">ADMIN</option>
+                        </select>
+                        <button type="submit" class="btn" style="padding:4px 10px;font-size:11px;">Save</button>
+                    </form>
+                </td>
+                <td>
+                    <span th:if="${u.enabled}" style="color:#00ff9d;">✅ Enabled</span>
+                    <span th:unless="${u.enabled}" style="color:#ff3b3b;">❌ Disabled</span>
+                    <span th:if="${u.accountLocked}" style="color:#ffc800;">🔒 Locked</span>
+                </td>
+                <td>
+                    <a th:href="@{'/admin/users/' + ${u.id}}" style="margin-right:8px;">View</a>
+                    <form th:action="@{'/admin/users/' + ${u.id} + '/toggle'}" method="post" style="display:inline;">
+                        <button type="submit" class="btn" style="padding:4px 8px;font-size:10px;">
+                            <span th:if="${u.enabled}">Disable</span>
+                            <span th:unless="${u.enabled}">Enable</span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
