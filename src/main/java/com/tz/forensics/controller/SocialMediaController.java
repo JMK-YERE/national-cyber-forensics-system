@@ -54,7 +54,7 @@ public class SocialMediaController {
         if (instagram != null && !instagram.isBlank())
             results.add(monitorService.checkInstagram(instagram.trim()));
         if (tiktok != null && !tiktok.isBlank())
-            results.add(monitorService.checkTiktok(tiktok.trim()));
+            results.add(monitorService.checkTikTok(tiktok.trim()));
         if (whatsapp != null && !whatsapp.isBlank())
             results.add(monitorService.checkWhatsApp(whatsapp.trim()));
         if (x != null && !x.isBlank())
