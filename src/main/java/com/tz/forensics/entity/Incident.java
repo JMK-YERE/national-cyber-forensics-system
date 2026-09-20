@@ -73,8 +73,27 @@ public class Incident {
     @Column(name = "tcra_reference")
     private String tcraReference;
 
+    // ===== ASSIGNMENT FIELDS =====
     @Column(name = "assigned_to")
     private Long assignedTo;
+
+    @Column(name = "assigned_to_name", length = 100)
+    private String assignedToName;
+
+    @Column(name = "assigned_at")
+    private LocalDateTime assignedAt;
+
+    @Column(name = "assigned_by")
+    private Long assignedBy;
+
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
+
+    @Column(name = "priority", length = 30)
+    private String priority = "MEDIUM";
+
+    @Column(name = "workflow_status", length = 30)
+    private String workflowStatus = "NEW";
 
     @Column(name = "is_closed")
     private Boolean isClosed = false;
@@ -87,6 +106,7 @@ public class Incident {
 
     public Incident() {}
 
+    // ===== HELPER METHODS =====
     public String getStatusClass() {
         return switch (status) {
             case "Critical" -> "status-critical";
@@ -100,6 +120,15 @@ public class Incident {
         return "severity-" + (severity != null ? severity.toLowerCase() : "medium");
     }
 
+    public String getPriorityClass() {
+        return "severity-" + (priority != null ? priority.toLowerCase() : "medium");
+    }
+
+    public boolean isAssigned() {
+        return assignedTo != null;
+    }
+
+    // ===== GETTERS & SETTERS =====
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getIncidentId() { return incidentId; }
@@ -150,6 +179,18 @@ public class Incident {
     public void setTcraReference(String tcraReference) { this.tcraReference = tcraReference; }
     public Long getAssignedTo() { return assignedTo; }
     public void setAssignedTo(Long assignedTo) { this.assignedTo = assignedTo; }
+    public String getAssignedToName() { return assignedToName; }
+    public void setAssignedToName(String assignedToName) { this.assignedToName = assignedToName; }
+    public LocalDateTime getAssignedAt() { return assignedAt; }
+    public void setAssignedAt(LocalDateTime assignedAt) { this.assignedAt = assignedAt; }
+    public Long getAssignedBy() { return assignedBy; }
+    public void setAssignedBy(Long assignedBy) { this.assignedBy = assignedBy; }
+    public LocalDateTime getDueDate() { return dueDate; }
+    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
+    public String getPriority() { return priority; }
+    public void setPriority(String priority) { this.priority = priority; }
+    public String getWorkflowStatus() { return workflowStatus; }
+    public void setWorkflowStatus(String workflowStatus) { this.workflowStatus = workflowStatus; }
     public Boolean getIsClosed() { return isClosed; }
     public void setIsClosed(Boolean isClosed) { this.isClosed = isClosed; }
     public LocalDateTime getClosedAt() { return closedAt; }
