@@ -92,6 +92,11 @@
         <artifactId>io</artifactId>
         <version>8.0.2</version>
     </dependency>
+        <dependency>
+        <groupId>com.google.genai</groupId>
+        <artifactId>google-genai</artifactId>
+        <version>0.2.0</version>
+    </dependency>
     </dependencies>
 
     <build>
