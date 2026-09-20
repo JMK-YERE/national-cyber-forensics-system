@@ -8,6 +8,7 @@ public class UserRegistrationDto {
     private String organization;
     private String phone;
     private String whatsappNumber;
+    private String role = "INDIVIDUAL";
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
@@ -23,4 +24,6 @@ public class UserRegistrationDto {
     public void setPhone(String phone) { this.phone = phone; }
     public String getWhatsappNumber() { return whatsappNumber; }
     public void setWhatsappNumber(String whatsappNumber) { this.whatsappNumber = whatsappNumber; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }
