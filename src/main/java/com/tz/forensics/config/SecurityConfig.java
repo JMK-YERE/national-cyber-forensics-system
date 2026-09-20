@@ -58,7 +58,7 @@ public class SecurityConfig {
                     "/notifications/**",
                     "/tools/**",
                     "/cases/**",
-                    "/admin/**"
+                    "/admin/**", "/reports/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

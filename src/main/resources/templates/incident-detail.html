@@ -22,6 +22,7 @@
 <div class="container">
     <div class="card">
         <h1 th:text="'📋 ' + ${incident.title}"></h1>
+        <a th:href="@{'/reports/incident/{id}/pdf'(id=${incident.id})}" class="btn btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
         <p><strong>Incident ID:</strong> <span th:text="${incident.incidentId}"></span></p>
         <p><strong>Reporter:</strong> <span th:text="${incident.reporter}"></span></p>
         <p><strong>Severity:</strong> <span th:text="${incident.severity}"></span></p>

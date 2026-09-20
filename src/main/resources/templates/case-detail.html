@@ -17,6 +17,7 @@
 <div class="container">
     <div class="card">
         <h1 th:text="'📁 ' + ${caseFile.caseNumber}"></h1>
+        <a th:href="@{'/reports/case/{id}/pdf'(id=${caseFile.id})}" class="btn btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
         <p><strong>Title:</strong> <span th:text="${caseFile.title}"></span></p>
         <p><strong>Priority:</strong> <span th:text="${caseFile.priority}"></span></p>
         <p><strong>Status:</strong> <span th:text="${caseFile.status}"></span></p>
