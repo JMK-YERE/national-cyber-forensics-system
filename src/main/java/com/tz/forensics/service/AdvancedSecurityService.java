@@ -446,3 +446,6 @@ public class AdvancedSecurityService {
         return result;
     }
 }
+
+// ===== EXTENDED: AI-POWERED CHECKS (appended) =====
+
