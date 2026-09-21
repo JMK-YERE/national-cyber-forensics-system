@@ -84,7 +84,7 @@ public class SecurityConfig {
                 // ===== EVERYONE LOGGED IN =====
                 .requestMatchers("/dashboard/**").authenticated()
                 .requestMatchers("/notifications/**").authenticated()
-                .requestMatchers("/tools/**").authenticated()
+                .requestMatchers("/tools/**", "/threat-map").authenticated()
                 .requestMatchers("/evidence/**").authenticated()
 
                 .anyRequest().authenticated()
