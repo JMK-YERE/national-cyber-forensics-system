@@ -45,27 +45,39 @@ public class SecurityConfig {
         http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                // ===== PUBLIC =====
+                // ===== PUBLIC (bila login) =====
                 .requestMatchers(
                     "/login", "/register",
                     "/css/**", "/js/**", "/images/**",
                     "/error", "/access-denied",
                     "/google*.html", "/*.html",
-                    "/sitemap.xml", "/robots.txt", "/whistleblower", "/whistleblower/report", "/whistleblower/submit", "/whistleblower/success", "/whistleblower/track"
+                    "/sitemap.xml", "/robots.txt"
+                ).permitAll()
+
+                // ===== WHISTLEBLOWER — PUBLIC =====
+                .requestMatchers(
+                    "/whistleblower",
+                    "/whistleblower/report",
+                    "/whistleblower/submit",
+                    "/whistleblower/success",
+                    "/whistleblower/track",
+                    "/whistleblower/track/**"
                 ).permitAll()
 
                 // ===== ADMIN ONLY =====
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                // ===== ADMIN + CYBER_PRO + FORENSICS =====
+                // ===== ADMIN + PROFESSIONALS =====
                 .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/incidents/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/report-attack/all").hasAnyRole("ADMIN", "CYBER_PRO")
 
+                // ===== WHISTLEBLOWER ADMIN — Login required =====
+                .requestMatchers("/whistleblower/admin/**").hasAnyRole("ADMIN", "CYBER_PRO")
+
                 // ===== INDIVIDUAL + EVERYONE =====
-                // AI, my-accounts, report-attack — kwa INDIVIDUAL (default role)
-                .requestMatchers("/ai/**").hasAnyRole("INDIVIDUAL", "CYBER_PRO", "FORENSICS", "ADMIN")
+                .requestMatchers("/ai/**").authenticated()
                 .requestMatchers("/my-accounts/**").authenticated()
                 .requestMatchers("/report-attack/**").authenticated()
 
