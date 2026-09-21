@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Taarifa Yako - Whistleblower</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/whistleblower}">🕵️ Home</a>
+        <a th:href="@{/whistleblower/track}">🔍 Track</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1 th:text="'📋 ' + ${report.title}"></h1>
+        <p><strong>Tracking Code:</strong> <span th:text="${report.trackingCode}" style="color:#ffd700;"></span></p>
+        <p><strong>Aina:</strong> <span th:text="${report.categoryLabel}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${report.status}"></span></p>
+        <p><strong>Tarehe:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+    </div>
+
+    <div class="card" th:if="${report.adminResponse != null}">
+        <h2>💬 Jibu Kutoka Admin</h2>
+        <div style="background:rgba(0,255,157,0.08); border-left:4px solid #00ff9d; padding:15px; border-radius:5px;"
+             th:text="${report.adminResponse}"></div>
+    </div>
+
+    <div class="card">
+        <h2>💬 Mazungumzo</h2>
+
+        <div th:each="m : ${messages}" style="margin-bottom:15px; padding:12px; border-radius:6px;"
+             th:classappend="${m.senderType == 'REPORTER'} ? 'chat-user' : 'chat-ai'">
+            <div style="font-size:11px; color:#00d4ff; margin-bottom:5px;"
+                 th:text="${m.senderType == 'REPORTER'} ? '👤 Wewe' : '🕵️ Admin'"></div>
+            <div th:text="${m.message}"></div>
+            <div style="font-size:10px; color:#888; margin-top:5px;"
+                 th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
+        </div>
+
+        <div th:if="${messages.isEmpty()}" style="text-align:center; color:#888; padding:20px;">
+            Hakuna mazungumzo bado.
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>📤 Tuma Ujumbe</h3>
+        <form th:action="@{'/whistleblower/track/' + ${report.id} + '/reply'}" method="post" style="margin-top:15px;">
+            <input type="hidden" name="code" th:value="${report.trackingCode}">
+            <textarea name="message" rows="3" required placeholder="Andika ujumbe wako..." style="margin:0 0 10px 0;"></textarea>
+            <button type="submit" class="btn btn-primary">📤 Tuma</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

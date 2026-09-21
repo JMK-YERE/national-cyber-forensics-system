@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>🕵️ Whistleblower Reports - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ - ADMIN</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/whistleblower/admin}">🕵️ Whistleblower</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>🕵️ Whistleblower Reports</h1>
+        <p>Reports zote za anonymous — hakuna taarifa za waandishi.</p>
+        <div style="margin-top:10px;">
+            <span class="badge badge-critical" th:text="'NEW: ' + ${newCount}"></span>
+        </div>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>Code</th>
+                <th>Aina</th>
+                <th>Kichwa</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Tarehe</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${reports.isEmpty()}">
+                <td colspan="7" style="text-align:center;">Hakuna reports bado.</td>
+            </tr>
+            <tr th:each="r : ${reports}" th:class="${r.statusClass}">
+                <td th:text="${r.trackingCode}" style="color:#ffd700;"></td>
+                <td th:text="${r.categoryLabel}"></td>
+                <td th:text="${r.title}"></td>
+                <td th:text="${r.priority}"></td>
+                <td th:text="${r.status}"></td>
+                <td th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd')}"></td>
+                <td><a th:href="@{'/whistleblower/admin/' + ${r.id}}">View</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

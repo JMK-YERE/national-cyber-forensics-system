@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵️ Whistleblower Portal - Cyber Forensics TZ</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .hero { text-align: center; padding: 40px 20px; }
+        .hero h1 { font-size: 36px; margin-bottom: 20px; }
+        .hero p { font-size: 16px; max-width: 700px; margin: 0 auto 30px; }
+        .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
+        .action-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(0,255,157,0.3); border-radius: 8px; padding: 30px; text-align: center; transition: all 0.3s; text-decoration: none; color: inherit; }
+        .action-card:hover { border-color: #00ff9d; box-shadow: 0 0 30px rgba(0,255,157,0.4); transform: translateY(-5px); }
+        .action-card .icon { font-size: 50px; margin-bottom: 15px; }
+        .action-card h3 { color: #00ff9d; font-size: 18px; margin-bottom: 10px; }
+        .action-card p { font-size: 13px; color: #999; }
+        .warning-box { background: rgba(255,215,0,0.1); border-left: 4px solid #ffd700; padding: 20px; border-radius: 5px; margin: 30px 0; }
+        .warning-box h3 { color: #ffd700; margin-bottom: 10px; }
+        .warning-box ul { padding-left: 20px; color: #ccc; font-size: 13px; line-height: 1.8; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/login}">🔐 Login</a>
+        <a th:href="@{/whistleblower}">🕵️ Whistleblower</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="hero">
+        <div style="font-size: 80px;">🕵️</div>
+        <h1>Whistleblower Portal</h1>
+        <p>Ripoti rushwa, ufisadi, unyanyasaji, au vitendo vingine vibaya <strong>bila kujulikana</strong>. Usalama wako ni kipaumbele chetu.</p>
+    </div>
+
+    <div class="action-grid">
+        <a th:href="@{/whistleblower/report}" class="action-card">
+            <div class="icon">📝</div>
+            <h3>Ripoti Sasa</h3>
+            <p>Tuma taarifa yako kwa usiri mkubwa</p>
+        </a>
+        <a th:href="@{/whistleblower/track}" class="action-card">
+            <div class="icon">🔍</div>
+            <h3>Angalia Ripoti Yako</h3>
+            <p>Fuatilia kwa tracking code yako</p>
+        </a>
+    </div>
+
+    <div class="warning-box">
+        <h3>🛡️ Usalama Wako ni Muhimu</h3>
+        <ul>
+            <li><strong>Hakuna kujisajili</strong> — hutahitaji kujiunga</li>
+            <li><strong>Hakuna IP tracking</strong> — hatujui uko wapi</li>
+            <li><strong>Encrypted submission</strong> — data yako inasimbwa</li>
+            <li><strong>Anonymous communication</strong> — kwa tracking code tu</li>
+            <li><strong>Ahadi yetu</strong> — hatutatoa taarifa zako kwa mtu yeyote</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>📋 Unaweza Kuripoti Nini?</h2>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-top:20px;">
+            <div class="stat-box"><div class="stat-value">💰</div><div class="stat-label">Rushwa/Ufisadi</div></div>
+            <div class="stat-box"><div class="stat-value">🎭</div><div class="stat-label">Utapeli</div></div>
+            <div class="stat-box"><div class="stat-value">💻</div><div class="stat-label">Cyber Attack</div></div>
+            <div class="stat-box"><div class="stat-value">😢</div><div class="stat-label">Unyanyasaji</div></div>
+            <div class="stat-box"><div class="stat-value">💊</div><div class="stat-label">Dawa za Kulevya</div></div>
+            <div class="stat-box"><div class="stat-value">🚨</div><div class="stat-label">Biashara ya Binadamu</div></div>
+            <div class="stat-box"><div class="stat-value">📊</div><div class="stat-label">Kukwepa Kodi</div></div>
+            <div class="stat-box"><div class="stat-value">💵</div><div class="stat-label">Utakatishaji Fedha</div></div>
+        </div>
+    </div>
+
+    <footer>
+        🇹🇿 National Cyber Forensics System | Tanzania
+    </footer>
+</div>
+</body>
+</html>

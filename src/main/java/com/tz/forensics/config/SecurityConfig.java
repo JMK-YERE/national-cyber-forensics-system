@@ -51,7 +51,7 @@ public class SecurityConfig {
                     "/css/**", "/js/**", "/images/**",
                     "/error", "/access-denied",
                     "/google*.html", "/*.html",
-                    "/sitemap.xml", "/robots.txt"
+                    "/sitemap.xml", "/robots.txt", "/whistleblower", "/whistleblower/report", "/whistleblower/submit", "/whistleblower/success", "/whistleblower/track"
                 ).permitAll()
 
                 // ===== ADMIN ONLY =====

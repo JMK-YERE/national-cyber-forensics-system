@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Whistleblower Report - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ - ADMIN</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/whistleblower/admin}">🕵️ Reports</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1 th:text="'🕵️ ' + ${report.trackingCode}"></h1>
+        <p><strong>Aina:</strong> <span th:text="${report.categoryLabel}"></span></p>
+        <p><strong>Kichwa:</strong> <span th:text="${report.title}"></span></p>
+        <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${report.status}"></span></p>
+        <p><strong>Mkoa:</strong> <span th:text="${report.region}"></span></p>
+        <p><strong>Tarehe:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+    </div>
+
+    <div class="card">
+        <h2>📝 Maelezo</h2>
+        <p th:text="${report.description}" style="white-space:pre-wrap;"></p>
+        <div th:if="${report.involvedParties}" style="margin-top:15px;">
+            <strong>Wanaohusika:</strong>
+            <p th:text="${report.involvedParties}"></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>🔄 Update Status</h2>
+        <form th:action="@{'/whistleblower/admin/' + ${report.id} + '/update'}" method="post" style="margin-top:15px;">
+            <label>Status</label>
+            <select name="status">
+                <option value="NEW">NEW</option>
+                <option value="REVIEWING">REVIEWING</option>
+                <option value="INVESTIGATING">INVESTIGATING</option>
+                <option value="ACTION_TAKEN">ACTION TAKEN</option>
+                <option value="CLOSED">CLOSED</option>
+                <option value="REJECTED">REJECTED</option>
+            </select>
+
+            <label>Response kwa Reporter</label>
+            <textarea name="adminResponse" rows="3" placeholder="Jibu kwa reporter..."></textarea>
+
+            <label>Internal Notes (private)</label>
+            <textarea name="internalNotes" rows="3" placeholder="Notes za ndani..."></textarea>
+
+            <button type="submit" class="btn btn-primary">💾 Save</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>💬 Mazungumzo</h2>
+        <div th:each="m : ${messages}" style="margin-bottom:15px; padding:12px; border-radius:6px; background:rgba(0,0,0,0.3);"
+             th:classappend="${m.senderType == 'ADMIN'} ? 'chat-ai' : 'chat-user'">
+            <div style="font-size:11px; color:#00d4ff; margin-bottom:5px;"
+                 th:text="${m.senderType == 'ADMIN'} ? '🕵️ Admin' : '👤 Reporter'"></div>
+            <div th:text="${m.message}"></div>
+        </div>
+        <form th:action="@{'/whistleblower/admin/' + ${report.id} + '/reply'}" method="post" style="margin-top:15px;">
+            <textarea name="message" rows="3" required placeholder="Andika ujumbe..."></textarea>
+            <button type="submit" class="btn btn-primary">📤 Tuma</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
