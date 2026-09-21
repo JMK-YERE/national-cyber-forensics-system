@@ -1,5 +1,7 @@
 package com.tz.forensics.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,138 +16,135 @@ import java.util.regex.Pattern;
 @Service
 public class AIChatService {
 
-    @Value("${gemini.api.key:}")
+    private static final Logger log = LoggerFactory.getLogger(AIChatService.class);
+
+    @Value("${groq.api.key:}")
     private String apiKey;
 
-    @Value("${gemini.model:gemini-1.5-flash}")
+    @Value("${groq.model:llama-3.3-70b-versatile}")
     private String model;
 
-    private static final String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
+    @Value("${groq.api.url:https://api.groq.com/openai/v1/chat/completions}")
+    private String apiUrl;
 
     public boolean isConfigured() {
-        return apiKey != null && !apiKey.isEmpty();
+        boolean configured = apiKey != null && !apiKey.isEmpty() && !apiKey.equals("null");
+        log.info("Groq API configured: {} (key length: {})", configured,
+                 apiKey != null ? apiKey.length() : 0);
+        return configured;
     }
 
     public String chat(String userMessage, String context) {
+        log.info("AI Chat request: '{}'", 
+                 userMessage.substring(0, Math.min(50, userMessage.length())));
+
         if (!isConfigured()) {
+            log.warn("Groq API key haipo — using fallback");
             return fallbackResponse(userMessage);
         }
 
         try {
-            // System prompt — AI inaweza kujibu KILA KITU
             String systemPrompt = "Wewe ni AI Assistant wa National Cyber Forensics System - Tanzania. "
                 + "Unaweza kusaidia kwa KILA KITU: cybersecurity, digital forensics, mfumo huu, "
-                + "maswali ya kawaida, ushauri wa kazi, maisha, elimu, tech, biashara, na zaidi. "
+                + "maswali ya kawaida, ushauri wa kazi, maisha, elimu, tech, biashara, stori, na zaidi. "
                 + "Jibu kwa Kiswahili (au Kiingereza kama mtumiaji anatumia Kiingereza). "
                 + "Kuwa rafiki, msaidizi, na wa kitaalamu. "
-                + "Kama ni swali la kiufundi, toa maelezo ya hatua kwa hatua. "
-                + "Kama ni swali la kawaida, jibu kwa ufupi (sentensi 2-5). "
-                + "Kama ni hadithi au stori, jibu kwa ubunifu. "
-                + "Context ya mtumiaji: " + (context != null ? context : "Hakuna");
+                + "Kama ni swali la kiufundi, toa maelezo ya hatua kwa hatua yenye namba. "
+                + "Kama ni swali la kawaida, jibu kwa ufupi. "
+                + "Kama ni stori, jibu kwa ubunifu. "
+                + "Tumia emoji kwa mpangilio mzuri. "
+                + "Context: " + (context != null ? context : "Hakuna");
 
-            String jsonBody = buildJsonRequest(systemPrompt + "\n\nMtumiaji: " + userMessage);
+            String jsonBody = "{"
+                + "\"model\":\"" + model + "\","
+                + "\"messages\":["
+                + "{\"role\":\"system\",\"content\":\"" + escapeJson(systemPrompt) + "\"},"
+                + "{\"role\":\"user\",\"content\":\"" + escapeJson(userMessage) + "\"}"
+                + "],"
+                + "\"temperature\":0.7,"
+                + "\"max_tokens\":1500,"
+                + "\"top_p\":0.9"
+                + "}";
+
+            log.debug("Calling Groq API: {}", apiUrl);
 
             HttpClient client = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofSeconds(15))
+                    .connectTimeout(Duration.ofSeconds(20))
                     .build();
 
-            String url = BASE_URL + model + ":generateContent?key=" + apiKey;
-
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
+                    .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(30))
+                    .header("Authorization", "Bearer " + apiKey)
+                    .timeout(Duration.ofSeconds(45))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
+            log.info("Groq API response status: {}", response.statusCode());
+
             if (response.statusCode() == 200) {
-                return extractText(response.body());
+                String text = extractText(response.body());
+                if (text != null && !text.isEmpty()) {
+                    log.info("AI response received ({} chars)", text.length());
+                    return text;
+                }
             } else {
-                System.err.println("Gemini API error: " + response.statusCode() + " - " + response.body());
-                return fallbackResponse(userMessage);
+                log.error("Groq API error: {} - Body: {}", 
+                          response.statusCode(),
+                          response.body().substring(0, Math.min(500, response.body().length())));
             }
+
+            return fallbackResponse(userMessage);
+
         } catch (Exception e) {
-            System.err.println("AI Chat failed: " + e.getMessage());
+            log.error("AI Chat exception: {}", e.getMessage(), e);
             return fallbackResponse(userMessage);
         }
     }
 
-    private String buildJsonRequest(String prompt) {
-        String escaped = prompt.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "");
-        return "{\"contents\":[{\"parts\":[{\"text\":\"" + escaped + "\"}]}]}";
-    }
-
     private String extractText(String jsonResponse) {
         try {
-            Pattern pattern = Pattern.compile("\"text\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
+            // First try: content field
+            Pattern pattern = Pattern.compile("\"content\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
             Matcher matcher = pattern.matcher(jsonResponse);
             if (matcher.find()) {
                 String text = matcher.group(1);
-                return text.replace("\\n", "\n")
-                           .replace("\\\"", "\"")
-                           .replace("\\\\", "\\")
-                           .replace("\\r", "");
+                return unescape(text);
             }
         } catch (Exception e) {
-            System.err.println("Parse failed: " + e.getMessage());
+            log.error("Parse failed: {}", e.getMessage());
         }
-        return "Samahani, sikupata jibu sahihi. Jaribu tena.";
+        return null;
     }
 
-    // ===== FALLBACK (bila API key) =====
+    private String unescape(String s) {
+        return s.replace("\\n", "\n")
+                .replace("\\\"", "\"")
+                .replace("\\\\", "\\")
+                .replace("\\r", "")
+                .replace("\\t", "    ");
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
+    }
+
+    // ===== FALLBACK =====
     private String fallbackResponse(String message) {
         String lower = message.toLowerCase();
-
-        // Security questions
         if (lower.contains("password")) {
-            return "Kwa password nzuri:\n✅ Herufi 12+\n✅ Kubwa na ndogo (A-Z, a-z)\n✅ Namba (0-9)\n✅ Alama (!@#$%)\n❌ Usitumie 'password123' au jina lako\n\nMfano: 'Tz#Cyber2024!'";
-        }
-        if (lower.contains("phishing")) {
-            return "Phishing ni email/SMS za kudanganya:\n🎣 Zinaomba password/OTP\n🎣 Zina links za kutiliwa shaka\n🎣 Zinatisha (account itafungwa)\n\n✅ Angalia URL vizuri (https://)\n✅ Usibonyeze links\n✅ Ripoti kwa platform";
-        }
-        if (lower.contains("2fa") || lower.contains("two factor")) {
-            return "2FA (Two-Factor Authentication):\n\n📱 Kwenye Facebook/IG/Gmail:\n1. Settings → Security\n2. 'Two-Factor Authentication'\n3. Chagua 'Authentication App'\n4. Download Google Authenticator\n5. Scan QR code\n\n✅ Hii inazuia 99% ya hacking!";
-        }
-        if (lower.contains("ransomware")) {
-            return "Ransomware inafunga files zako:\n\n🛡️ Kinga:\n✅ Backup data kila wiki\n✅ Sasisha OS na apps\n✅ Usifungue attachments za kutiliwa shaka\n✅ Weka antivirus\n\n🚨 Kama umeshambuliwa:\n❌ USILIpe fidia\n✅ Ripoti Polisi (112)\n✅ Wasiliana na IT team";
-        }
-        if (lower.contains("whatsapp")) {
-            return "WhatsApp Security:\n\n📱 Weka Two-Step Verification:\n1. Settings → Account\n2. 'Two-step verification' → Enable\n3. Weka PIN ya tarakimu 6\n\n✅ Angalia 'Linked Devices'\n✅ Weka Fingerprint Lock\n✅ Usifungue links za kutiliwa shaka";
-        }
-        if (lower.contains("facebook") || lower.contains("instagram")) {
-            return "Meta Platforms Security:\n\n📱 Settings → Security:\n✅ Weka 2FA\n✅ Weka Login Alerts\n✅ Angalia 'Where You're Logged In'\n✅ Ondoa apps zisizotumika\n\n🚨 Kama account imehack:\n✅ Tumia 'Forgot Password'\n✅ Wasiliana Support mara moja";
+            return "🔐 *Password Nzuri:*\n\n✅ Herufi 12+\n✅ Kubwa na ndogo (A-Z, a-z)\n✅ Namba (0-9)\n✅ Alama (!@#$%)\n❌ Usitumie 'password123'\n\n*Mfano:* `Tz#Cyber2024!`";
         }
         if (lower.contains("halo") || lower.contains("habari") || lower.contains("hello") || lower.contains("hi")) {
-            return "Habari! 👋\n\nMimi ni AI Assistant wa Cyber Forensics TZ. Naweza kukusaidia kwa:\n\n🔐 Security — password, 2FA, phishing\n💼 Kazi — ushauri wa kazi\n📚 Elimu — kujifunza\n💡 Maisha — maswali ya kawaida\n🤖 Tech — maelezo ya technolojia\n\nUliza swali lolote!";
+            return "👋 *Habari!*\n\nMimi ni AI Assistant wa Cyber Forensics TZ.\n\nNinaweza kukusaidia kwa:\n\n🔐 Security\n💼 Kazi\n📚 Elimu\n💡 Maisha\n\n*Uliza swali lolote!*";
         }
-        if (lower.contains("asante") || lower.contains("thanks")) {
-            return "Karibu sana! 😊\n\nKama una swali lingine — kuhusu security, kazi, maisha, au kitu chochote — nipo hapa kukusaidia.\n\n🛡️ Karibu tena!";
-        }
-        if (lower.contains("kazi") || lower.contains("job") || lower.contains("cv") || lower.contains("resume")) {
-            return "Ushauri wa Kazi:\n\n📝 CV nzuri:\n✅ Ukurasa 1-2\n✅ Achievements, sio responsibilities\n✅ Skills zinazohitajika\n✅ Contact info sahihi\n\n💼 Interviews:\n✅ Jifunze kuhusu kampuni\n✅ Andaa maswali\n✅ Vaavyo vizuri\n✅ Fika mapema\n\nUliza swali mahususi kwa msaada zaidi!";
-        }
-        if (lower.contains("biashara") || lower.contains("business")) {
-            return "Ushauri wa Biashara:\n\n💡 Anza kidogo:\n✅ Capital ndogo\n✅ Test market kwanza\n✅ Jifunze kutoka wateja\n\n📈 Kukua:\n✅ Fanya marketing\n✅ Weka bei sahihi\n✅ Toa service nzuri\n\nUliza swali mahususi!";
-        }
-        if (lower.contains("kusoma") || lower.contains("study") || lower.contains("shule")) {
-            return "Ushauri wa Kusoma:\n\n📚 Njia nzuri:\n✅ Study kwa mfumo (Pomodoro 25 min)\n✅ Andika notes\n✅ Fanya mazoezi\n✅ Pumzika vizuri\n✅ Jifunze kwa marafiki\n\nUliza kuhusu subject mahususi!";
-        }
-        if (lower.contains("afya") || lower.contains("health")) {
-            return "Ushauri wa Afya:\n\n💪 Kwa maisha mazuri:\n✅ Kula vyakula bora\n✅ Mazoezi kila siku (dakika 30)\n✅ Kunywa maji mengi\n✅ Lala masaa 7-8\n✅ Punguza stress\n\n⚠️ Kwa matatizo ya afya — muone daktari!";
-        }
-
-        // Default
-        return "Samahani, kwa sasa AI API haijawekwa. Lakini naweza kujibu maswali ya kawaida:\n\n"
-            + "🔐 Security — password, 2FA, phishing, ransomware\n"
-            + "💼 Kazi — CV, interview, kazi\n"
-            + "📚 Elimu — kusoma, masomo\n"
-            + "💡 Maisha — ushauri wa kawaida\n"
-            + "🤖 Tech — technolojia\n\n"
-            + "Uliza swali lolote — nitajaribu kukusaidia!";
+        return "🤖 *AI Assistant*\n\nKwa sasa API ina tatizo, lakini naweza kujibu:\n\n🔐 Security\n💼 Kazi\n📚 Elimu\n\n*Uliza swali lolote!*";
     }
 }
