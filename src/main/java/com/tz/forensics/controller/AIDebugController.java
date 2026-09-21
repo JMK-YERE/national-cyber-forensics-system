@@ -35,17 +35,16 @@ public class AIDebugController {
         result.put("model", model);
         result.put("isConfigured", aiChatService.isConfigured());
 
-        // Test with a real question
+        // Test with real API call
         try {
-            String response = aiChatService.chat("Nipe jibu la maneno matatu tu: nini password nzuri?", "Test");
-            result.put("testResponse", response);
+            String response = aiChatService.chat("Jibu maneno matatu tu: Password nzuri ni ipi?", "Test");
+            result.put("response", response);
             result.put("responseLength", response != null ? response.length() : 0);
-            // Check if response is from API or fallback
-            boolean isFallback = response != null && response.contains("*AI Assistant*");
-            result.put("isFallback", isFallback);
-            result.put("apiWorking", !isFallback && response != null && response.length() > 50);
+            boolean isError = response != null && response.startsWith("❌");
+            result.put("hasError", isError);
+            result.put("apiWorking", !isError && response != null && response.length() > 20);
         } catch (Exception e) {
-            result.put("testError", e.getMessage());
+            result.put("exception", e.getMessage());
             result.put("apiWorking", false);
         }
 
