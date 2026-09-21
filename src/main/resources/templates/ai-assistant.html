@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖 AI Assistant - Cyber Forensics</title>
+    <title>🤖 AI Assistant - Cyber Forensics TZ</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
     <style>
-        .chat-container { background: rgba(0,0,0,0.4); border: 1px solid rgba(0,255,157,0.3); border-radius: 8px; padding: 20px; min-height: 400px; max-height: 500px; overflow-y: auto; }
-        .chat-msg { margin-bottom: 15px; padding: 12px 15px; border-radius: 8px; max-width: 80%; word-wrap: break-word; }
-        .chat-user { background: rgba(0,212,255,0.15); border-left: 3px solid #00d4ff; margin-left: auto; }
-        .chat-ai { background: rgba(0,255,157,0.1); border-left: 3px solid #00ff9d; }
-        .chat-time { font-size: 10px; color: #888; margin-top: 5px; }
-        .chat-label { font-size: 11px; color: #00d4ff; font-weight: bold; margin-bottom: 3px; }
-        .chat-label.ai { color: #00ff9d; }
+        .chat-container { background: var(--cream-dark); border: 1px solid var(--border-blue); border-radius: 8px; padding: 20px; min-height: 400px; max-height: 550px; overflow-y: auto; }
+        .chat-msg { margin-bottom: 15px; padding: 12px 15px; border-radius: 8px; max-width: 80%; word-wrap: break-word; font-size: 14px; }
+        .chat-user { background: var(--dark-blue); color: var(--white); margin-left: auto; }
+        .chat-ai { background: var(--white); color: var(--text-dark); border: 1px solid var(--border-blue); }
+        .chat-time { font-size: 10px; color: var(--text-muted); margin-top: 5px; }
+        .chat-label { font-size: 11px; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .chat-user .chat-label { color: var(--gold); }
+        .chat-ai .chat-label { color: var(--dark-blue); }
         .quick-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
-        .quick-btn { background: rgba(0,255,157,0.1); border: 1px solid #00ff9d; color: #00ff9d; padding: 8px 12px; border-radius: 15px; cursor: pointer; font-size: 11px; transition: all 0.3s; }
-        .quick-btn:hover { background: rgba(0,255,157,0.2); }
+        .quick-btn { background: var(--white); border: 1px solid var(--dark-blue); color: var(--dark-blue); padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 12px; transition: all 0.2s; font-weight: 500; }
+        .quick-btn:hover { background: var(--dark-blue); color: var(--white); }
     </style>
 </head>
 <body>
@@ -25,51 +26,48 @@
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/ai/assistant}">🤖 AI Assistant</a>
         <a th:href="@{/tools/security-center}">🛡️ Tools</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
     </div>
 </div>
 
 <div class="container">
     <div class="card">
         <h1>🤖 AI Assistant</h1>
-        <p>Uliza swali lolote kuhusu usalama wa mtandao, password, phishing, 2FA, ransomware, na zaidi.</p>
-        <p th:if="${!isConfigured}" style="color:#ffc800; font-size:12px; margin-top:10px;">
-            ⚠️ AI API haijawekwa — mfumo utatumia majibu ya kawaida (rule-based).
-        </p>
-        <p th:if="${isConfigured}" style="color:#00ff9d; font-size:12px; margin-top:10px;">
-            ✅ AI imeunganishwa (Google Gemini) — unaweza kuuliza swali lolote.
-        </p>
+        <p>Uliza <strong>swali lolote</strong> — security, kazi, elimu, maisha, tech, na zaidi.</p>
+        <p th:if="${isConfigured}" style="color:var(--emerald); font-weight:600;">✅ AI imeunganishwa (Google Gemini)</p>
+        <p th:if="${!isConfigured}" style="color:var(--amber); font-weight:600;">⚠️ AI haijawekwa — kwa sasa inatumia majibu ya kawaida</p>
     </div>
 
     <div class="card">
         <div class="chat-container" id="chatContainer">
-            <div th:if="${history.isEmpty()}" style="text-align:center; color:#888; padding:40px;">
-                💬 Anza mazungumzo — uliza swali lako kwanza!
+            <div th:if="${history.isEmpty()}" style="text-align:center; color:var(--text-muted); padding:40px;">
+                💬 Anza mazungumzo — uliza swali lolote!
             </div>
 
             <div th:each="msg : ${history}"
                  class="chat-msg"
                  th:classappend="${msg.type == 'user'} ? 'chat-user' : 'chat-ai'">
-                <div class="chat-label" th:classappend="${msg.type == 'ai'} ? 'ai'"
-                     th:text="${msg.type == 'user'} ? '👤 Wewe' : '🤖 AI Assistant'"></div>
-                <div th:text="${msg.text}"></div>
+                <div class="chat-label" th:text="${msg.type == 'user'} ? '👤 Wewe' : '🤖 AI Assistant'"></div>
+                <div th:text="${msg.text}" style="white-space:pre-wrap;"></div>
                 <div class="chat-time" th:text="${msg.time}"></div>
             </div>
         </div>
 
         <div class="quick-btns">
-            <span class="quick-btn" onclick="document.querySelector('input[name=message]').value='Nifanye nini kama email yangu imevuja?'">📧 Email imevuja?</span>
-            <span class="quick-btn" onclick="document.querySelector('input[name=message]').value='Password nzuri ni ipi?'">🔐 Password nzuri</span>
-            <span class="quick-btn" onclick="document.querySelector('input[name=message]').value='Ninawezaje kujikinga na phishing?'">🎣 Phishing kinga</span>
-            <span class="quick-btn" onclick="document.querySelector('input[name=message]').value='Nifanye nini kama nina ransomware?'">🦠 Ransomware</span>
-            <span class="quick-btn" onclick="document.querySelector('input[name=message]').value='Ninawezaje kuweka 2FA kwenye Facebook?'">📱 2FA Facebook</span>
+            <span class="quick-btn" onclick="setMsg('Password nzuri ni ipi?')">🔐 Password</span>
+            <span class="quick-btn" onclick="setMsg('Nifanye nini kama email yangu imevuja?')">📧 Email Breach</span>
+            <span class="quick-btn" onclick="setMsg('Ninawezaje kujikinga na phishing?')">🎣 Phishing</span>
+            <span class="quick-btn" onclick="setMsg('Nifanye nini kama nina ransomware?')">🦠 Ransomware</span>
+            <span class="quick-btn" onclick="setMsg('Ninawezaje kuweka 2FA kwenye Facebook?')">📱 2FA FB</span>
+            <span class="quick-btn" onclick="setMsg('Nisaidie kuandika CV nzuri')">💼 CV</span>
+            <span class="quick-btn" onclick="setMsg('Nifanye nini kama simu yangu iliibiwa?')">📱 Simu Iliibiwa</span>
+            <span class="quick-btn" onclick="setMsg('Ninawezaje kuanza biashara ndogo?')">💡 Biashara</span>
+            <span class="quick-btn" onclick="setMsg('Nipe ushauri wa kusoma vizuri')">📚 Kusoma</span>
+            <span class="quick-btn" onclick="setMsg('Nipe stori fupi ya kusisimua')">📖 Stori</span>
         </div>
 
         <form th:action="@{/ai/assistant}" method="post" style="margin-top:20px; display:flex; gap:10px;">
-            <input type="text" name="message" required placeholder="Uliza swali lako..." style="flex:1; margin:0;">
-            <button type="submit" class="btn btn-primary" style="white-space:nowrap;">📤 Send</button>
+            <input type="text" name="message" required placeholder="Uliza swali lolote..." style="flex:1; margin:0;">
+            <button type="submit" class="btn btn-primary" style="white-space:nowrap; margin:0;">📤 Tuma</button>
         </form>
 
         <form th:action="@{/ai/clear}" method="post" style="margin-top:10px; text-align:right;">
@@ -77,21 +75,28 @@
         </form>
     </div>
 
-    <div class="card" style="background:rgba(0,212,255,0.05); border-left:4px solid #00d4ff;">
-        <h3>💡 Vidokezo</h3>
-        <ul style="margin-left:20px; font-size:13px; color:#ccc;">
-            <li>Uliza kwa <strong>Kiswahili</strong> au <strong>Kiingereza</strong></li>
-            <li>Swali lako ni <strong>private</strong> — hakuna mtu mwingine anayeona</li>
-            <li>AI inaweza kutoa ushauri wa <strong>kitaalamu</strong> kuhusu usalama</li>
-            <li>Kwa dharura, wasiliana na <strong>Polisi Cybercrime Unit</strong></li>
-        </ul>
+    <div class="card" style="background:linear-gradient(135deg, #eff6ff, #f5f0e8); border-left:4px solid var(--light-blue);">
+        <h3>💡 AI Inaweza Kukusaidia Kwa:</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:15px;">
+            <div>🔐 <strong>Security</strong> — password, 2FA, phishing</div>
+            <div>💼 <strong>Kazi</strong> — CV, interview, ushauri</div>
+            <div>📚 <strong>Elimu</strong> — kusoma, masomo</div>
+            <div>💡 <strong>Maisha</strong> — ushauri wa kawaida</div>
+            <div>🤖 <strong>Tech</strong> — technolojia</div>
+            <div>📖 <strong>Stori</strong> — ubunifu, hadithi</div>
+        </div>
     </div>
 </div>
 
 <script>
-// Auto-scroll to bottom
-const container = document.getElementById('chatContainer');
-if (container) container.scrollTop = container.scrollHeight;
+function setMsg(text) {
+    const input = document.querySelector('input[name=message]');
+    input.value = text;
+    input.focus();
+}
+// Auto-scroll
+const c = document.getElementById('chatContainer');
+if (c) c.scrollTop = c.scrollHeight;
 </script>
 </body>
 </html>

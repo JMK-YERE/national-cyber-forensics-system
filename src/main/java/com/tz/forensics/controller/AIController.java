@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
 
@@ -52,8 +51,8 @@ public class AIController {
         history.add(createChatEntry("user", message));
         history.add(createChatEntry("ai", response));
 
-        if (history.size() > 20) {
-            history.subList(0, history.size() - 20).clear();
+        if (history.size() > 40) {
+            history.subList(0, history.size() - 40).clear();
         }
 
         auditService.log("AI_QUERY", "AIChat", username,
@@ -79,9 +78,9 @@ public class AIController {
     private String buildContext(User user) {
         if (user == null) return "";
         StringBuilder sb = new StringBuilder();
-        sb.append("User: ").append(user.getUsername()).append(". ");
+        sb.append("Mtumiaji: ").append(user.getUsername()).append(". ");
         sb.append("Role: ").append(user.getRole()).append(". ");
-        if (user.getOrganization() != null) sb.append("Organization: ").append(user.getOrganization()).append(". ");
+        if (user.getOrganization() != null) sb.append("Taasisi: ").append(user.getOrganization()).append(". ");
         return sb.toString();
     }
 }
