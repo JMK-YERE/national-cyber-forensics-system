@@ -19,11 +19,13 @@ public class AuthController {
     public String loginPage(@RequestParam(required = false) String error,
                             @RequestParam(required = false) String logout,
                             @RequestParam(required = false) String registered,
+                            @RequestParam(required = false) String lang,
                             Model model) {
         if (error != null) model.addAttribute("error", "Username au password si sahihi!");
         if (logout != null) model.addAttribute("message", "Umetoka kwa mafanikio.");
         if (registered != null) model.addAttribute("success",
-                "✅ Usajili umefanikiwa! Angalia email yako kwa ujumbe wa kukaribisha.");
+                "✅ Usajili umefanikiwa! Angalia email yako.");
+        if (lang != null) model.addAttribute("selectedLang", lang);
         return "login";
     }
 

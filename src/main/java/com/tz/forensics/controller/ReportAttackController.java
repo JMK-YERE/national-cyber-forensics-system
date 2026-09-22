@@ -10,14 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/report-attack")
@@ -41,10 +36,12 @@ public class ReportAttackController {
         this.emailService = emailService;
     }
 
+    // ===== CHECK: Admin/Pro/Forensics =====
     private boolean canSeeAllReports(User user) {
         return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
     }
 
+    // ===== REPORT FORM =====
     @GetMapping
     public String showForm(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
@@ -55,7 +52,12 @@ public class ReportAttackController {
         model.addAttribute("report", new ReportAttack());
         model.addAttribute("canSeeAll", canSeeAllReports(user));
         model.addAttribute("countries", CountryConfig.COUNTRIES.values());
-        model.addAttribute("defaultCountry", CountryConfig.getCountry("TZ"));
+        model.addAttribute("defaultCountry", CountryConfig.getCountry(user.getOrganization() != null ? "TZ" : "TZ"));
+
+        // Admin anaona REPORTS ZOTE kwenye form pia
+        if (canSeeAllReports(user)) {
+            model.addAttribute("allReports", service.getAll());
+        }
 
         return "report-attack-form";
     }
@@ -89,8 +91,9 @@ public class ReportAttackController {
 
         ReportAttack saved = service.create(report);
         auditService.log("REPORT_ATTACK", "ReportAttack", saved.getReportId(),
-                "Type: " + saved.getAttackType() + " | Country: " + country);
+                "Type: " + saved.getAttackType() + " | Region: " + saved.getRegion());
 
+        // Notify admins
         try {
             notificationService.createNotification(
                 "🚨 Attack Mpya: " + saved.getAttackTypeLabel(),
@@ -114,12 +117,14 @@ public class ReportAttackController {
         return "report-attack-success";
     }
 
+    // ===== VIEW — Admin anaweza kuona zote, individual anaona zake tu =====
     @GetMapping("/view/{id}")
     public String view(@PathVariable Long id, Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
         if (user == null || r == null) return "redirect:/report-attack";
 
+        // Individual anaona zake pekee, Admin anaona zote
         if (!canSeeAllReports(user) && !r.getUserId().equals(user.getId())) {
             return "redirect:/access-denied";
         }
@@ -131,7 +136,7 @@ public class ReportAttackController {
         return "report-attack-detail";
     }
 
-    // ===== ADMIN VIEW — Only Admin/Pro/Forensics =====
+    // ===== ADMIN VIEW — Admin/Pro/Forensics PEKEE =====
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
@@ -152,6 +157,7 @@ public class ReportAttackController {
         return "report-attack-admin";
     }
 
+    // ===== ADMIN UPDATE — Kumsaidia mtu =====
     @PostMapping("/admin/{id}/update")
     public String updateStatus(@PathVariable Long id,
                                 @RequestParam String status,
@@ -169,8 +175,7 @@ public class ReportAttackController {
         }
 
         service.updateStatus(id, status, adminResponse, assignedTo, assignedName);
-        
-        // Update police case number
+
         if (policeCaseNumber != null && !policeCaseNumber.isEmpty()) {
             ReportAttack r = service.getById(id);
             if (r != null) {
@@ -179,7 +184,9 @@ public class ReportAttackController {
             }
         }
 
-        auditService.log("ATTACK_UPDATE", "ReportAttack", String.valueOf(id), "Status: " + status);
+        auditService.log("ATTACK_HELP", "ReportAttack", String.valueOf(id),
+                "Status: " + status + " | Assigned: " + assignedName);
+
         return "redirect:/report-attack/admin";
     }
 }

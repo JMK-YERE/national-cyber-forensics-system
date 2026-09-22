@@ -2,27 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="#{report.title}">Report Attack</title>
+    <title>🚨 Report Attack - Cyber Forensics</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
     <style>
         .attack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 15px 0; }
-        .attack-option { background: var(--white); border: 2px solid var(--border-blue); border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; text-align: center; }
-        .attack-option:hover { border-color: var(--dark-blue); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .attack-option { background: white; border: 2px solid rgba(15, 37, 87, 0.2); border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; text-align: center; }
+        .attack-option:hover { border-color: var(--dark-blue); box-shadow: 0 4px 12px rgba(15, 37, 87, 0.15); transform: translateY(-2px); }
         .attack-option.selected { border-color: var(--deep-red); background: rgba(139, 26, 26, 0.08); }
         .attack-option input { display: none; }
         .attack-option .icon { font-size: 30px; margin-bottom: 8px; }
         .attack-option .label { font-size: 11px; color: var(--dark-blue); font-weight: 600; }
-        .lang-switcher { text-align: right; padding: 10px 0; font-size: 12px; }
-        .lang-switcher a { margin-left: 10px; padding: 4px 10px; border-radius: 4px; }
-        .lang-switcher a.active { background: var(--dark-blue); color: white; }
+        .alert-banner { background: linear-gradient(135deg, var(--deep-red), var(--red-light)); color: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+        .alert-banner h2 { color: white; margin: 0; font-size: 24px; }
         .contact-section { background: rgba(201, 162, 39, 0.08); border-left: 4px solid var(--gold); padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .contact-section h4 { color: var(--dark-blue); margin-bottom: 8px; }
-        .contact-section p { font-size: 12px; color: var(--text-muted); margin-bottom: 15px; }
-        .country-selector { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; }
-        .country-btn { padding: 8px 15px; border: 2px solid var(--border-blue); border-radius: 20px; background: white; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
-        .country-btn:hover { border-color: var(--dark-blue); }
-        .country-btn.active { background: var(--dark-blue); color: white; border-color: var(--dark-blue); }
     </style>
 </head>
 <body>
@@ -33,186 +25,121 @@
         <a th:href="@{/report-attack}">🚨 Report</a>
         <a th:href="@{/ai/assistant}">🤖 AI</a>
         <a th:href="@{/tools/security-center}">🛡️ Tools</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
+        <a th:href="@{/report-attack/admin}" th:if="${canSeeAll}">👥 All Reports</a>
     </div>
 </div>
 
 <div class="container">
-    <!-- LANGUAGE SWITCHER -->
-    <div class="lang-switcher">
+    <!-- Language switcher -->
+    <div style="text-align:right; padding:10px 0; font-size:12px;">
         🌐 Lugha:
-        <a th:href="@{/report-attack?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'">🇹🇿 Kiswahili</a>
-        <a th:href="@{/report-attack?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'">🇬🇧 English</a>
-        <a th:href="@{/report-attack?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'">🇫🇷 Français</a>
-        <a th:href="@{/report-attack?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'">🇸🇦 العربية</a>
+        <a th:href="@{/report-attack?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'">🇹🇿 SW</a>
+        <a th:href="@{/report-attack?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'">🇬🇧 EN</a>
+        <a th:href="@{/report-attack?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'">🇫🇷 FR</a>
+        <a th:href="@{/report-attack?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'">🇸🇦 AR</a>
     </div>
 
-    <div class="card" style="text-align:center; background:linear-gradient(135deg, var(--deep-red), var(--red-light)); color:white; padding:30px;">
-        <h1 style="color:white; font-size:28px; margin:0;">🚨 REPORT ATTACK / SHIDA</h1>
-        <p style="color:white; margin:10px 0 0 0; font-size:15px;">Report any attack — get help immediately</p>
+    <div class="alert-banner">
+        <h2>🚨 REPORT ATTACK / SHIDA</h2>
+        <p style="color:white; margin:10px 0 0 0;">Report any attack — tutakusaidia haraka</p>
     </div>
 
-    <form th:action="@{/report-attack/new}" method="post" style="margin-top:20px;">
+    <!-- ADMIN VIEW — Ona reports zote kwenye form -->
+    <div class="card" th:if="${canSeeAll && allReports != null && !allReports.isEmpty()}"
+         style="background: rgba(201, 162, 39, 0.1); border-left: 4px solid var(--gold);">
+        <h2>👥 Reports Zote (Admin View)</h2>
+        <p>Wewe ni Admin/Investigator — unaweza kuona reports zote na kusaidia.</p>
+        <a th:href="@{/report-attack/admin}" class="btn btn-primary" style="margin-top:10px;">📋 View All Reports & Help Users</a>
+    </div>
 
-        <!-- COUNTRY SELECTOR -->
-        <div class="card">
-            <h2>🌍 1. Chagua Nchi / Select Country</h2>
-            <div class="country-selector">
-                <button type="button" class="country-btn active" data-country="TZ" onclick="selectCountry(this)">🇹🇿 Tanzania</button>
-                <button type="button" class="country-btn" data-country="KE" onclick="selectCountry(this)">🇰🇪 Kenya</button>
-                <button type="button" class="country-btn" data-country="UG" onclick="selectCountry(this)">🇺🇬 Uganda</button>
-                <button type="button" class="country-btn" data-country="RW" onclick="selectCountry(this)">🇷🇼 Rwanda</button>
-                <button type="button" class="country-btn" data-country="BI" onclick="selectCountry(this)">🇧🇮 Burundi</button>
-                <button type="button" class="country-btn" data-country="SS" onclick="selectCountry(this)">🇸🇸 South Sudan</button>
-                <button type="button" class="country-btn" data-country="CD" onclick="selectCountry(this)">🇨🇩 DR Congo</button>
-                <button type="button" class="country-btn" data-country="ZM" onclick="selectCountry(this)">🇿🇲 Zambia</button>
-                <button type="button" class="country-btn" data-country="MW" onclick="selectCountry(this)">🇲🇼 Malawi</button>
-                <button type="button" class="country-btn" data-country="MZ" onclick="selectCountry(this)">🇲🇿 Mozambique</button>
-                <button type="button" class="country-btn" data-country="ZA" onclick="selectCountry(this)">🇿🇦 South Africa</button>
-                <button type="button" class="country-btn" data-country="NG" onclick="selectCountry(this)">🇳🇬 Nigeria</button>
-                <button type="button" class="country-btn" data-country="GH" onclick="selectCountry(this)">🇬🇭 Ghana</button>
-                <button type="button" class="country-btn" data-country="OTHER" onclick="selectCountry(this)">🌍 Other</button>
-            </div>
-            <input type="hidden" name="country" id="countryInput" value="TZ">
-        </div>
+    <!-- FORM -->
+    <div class="card">
+        <h2>📝 Ripoti Sasa</h2>
+        <form th:action="@{/report-attack/new}" method="post">
 
-        <!-- ATTACK TYPE -->
-        <div class="card">
-            <h2>📋 2. Aina ya Attack / Attack Type *</h2>
+            <!-- COUNTRY -->
+            <label>🌍 Nchi / Country *</label>
+            <select name="country" required>
+                <option th:each="c : ${countries}" th:value="${c.code}" th:text="${c.flag + ' ' + c.name}"></option>
+            </select>
+
+            <!-- ATTACK TYPE -->
+            <label>📋 Aina ya Attack *</label>
             <div class="attack-grid">
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="PHONE_STOLEN" required>
-                    <div class="icon">📱</div>
-                    <div class="label">Simu Iliibiwa</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="SOCIAL_MEDIA_HACKED">
-                    <div class="icon">👤</div>
-                    <div class="label">Social Media Hacked</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="BANK_CARD_LOST">
-                    <div class="icon">💳</div>
-                    <div class="label">Kadi ya Benki</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="MONEY_STOLEN">
-                    <div class="icon">💰</div>
-                    <div class="label">Pesa Iliibiwa</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="EMAIL_HACKED">
-                    <div class="icon">📧</div>
-                    <div class="label">Email Hacked</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="PHISHING">
-                    <div class="icon">🎣</div>
-                    <div class="label">Phishing</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="SIM_SWAP">
-                    <div class="icon">📲</div>
-                    <div class="label">SIM Swap</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="RANSOMWARE">
-                    <div class="icon">🦠</div>
-                    <div class="label">Ransomware</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="HOME_BREAK_IN">
-                    <div class="icon">🏠</div>
-                    <div class="label">Nyumbani</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="IDENTITY_THEFT">
-                    <div class="icon">🆔</div>
-                    <div class="label">Utambulisho</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="DOCUMENTS_STOLEN">
-                    <div class="icon">💼</div>
-                    <div class="label">Documents</div>
-                </label>
-                <label class="attack-option" onclick="selectAttack(this)">
-                    <input type="radio" name="attackType" value="OTHER">
-                    <div class="icon">⚠️</div>
-                    <div class="label">Nyingine</div>
-                </label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="PHONE_STOLEN" required><div class="icon">📱</div><div class="label">Simu</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="SOCIAL_MEDIA_HACKED"><div class="icon">👤</div><div class="label">Social Media</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="BANK_CARD_LOST"><div class="icon">💳</div><div class="label">Kadi</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="MONEY_STOLEN"><div class="icon">💰</div><div class="label">Pesa</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="EMAIL_HACKED"><div class="icon">📧</div><div class="label">Email</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="PHISHING"><div class="icon">🎣</div><div class="label">Phishing</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="SIM_SWAP"><div class="icon">📲</div><div class="label">SIM Swap</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="RANSOMWARE"><div class="icon">🦠</div><div class="label">Ransomware</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="HOME_BREAK_IN"><div class="icon">🏠</div><div class="label">Nyumbani</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="IDENTITY_THEFT"><div class="icon">🆔</div><div class="label">Utambulisho</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="DOCUMENTS_STOLEN"><div class="icon">💼</div><div class="label">Documents</div></label>
+                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="OTHER"><div class="icon">⚠️</div><div class="label">Nyingine</div></label>
             </div>
-        </div>
 
-        <!-- DETAILS -->
-        <div class="card">
-            <h2>📝 3. Maelezo / Details</h2>
-
-            <label>Kichwa / Title *</label>
+            <label>📝 Kichwa *</label>
             <input type="text" name="title" required placeholder="mfano: Simu yangu iliibiwa jana usiku">
 
-            <label>Maelezo / Description *</label>
-            <textarea name="description" rows="5" required placeholder="Eleza kilichotokea, lini, wapi..."></textarea>
+            <label>📄 Maelezo *</label>
+            <textarea name="description" rows="5" required placeholder="Eleza kilichotokea..."></textarea>
 
-            <label>Mkoa / Region *</label>
+            <label>📍 Mkoa *</label>
             <select name="region" required>
                 <option value="">-- Chagua --</option>
                 <option th:each="r : ${defaultCountry.regions}" th:value="${r}" th:text="${r}"></option>
             </select>
 
-            <label>Mahali / Location</label>
+            <label>📍 Mahali</label>
             <input type="text" name="location" placeholder="mfano: Kariakoo">
 
-            <label>Tarehe / Date Occurred</label>
+            <label>📅 Tarehe Ilipotokea</label>
             <input type="datetime-local" name="dateOccurred">
 
-            <label>Hasara / Financial Loss</label>
-            <input type="number" name="financialLossTzs" placeholder="0" step="0.01">
-        </div>
+            <label>💰 Hasara (TZS)</label>
+            <input type="number" name="financialLossTzs" placeholder="0">
 
-        <!-- CONTACT INFO — KWA USAIDIZI -->
-        <div class="card contact-section">
-            <h4>📞 4. Taarifa Zako za Mawasiliano / Your Contact Info</h4>
-            <p>Tunahitaji hizi kwa msaada zaidi na kuwasiliana na Polisi. <strong>Hazitaonekana kwa mtu mwingine</strong> — Admin/Investigator tu.</p>
+            <!-- CONTACT INFO -->
+            <div class="contact-section">
+                <h4>📞 Taarifa Zako za Mawasiliano</h4>
+                <p style="font-size:12px; color:var(--text-muted);">Tunahitaji hizi kwa msaada wa haraka na kuwasiliana na Polisi.</p>
 
-            <label>Jina Kamili / Full Name *</label>
-            <input type="text" name="reporterName" required th:value="${user.fullName != null ? user.fullName : user.username}">
+                <label>Jina Kamili *</label>
+                <input type="text" name="reporterName" required th:value="${user.fullName != null ? user.fullName : user.username}">
 
-            <label>Namba ya Simu / Phone *</label>
-            <input type="tel" name="reporterPhone" required placeholder="+255 7XX XXX XXX" th:value="${user.phone != null ? user.phone : ''}">
+                <label>Namba ya Simu *</label>
+                <input type="tel" name="reporterPhone" required th:value="${user.phone != null ? user.phone : ''}">
 
-            <label>Email *</label>
-            <input type="email" name="reporterEmail" required th:value="${user.email}">
+                <label>Email *</label>
+                <input type="email" name="reporterEmail" required th:value="${user.email}">
 
-            <label>Namba ya NIDA / Passport / ID Number</label>
-            <input type="text" name="reporterIdNumber" placeholder="mfano: 19900101-12345-00001-12">
+                <label>Namba ya NIDA/Passport</label>
+                <input type="text" name="reporterIdNumber" placeholder="19900101-12345-00001-12">
 
-            <label>Anwani / Address</label>
-            <input type="text" name="reporterAddress" placeholder="mfano: Kariakoo, Dar es Salaam">
-        </div>
+                <label>Anwani</label>
+                <input type="text" name="reporterAddress" placeholder="Kariakoo, Dar es Salaam">
+            </div>
 
-        <!-- EVIDENCE -->
-        <div class="card">
-            <h2>📎 5. Ushahidi / Evidence</h2>
-            <label>Una ushahidi? / Do you have evidence?</label>
+            <label>📎 Una Ushahidi?</label>
             <select name="hasEvidence">
-                <option value="false">Hapana / No</option>
-                <option value="true">Ndiyo / Yes</option>
+                <option value="false">Hapana</option>
+                <option value="true">Ndiyo</option>
             </select>
 
-            <label>Eleza ushahidi / Describe evidence</label>
-            <textarea name="evidenceDescription" rows="3" placeholder="mfano: Nina screenshots, picha za simu, receipts..."></textarea>
-        </div>
+            <label>📎 Eleza Ushahidi</label>
+            <textarea name="evidenceDescription" rows="3" placeholder="Nina screenshots, picha, receipts..."></textarea>
 
-        <button type="submit" class="btn btn-danger" style="width:100%; padding:20px; font-size:18px; margin-top:20px;">
-            🚨 TUMA TAARIFA / SUBMIT REPORT
-        </button>
-    </form>
+            <button type="submit" class="btn btn-danger" style="width:100%; padding:18px; font-size:16px; margin-top:20px;">
+                🚨 TUMA TAARIFA
+            </button>
+        </form>
+    </div>
 
     <!-- MY REPORTS -->
     <div class="card" th:if="${myReports != null && !myReports.isEmpty()}">
-        <h2>📋 Taarifa Zangu / My Reports</h2>
+        <h2>📋 Taarifa Zangu</h2>
         <table style="margin-top:15px;">
             <thead>
             <tr>
@@ -236,24 +163,12 @@
             </tbody>
         </table>
     </div>
-
-    <!-- ADMIN LINK -->
-    <div class="card" th:if="${canSeeAll}" style="background:rgba(201, 162, 39, 0.1); border-left:4px solid var(--gold);">
-        <h3>🔒 Admin Access</h3>
-        <p>Wewe ni Admin/Investigator — unaweza kuona na kusaidia reports zote.</p>
-        <a th:href="@{/report-attack/admin}" class="btn btn-primary" style="margin-top:10px;">📋 View All Reports</a>
-    </div>
 </div>
 
 <script>
 function selectAttack(el) {
     document.querySelectorAll('.attack-option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
-}
-function selectCountry(el) {
-    document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('countryInput').value = el.getAttribute('data-country');
 }
 </script>
 </body>
