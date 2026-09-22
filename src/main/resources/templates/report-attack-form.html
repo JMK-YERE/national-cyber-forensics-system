@@ -132,10 +132,11 @@
                 <input type="text" name="reporterAddress">
             </div>
 
+            <!-- EVIDENCE UPLOAD -->
             <div style="background:rgba(15,37,87,0.05); border-left:4px solid var(--dark-blue); padding:20px; border-radius:8px;">
                 <h4 th:text="#{report.evidence}">Evidence</h4>
 
-                <label th:text="#{report.uploadFile}">Upload File</label>
+                <label th:text="#{report.uploadFile}">Upload File (Photo / Video / Audio / Document)</label>
                 <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt">
 
                 <label th:text="#{report.evidenceDesc}">Describe evidence</label>
@@ -151,7 +152,10 @@
 
 <script>
 function selectAttack(el) {
-    document.querySelectorAll('.attack-option').forEach(o => o.style.borderColor = 'rgba(15,37,87,0.2)');
+    document.querySelectorAll('[onclick="selectAttack(this)"]').forEach(o => {
+        o.style.borderColor = 'rgba(15,37,87,0.2)';
+        o.style.background = 'white';
+    });
     el.style.borderColor = 'var(--deep-red)';
     el.style.background = 'rgba(139,26,26,0.08)';
 }

@@ -45,21 +45,12 @@ public class SecurityConfig {
         http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/login", "/register", "/lang",
-                    "/css/**", "/js/**", "/images/**",
-                    "/error", "/access-denied",
-                    "/google*.html", "/*.html",
-                    "/sitemap.xml", "/robots.txt"
-                ).permitAll()
-                .requestMatchers(
-                    "/whistleblower",
-                    "/whistleblower/report",
-                    "/whistleblower/submit",
-                    "/whistleblower/success",
-                    "/whistleblower/track",
-                    "/whistleblower/track/**"
-                ).permitAll()
+                .requestMatchers("/login", "/register", "/lang", "/css/**", "/js/**", "/images/**",
+                                 "/error", "/access-denied", "/google*.html", "/*.html",
+                                 "/sitemap.xml", "/robots.txt").permitAll()
+                .requestMatchers("/whistleblower", "/whistleblower/report",
+                                 "/whistleblower/submit", "/whistleblower/success",
+                                 "/whistleblower/track", "/whistleblower/track/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
@@ -67,10 +58,7 @@ public class SecurityConfig {
                 .requestMatchers("/threat-map").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/report-attack/admin/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/whistleblower/admin/**").hasAnyRole("ADMIN", "CYBER_PRO")
-                .requestMatchers("/report-attack").authenticated()
-                .requestMatchers("/report-attack/new").authenticated()
-                .requestMatchers("/report-attack/success").authenticated()
-                .requestMatchers("/report-attack/view/**").authenticated()
+                .requestMatchers("/report-attack/**").authenticated()
                 .requestMatchers("/dashboard/**").authenticated()
                 .requestMatchers("/notifications/**").authenticated()
                 .requestMatchers("/tools/**").authenticated()

@@ -14,20 +14,16 @@
 <body>
 <div class="auth-container">
     <div class="lang-selector">
-        <a th:href="@{/lang?lang=sw&redirect=/login}" class="lang-btn"
-           th:classappend="${#locale.language == 'sw'} ? 'active'">Kiswahili</a>
-        <a th:href="@{/lang?lang=en&redirect=/login}" class="lang-btn"
-           th:classappend="${#locale.language == 'en'} ? 'active'">English</a>
-        <a th:href="@{/lang?lang=fr&redirect=/login}" class="lang-btn"
-           th:classappend="${#locale.language == 'fr'} ? 'active'">Français</a>
-        <a th:href="@{/lang?lang=ar&redirect=/login}" class="lang-btn"
-           th:classappend="${#locale.language == 'ar'} ? 'active'">العربية</a>
+        <a th:href="@{/lang?lang=sw}" class="lang-btn" th:classappend="${#locale.language == 'sw'} ? 'active'">Kiswahili</a>
+        <a th:href="@{/lang?lang=en}" class="lang-btn" th:classappend="${#locale.language == 'en'} ? 'active'">English</a>
+        <a th:href="@{/lang?lang=fr}" class="lang-btn" th:classappend="${#locale.language == 'fr'} ? 'active'">Français</a>
+        <a th:href="@{/lang?lang=ar}" class="lang-btn" th:classappend="${#locale.language == 'ar'} ? 'active'">العربية</a>
     </div>
 
     <h1 style="text-align:center;font-size:22px;">🔐 <span th:text="#{app.title}">CYBER FORENSICS</span></h1>
     <p style="text-align:center;margin-bottom:30px;font-size:12px;color:var(--text-muted);" th:text="#{app.subtitle}">SECURE SYSTEM ACCESS</p>
 
-    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="#{login.error}">Error</div>
     <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
 
@@ -44,12 +40,12 @@
     </form>
 
     <p style="text-align:center;margin-top:20px;font-size:12px;">
-        <span th:text="#{login.noAccount}">Don't have an account?</span>
-        <a th:href="@{/register}" th:text="#{login.register}">Register here</a>
+        <span th:text="#{login.noAccount}">No account?</span>
+        <a th:href="@{/register}" th:text="#{login.register}">Register</a>
     </p>
 
     <p style="text-align:center;margin-top:10px;font-size:11px;">
-        <a th:href="@{/whistleblower}" th:text="#{login.whistleblower}">🕵️ Whistleblower</a>
+        <a th:href="@{/whistleblower}" th:text="#{login.whistleblower}">Whistleblower Portal</a>
     </p>
 </div>
 </body>

@@ -2,52 +2,49 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📝 Register - Cyber Forensics System</title>
+    <title th:text="#{register.title} + ' - ' + #{app.title}">Register</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
 <div class="auth-container">
-    <h1 style="text-align:center;font-size:18px;">📝 REGISTER</h1>
-    <p style="text-align:center;margin-bottom:25px;font-size:11px;">CYBER FORENSICS - TANZANIA</p>
+    <div style="display:flex; justify-content:center; gap:8px; margin-bottom:25px; flex-wrap:wrap;">
+        <a th:href="@{/lang?lang=sw}" style="padding:6px 12px; background:white; border:2px solid rgba(15,37,87,0.2); border-radius:20px; color:var(--dark-blue); font-size:11px; font-weight:600; text-decoration:none;">SW</a>
+        <a th:href="@{/lang?lang=en}" style="padding:6px 12px; background:white; border:2px solid rgba(15,37,87,0.2); border-radius:20px; color:var(--dark-blue); font-size:11px; font-weight:600; text-decoration:none;">EN</a>
+        <a th:href="@{/lang?lang=fr}" style="padding:6px 12px; background:white; border:2px solid rgba(15,37,87,0.2); border-radius:20px; color:var(--dark-blue); font-size:11px; font-weight:600; text-decoration:none;">FR</a>
+        <a th:href="@{/lang?lang=ar}" style="padding:6px 12px; background:white; border:2px solid rgba(15,37,87,0.2); border-radius:20px; color:var(--dark-blue); font-size:11px; font-weight:600; text-decoration:none;">AR</a>
+    </div>
+
+    <h1 style="text-align:center;font-size:20px;">📝 <span th:text="#{register.title}">Register</span></h1>
 
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
     <form th:action="@{/register}" method="post">
-        <label>USERNAME *</label>
+        <label th:text="#{register.username}">Username</label>
         <input type="text" name="username" required>
 
-        <label>EMAIL *</label>
-        <input type="email" name="email" required placeholder="utapata email hapa">
+        <label th:text="#{register.email}">Email</label>
+        <input type="email" name="email" required>
 
-        <label>FULL NAME *</label>
+        <label th:text="#{register.fullName}">Full Name</label>
         <input type="text" name="fullName" required>
 
-        <label>ORGANIZATION</label>
-        <input type="text" name="organization" placeholder="mfano: TCRA, Police, Bank">
+        <label th:text="#{register.organization}">Organization</label>
+        <input type="text" name="organization">
 
-        <label>PHONE (SMS alerts)</label>
-        <input type="text" name="phone" placeholder="+255 7XX XXX XXX">
+        <label th:text="#{register.phone}">Phone</label>
+        <input type="text" name="phone">
 
-        <label>WHATSAPP NUMBER</label>
-        <input type="text" name="whatsappNumber" placeholder="+255 7XX XXX XXX">
-
-        <label>PASSWORD *</label>
+        <label th:text="#{register.password}">Password</label>
         <input type="password" name="password" required minlength="6">
 
         <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px;">
-            ✍️ SAJILI
+            <span th:text="#{register.button}">Register</span>
         </button>
     </form>
 
-    <div style="margin-top:20px; padding:15px; background:rgba(0,255,157,0.05); border-radius:5px; font-size:11px; color:#888;">
-        📧 Utapata <strong>Welcome Email</strong> kwenye inbox yako.
-        <br>
-        📱 Kama umejaza WhatsApp, utapata <strong>WhatsApp</strong> pia.
-    </div>
-
     <p style="text-align:center;margin-top:20px;font-size:12px;">
-        Una akaunti? <a th:href="@{/login}">INGIA HAPA</a>
+        <span th:text="#{register.haveAccount}">Have account?</span>
+        <a th:href="@{/login}" th:text="#{register.login}">Login</a>
     </p>
 </div>
 </body>
