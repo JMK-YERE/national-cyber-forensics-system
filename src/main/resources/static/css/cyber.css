@@ -687,3 +687,14 @@ hr {
 .flex-wrap { flex-wrap: wrap; }
 .gap-10 { gap: 10px; }
 .gap-20 { gap: 20px; }
+
+/* Active language */
+.active-lang {
+    background: var(--gold) !important;
+    color: var(--dark-blue) !important;
+    border-radius: 4px;
+    font-weight: bold;
+}
+.nav-links a.active-lang {
+    border-color: var(--gold);
+}

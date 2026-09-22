@@ -2,152 +2,171 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Report Attack - Cyber Forensics System</title>
+    <title th:text="#{report.title} + ' - ' + #{app.title}">Report</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
-    <style>
-        .attack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 15px 0; }
-        .attack-option { background: white; border: 2px solid rgba(15, 37, 87, 0.2); border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; text-align: center; }
-        .attack-option:hover { border-color: var(--dark-blue); box-shadow: 0 4px 12px rgba(15, 37, 87, 0.15); transform: translateY(-2px); }
-        .attack-option.selected { border-color: var(--deep-red); background: rgba(139, 26, 26, 0.08); }
-        .attack-option input { display: none; }
-        .attack-option .icon { font-size: 30px; margin-bottom: 8px; }
-        .attack-option .label { font-size: 11px; color: var(--dark-blue); font-weight: 600; }
-        .alert-banner { background: linear-gradient(135deg, var(--deep-red), var(--red-light)); color: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-        .contact-section { background: rgba(201, 162, 39, 0.08); border-left: 4px solid var(--gold); padding: 20px; border-radius: 8px; margin: 20px 0; }
-    </style>
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ CYBER FORENSICS SYSTEM</div>
+    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
     <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/report-attack}">🚨 Report</a>
-        <a th:href="@{/ai/assistant}">🤖 AI Assistant</a>
-        <a th:href="@{/tools/security-center}">🛡️ Tools</a>
-        <a th:href="@{/report-attack/admin}" th:if="${canSeeAll}">👥 All Reports</a>
+        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
+        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
+        <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
+        <span style="color:var(--gold); margin-left:15px;">
+            <a th:href="@{/lang?lang=sw&redirect=/report-attack}" style="color:white; padding:4px 8px;">SW</a>
+            <a th:href="@{/lang?lang=en&redirect=/report-attack}" style="color:white; padding:4px 8px;">EN</a>
+            <a th:href="@{/lang?lang=fr&redirect=/report-attack}" style="color:white; padding:4px 8px;">FR</a>
+            <a th:href="@{/lang?lang=ar&redirect=/report-attack}" style="color:white; padding:4px 8px;">AR</a>
+        </span>
     </div>
 </div>
 
 <div class="container">
-    <!-- LANGUAGE SWITCHER -->
-    <div style="text-align:right; padding:10px 0; font-size:12px;">
-        🌐 Language:
-        <a th:href="@{/report-attack?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'" style="margin-left:8px;">SW</a>
-        <a th:href="@{/report-attack?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'" style="margin-left:8px;">EN</a>
-        <a th:href="@{/report-attack?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'" style="margin-left:8px;">FR</a>
-        <a th:href="@{/report-attack?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'" style="margin-left:8px;">AR</a>
+    <div class="card" style="text-align:center; background:linear-gradient(135deg, var(--deep-red), var(--red-light)); color:white; padding:30px;">
+        <h1 style="color:white; font-size:28px; margin:0;" th:text="#{report.title}">Report Attack</h1>
+        <p style="color:white; margin:10px 0 0 0;" th:text="#{report.subtitle}">Report any incident</p>
     </div>
 
-    <div class="alert-banner">
-        <h2>🚨 REPORT ATTACK / INCIDENT</h2>
-        <p style="color:white; margin:10px 0 0 0;">Report any security incident — we'll help you</p>
+    <div class="card" th:if="${canSeeAll}">
+        <h2 th:text="#{report.adminView}">Admin View</h2>
+        <a th:href="@{/report-attack/admin}" class="btn btn-primary" th:text="#{report.viewAll}">View All</a>
     </div>
 
-    <!-- ADMIN VIEW -->
-    <div class="card" th:if="${canSeeAll && allReports != null && !allReports.isEmpty()}"
-         style="background: rgba(201, 162, 39, 0.1); border-left: 4px solid var(--gold);">
-        <h2>👥 All Reports (Admin/Investigator View)</h2>
-        <p>You are Admin/Investigator — you can see all reports and help users.</p>
-        <a th:href="@{/report-attack/admin}" class="btn btn-primary" style="margin-top:10px;">📋 View All Reports & Help</a>
-    </div>
-
-    <!-- FORM -->
     <div class="card">
-        <h2>📝 Submit Report</h2>
-        <form th:action="@{/report-attack/new}" method="post">
+        <h2 th:text="#{report.title}">Report</h2>
+        <form th:action="@{/report-attack/new}" method="post" enctype="multipart/form-data">
 
-            <label>🌍 Country *</label>
+            <label th:text="#{report.country} + ' *'">Country *</label>
             <select name="country" required>
                 <option th:each="c : ${countries}" th:value="${c.code}" th:text="${c.name}"></option>
             </select>
 
-            <label>📋 Attack Type *</label>
-            <div class="attack-grid">
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="PHONE_STOLEN" required><div class="icon">📱</div><div class="label">Phone Stolen</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="SOCIAL_MEDIA_HACKED"><div class="icon">👤</div><div class="label">Social Media</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="BANK_CARD_LOST"><div class="icon">💳</div><div class="label">Bank Card</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="MONEY_STOLEN"><div class="icon">💰</div><div class="label">Money Stolen</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="EMAIL_HACKED"><div class="icon">📧</div><div class="label">Email Hacked</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="PHISHING"><div class="icon">🎣</div><div class="label">Phishing</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="SIM_SWAP"><div class="icon">📲</div><div class="label">SIM Swap</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="RANSOMWARE"><div class="icon">🦠</div><div class="label">Ransomware</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="HOME_BREAK_IN"><div class="icon">🏠</div><div class="label">Break In</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="IDENTITY_THEFT"><div class="icon">🆔</div><div class="label">Identity Theft</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="DOCUMENTS_STOLEN"><div class="icon">💼</div><div class="label">Documents</div></label>
-                <label class="attack-option" onclick="selectAttack(this)"><input type="radio" name="attackType" value="OTHER"><div class="icon">⚠️</div><div class="label">Other</div></label>
+            <label th:text="#{report.attackType} + ' *'">Attack Type *</label>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin:15px 0;">
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="PHONE_STOLEN" required style="display:none;">
+                    <div style="font-size:30px;">📱</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.PHONE_STOLEN}">Phone</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="SOCIAL_MEDIA_HACKED" style="display:none;">
+                    <div style="font-size:30px;">👤</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.SOCIAL_MEDIA_HACKED}">Social</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="BANK_CARD_LOST" style="display:none;">
+                    <div style="font-size:30px;">💳</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.BANK_CARD_LOST}">Card</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="MONEY_STOLEN" style="display:none;">
+                    <div style="font-size:30px;">💰</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.MONEY_STOLEN}">Money</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="EMAIL_HACKED" style="display:none;">
+                    <div style="font-size:30px;">📧</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.EMAIL_HACKED}">Email</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="PHISHING" style="display:none;">
+                    <div style="font-size:30px;">🎣</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.PHISHING}">Phishing</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="RANSOMWARE" style="display:none;">
+                    <div style="font-size:30px;">🦠</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.RANSOMWARE}">Ransomware</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="SIM_SWAP" style="display:none;">
+                    <div style="font-size:30px;">📲</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.SIM_SWAP}">SIM Swap</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="OTHER" style="display:none;">
+                    <div style="font-size:30px;">⚠️</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.OTHER}">Other</div>
+                </label>
             </div>
 
-            <label>📝 Title *</label>
-            <input type="text" name="title" required placeholder="Brief description">
+            <label th:text="#{report.title2} + ' *'">Title *</label>
+            <input type="text" name="title" required>
 
-            <label>📄 Description *</label>
-            <textarea name="description" rows="5" required placeholder="What happened..."></textarea>
+            <label th:text="#{report.description} + ' *'">Description *</label>
+            <textarea name="description" rows="5" required></textarea>
 
-            <label>📍 Region *</label>
+            <label th:text="#{report.region} + ' *'">Region *</label>
             <select name="region" required>
-                <option value="">-- Select --</option>
+                <option value="">--</option>
                 <option th:each="r : ${defaultCountry.regions}" th:value="${r}" th:text="${r}"></option>
             </select>
 
-            <label>📍 Location</label>
-            <input type="text" name="location" placeholder="City, address">
+            <label th:text="#{report.location}">Location</label>
+            <input type="text" name="location">
 
-            <label>📅 Date Occurred</label>
+            <label th:text="#{report.dateOccurred}">Date Occurred</label>
             <input type="datetime-local" name="dateOccurred">
 
-            <label>💰 Financial Loss</label>
+            <label th:text="#{report.financialLoss}">Financial Loss</label>
             <input type="number" name="financialLossTzs" placeholder="0">
 
-            <div class="contact-section">
-                <h4>📞 Your Contact Information</h4>
-                <p style="font-size:12px; color:var(--text-muted);">Required for follow-up and Police reporting.</p>
+            <!-- CONTACT -->
+            <div style="background:rgba(201,162,39,0.08); border-left:4px solid var(--gold); padding:20px; border-radius:8px; margin:20px 0;">
+                <h4 th:text="#{report.contact}">Contact Info</h4>
 
-                <label>Full Name *</label>
+                <label th:text="#{report.fullName} + ' *'">Full Name *</label>
                 <input type="text" name="reporterName" required th:value="${user.fullName != null ? user.fullName : user.username}">
 
-                <label>Phone *</label>
+                <label th:text="#{report.phone} + ' *'">Phone *</label>
                 <input type="tel" name="reporterPhone" required th:value="${user.phone != null ? user.phone : ''}">
 
-                <label>Email *</label>
+                <label th:text="#{report.email} + ' *'">Email *</label>
                 <input type="email" name="reporterEmail" required th:value="${user.email}">
 
-                <label>ID Number (NIDA/Passport)</label>
+                <label th:text="#{report.idNumber}">ID Number</label>
                 <input type="text" name="reporterIdNumber">
 
-                <label>Address</label>
+                <label th:text="#{report.address}">Address</label>
                 <input type="text" name="reporterAddress">
             </div>
 
-            <label>📎 Do you have evidence?</label>
-            <select name="hasEvidence">
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-            </select>
+            <!-- EVIDENCE UPLOAD -->
+            <div class="card" style="background:rgba(15,37,87,0.05); border-left:4px solid var(--dark-blue);">
+                <h4 th:text="#{report.evidence}">Evidence</h4>
 
-            <label>📎 Describe evidence</label>
-            <textarea name="evidenceDescription" rows="3" placeholder="Screenshots, photos, documents..."></textarea>
+                <label th:text="#{report.uploadFile}">Upload File (Photo/Video/Audio/Document)</label>
+                <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt">
+
+                <label th:text="#{report.evidenceDesc}">Describe evidence</label>
+                <textarea name="evidenceDescription" rows="3"></textarea>
+            </div>
 
             <button type="submit" class="btn btn-danger" style="width:100%; padding:18px; font-size:16px; margin-top:20px;">
-                🚨 SUBMIT REPORT
+                🚨 <span th:text="#{report.submit}">SUBMIT REPORT</span>
             </button>
         </form>
     </div>
 
-    <!-- MY REPORTS -->
     <div class="card" th:if="${myReports != null && !myReports.isEmpty()}">
-        <h2>📋 My Reports</h2>
+        <h2 th:text="#{report.myReports}">My Reports</h2>
         <table style="margin-top:15px;">
             <thead>
-            <tr><th>Report ID</th><th>Type</th><th>Region</th><th>Country</th><th>Status</th><th>Action</th></tr>
+            <tr>
+                <th>Report ID</th>
+                <th th:text="#{report.attackType}">Type</th>
+                <th th:text="#{report.region}">Region</th>
+                <th th:text="#{report.status}">Status</th>
+                <th th:text="#{general.action}">Action</th>
+            </tr>
             </thead>
             <tbody>
             <tr th:each="r : ${myReports}" th:class="${r.statusClass}">
                 <td th:text="${r.reportId}"></td>
-                <td th:text="${r.attackTypeLabel}"></td>
+                <td th:text="#{'attack.' + ${r.attackType}}">Type</td>
                 <td th:text="${r.region}"></td>
-                <td th:text="${r.countryName}"></td>
-                <td th:text="${r.status}"></td>
-                <td><a th:href="@{'/report-attack/view/' + ${r.id}}">View</a></td>
+                <td th:text="#{'status.' + ${r.status}}">Status</td>
+                <td><a th:href="@{'/report-attack/view/' + ${r.id}}" th:text="#{general.view}">View</a></td>
             </tr>
             </tbody>
         </table>
@@ -156,8 +175,9 @@
 
 <script>
 function selectAttack(el) {
-    document.querySelectorAll('.attack-option').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
+    document.querySelectorAll('.attack-option').forEach(o => o.style.borderColor = 'rgba(15,37,87,0.2)');
+    el.style.borderColor = 'var(--deep-red)';
+    el.style.background = 'rgba(139,26,26,0.08)';
 }
 </script>
 </body>

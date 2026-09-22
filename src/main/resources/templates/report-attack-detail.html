@@ -2,49 +2,74 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Report Detail</title>
+    <title th:text="#{report.title} + ' - ' + #{app.title}">Report Detail</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
     <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/report-attack}">🚨 Reports</a>
+        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
+        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
+        <a th:href="@{/report-attack/admin}" th:if="${canSeeAll}" th:text="#{report.viewAll}">All</a>
     </div>
 </div>
 
 <div class="container">
     <div class="card">
-        <h1 th:text="${report.attackTypeLabel}"></h1>
+        <h1 th:text="#{'attack.' + ${report.attackType}}">Type</h1>
         <p><strong>Report ID:</strong> <span th:text="${report.reportId}" style="color:var(--gold);"></span></p>
-        <p><strong>Kichwa:</strong> <span th:text="${report.title}"></span></p>
-        <p><strong>Status:</strong> <span th:text="${report.status}"></span></p>
-        <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
-        <p><strong>Mkoa:</strong> <span th:text="${report.region}"></span></p>
-        <p><strong>Mahali:</strong> <span th:text="${report.location}"></span></p>
-        <p><strong>Tarehe:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
-        <p th:if="${report.financialLossTzs != null}"><strong>Hasara:</strong> TZS <span th:text="${report.financialLossTzs}"></span></p>
+        <p><strong th:text="#{report.title2}">Title</strong>: <span th:text="${report.title}"></span></p>
+        <p><strong th:text="#{report.status}">Status</strong>: <span th:text="#{'status.' + ${report.status}}"></span></p>
+        <p><strong th:text="#{report.region}">Region</strong>: <span th:text="${report.region}"></span></p>
+        <p><strong th:text="#{report.country}">Country</strong>: <span th:text="${report.countryName}"></span></p>
+        <p><strong th:text="#{report.dateOccurred}">Date</strong>: <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
     </div>
 
     <div class="card">
-        <h2>📝 Maelezo</h2>
+        <h2 th:text="#{report.description}">Description</h2>
         <p th:text="${report.description}" style="white-space:pre-wrap;"></p>
     </div>
 
+    <!-- AI Recommendations -->
     <div class="card" th:if="${report.aiRecommendation != null}">
         <h2>🤖 AI Recommendations</h2>
         <div style="background:rgba(15,37,87,0.05); padding:20px; border-radius:8px; border-left:4px solid var(--dark-blue); white-space:pre-line; line-height:1.9;"
              th:text="${report.aiRecommendation}"></div>
     </div>
 
-    <div class="card" th:if="${report.adminResponse != null}">
-        <h2>👤 Admin Response</h2>
-        <div style="background:rgba(27,122,74,0.08); padding:20px; border-radius:8px; border-left:4px solid var(--emerald);"
-             th:text="${report.adminResponse}"></div>
-        <p style="margin-top:15px; font-size:12px;">
-            <strong>Assigned to:</strong> <span th:text="${report.assignedToName}"></span>
-        </p>
+    <!-- Evidence Download -->
+    <div class="card" th:if="${report.evidenceFilePath != null}">
+        <h2 th:text="#{admin.downloadEvidence}">Download Evidence</h2>
+        <p><strong>File Type:</strong> <span th:text="${report.evidenceFileType}"></span></p>
+        <p><strong>Size:</strong> <span th:text="${report.evidenceFileSize != null ? (report.evidenceFileSize / 1024) + ' KB' : 'N/A'}"></span></p>
+        <p th:if="${report.evidenceDescription}" th:text="${report.evidenceDescription}"></p>
+        <a th:href="@{'/report-attack/evidence/' + ${report.id}}" class="btn btn-primary" th:text="#{admin.downloadEvidence}">Download</a>
+    </div>
+
+    <!-- Messages -->
+    <div class="card">
+        <h2 th:text="#{admin.messages}">Messages</h2>
+
+        <div th:each="m : ${messages}" style="margin:10px 0; padding:12px; border-radius:6px;"
+             th:classappend="${m.senderType == 'ADMIN'} ? 'status-investigation' : 'status-resolved'">
+            <div style="font-size:11px; font-weight:bold; margin-bottom:5px;">
+                <span th:text="${m.senderType == 'ADMIN'} ? '👤 Admin' : '👤 User'"></span>
+                <span th:text="' (' + ${m.senderName} + ')'"></span>
+                <span style="float:right; font-weight:normal; color:#666;"
+                      th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+            </div>
+            <div th:text="${m.message}"></div>
+        </div>
+
+        <div th:if="${messages.isEmpty()}" style="text-align:center; padding:20px; color:#888;">
+            Hakuna mazungumzo bado.
+        </div>
+
+        <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post" style="margin-top:20px;">
+            <textarea name="message" rows="3" required placeholder="Andika ujumbe..." style="margin:0 0 10px 0;"></textarea>
+            <button type="submit" class="btn btn-primary">📤 <span th:text="#{admin.sendMessage}">Send</span></button>
+        </form>
     </div>
 </div>
 </body>

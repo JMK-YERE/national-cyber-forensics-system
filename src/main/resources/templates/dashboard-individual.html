@@ -2,83 +2,64 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>👤 My Dashboard - Cyber Forensics TZ</title>
+    <title th:text="#{nav.dashboard} + ' - ' + #{app.title}">Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
     <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/report-attack}">🚨 Report Attack</a>
-        <a th:href="@{/my-accounts}">📱 My Accounts</a>
-        <a th:href="@{/ai/assistant}">🤖 AI Assistant</a>
-        <a th:href="@{/tools/security-center}">🛡️ Tools</a>
-        <a th:href="@{/notifications}">🔔</a>
+        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
+        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
+        <a th:href="@{/my-accounts}" th:text="#{nav.myAccounts}">My Accounts</a>
+        <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
+        <a th:href="@{/tools/security-center}" th:text="#{nav.tools}">Tools</a>
+        <!-- LANGUAGE SWITCHER -->
+        <span style="color:var(--gold); margin-left:15px;">
+            <a th:href="@{/lang?lang=sw&redirect=/dashboard}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
+            <a th:href="@{/lang?lang=en&redirect=/dashboard}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
+            <a th:href="@{/lang?lang=fr&redirect=/dashboard}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
+            <a th:href="@{/lang?lang=ar&redirect=/dashboard}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
+        </span>
         <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
+            <button type="submit" class="logout-btn" th:text="#{nav.logout}">Logout</button>
         </form>
     </div>
 </div>
 
 <div class="container">
     <div class="card">
-        <h1>👤 Karibu, <span th:text="${username}">User</span>!</h1>
-        <p>Hii ni dashboard yako ya kibinafsi — kulinda accounts zako na kuripoti matukio.</p>
+        <h1><span th:text="#{dashboard.welcome}">Welcome</span>, <span th:text="${username}">User</span>!</h1>
+        <p>Hii ni dashboard yako ya kibinafsi.</p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box">
             <div class="stat-value" th:text="${user.securityScore != null ? user.securityScore : 0}">0</div>
-            <div class="stat-label">Security Score</div>
+            <div class="stat-label" th:text="#{dashboard.securityScore}">Security Score</div>
         </div>
         <div class="stat-box">
             <div class="stat-value" th:text="${user.countSocialAccounts()}">0</div>
-            <div class="stat-label">Social Accounts</div>
+            <div class="stat-label" th:text="#{dashboard.socialAccounts}">Social Accounts</div>
         </div>
         <div class="stat-box">
             <div class="stat-value" th:text="${user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
-            <div class="stat-label">2FA Enabled</div>
+            <div class="stat-label" th:text="#{dashboard.twoFactor}">2FA</div>
         </div>
         <div class="stat-box">
             <div class="stat-value" th:text="${user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
-            <div class="stat-label">Breach Checked</div>
-        </div>
-    </div>
-
-    <!-- QUICK ACTIONS -->
-    <div class="card">
-        <h2>⚡ Quick Actions</h2>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-top:15px;">
-            <a th:href="@{/report-attack}" class="btn btn-danger" style="text-align:center; padding:20px; font-size:14px;">
-                🚨 Ripoti Attack
-            </a>
-            <a th:href="@{/ai/assistant}" class="btn btn-primary" style="text-align:center; padding:20px; font-size:14px;">
-                🤖 Uliza AI
-            </a>
-            <a th:href="@{/my-accounts}" class="btn" style="text-align:center; padding:20px; font-size:14px;">
-                📱 Linda Accounts
-            </a>
-            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px; font-size:14px;">
-                🛡️ Security Tools
-            </a>
+            <div class="stat-label" th:text="#{dashboard.breachChecked}">Breach Checked</div>
         </div>
     </div>
 
     <div class="card">
-        <h2>🛡️ Jinsi ya Kujilinda</h2>
-        <ul style="padding-left:20px; line-height:2; color:var(--text-gray);">
-            <li>✅ Weka <strong>2FA</strong> kwenye accounts zote</li>
-            <li>✅ Tumia <strong>password nzuri</strong> — herufi 12+</li>
-            <li>✅ Angalia <strong>login activity</strong> kila wiki</li>
-            <li>✅ <strong>Ripoti</strong> tukio lolote mara moja</li>
-            <li>✅ <strong>Uliza AI</strong> kama una shaka</li>
-        </ul>
-    </div>
-
-    <div class="card" style="background:rgba(0,255,157,0.05); border-left:4px solid var(--emerald);">
-        <h3>🔒 Privacy Notice</h3>
-        <p>Dashboard yako ni <strong>yako pekee</strong>. Reports zako na data zako haziwezi kuonekana kwa mtu mwingine — hata admin anaweza kuona report TU (sio data nyingine).</p>
+        <h2 th:text="#{dashboard.quickActions}">Quick Actions</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
+            <a th:href="@{/report-attack}" class="btn btn-primary" th:text="#{nav.report}">Report</a>
+            <a th:href="@{/ai/assistant}" class="btn" th:text="#{nav.ai}">AI</a>
+            <a th:href="@{/my-accounts}" class="btn" th:text="#{nav.myAccounts}">My Accounts</a>
+            <a th:href="@{/tools/security-center}" class="btn" th:text="#{nav.tools}">Tools</a>
+        </div>
     </div>
 </div>
 </body>
