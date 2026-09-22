@@ -54,7 +54,7 @@ public class ReportAttackService {
         ReportAttack r = repo.findById(id).orElse(null);
         if (r != null) {
             r.setStatus(status);
-            if (response != null) r.setAdminResponse(response);
+            if (response != null && !response.isEmpty()) r.setAdminResponse(response);
             if (assignedTo != null) r.setAssignedTo(assignedTo);
             if (assignedToName != null) r.setAssignedToName(assignedToName);
             r.setUpdatedAt(LocalDateTime.now());
@@ -86,19 +86,19 @@ public class ReportAttackService {
     }
 
     public String getAIRecommendation(String type) {
-        if (type == null) return "Wasiliana na Polisi (112) na benki yako mara moja.";
+        if (type == null) return "Wasiliana na Polisi mara moja.";
         return switch (type) {
-            case "PHONE_STOLEN" -> "📱 HATUA ZA HARAKA:\n\n1️⃣ Fanya simu yako 'locked' — piga *XXX#\n2️⃣ Pata OB number kutoka Polisi\n3️⃣ Badilisha password za Gmail, FB, IG, WhatsApp\n4️⃣ Futa WhatsApp kwa 'Find My Device'\n5️⃣ Zuia SIM kwa kampuni yako\n6️⃣ Backup contacts";
-            case "SOCIAL_MEDIA_HACKED" -> "👤 HATUA ZA HARAKA:\n\n1️⃣ Tumia 'Forgot Password'\n2️⃣ Wasiliana na Support mara moja\n3️⃣ Waambie marafiki kuhusu hack\n4️⃣ Weka 2FA kwenye accounts zote\n5️⃣ Badilisha password ya email kwanza\n6️⃣ Angalia login activity";
-            case "BANK_CARD_LOST" -> "💳 HATUA ZA HARAKA:\n\n1️⃣ Piga simu benki — ZUIA kadi!\n2️⃣ Wasiliana na Polisi\n3️⃣ Angalia transactions zote\n4️⃣ Omba kadi mpya\n5️⃣ Badilisha PIN na mobile banking password";
-            case "MONEY_STOLEN" -> "💰 HATUA ZA HARAKA:\n\n1️⃣ Wasiliana na benki/wakala mara moja\n2️⃣ Pata OB number kutoka Polisi\n3️⃣ Angalia transaction history\n4️⃣ Weka 2FA kwenye mobile banking\n5️⃣ Taarifu TCRA\n6️⃣ Backup statements zote";
-            case "EMAIL_HACKED" -> "📧 HATUA ZA HARAKA:\n\n1️⃣ Badilisha password mara moja\n2️⃣ Angalia 'Recent Security Activity'\n3️⃣ Futa apps zisizotumika\n4️⃣ Weka 2FA\n5️⃣ Waambie contacts zako\n6️⃣ Check HaveIBeenPwned";
-            case "PHISHING" -> "🎣 HATUA ZA HARAKA:\n\n1️⃣ Usibonyeze links tena\n2️⃣ Badilisha password kama umeshaitumia\n3️⃣ Angalia account kama imeingiliwa\n4️⃣ Ripoti kwa platform\n5️⃣ Weka 2FA";
-            case "HOME_BREAK_IN" -> "🏠 HATUA ZA HARAKA:\n\n1️⃣ Piga simu Polisi mara moja\n2️⃣ Usiguse kitu chochote (evidence)\n3️⃣ Piga picha kama ni salama\n4️⃣ Andika kila kitu kilichoibiwa\n5️⃣ Wasiliana na bima\n6️⃣ Badilisha locks zote";
-            case "IDENTITY_THEFT" -> "🆔 HATUA ZA HARAKA:\n\n1️⃣ Ripoti Polisi mara moja\n2️⃣ Wasiliana na benki zote\n3️⃣ Weka Fraud Alert\n4️⃣ Angalia credit report\n5️⃣ Badilisha password zote\n6️⃣ Ripoti regulator";
-            case "SIM_SWAP" -> "📲 HATUA ZA HARAKA:\n\n1️⃣ Piga simu kampuni yako — ZUIA SIM\n2️⃣ Badilisha passwords zote\n3️⃣ Angalia accounts za benki\n4️⃣ Ripoti Polisi\n5️⃣ Weka 2FA (App, sio SMS)";
-            case "RANSOMWARE" -> "🦠 HATUA ZA HARAKA:\n\n1️⃣ USILIpe fidia\n2️⃣ KATUA mtandao\n3️⃣ Ripoti Polisi\n4️⃣ Wasiliana IT team\n5️⃣ Backup data muhimu\n6️⃣ Fanya scan ya virusi";
-            default -> "⚠️ HATUA ZA HARAKA:\n\n1️⃣ Andika kila kitu kilichotokea\n2️⃣ Ripoti Polisi\n3️⃣ Taarifu benki/taasisi husika\n4️⃣ Badilisha password zote\n5️⃣ Weka 2FA\n6️⃣ Backup documents";
+            case "PHONE_STOLEN" -> "📱 HATUA ZA HARAKA:\n\n1️⃣ Fanya simu yako 'locked'\n2️⃣ Pata OB number kutoka Polisi\n3️⃣ Badilisha password za accounts zote\n4️⃣ Futa WhatsApp kwa 'Find My Device'\n5️⃣ Zuia SIM kwa kampuni yako\n6️⃣ Backup contacts";
+            case "SOCIAL_MEDIA_HACKED" -> "👤 HATUA ZA HARAKA:\n\n1️⃣ Tumia 'Forgot Password'\n2️⃣ Wasiliana na Support mara moja\n3️⃣ Waambie marafiki\n4️⃣ Weka 2FA kwenye accounts zote\n5️⃣ Badilisha password ya email kwanza";
+            case "BANK_CARD_LOST" -> "💳 HATUA ZA HARAKA:\n\n1️⃣ Piga simu benki — ZUIA kadi!\n2️⃣ Wasiliana na Polisi\n3️⃣ Angalia transactions zote\n4️⃣ Omba kadi mpya\n5️⃣ Badilisha PIN";
+            case "MONEY_STOLEN" -> "💰 HATUA ZA HARAKA:\n\n1️⃣ Wasiliana na benki/wakala\n2️⃣ Pata OB number\n3️⃣ Angalia transaction history\n4️⃣ Weka 2FA kwenye mobile banking\n5️⃣ Taarifu regulator";
+            case "EMAIL_HACKED" -> "📧 HATUA ZA HARAKA:\n\n1️⃣ Badilisha password mara moja\n2️⃣ Angalia 'Recent Security Activity'\n3️⃣ Futa apps zisizotumika\n4️⃣ Weka 2FA\n5️⃣ Waambie contacts zako";
+            case "PHISHING" -> "🎣 HATUA ZA HARAKA:\n\n1️⃣ Usibonyeze links tena\n2️⃣ Badilisha password kama umeshaitumia\n3️⃣ Angalia account\n4️⃣ Ripoti kwa platform\n5️⃣ Weka 2FA";
+            case "HOME_BREAK_IN" -> "🏠 HATUA ZA HARAKA:\n\n1️⃣ Piga simu Polisi mara moja\n2️⃣ Usiguse kitu chochote\n3️⃣ Piga picha\n4️⃣ Andika kilichoibiwa\n5️⃣ Wasiliana na bima";
+            case "IDENTITY_THEFT" -> "🆔 HATUA ZA HARAKA:\n\n1️⃣ Ripoti Polisi\n2️⃣ Wasiliana na benki zote\n3️⃣ Weka Fraud Alert\n4️⃣ Angalia credit report\n5️⃣ Badilisha password zote";
+            case "SIM_SWAP" -> "📲 HATUA ZA HARAKA:\n\n1️⃣ Piga simu kampuni — ZUIA SIM\n2️⃣ Badilisha passwords zote\n3️⃣ Angalia benki\n4️⃣ Ripoti Polisi\n5️⃣ Weka 2FA (App, sio SMS)";
+            case "RANSOMWARE" -> "🦠 HATUA ZA HARAKA:\n\n1️⃣ USILIpe fidia\n2️⃣ KATUA mtandao\n3️⃣ Ripoti Polisi\n4️⃣ Wasiliana IT\n5️⃣ Backup data muhimu";
+            default -> "⚠️ HATUA ZA HARAKA:\n\n1️⃣ Andika kila kitu\n2️⃣ Ripoti Polisi\n3️⃣ Taarifu benki\n4️⃣ Badilisha passwords\n5️⃣ Weka 2FA";
         };
     }
 }

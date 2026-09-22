@@ -9,16 +9,31 @@
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <div class="card" style="text-align:center; background:linear-gradient(135deg, var(--deep-red), var(--red-light)); color:white; padding:30px;">
+    <div class="card" style="background:linear-gradient(135deg, var(--deep-red), var(--red-light)); color:white; padding:30px; text-align:center;">
         <h1 style="color:white; font-size:28px; margin:0;" th:text="#{report.title}">Report Attack</h1>
         <p style="color:white; margin:10px 0 0 0;" th:text="#{report.subtitle}">Report any incident</p>
     </div>
 
-    <div class="card" th:if="${canSeeAll}">
-        <h2 th:text="#{report.adminView}">Admin View</h2>
-        <a th:href="@{/report-attack/admin}" class="btn btn-primary" th:text="#{report.viewAll}">View All</a>
+    <!-- ADMIN VIEW — Ona reports zote -->
+    <div class="card" th:if="${canSeeAll}" style="background:rgba(201,162,39,0.15); border-left:5px solid var(--gold);">
+        <h2 style="color:var(--dark-blue);">👑 ADMIN VIEW — Reports Zote</h2>
+        <p>Wewe ni <strong th:text="${user.role}">ADMIN</strong> — unaweza kuona reports zote za watumiaji.</p>
+        <div class="stats-grid" style="margin:20px 0;">
+            <div class="stat-box">
+                <div class="stat-value" th:text="${allReports != null ? allReports.size() : 0}">0</div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">🔔</div>
+                <div class="stat-label">Notifications</div>
+            </div>
+        </div>
+        <a th:href="@{/report-attack/admin}" class="btn btn-primary" style="font-size:16px; padding:15px 30px;">
+            📋 VIEW ALL REPORTS & HELP USERS
+        </a>
     </div>
 
+    <!-- FORM -->
     <div class="card">
         <h2 th:text="#{report.title}">Report</h2>
         <form th:action="@{/report-attack/new}" method="post" enctype="multipart/form-data">
@@ -132,13 +147,10 @@
                 <input type="text" name="reporterAddress">
             </div>
 
-            <!-- EVIDENCE UPLOAD -->
             <div style="background:rgba(15,37,87,0.05); border-left:4px solid var(--dark-blue); padding:20px; border-radius:8px;">
                 <h4 th:text="#{report.evidence}">Evidence</h4>
-
-                <label th:text="#{report.uploadFile}">Upload File (Photo / Video / Audio / Document)</label>
+                <label th:text="#{report.uploadFile}">Upload File (Photo/Video/Audio/Document)</label>
                 <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt">
-
                 <label th:text="#{report.evidenceDesc}">Describe evidence</label>
                 <textarea name="evidenceDescription" rows="3"></textarea>
             </div>
@@ -147,6 +159,31 @@
                 🚨 <span th:text="#{report.submit}">SUBMIT REPORT</span>
             </button>
         </form>
+    </div>
+
+    <!-- MY REPORTS -->
+    <div class="card" th:if="${myReports != null && !myReports.isEmpty()}">
+        <h2 th:text="#{report.myReports}">My Reports</h2>
+        <table style="margin-top:15px;">
+            <thead>
+            <tr>
+                <th>Report ID</th>
+                <th th:text="#{report.attackType}">Type</th>
+                <th th:text="#{report.region}">Region</th>
+                <th th:text="#{report.status}">Status</th>
+                <th th:text="#{general.action}">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${myReports}" th:class="${r.statusClass}">
+                <td th:text="${r.reportId}"></td>
+                <td th:text="#{'attack.' + ${r.attackType}}">Type</td>
+                <td th:text="${r.region}"></td>
+                <td th:text="#{'status.' + ${r.status}}">Status</td>
+                <td><a th:href="@{'/report-attack/view/' + ${r.id}}" th:text="#{general.view}">View</a></td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 

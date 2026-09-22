@@ -7,6 +7,8 @@ import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.ReportMessageRepository;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +31,8 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/report-attack")
 public class ReportAttackController {
+
+    private static final Logger log = LoggerFactory.getLogger(ReportAttackController.class);
 
     private final ReportAttackService service;
     private final UserRepository userRepository;
@@ -55,14 +59,18 @@ public class ReportAttackController {
     }
 
     private boolean canSeeAllReports(User user) {
-        return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
+        if (user == null) return false;
+        boolean result = user.isAdmin() || user.isProfessional() || user.isForensics();
+        log.info("canSeeAllReports for {} (role {}): {}", user.getUsername(), user.getRole(), result);
+        return result;
     }
 
-    // ===== FORM =====
     @GetMapping
     public String showForm(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
+
+        log.info("ReportAttack form — user: {} role: {}", user.getUsername(), user.getRole());
 
         model.addAttribute("user", user);
         model.addAttribute("myReports", service.getMine(user.getId()));
@@ -72,12 +80,14 @@ public class ReportAttackController {
         model.addAttribute("defaultCountry", CountryConfig.getCountry("TZ"));
 
         if (canSeeAllReports(user)) {
-            model.addAttribute("allReports", service.getAll());
+            List<ReportAttack> all = service.getAll();
+            log.info("Adding {} reports to admin view", all.size());
+            model.addAttribute("allReports", all);
         }
+
         return "report-attack-form";
     }
 
-    // ===== SUBMIT WITH FILE =====
     @PostMapping("/new")
     public String createReport(@ModelAttribute ReportAttack report,
                                 @RequestParam(required = false)
@@ -117,12 +127,15 @@ public class ReportAttackController {
                 report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
                 report.setEvidenceFileSize(evidenceFile.getSize());
                 report.setHasEvidence(true);
+                log.info("Evidence saved: {}", storedName);
             } catch (IOException e) {
-                System.err.println("File upload failed: " + e.getMessage());
+                log.error("File upload failed: {}", e.getMessage());
             }
         }
 
         ReportAttack saved = service.create(report);
+        log.info("Report created: {} by {}", saved.getReportId(), user.getUsername());
+
         auditService.log("REPORT_ATTACK", "ReportAttack", saved.getReportId(),
                 "Type: " + saved.getAttackType() + " | Region: " + saved.getRegion());
 
@@ -131,6 +144,8 @@ public class ReportAttackController {
             List<User> admins = userRepository.findAll().stream()
                     .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics())
                     .toList();
+            log.info("Notifying {} admins", admins.size());
+
             for (User admin : admins) {
                 notificationService.createNotification(
                     "🚨 Attack Mpya: " + saved.getAttackTypeLabel(),
@@ -138,16 +153,11 @@ public class ReportAttackController {
                     "CRITICAL", "/report-attack/admin"
                 );
             }
-        } catch (Exception e) { System.err.println("Notif: " + e.getMessage()); }
-
-        try {
-            emailService.sendIncidentAlert(saved.getReportId(), saved.getTitle(), saved.getPriority());
-        } catch (Exception e) { System.err.println("Email: " + e.getMessage()); }
+        } catch (Exception e) { log.error("Notif error: {}", e.getMessage()); }
 
         return "redirect:/report-attack/view/" + saved.getId();
     }
 
-    // ===== VIEW =====
     @GetMapping("/view/{id}")
     public String view(@PathVariable Long id, Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
@@ -166,7 +176,6 @@ public class ReportAttackController {
         return "report-attack-detail";
     }
 
-    // ===== DOWNLOAD EVIDENCE =====
     @GetMapping("/evidence/{id}")
     public ResponseEntity<byte[]> downloadEvidence(@PathVariable Long id, Authentication auth) throws IOException {
         ReportAttack r = service.getById(id);
@@ -176,18 +185,18 @@ public class ReportAttackController {
         if (!Files.exists(filePath)) return ResponseEntity.notFound().build();
 
         byte[] data = Files.readAllBytes(filePath);
+        String fileName = r.getEvidenceFilePath();
+        int idx = fileName.indexOf("_");
+        if (idx > 0) fileName = fileName.substring(idx + 1);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + r.getEvidenceFilePath().substring(r.getEvidenceFilePath().indexOf("_") + 1) + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(data);
     }
 
-    // ===== REPLY =====
     @PostMapping("/{id}/reply")
-    public String reply(@PathVariable Long id, @RequestParam String message,
-                        Authentication auth) {
+    public String reply(@PathVariable Long id, @RequestParam String message, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
         if (user == null || r == null) return "redirect:/report-attack";
@@ -195,9 +204,7 @@ public class ReportAttackController {
         String senderType = canSeeAllReports(user) ? "ADMIN" : "USER";
         messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
 
-        // Notify the other party
         if ("ADMIN".equals(senderType)) {
-            // Notify user
             if (r.getUserId() != null) {
                 notificationService.createNotification(
                     "💬 Update kwenye Report " + r.getReportId(),
@@ -206,10 +213,9 @@ public class ReportAttackController {
                 );
             }
         } else {
-            // Notify admin
             notificationService.createNotification(
                 "💬 Ujumbe kutoka " + user.getUsername(),
-                "Report " + r.getReportId() + ": " + message.substring(0, Math.min(80, message.length())),
+                "Report " + r.getReportId(),
                 "INFO", "/report-attack/admin/" + id
             );
         }
@@ -217,13 +223,20 @@ public class ReportAttackController {
         return "redirect:/report-attack/view/" + id;
     }
 
-    // ===== ADMIN LIST =====
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (!canSeeAllReports(user)) return "redirect:/access-denied";
+        log.info("Admin list accessed by: {} role: {}", auth.getName(), user != null ? user.getRole() : "null");
 
-        model.addAttribute("reports", service.getAll());
+        if (!canSeeAllReports(user)) {
+            log.warn("Access denied for: {}", auth.getName());
+            return "redirect:/access-denied";
+        }
+
+        List<ReportAttack> all = service.getAll();
+        log.info("Total reports in database: {}", all.size());
+
+        model.addAttribute("reports", all);
         model.addAttribute("user", user);
         model.addAttribute("newCount", service.countNew());
         model.addAttribute("todayCount", service.countToday());
@@ -233,7 +246,6 @@ public class ReportAttackController {
         return "report-attack-admin";
     }
 
-    // ===== ADMIN UPDATE =====
     @PostMapping("/admin/{id}/update")
     public String updateStatus(@PathVariable Long id,
                                 @RequestParam String status,
@@ -260,16 +272,14 @@ public class ReportAttackController {
             }
         }
 
-        // Add admin response as a message
         if (adminResponse != null && !adminResponse.isEmpty()) {
             messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), "ADMIN", adminResponse));
         }
 
-        // Notify user
         ReportAttack r = service.getById(id);
         if (r != null && r.getUserId() != null) {
             notificationService.createNotification(
-                "🔄 Report Yako Imebadilishwa — " + status,
+                "🔄 Report Yako Imebadilishwa",
                 "Report " + r.getReportId() + ": Status ni " + status,
                 "INFO", "/report-attack/view/" + id
             );
