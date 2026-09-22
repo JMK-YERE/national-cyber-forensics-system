@@ -35,14 +35,13 @@ public class AIDebugController {
         result.put("model", model);
         result.put("isConfigured", aiChatService.isConfigured());
 
-        // Test with real API call
         try {
             String response = aiChatService.chat("Jibu maneno matatu tu: Password nzuri ni ipi?", "Test");
             result.put("response", response);
             result.put("responseLength", response != null ? response.length() : 0);
-            boolean isError = response != null && response.startsWith("❌");
-            result.put("hasError", isError);
-            result.put("apiWorking", !isError && response != null && response.length() > 20);
+            boolean hasError = response != null && response.startsWith("❌");
+            result.put("hasError", hasError);
+            result.put("apiWorking", !hasError && response != null && response.length() > 20);
         } catch (Exception e) {
             result.put("exception", e.getMessage());
             result.put("apiWorking", false);

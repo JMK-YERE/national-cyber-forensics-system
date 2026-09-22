@@ -19,7 +19,7 @@ public class AIChatService {
     @Value("${groq.api.key:}")
     private String apiKey;
 
-    @Value("${groq.model:llama-3.1-8b-instant}")
+    @Value("${groq.model:llama-3.3-70b-versatile}")
     private String model;
 
     // Groq API URL — sahihi
@@ -30,23 +30,23 @@ public class AIChatService {
     }
 
     public String chat(String userMessage, String context) {
-        log.info("========== GROQ AI REQUEST ==========");
+        log.info("===== GROQ REQUEST =====");
         log.info("Model: {}", model);
-        log.info("API URL: {}", GROQ_URL);
-        log.info("Key prefix: {}", apiKey != null && apiKey.length() > 12 ? apiKey.substring(0, 12) + "..." : "N/A");
-        log.info("User message: {}", userMessage);
+        log.info("URL: {}", GROQ_URL);
+        log.info("Key length: {}", apiKey != null ? apiKey.length() : 0);
+        log.info("Message: {}", userMessage);
 
         if (!isConfigured()) {
-            log.error("API KEY HAIPO!");
-            return "❌ *AI Haijawekwa*\n\nTafadhali wasiliana na admin kuhusu API key.";
+            return "❌ AI Haijawekwa. Wasiliana na admin.";
         }
 
         try {
-            String systemPrompt = "Wewe ni AI Assistant wa Cyber Forensics TZ. "
+            String systemPrompt = "Wewe ni AI Assistant wa Cyber Forensics. "
                 + "Jibu kwa Kiswahili kwa ufupi (sentensi 2-5). "
                 + "Unaweza kusaidia: security, kazi, elimu, maisha, tech. "
-                + "Context: " + (context != null ? context : "Hakuna");
+                + "Tumia emoji. Context: " + (context != null ? context : "Hakuna");
 
+            // Manual JSON build — safe escaping
             String jsonBody = "{"
                 + "\"model\":\"" + model + "\","
                 + "\"messages\":["
@@ -54,11 +54,8 @@ public class AIChatService {
                 + "{\"role\":\"user\",\"content\":\"" + escapeJson(userMessage) + "\"}"
                 + "],"
                 + "\"temperature\":0.7,"
-                + "\"max_tokens\":1024,"
-                + "\"stream\":false"
+                + "\"max_tokens\":1024"
                 + "}";
-
-            log.info("Request body: {}", jsonBody.substring(0, Math.min(300, jsonBody.length())));
 
             HttpClient client = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(20))
@@ -72,50 +69,39 @@ public class AIChatService {
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
-            log.info("Sending request to Groq...");
-
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            log.info("Groq HTTP Status: {}", response.statusCode());
-            log.info("Groq Response Body: {}", response.body());
+            log.info("HTTP Status: {}", response.statusCode());
+            log.info("Response: {}", response.body().substring(0, Math.min(500, response.body().length())));
 
             if (response.statusCode() == 200) {
                 String text = extractContent(response.body());
                 if (text != null && !text.trim().isEmpty()) {
-                    log.info("✅ SUCCESS — Response: {} chars", text.length());
+                    log.info("✅ SUCCESS: {} chars", text.length());
                     return text;
                 }
-                log.error("Response 200 lakini content haipo!");
-                return "❌ *Tatizo la Response*\n\nGroq ilijibu lakini content haipo. Jaribu tena.";
+                log.error("Empty content from response");
+                return "❌ Response ilikuwa tupu. Jaribu tena.";
             } else if (response.statusCode() == 401) {
-                log.error("401 Unauthorized — Key si sahihi");
-                return "❌ *API Key si sahihi*\n\nTafadhali update key kwenye Render.";
+                return "❌ API Key si sahihi. Update kwenye Render.";
             } else if (response.statusCode() == 404) {
-                log.error("404 — Model au URL si sahihi");
-                return "❌ *Model au URL si sahihi*\n\nModel: `" + model + "`. Jaribu `llama-3.1-8b-instant`.";
+                return "❌ Model haipo: `" + model + "`. Badilisha kwenye Render.";
             } else if (response.statusCode() == 429) {
-                log.error("429 — Rate limit");
-                return "⏱️ *Rate Limit*\n\nUmezidi kikomo. Subiri dakika 1 kisha jaribu tena.";
+                return "⏱️ Rate limit. Subiri dakika 1.";
             } else {
-                log.error("Groq Error {}: {}", response.statusCode(), response.body());
-                return "❌ *Hitilafu ya Groq*\n\nStatus: " + response.statusCode() 
-                    + "\n\n" + response.body().substring(0, Math.min(200, response.body().length()));
+                return "❌ Hitilafu ya Groq: " + response.statusCode();
             }
 
         } catch (Exception e) {
             log.error("Exception: {}", e.getMessage(), e);
-            return "❌ *Hitilafu ya Mtandao*\n\n" + e.getMessage()
-                + "\n\nJaribu tena baada ya sekunde 30.";
+            return "❌ Hitilafu ya mtandao: " + e.getMessage();
         }
     }
 
     private String extractContent(String json) {
         try {
             int contentIdx = json.indexOf("\"content\":");
-            if (contentIdx == -1) {
-                log.error("No 'content' key in JSON");
-                return null;
-            }
+            if (contentIdx == -1) return null;
 
             int start = json.indexOf('"', contentIdx + 10);
             if (start == -1) return null;
