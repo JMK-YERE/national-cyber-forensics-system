@@ -46,7 +46,7 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/login", "/register",
+                    "/login", "/register", "/lang",
                     "/css/**", "/js/**", "/images/**",
                     "/error", "/access-denied",
                     "/google*.html", "/*.html",

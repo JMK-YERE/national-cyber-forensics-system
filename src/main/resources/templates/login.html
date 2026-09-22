@@ -2,81 +2,54 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 Login - Cyber Forensics System</title>
+    <title th:text="#{login.title} + ' - ' + #{app.title}">Login</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
     <style>
-        .lang-selector {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-        .lang-btn {
-            padding: 8px 16px;
-            background: white;
-            border: 2px solid rgba(15, 37, 87, 0.2);
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--dark-blue);
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .lang-btn:hover {
-            border-color: var(--dark-blue);
-            background: rgba(15, 37, 87, 0.05);
-        }
-        .lang-btn.active {
-            background: var(--dark-blue);
-            color: white !important;
-            border-color: var(--dark-blue);
-        }
+        .lang-selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
+        .lang-btn { padding: 8px 16px; background: white; border: 2px solid rgba(15, 37, 87, 0.2); border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--dark-blue); transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .lang-btn:hover { border-color: var(--dark-blue); background: rgba(15, 37, 87, 0.05); }
+        .lang-btn.active { background: var(--dark-blue); color: white !important; border-color: var(--dark-blue); }
     </style>
 </head>
 <body>
 <div class="auth-container">
-    <!-- LANGUAGE SWITCHER -->
     <div class="lang-selector">
-        <a th:href="@{/login?lang=sw}" class="lang-btn" 
+        <a th:href="@{/lang?lang=sw&redirect=/login}" class="lang-btn"
            th:classappend="${#locale.language == 'sw'} ? 'active'">Kiswahili</a>
-        <a th:href="@{/login?lang=en}" class="lang-btn" 
+        <a th:href="@{/lang?lang=en&redirect=/login}" class="lang-btn"
            th:classappend="${#locale.language == 'en'} ? 'active'">English</a>
-        <a th:href="@{/login?lang=fr}" class="lang-btn" 
+        <a th:href="@{/lang?lang=fr&redirect=/login}" class="lang-btn"
            th:classappend="${#locale.language == 'fr'} ? 'active'">Français</a>
-        <a th:href="@{/login?lang=ar}" class="lang-btn" 
+        <a th:href="@{/lang?lang=ar&redirect=/login}" class="lang-btn"
            th:classappend="${#locale.language == 'ar'} ? 'active'">العربية</a>
     </div>
 
-    <h1 style="text-align:center;font-size:22px;">🔐 CYBER FORENSICS</h1>
-    <p style="text-align:center;margin-bottom:30px;font-size:12px;color:var(--text-muted);">SECURE SYSTEM ACCESS</p>
+    <h1 style="text-align:center;font-size:22px;">🔐 <span th:text="#{app.title}">CYBER FORENSICS</span></h1>
+    <p style="text-align:center;margin-bottom:30px;font-size:12px;color:var(--text-muted);" th:text="#{app.subtitle}">SECURE SYSTEM ACCESS</p>
 
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
     <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-    <div th:if="${param.logout}" class="alert alert-success">You have been logged out.</div>
 
     <form th:action="@{/login}" method="post">
-        <label>Username</label>
+        <label th:text="#{login.username}">Username</label>
         <input type="text" name="username" required autofocus>
 
-        <label>Password</label>
+        <label th:text="#{login.password}">Password</label>
         <input type="password" name="password" required>
 
-        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px; padding:14px; font-size:14px;">
-            🔓 ACCESS SYSTEM
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px; padding:14px;">
+            🔓 <span th:text="#{login.button}">Access System</span>
         </button>
     </form>
 
     <p style="text-align:center;margin-top:20px;font-size:12px;">
-        Don't have an account? <a th:href="@{/register}">Register here</a>
+        <span th:text="#{login.noAccount}">Don't have an account?</span>
+        <a th:href="@{/register}" th:text="#{login.register}">Register here</a>
     </p>
 
     <p style="text-align:center;margin-top:10px;font-size:11px;">
-        <a th:href="@{/whistleblower}">🕵️ Whistleblower Portal</a>
+        <a th:href="@{/whistleblower}" th:text="#{login.whistleblower}">🕵️ Whistleblower</a>
     </p>
 </div>
 </body>
