@@ -6,8 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
     <div class="nav-links">
         <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
         <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>

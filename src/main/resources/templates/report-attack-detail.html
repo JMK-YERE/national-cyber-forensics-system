@@ -6,14 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
-        <a th:href="@{/report-attack/admin}" th:if="${canSeeAll}" th:text="#{report.viewAll}">All</a>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
     <div class="card">
@@ -23,7 +16,7 @@
         <p><strong th:text="#{report.status}">Status</strong>: <span th:text="#{'status.' + ${report.status}}"></span></p>
         <p><strong th:text="#{report.region}">Region</strong>: <span th:text="${report.region}"></span></p>
         <p><strong th:text="#{report.country}">Country</strong>: <span th:text="${report.countryName}"></span></p>
-        <p><strong th:text="#{report.dateOccurred}">Date</strong>: <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <p><strong th:text="#{general.date}">Date</strong>: <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
     </div>
 
     <div class="card">
@@ -31,14 +24,12 @@
         <p th:text="${report.description}" style="white-space:pre-wrap;"></p>
     </div>
 
-    <!-- AI Recommendations -->
     <div class="card" th:if="${report.aiRecommendation != null}">
         <h2>🤖 AI Recommendations</h2>
         <div style="background:rgba(15,37,87,0.05); padding:20px; border-radius:8px; border-left:4px solid var(--dark-blue); white-space:pre-line; line-height:1.9;"
              th:text="${report.aiRecommendation}"></div>
     </div>
 
-    <!-- Evidence Download -->
     <div class="card" th:if="${report.evidenceFilePath != null}">
         <h2 th:text="#{admin.downloadEvidence}">Download Evidence</h2>
         <p><strong>File Type:</strong> <span th:text="${report.evidenceFileType}"></span></p>
@@ -47,12 +38,10 @@
         <a th:href="@{'/report-attack/evidence/' + ${report.id}}" class="btn btn-primary" th:text="#{admin.downloadEvidence}">Download</a>
     </div>
 
-    <!-- Messages -->
     <div class="card">
         <h2 th:text="#{admin.messages}">Messages</h2>
 
-        <div th:each="m : ${messages}" style="margin:10px 0; padding:12px; border-radius:6px;"
-             th:classappend="${m.senderType == 'ADMIN'} ? 'status-investigation' : 'status-resolved'">
+        <div th:each="m : ${messages}" style="margin:10px 0; padding:12px; border-radius:6px; background:rgba(0,0,0,0.05);">
             <div style="font-size:11px; font-weight:bold; margin-bottom:5px;">
                 <span th:text="${m.senderType == 'ADMIN'} ? '👤 Admin' : '👤 User'"></span>
                 <span th:text="' (' + ${m.senderName} + ')'"></span>
@@ -67,7 +56,7 @@
         </div>
 
         <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post" style="margin-top:20px;">
-            <textarea name="message" rows="3" required placeholder="Andika ujumbe..." style="margin:0 0 10px 0;"></textarea>
+            <textarea name="message" rows="3" required placeholder="Andika ujumbe..."></textarea>
             <button type="submit" class="btn btn-primary">📤 <span th:text="#{admin.sendMessage}">Send</span></button>
         </form>
     </div>

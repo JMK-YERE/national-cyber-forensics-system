@@ -6,20 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
-        <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
-        <span style="color:var(--gold); margin-left:15px;">
-            <a th:href="@{/lang?lang=sw&redirect=/report-attack}" style="color:white; padding:4px 8px;">SW</a>
-            <a th:href="@{/lang?lang=en&redirect=/report-attack}" style="color:white; padding:4px 8px;">EN</a>
-            <a th:href="@{/lang?lang=fr&redirect=/report-attack}" style="color:white; padding:4px 8px;">FR</a>
-            <a th:href="@{/lang?lang=ar&redirect=/report-attack}" style="color:white; padding:4px 8px;">AR</a>
-        </span>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
     <div class="card" style="text-align:center; background:linear-gradient(135deg, var(--deep-red), var(--red-light)); color:white; padding:30px;">
@@ -84,6 +71,21 @@
                     <div style="font-size:11px; font-weight:600;" th:text="#{attack.SIM_SWAP}">SIM Swap</div>
                 </label>
                 <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="HOME_BREAK_IN" style="display:none;">
+                    <div style="font-size:30px;">🏠</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.HOME_BREAK_IN}">Break-In</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="IDENTITY_THEFT" style="display:none;">
+                    <div style="font-size:30px;">🆔</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.IDENTITY_THEFT}">ID Theft</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="DOCUMENTS_STOLEN" style="display:none;">
+                    <div style="font-size:30px;">💼</div>
+                    <div style="font-size:11px; font-weight:600;" th:text="#{attack.DOCUMENTS_STOLEN}">Documents</div>
+                </label>
+                <label style="cursor:pointer; text-align:center; padding:15px; border:2px solid rgba(15,37,87,0.2); border-radius:8px; background:white;" onclick="selectAttack(this)">
                     <input type="radio" name="attackType" value="OTHER" style="display:none;">
                     <div style="font-size:30px;">⚠️</div>
                     <div style="font-size:11px; font-weight:600;" th:text="#{attack.OTHER}">Other</div>
@@ -111,7 +113,6 @@
             <label th:text="#{report.financialLoss}">Financial Loss</label>
             <input type="number" name="financialLossTzs" placeholder="0">
 
-            <!-- CONTACT -->
             <div style="background:rgba(201,162,39,0.08); border-left:4px solid var(--gold); padding:20px; border-radius:8px; margin:20px 0;">
                 <h4 th:text="#{report.contact}">Contact Info</h4>
 
@@ -131,11 +132,10 @@
                 <input type="text" name="reporterAddress">
             </div>
 
-            <!-- EVIDENCE UPLOAD -->
-            <div class="card" style="background:rgba(15,37,87,0.05); border-left:4px solid var(--dark-blue);">
+            <div style="background:rgba(15,37,87,0.05); border-left:4px solid var(--dark-blue); padding:20px; border-radius:8px;">
                 <h4 th:text="#{report.evidence}">Evidence</h4>
 
-                <label th:text="#{report.uploadFile}">Upload File (Photo/Video/Audio/Document)</label>
+                <label th:text="#{report.uploadFile}">Upload File</label>
                 <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt">
 
                 <label th:text="#{report.evidenceDesc}">Describe evidence</label>
@@ -146,30 +146,6 @@
                 🚨 <span th:text="#{report.submit}">SUBMIT REPORT</span>
             </button>
         </form>
-    </div>
-
-    <div class="card" th:if="${myReports != null && !myReports.isEmpty()}">
-        <h2 th:text="#{report.myReports}">My Reports</h2>
-        <table style="margin-top:15px;">
-            <thead>
-            <tr>
-                <th>Report ID</th>
-                <th th:text="#{report.attackType}">Type</th>
-                <th th:text="#{report.region}">Region</th>
-                <th th:text="#{report.status}">Status</th>
-                <th th:text="#{general.action}">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="r : ${myReports}" th:class="${r.statusClass}">
-                <td th:text="${r.reportId}"></td>
-                <td th:text="#{'attack.' + ${r.attackType}}">Type</td>
-                <td th:text="${r.region}"></td>
-                <td th:text="#{'status.' + ${r.status}}">Status</td>
-                <td><a th:href="@{'/report-attack/view/' + ${r.id}}" th:text="#{general.view}">View</a></td>
-            </tr>
-            </tbody>
-        </table>
     </div>
 </div>
 

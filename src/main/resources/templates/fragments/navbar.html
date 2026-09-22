@@ -13,14 +13,13 @@
         <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
         <a th:href="@{/tools/security-center}" th:text="#{nav.tools}">Tools</a>
         <a th:href="@{/audit}" th:text="#{nav.audit}">Audit</a>
-        <a th:href="@{/admin/users}" th:text="#{nav.users}">Users</a>
 
-        <!-- LANGUAGE SWITCHER -->
+        <!-- LANGUAGE SWITCHER — Rahisi -->
         <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
-            <a th:href="@{'/lang?lang=sw&redirect=' + ${#httpServletRequest.requestURI}}" class="lang-link" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
-            <a th:href="@{'/lang?lang=en&redirect=' + ${#httpServletRequest.requestURI}}" class="lang-link" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
-            <a th:href="@{'/lang?lang=fr&redirect=' + ${#httpServletRequest.requestURI}}" class="lang-link" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
-            <a th:href="@{'/lang?lang=ar&redirect=' + ${#httpServletRequest.requestURI}}" class="lang-link" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
+            <a th:href="@{/lang?lang=sw}" class="lang-link" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
+            <a th:href="@{/lang?lang=en}" class="lang-link" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
+            <a th:href="@{/lang?lang=fr}" class="lang-link" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
+            <a th:href="@{/lang?lang=ar}" class="lang-link" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
         </span>
 
         <form th:action="@{/logout}" method="post" style="display:inline;">
