@@ -10,11 +10,11 @@
             display: flex;
             justify-content: center;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
         }
         .lang-btn {
-            padding: 8px 14px;
+            padding: 8px 16px;
             background: white;
             border: 2px solid rgba(15, 37, 87, 0.2);
             border-radius: 20px;
@@ -32,7 +32,7 @@
         }
         .lang-btn.active {
             background: var(--dark-blue);
-            color: white;
+            color: white !important;
             border-color: var(--dark-blue);
         }
     </style>
@@ -42,42 +42,41 @@
     <!-- LANGUAGE SWITCHER -->
     <div class="lang-selector">
         <a th:href="@{/login?lang=sw}" class="lang-btn" 
-           th:classappend="${#locale.language == 'sw'} ? 'active'">🇹🇿 Kiswahili</a>
+           th:classappend="${#locale.language == 'sw'} ? 'active'">Kiswahili</a>
         <a th:href="@{/login?lang=en}" class="lang-btn" 
-           th:classappend="${#locale.language == 'en'} ? 'active'">🇬🇧 English</a>
+           th:classappend="${#locale.language == 'en'} ? 'active'">English</a>
         <a th:href="@{/login?lang=fr}" class="lang-btn" 
-           th:classappend="${#locale.language == 'fr'} ? 'active'">🇫🇷 Français</a>
+           th:classappend="${#locale.language == 'fr'} ? 'active'">Français</a>
         <a th:href="@{/login?lang=ar}" class="lang-btn" 
-           th:classappend="${#locale.language == 'ar'} ? 'active'">🇸🇦 العربية</a>
+           th:classappend="${#locale.language == 'ar'} ? 'active'">العربية</a>
     </div>
 
-    <h1 style="text-align:center;font-size:20px;">🔐 CYBER FORENSICS</h1>
-    <p style="text-align:center;margin-bottom:25px;font-size:11px;">🌍 INTERNATIONAL SYSTEM</p>
+    <h1 style="text-align:center;font-size:22px;">🔐 CYBER FORENSICS</h1>
+    <p style="text-align:center;margin-bottom:30px;font-size:12px;color:var(--text-muted);">SECURE SYSTEM ACCESS</p>
 
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
     <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-    <div th:if="${param.logout}" class="alert alert-success">Umetoka kwa mafanikio.</div>
+    <div th:if="${param.logout}" class="alert alert-success">You have been logged out.</div>
 
     <form th:action="@{/login}" method="post">
-        <label th:text="#{login.username}">Username</label>
+        <label>Username</label>
         <input type="text" name="username" required autofocus>
 
-        <label th:text="#{login.password}">Password</label>
+        <label>Password</label>
         <input type="password" name="password" required>
 
-        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px; padding:14px;">
-            🔓 <span th:text="#{login.button}">Access System</span>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px; padding:14px; font-size:14px;">
+            🔓 ACCESS SYSTEM
         </button>
     </form>
 
     <p style="text-align:center;margin-top:20px;font-size:12px;">
-        <span th:text="#{login.noAccount}">Don't have an account?</span> 
-        <a th:href="@{/register}" th:text="#{login.register}">Register here</a>
+        Don't have an account? <a th:href="@{/register}">Register here</a>
     </p>
 
     <p style="text-align:center;margin-top:10px;font-size:11px;">
-        🕵️ <a th:href="@{/whistleblower}">Whistleblower Portal</a>
+        <a th:href="@{/whistleblower}">🕵️ Whistleblower Portal</a>
     </p>
 </div>
 </body>

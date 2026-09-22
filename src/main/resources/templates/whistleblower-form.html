@@ -2,103 +2,93 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>📝 Ripoti - Whistleblower</title>
+    <title>Submit Report - Whistleblower Portal</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="logo">🛡️ CYBER FORENSICS</div>
     <div class="nav-links">
-        <a th:href="@{/whistleblower}">🕵️ Home</a>
+        <a th:href="@{/whistleblower}">🏠 Home</a>
+        <a th:href="@{/whistleblower/track}">🔍 Track Report</a>
     </div>
 </div>
 
 <div class="container">
     <div class="card">
-        <h1>📝 Ripoti Taarifa</h1>
-        <p style="font-size:13px;">Jaza fomu hii. <strong>Hakuna taarifa zako zinazohifadhiwa</strong> (isipokuwa kama unataka).</p>
+        <h1>📝 Submit Confidential Report</h1>
+        <p>Your identity will remain anonymous. We protect your privacy.</p>
     </div>
 
     <div class="card">
         <form th:action="@{/whistleblower/submit}" method="post" th:object="${report}">
 
-            <label>AINA YA TAARIFA *</label>
+            <label>Report Type *</label>
             <select th:field="*{category}" required>
-                <option value="">-- Chagua --</option>
-                <option value="CORRUPTION">💰 Rushwa / Ufisadi</option>
-                <option value="FRAUD">🎭 Utapeli</option>
+                <option value="">-- Select --</option>
+                <option value="CORRUPTION">💰 Corruption / Bribery</option>
+                <option value="FRAUD">🎭 Fraud</option>
                 <option value="CYBER_ATTACK">💻 Cyber Attack</option>
-                <option value="HARASSMENT">😢 Unyanyasaji</option>
-                <option value="DRUGS">💊 Dawa za Kulevya</option>
-                <option value="HUMAN_TRAFFICKING">🚨 Biashara ya Binadamu</option>
-                <option value="TAX_EVASION">📊 Kukwepa Kodi</option>
-                <option value="MONEY_LAUNDERING">💵 Utakatishaji Fedha</option>
-                <option value="TERRORISM">💥 Ugaidi</option>
-                <option value="OTHER">⚠️ Nyingine</option>
+                <option value="HARASSMENT">😢 Harassment</option>
+                <option value="DRUGS">💊 Drug Trafficking</option>
+                <option value="HUMAN_TRAFFICKING">🚨 Human Trafficking</option>
+                <option value="TAX_EVASION">📊 Tax Evasion</option>
+                <option value="MONEY_LAUNDERING">💵 Money Laundering</option>
+                <option value="TERRORISM">💥 Terrorism</option>
+                <option value="OTHER">⚠️ Other</option>
             </select>
 
-            <label>KIWANGO CHA HARAKA</label>
+            <label>Urgency Level</label>
             <select th:field="*{urgency}">
-                <option value="NORMAL">🟢 Kawaida</option>
-                <option value="URGENT">🟠 Haraka</option>
-                <option value="CRITICAL">🔴 Dharura</option>
+                <option value="NORMAL">🟢 Normal</option>
+                <option value="URGENT">🟠 Urgent</option>
+                <option value="CRITICAL">🔴 Critical</option>
             </select>
 
-            <label>KICHWA CHA TAARIFA *</label>
-            <input type="text" th:field="*{title}" required placeholder="mfano: Rushwa kwenye ofisi ya umma">
+            <label>Title *</label>
+            <input type="text" th:field="*{title}" required placeholder="Brief description of the issue">
 
-            <label>MAELEZO KAMILI *</label>
-            <textarea th:field="*{description}" rows="6" required placeholder="Eleza kwa undani kile kilichotokea..."></textarea>
+            <label>Full Description *</label>
+            <textarea th:field="*{description}" rows="6" required placeholder="Describe what happened in detail..."></textarea>
 
-            <label>WATU WANAOHUSIKA (Optional)</label>
-            <textarea th:field="*{involvedParties}" rows="3" placeholder="Majina, vyeo, taasisi..."></textarea>
+            <label>Involved Parties (Optional)</label>
+            <textarea th:field="*{involvedParties}" rows="3" placeholder="Names, positions, organizations..."></textarea>
 
-            <label>MAHALI (Optional)</label>
-            <input type="text" th:field="*{location}" placeholder="mfano: Kariakoo, Dar es Salaam">
+            <label>Location (Optional)</label>
+            <input type="text" th:field="*{location}" placeholder="City, address...">
 
-            <label>MKOA</label>
-            <select th:field="*{region}">
-                <option value="">-- Chagua --</option>
-                <option>Dar es Salaam</option>
-                <option>Arusha</option>
-                <option>Mwanza</option>
-                <option>Dodoma</option>
-                <option>Mbeya</option>
-                <option>Morogoro</option>
-                <option>Tanga</option>
-                <option>Zanzibar</option>
-                <option>Other</option>
-            </select>
+            <label>Region</label>
+            <input type="text" th:field="*{region}" placeholder="Region">
 
-            <label>TAREHE ILIYOTOKEA (Optional)</label>
+            <label>Date Occurred (Optional)</label>
             <input type="datetime-local" name="dateOccurred">
 
-            <label>USHAHIDI ULIONAO (Optional)</label>
-            <textarea th:field="*{evidence}" rows="3" placeholder="Eleza ushahidi ulionao (picha, documents, n.k.)..."></textarea>
+            <label>Evidence You Have (Optional)</label>
+            <textarea th:field="*{evidence}" rows="3" placeholder="Documents, photos, recordings..."></textarea>
 
-            <label>TAARIFA ZAKO ZA MAWASILIANO (Optional — kama unataka majibu)</label>
-            <input type="text" th:field="*{contactEncrypted}" placeholder="Email au simu (itasimbwa)">
+            <label>Your Contact Info (Optional — encrypted)</label>
+            <input type="text" th:field="*{contactEncrypted}" placeholder="Email or phone (encrypted)">
 
             <div style="margin: 15px 0;">
                 <label style="display:inline; text-transform:none;">
                     <input type="checkbox" th:field="*{wantsUpdates}" style="width:auto;">
-                    Nataka kupata updates kuhusu taarifa yangu
+                    I want to receive updates about my report
                 </label>
             </div>
 
             <button type="submit" class="btn btn-primary" style="width:100%; padding:15px; font-size:16px;">
-                🔒 TUMA TAARIFA KWA USIRI
+                🔒 SUBMIT REPORT ANONYMOUSLY
             </button>
         </form>
     </div>
 
-    <div class="card" style="background:rgba(255,215,0,0.08); border-left:4px solid #ffd700;">
-        <h3>⚠️ Kumbuka</h3>
-        <ul style="padding-left:20px; color:#ccc; font-size:13px; line-height:1.8;">
-            <li>Hakuna mtu anayejua uliyetuma</li>
-            <li>Hakuna IP tracking</li>
-            <li>Taarifa zako zinasimbwa</li>
-            <li>Utapata <strong>tracking code</strong> baada ya kutuma</li>
+    <div class="card" style="background:rgba(201, 162, 39, 0.08); border-left:4px solid var(--gold);">
+        <h3>⚠️ Important</h3>
+        <ul style="padding-left:20px; line-height:1.8;">
+            <li>Your identity is protected</li>
+            <li>No IP tracking</li>
+            <li>Encrypted submission</li>
+            <li>You will receive a <strong>tracking code</strong></li>
         </ul>
     </div>
 </div>
