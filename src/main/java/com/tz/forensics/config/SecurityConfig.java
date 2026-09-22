@@ -64,28 +64,39 @@ public class SecurityConfig {
                     "/whistleblower/track/**"
                 ).permitAll()
 
+                // ===== ADMIN + PROFESSIONALS PEKEE =====
+                // Incidents — Admin, Cyber Pro, Forensics PEKEE
+                .requestMatchers("/incidents/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                
+                // Threat Map — Admin, Cyber Pro, Forensics PEKEE
+                .requestMatchers("/threat-map/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                .requestMatchers("/threat-map").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                
+                // Cases — Admin, Cyber Pro, Forensics PEKEE
+                .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+                
+                // Audit — Admin, Cyber Pro, Forensics PEKEE
+                .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+
+                // ===== ADMIN + CYBER PRO =====
+                // Attack Reports (admin view) — Admin, Cyber Pro PEKEE
+                .requestMatchers("/report-attack/admin/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+
                 // ===== ADMIN ONLY =====
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                // ===== ADMIN + PROFESSIONALS =====
-                .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/incidents/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/report-attack/admin/**").hasAnyRole("ADMIN", "CYBER_PRO")
-
-                // ===== WHISTLEBLOWER ADMIN — Login required =====
+                // ===== WHISTLEBLOWER ADMIN =====
                 .requestMatchers("/whistleblower/admin/**").hasAnyRole("ADMIN", "CYBER_PRO")
-
-                // ===== INDIVIDUAL + EVERYONE =====
-                .requestMatchers("/ai/**").authenticated()
-                .requestMatchers("/my-accounts/**").authenticated()
-                .requestMatchers("/report-attack/**").authenticated()
 
                 // ===== EVERYONE LOGGED IN =====
                 .requestMatchers("/dashboard/**").authenticated()
                 .requestMatchers("/notifications/**").authenticated()
-                .requestMatchers("/tools/**", "/threat-map").authenticated()
+                .requestMatchers("/tools/**").authenticated()
+                .requestMatchers("/report-attack/**").authenticated()
+                .requestMatchers("/my-accounts/**").authenticated()
+                .requestMatchers("/ai/**").authenticated()
                 .requestMatchers("/evidence/**").authenticated()
+                .requestMatchers("/reports/**").authenticated()
 
                 .anyRequest().authenticated()
             )
