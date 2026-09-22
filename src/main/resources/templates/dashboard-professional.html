@@ -2,37 +2,22 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>🛡️ Professional Dashboard</title>
+    <title th:text="#{nav.dashboard} + ' - ' + #{app.title}">Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
-        <a th:href="@{/threat-map}">🗺️ Threat Map</a>
-        <a th:href="@{/incidents/my-tasks}">✅ My Tasks</a>
-        <a th:href="@{/cases}">📁 Cases</a>
-        <a th:href="@{/audit}">📊 Audit</a>
-        
-        <a th:href="@{/tools/security-center}">🛡️ Tools</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
     <div class="card">
-        <h1>🛡️ Cyber Professional Dashboard</h1>
-        <p>Karibu, <strong th:text="${username}"></strong>! Hii ni dashboard yako ya kitaalamu.</p>
+        <h1><span th:text="#{dashboard.welcome}">Welcome</span>, <span th:text="${username}">User</span>!</h1>
+        <p>Professional Dashboard</p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box">
             <div class="stat-value" th:text="${totalIncidents}">0</div>
-            <div class="stat-label">Total Incidents</div>
+            <div class="stat-label" th:text="#{dashboard.totalIncidents}">Total Incidents</div>
         </div>
         <div class="stat-box">
             <div class="stat-value" th:text="${openCases}">0</div>
@@ -44,47 +29,18 @@
         </div>
         <div class="stat-box">
             <div class="stat-value" th:text="${closedCases}">0</div>
-            <div class="stat-label">Closed Cases</div>
+            <div class="stat-label">Closed</div>
         </div>
     </div>
 
     <div class="card">
-        <h2>✅ My Active Tasks (<span th:text="${myTasks != null ? myTasks.size() : 0}"></span>)</h2>
-        <div th:if="${myTasks != null && !myTasks.isEmpty()}" style="margin-top:15px;">
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Priority</th>
-                    <th>Workflow</th>
-                    <th>Due Date</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="t : ${myTasks}">
-                    <td th:text="${t.incidentId}"></td>
-                    <td th:text="${t.title}"></td>
-                    <td th:text="${t.priority}"></td>
-                    <td th:text="${t.workflowStatus}"></td>
-                    <td th:text="${t.dueDate != null ? #temporals.format(t.dueDate, 'yyyy-MM-dd') : 'No deadline'}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <p th:if="${myTasks == null || myTasks.isEmpty()}" style="text-align:center;margin-top:20px;">
-            Huna kazi bado. 🎉
-        </p>
-    </div>
-
-    <div class="card">
-        <h2>⚡ Quick Actions</h2>
+        <h2 th:text="#{dashboard.quickActions}">Quick Actions</h2>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
-            <a th:href="@{/incidents/new}" class="btn btn-primary">➕ Report Incident</a>
-            <a th:href="@{/incidents}" class="btn">📋 View All Incidents</a>
-            <a th:href="@{/cases/new}" class="btn">📁 Create Case</a>
-            <a th:href="@{/cases}" class="btn">📁 All Cases</a>
-            <a th:href="@{/audit}" class="btn">📊 Audit Log</a>
+            <a th:href="@{/incidents/new}" class="btn btn-primary">➕ <span th:text="#{nav.report}">Report</span></a>
+            <a th:href="@{/incidents}" class="btn">📋 <span th:text="#{nav.incidents}">Incidents</span></a>
+            <a th:href="@{/cases}" class="btn">📁 <span th:text="#{nav.cases}">Cases</span></a>
+            <a th:href="@{/threat-map}" class="btn">🗺️ <span th:text="#{nav.threatMap}">Threat Map</span></a>
+            <a th:href="@{/audit}" class="btn">📊 <span th:text="#{nav.audit}">Audit</span></a>
         </div>
     </div>
 </div>

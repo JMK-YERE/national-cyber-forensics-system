@@ -698,3 +698,23 @@ hr {
 .nav-links a.active-lang {
     border-color: var(--gold);
 }
+
+/* Language links */
+.lang-link {
+    color: white !important;
+    padding: 4px 8px !important;
+    margin-left: 3px !important;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px !important;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.lang-link:hover {
+    background: rgba(255,255,255,0.15);
+}
+.active-lang {
+    background: var(--gold) !important;
+    color: var(--dark-blue) !important;
+    font-weight: bold;
+}

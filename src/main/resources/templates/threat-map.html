@@ -2,183 +2,38 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🗺️ Threat Map - Cyber Forensics TZ</title>
+    <title th:text="#{nav.threatMap} + ' - ' + #{app.title}">Threat Map</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        #map { height: 600px; border-radius: 8px; border: 2px solid var(--dark-blue); box-shadow: var(--shadow-lg); }
-        .map-container { position: relative; }
-        .top-regions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
-        .region-card { background: var(--white); padding: 20px; border-radius: 8px; border-left: 4px solid var(--dark-blue); box-shadow: var(--shadow-sm); transition: all 0.2s; }
-        .region-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-        .region-card .rank { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-        .region-card .name { font-size: 18px; color: var(--dark-blue); font-weight: 700; margin: 5px 0; }
-        .region-card .count { font-size: 24px; color: var(--deep-red); font-weight: 800; }
-        .legend { background: var(--white); padding: 15px; border-radius: 8px; box-shadow: var(--shadow-sm); margin-top: 15px; display: flex; flex-wrap: wrap; gap: 20px; }
-        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-        .legend-dot { width: 16px; height: 16px; border-radius: 50%; }
+        #map { height: 600px; border-radius: 8px; border: 2px solid var(--dark-blue); box-shadow: 0 10px 30px rgba(15,37,87,0.2); }
     </style>
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/threat-map}">🗺️ Threat Map</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
     <div class="card">
-        <h1>🗺️ Tanzania Cyber Threat Map</h1>
-        <p>Ramani ya matukio ya usalama wa mtandao kwa mikoa yote ya Tanzania. Kila dot inaonyesha eneo lenye matukio.</p>
+        <h1 th:text="#{nav.threatMap}">Threat Map</h1>
     </div>
-
-    <!-- STATS -->
-    <div class="stats-grid">
-        <div class="stat-box">
-            <div class="stat-value" th:text="${totalIncidents}">0</div>
-            <div class="stat-label">Total Incidents</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${recentIncidents}">0</div>
-            <div class="stat-label">Last 7 Days</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${totalCritical}" style="color:var(--deep-red);">0</div>
-            <div class="stat-label">Critical</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${totalResolved}" style="color:var(--emerald);">0</div>
-            <div class="stat-label">Resolved</div>
-        </div>
-    </div>
-
-    <!-- TOP REGIONS -->
     <div class="card">
-        <h2>🔥 Top 5 Regions Zilizoathirika</h2>
-        <div class="top-regions">
-            <div class="region-card" th:each="entry, iter : ${top5}">
-                <div class="rank" th:text="'#' + ${iter.index + 1}"></div>
-                <div class="name" th:text="${entry.key}"></div>
-                <div class="count" th:text="${entry.value} + ' incidents'"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAP -->
-    <div class="card">
-        <h2>🗺️ Ramani ya Matukio</h2>
-        <div class="map-container">
-            <div id="map"></div>
-        </div>
-
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-dot" style="background:#1b7a4a;"></div>
-                <span>Salama (0)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background:#d97706;"></div>
-                <span>Chini (1-5)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background:#c73030;"></div>
-                <span>Kati (6-15)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background:#8b1a1a;"></div>
-                <span>Kubwa (15+)</span>
-            </div>
-        </div>
+        <div id="map"></div>
     </div>
 </div>
 
-<!-- Leaflet Map -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script th:inline="javascript">
-    /* Data kutoka server */
     const regionCounts = /*[[${regionCounts}]]*/ {};
     const regionCoords = /*[[${regionCoords}]]*/ {};
-
-    // Initialize map (Tanzania center)
     const map = L.map('map').setView([-6.3690, 34.8888], 6);
-
-    // Add tile layer (OpenStreetMap - BURE)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap',
-        maxZoom: 18
-    }).addTo(map);
-
-    // Color by count
-    function getColor(count) {
-        if (count === 0) return '#1b7a4a';
-        if (count <= 5) return '#d97706';
-        if (count <= 15) return '#c73030';
-        return '#8b1a1a';
-    }
-
-    function getRadius(count) {
-        if (count === 0) return 6;
-        if (count <= 5) return 10;
-        if (count <= 15) return 14;
-        return 18;
-    }
-
-    // Add markers for each region
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     for (const [region, count] of Object.entries(regionCounts)) {
         const coords = regionCoords[region];
         if (!coords) continue;
-
-        const color = getColor(count);
-        const radius = getRadius(count);
-
-        // Add circle
-        L.circleMarker([coords[0], coords[1]], {
-            radius: radius,
-            fillColor: color,
-            color: '#0f2557',
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0.7
-        })
-        .bindPopup(
-            '<div style="font-family:Inter,sans-serif;">' +
-            '<h3 style="color:#0f2557; margin:0 0 8px 0;">' + region + '</h3>' +
-            '<p style="margin:5px 0;"><strong>Incidents:</strong> ' + count + '</p>' +
-            '<p style="margin:5px 0; font-size:12px; color:#666;">' +
-            (count === 0 ? '✅ Hakuna matukio' : '⚠️ Kuna matukio ' + count) +
-            '</p>' +
-            '</div>'
-        )
-        .addTo(map);
-
-        // Add label
-        if (count > 0) {
-            L.marker([coords[0], coords[1]], {
-                icon: L.divIcon({
-                    className: 'region-label',
-                    html: '<div style="background:white; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:bold; color:#0f2557; border:1px solid #0f2557; white-space:nowrap; box-shadow:0 2px 4px rgba(0,0,0,0.2);">' + region + ' (' + count + ')</div>',
-                    iconSize: [60, 20],
-                    iconAnchor: [30, -15]
-                })
-            }).addTo(map);
-        }
+        let color = count === 0 ? '#1b7a4a' : count <= 5 ? '#d97706' : count <= 15 ? '#c73030' : '#8b1a1a';
+        L.circleMarker([coords[0], coords[1]], { radius: 10, fillColor: color, color: '#0f2557', weight: 2, fillOpacity: 0.7 })
+            .bindPopup('<b>' + region + '</b><br>' + count + ' incidents').addTo(map);
     }
-
-    // Add Tanzania border outline (approximate)
-    const tanzaniaBounds = [
-        [-1.0, 29.3], [-1.0, 40.5],
-        [-11.8, 40.5], [-11.8, 29.3]
-    ];
-    L.rectangle(tanzaniaBounds, {
-        color: '#0f2557',
-        weight: 2,
-        fill: false,
-        dashArray: '5, 5'
-    }).addTo(map);
 </script>
 </body>
 </html>

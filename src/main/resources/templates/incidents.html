@@ -2,30 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Incidents - Cyber Forensics</title>
+    <title th:text="#{nav.incidents} + ' - ' + #{app.title}">Incidents</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
-        <a th:href="@{/incidents/new}">➕ Report</a>
-        <a th:href="@{/audit}">📊 Audit</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
     <div class="card">
-        <h1>📋 Security Incidents</h1>
+        <h1 th:text="#{nav.incidents}">Incidents</h1>
         <div style="margin-top:15px;">
-            <a th:href="@{/incidents/new}" class="btn">➕ Report New</a>
-            <a th:href="@{/incidents/search}" class="btn">🔍 Search</a>
+            <a th:href="@{/incidents/new}" class="btn btn-primary">➕ <span th:text="#{nav.report}">Report</span></a>
+            <a th:href="@{/incidents/search}" class="btn">🔍 <span th:text="#{general.search}">Search</span></a>
         </div>
     </div>
 
@@ -34,12 +22,12 @@
             <thead>
             <tr>
                 <th>Incident ID</th>
-                <th>Title</th>
+                <th th:text="#{report.title2}">Title</th>
                 <th>Severity</th>
-                <th>Status</th>
-                <th>Region</th>
-                <th>Date</th>
-                <th>Action</th>
+                <th th:text="#{report.status}">Status</th>
+                <th th:text="#{report.region}">Region</th>
+                <th th:text="#{general.date}">Date</th>
+                <th th:text="#{general.action}">Action</th>
             </tr>
             </thead>
             <tbody>
@@ -53,7 +41,7 @@
                 <td th:text="${inc.status}"></td>
                 <td th:text="${inc.region}"></td>
                 <td th:text="${#temporals.format(inc.dateReported, 'yyyy-MM-dd HH:mm')}"></td>
-                <td><a th:href="@{'/incidents/' + ${inc.id}}">View</a></td>
+                <td><a th:href="@{'/incidents/' + ${inc.id}}" th:text="#{general.view}">View</a></td>
             </tr>
             </tbody>
         </table>

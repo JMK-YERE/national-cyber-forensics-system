@@ -2,57 +2,31 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔬 Forensics Dashboard - Cyber Forensics</title>
+    <title th:text="#{nav.dashboard} + ' - FORENSICS'">Forensics</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
-        <a th:href="@{/threat-map}">🗺️ Threat Map</a>
-        <a th:href="@{/cases}">📁 Cases</a>
-        <a th:href="@{/incidents/my-tasks}">✅ My Tasks</a>
-        <a th:href="@{/audit}">📊 Audit</a>
-        <a th:href="@{/tools/security-center}">🛡️ Tools</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
     <div class="card">
-        <h1>🔬 Digital Forensics Dashboard</h1>
-        <p>Karibu, <strong th:text="${username}"></strong>! Dashboard yako ya uchambuzi.</p>
+        <h1>🔬 <span th:text="#{nav.dashboard}">Forensics Dashboard</span></h1>
+        <p><span th:text="#{dashboard.welcome}">Welcome</span>, <strong th:text="${username}"></strong>!</p>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-box">
-            <div class="stat-value">🔬</div>
-            <div class="stat-label">Evidence Files</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value">🔐</div>
-            <div class="stat-label">Encrypted</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value">📊</div>
-            <div class="stat-label">Chain of Custody</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value">🇹🇿</div>
-            <div class="stat-label">Forensics Standard</div>
-        </div>
+        <div class="stat-box"><div class="stat-value">🔬</div><div class="stat-label">Evidence Files</div></div>
+        <div class="stat-box"><div class="stat-value">🔐</div><div class="stat-label">Encrypted</div></div>
+        <div class="stat-box"><div class="stat-value">📊</div><div class="stat-label">Chain of Custody</div></div>
+        <div class="stat-box"><div class="stat-value">✅</div><div class="stat-label">Verified</div></div>
     </div>
 
     <div class="card">
-        <h2>⚡ Forensics Tools</h2>
+        <h2 th:text="#{dashboard.quickActions}">Quick Actions</h2>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
-            <a th:href="@{/incidents}" class="btn btn-primary">🔬 Analyze Incidents</a>
-            <a th:href="@{/audit}" class="btn">📊 Chain of Custody</a>
+            <a th:href="@{/incidents}" class="btn btn-primary">📋 <span th:text="#{nav.incidents}">Incidents</span></a>
+            <a th:href="@{/cases}" class="btn">📁 <span th:text="#{nav.cases}">Cases</span></a>
+            <a th:href="@{/audit}" class="btn">📊 <span th:text="#{nav.audit}">Audit</span></a>
         </div>
     </div>
 </div>

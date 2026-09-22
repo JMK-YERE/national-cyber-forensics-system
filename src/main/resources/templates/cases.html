@@ -2,43 +2,22 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>📁 Case Files - Cyber Forensics</title>
+    <title th:text="#{nav.cases} + ' - ' + #{app.title}">Cases</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
-        <a th:href="@{/cases}">📁 Cases</a>
-        <a th:href="@{/audit}">📊 Audit</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
     <div class="card">
-        <h1>📁 Case Management</h1>
-        <p>Kufuatilia kesi za uchunguzi wa matukio ya usalama.</p>
-        <a th:href="@{/cases/new}" class="btn btn-primary" style="margin-top:15px;">➕ Create New Case</a>
+        <h1 th:text="#{nav.cases}">Cases</h1>
+        <a th:href="@{/cases/new}" class="btn btn-primary" style="margin-top:15px;">➕ Add</a>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-box">
-            <div class="stat-value" th:text="${openCount}">0</div>
-            <div class="stat-label">Open Cases</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${investigatingCount}">0</div>
-            <div class="stat-label">Investigating</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${closedCount}">0</div>
-            <div class="stat-label">Closed</div>
-        </div>
+        <div class="stat-box"><div class="stat-value" th:text="${openCount}">0</div><div class="stat-label">Open</div></div>
+        <div class="stat-box"><div class="stat-value" th:text="${investigatingCount}">0</div><div class="stat-label">Investigating</div></div>
+        <div class="stat-box"><div class="stat-value" th:text="${closedCount}">0</div><div class="stat-label">Closed</div></div>
     </div>
 
     <div class="card">
@@ -46,26 +25,22 @@
             <thead>
             <tr>
                 <th>Case #</th>
-                <th>Title</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Assigned</th>
-                <th>Date</th>
-                <th>Action</th>
+                <th th:text="#{report.title2}">Title</th>
+                <th th:text="#{general.priority}">Priority</th>
+                <th th:text="#{report.status}">Status</th>
+                <th th:text="#{admin.assigned}">Assigned</th>
+                <th th:text="#{general.action}">Action</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:if="${cases.isEmpty()}">
-                <td colspan="7" style="text-align:center;">Hakuna kesi bado.</td>
-            </tr>
+            <tr th:if="${cases.isEmpty()}"><td colspan="6" style="text-align:center;">No cases yet.</td></tr>
             <tr th:each="c : ${cases}" th:class="${c.statusClass}">
                 <td th:text="${c.caseNumber}"></td>
                 <td th:text="${c.title}"></td>
                 <td th:text="${c.priority}"></td>
                 <td th:text="${c.status}"></td>
-                <td th:text="${c.assignedToName != null ? c.assignedToName : 'Unassigned'}"></td>
-                <td th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd')}"></td>
-                <td><a th:href="@{'/cases/' + ${c.id}}">View</a></td>
+                <td th:text="${c.assignedToName != null ? c.assignedToName : '—'}"></td>
+                <td><a th:href="@{'/cases/' + ${c.id}}" th:text="#{general.view}">View</a></td>
             </tr>
             </tbody>
         </table>

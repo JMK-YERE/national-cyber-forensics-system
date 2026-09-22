@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- NAVBAR FRAGMENT -->
+<div class="navbar" th:fragment="navbar">
+    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
+        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
+        <a th:href="@{/incidents}" th:text="#{nav.incidents}">Incidents</a>
+        <a th:href="@{/cases}" th:text="#{nav.cases}">Cases</a>
+        <a th:href="@{/threat-map}" th:text="#{nav.threatMap}">Threat Map</a>
+        <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
+        <a th:href="@{/tools/security-center}" th:text="#{nav.tools}">Tools</a>
+        <a th:href="@{/audit}" th:text="#{nav.audit}">Audit</a>
+        <a th:href="@{/admin/users}" th:text="#{nav.users}">Users</a>
+
+        <!-- LANGUAGE SWITCHER -->
+        <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
+            <a th:href="@{'/lang?lang=sw&redirect=' + ${#httpServletRequest.requestURI}}" class="lang-link" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
+            <a th:href="@{'/lang?lang=en&redirect=' + ${#httpServletRequest.requestURI}}" class="lang-link" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
+            <a th:href="@{'/lang?lang=fr&redirect=' + ${#httpServletRequest.requestURI}}" class="lang-link" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
+            <a th:href="@{'/lang?lang=ar&redirect=' + ${#httpServletRequest.requestURI}}" class="lang-link" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
+        </span>
+
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn" th:text="#{nav.logout}">Logout</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
