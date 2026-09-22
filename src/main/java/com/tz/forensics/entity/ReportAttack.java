@@ -28,7 +28,7 @@ public class ReportAttack {
     private String reporterEmail;
 
     @Column(name = "reporter_id_number", length = 100)
-    private String reporterIdNumber;  // NIDA, Passport, n.k.
+    private String reporterIdNumber;
 
     @Column(name = "reporter_address", length = 200)
     private String reporterAddress;
@@ -72,6 +72,11 @@ public class ReportAttack {
     @Column(name = "financial_currency", length = 10)
     private String financialCurrency = "TZS";
 
+    // ===== SPECIFIC DETAILS (JSON-like string) =====
+    @Column(name = "specific_details", columnDefinition = "TEXT")
+    private String specificDetails; // JSON string with details per attack type
+
+    // ===== EVIDENCE =====
     @Column(name = "has_evidence")
     private Boolean hasEvidence = false;
 
@@ -81,6 +86,13 @@ public class ReportAttack {
     @Column(name = "evidence_file_path", length = 500)
     private String evidenceFilePath;
 
+    @Column(name = "evidence_file_type", length = 100)
+    private String evidenceFileType; // PHOTO, VIDEO, AUDIO, DOCUMENT, FILE
+
+    @Column(name = "evidence_file_size")
+    private Long evidenceFileSize;
+
+    // ===== STATUS =====
     @Column(length = 30)
     private String status = "NEW";
 
@@ -121,18 +133,18 @@ public class ReportAttack {
 
     public String getAttackTypeLabel() {
         return switch (attackType != null ? attackType : "OTHER") {
-            case "PHONE_STOLEN" -> "📱 Simu Iliibiwa";
+            case "PHONE_STOLEN" -> "📱 Phone Stolen";
             case "SOCIAL_MEDIA_HACKED" -> "👤 Social Media Hacked";
-            case "BANK_CARD_LOST" -> "💳 Kadi ya Benki";
-            case "MONEY_STOLEN" -> "💰 Pesa Iliibiwa";
+            case "BANK_CARD_LOST" -> "💳 Bank Card Lost";
+            case "MONEY_STOLEN" -> "💰 Money Stolen";
             case "EMAIL_HACKED" -> "📧 Email Hacked";
             case "PHISHING" -> "🎣 Phishing";
-            case "DOCUMENTS_STOLEN" -> "💼 Documents Ziliibiwa";
-            case "HOME_BREAK_IN" -> "🏠 Nyumbani Kuliingiliwa";
-            case "IDENTITY_THEFT" -> "🆔 Utambulisho Uliibiwa";
+            case "DOCUMENTS_STOLEN" -> "💼 Documents Stolen";
+            case "HOME_BREAK_IN" -> "🏠 Home Break-In";
+            case "IDENTITY_THEFT" -> "🆔 Identity Theft";
             case "SIM_SWAP" -> "📲 SIM Swap";
             case "RANSOMWARE" -> "🦠 Ransomware";
-            default -> "⚠️ Nyingine";
+            default -> "⚠️ Other";
         };
     }
 
@@ -179,12 +191,18 @@ public class ReportAttack {
     public void setFinancialLossTzs(BigDecimal financialLossTzs) { this.financialLossTzs = financialLossTzs; }
     public String getFinancialCurrency() { return financialCurrency; }
     public void setFinancialCurrency(String financialCurrency) { this.financialCurrency = financialCurrency; }
+    public String getSpecificDetails() { return specificDetails; }
+    public void setSpecificDetails(String specificDetails) { this.specificDetails = specificDetails; }
     public Boolean getHasEvidence() { return hasEvidence; }
     public void setHasEvidence(Boolean hasEvidence) { this.hasEvidence = hasEvidence; }
     public String getEvidenceDescription() { return evidenceDescription; }
     public void setEvidenceDescription(String evidenceDescription) { this.evidenceDescription = evidenceDescription; }
     public String getEvidenceFilePath() { return evidenceFilePath; }
     public void setEvidenceFilePath(String evidenceFilePath) { this.evidenceFilePath = evidenceFilePath; }
+    public String getEvidenceFileType() { return evidenceFileType; }
+    public void setEvidenceFileType(String evidenceFileType) { this.evidenceFileType = evidenceFileType; }
+    public Long getEvidenceFileSize() { return evidenceFileSize; }
+    public void setEvidenceFileSize(Long evidenceFileSize) { this.evidenceFileSize = evidenceFileSize; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public String getPriority() { return priority; }

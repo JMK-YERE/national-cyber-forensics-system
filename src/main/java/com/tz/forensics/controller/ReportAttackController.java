@@ -2,17 +2,29 @@ package com.tz.forensics.controller;
 
 import com.tz.forensics.config.CountryConfig;
 import com.tz.forensics.entity.ReportAttack;
+import com.tz.forensics.entity.ReportMessage;
 import com.tz.forensics.entity.User;
+import com.tz.forensics.repository.ReportMessageRepository;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/report-attack")
@@ -22,26 +34,31 @@ public class ReportAttackController {
     private final UserRepository userRepository;
     private final AuditService auditService;
     private final NotificationService notificationService;
+    private final ReportMessageRepository messageRepo;
     private final EmailService emailService;
+
+    @Value("${app.upload.dir:uploads/evidence}")
+    private String uploadDir;
 
     public ReportAttackController(ReportAttackService service,
                                    UserRepository userRepository,
                                    AuditService auditService,
                                    NotificationService notificationService,
+                                   ReportMessageRepository messageRepo,
                                    EmailService emailService) {
         this.service = service;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.notificationService = notificationService;
+        this.messageRepo = messageRepo;
         this.emailService = emailService;
     }
 
-    // ===== CHECK: Admin/Pro/Forensics =====
     private boolean canSeeAllReports(User user) {
         return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
     }
 
-    // ===== REPORT FORM =====
+    // ===== FORM =====
     @GetMapping
     public String showForm(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
@@ -52,112 +69,171 @@ public class ReportAttackController {
         model.addAttribute("report", new ReportAttack());
         model.addAttribute("canSeeAll", canSeeAllReports(user));
         model.addAttribute("countries", CountryConfig.COUNTRIES.values());
-        model.addAttribute("defaultCountry", CountryConfig.getCountry(user.getOrganization() != null ? "TZ" : "TZ"));
+        model.addAttribute("defaultCountry", CountryConfig.getCountry("TZ"));
 
-        // Admin anaona REPORTS ZOTE kwenye form pia
         if (canSeeAllReports(user)) {
             model.addAttribute("allReports", service.getAll());
         }
-
         return "report-attack-form";
     }
 
+    // ===== SUBMIT WITH FILE =====
     @PostMapping("/new")
     public String createReport(@ModelAttribute ReportAttack report,
                                 @RequestParam(required = false)
                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateOccurred,
                                 @RequestParam(required = false) String country,
+                                @RequestParam(required = false) String specificDetails,
+                                @RequestParam(required = false) MultipartFile evidenceFile,
                                 Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
 
         report.setUserId(user.getId());
         report.setDateOccurred(dateOccurred);
+        report.setSpecificDetails(specificDetails);
 
         if (country == null || country.isEmpty()) country = "TZ";
         report.setCountry(country);
-        CountryConfig.CountryInfo ci = CountryConfig.getCountry(country);
-        report.setCountryName(ci.name);
+        report.setCountryName(CountryConfig.getCountry(country).name);
 
-        if (report.getReporterName() == null || report.getReporterName().isBlank()) {
+        if (report.getReporterName() == null || report.getReporterName().isBlank())
             report.setReporterName(user.getFullName() != null ? user.getFullName() : user.getUsername());
-        }
-        if (report.getReporterEmail() == null || report.getReporterEmail().isBlank()) {
+        if (report.getReporterEmail() == null || report.getReporterEmail().isBlank())
             report.setReporterEmail(user.getEmail());
-        }
-        if (report.getReporterPhone() == null || report.getReporterPhone().isBlank()) {
+        if (report.getReporterPhone() == null || report.getReporterPhone().isBlank())
             report.setReporterPhone(user.getPhone());
+
+        // Handle file upload
+        if (evidenceFile != null && !evidenceFile.isEmpty()) {
+            try {
+                Path uploadPath = Paths.get(uploadDir);
+                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+                String storedName = UUID.randomUUID() + "_" + evidenceFile.getOriginalFilename();
+                Path targetPath = uploadPath.resolve(storedName);
+                Files.write(targetPath, evidenceFile.getBytes());
+
+                report.setEvidenceFilePath(storedName);
+                report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
+                report.setEvidenceFileSize(evidenceFile.getSize());
+                report.setHasEvidence(true);
+            } catch (IOException e) {
+                System.err.println("File upload failed: " + e.getMessage());
+            }
         }
 
         ReportAttack saved = service.create(report);
         auditService.log("REPORT_ATTACK", "ReportAttack", saved.getReportId(),
                 "Type: " + saved.getAttackType() + " | Region: " + saved.getRegion());
 
-        // Notify admins
+        // Notify ALL admins
         try {
-            notificationService.createNotification(
-                "🚨 Attack Mpya: " + saved.getAttackTypeLabel(),
-                saved.getTitle() + " (" + saved.getRegion() + ", " + saved.getCountryName() + ")",
-                "CRITICAL", "/report-attack/admin"
-            );
+            List<User> admins = userRepository.findAll().stream()
+                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics())
+                    .toList();
+            for (User admin : admins) {
+                notificationService.createNotification(
+                    "🚨 Attack Mpya: " + saved.getAttackTypeLabel(),
+                    saved.getTitle() + " | " + saved.getReporterName() + " | " + saved.getReporterPhone(),
+                    "CRITICAL", "/report-attack/admin"
+                );
+            }
         } catch (Exception e) { System.err.println("Notif: " + e.getMessage()); }
 
-        return "redirect:/report-attack/success?id=" + saved.getId();
+        try {
+            emailService.sendIncidentAlert(saved.getReportId(), saved.getTitle(), saved.getPriority());
+        } catch (Exception e) { System.err.println("Email: " + e.getMessage()); }
+
+        return "redirect:/report-attack/view/" + saved.getId();
     }
 
-    @GetMapping("/success")
-    public String success(@RequestParam Long id, Authentication auth, Model model) {
-        User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        ReportAttack r = service.getById(id);
-        if (user == null || r == null) return "redirect:/report-attack";
-
-        model.addAttribute("report", r);
-        model.addAttribute("user", user);
-        model.addAttribute("country", CountryConfig.getCountry(r.getCountry()));
-        return "report-attack-success";
-    }
-
-    // ===== VIEW — Admin anaweza kuona zote, individual anaona zake tu =====
+    // ===== VIEW =====
     @GetMapping("/view/{id}")
     public String view(@PathVariable Long id, Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
         if (user == null || r == null) return "redirect:/report-attack";
 
-        // Individual anaona zake pekee, Admin anaona zote
-        if (!canSeeAllReports(user) && !r.getUserId().equals(user.getId())) {
+        if (!canSeeAllReports(user) && !r.getUserId().equals(user.getId()))
             return "redirect:/access-denied";
-        }
 
+        List<ReportMessage> messages = messageRepo.findByReportIdOrderByCreatedAtAsc(id);
         model.addAttribute("report", r);
         model.addAttribute("user", user);
         model.addAttribute("canSeeAll", canSeeAllReports(user));
+        model.addAttribute("messages", messages);
         model.addAttribute("country", CountryConfig.getCountry(r.getCountry()));
         return "report-attack-detail";
     }
 
-    // ===== ADMIN VIEW — Admin/Pro/Forensics PEKEE =====
+    // ===== DOWNLOAD EVIDENCE =====
+    @GetMapping("/evidence/{id}")
+    public ResponseEntity<byte[]> downloadEvidence(@PathVariable Long id, Authentication auth) throws IOException {
+        ReportAttack r = service.getById(id);
+        if (r == null || r.getEvidenceFilePath() == null) return ResponseEntity.notFound().build();
+
+        Path filePath = Paths.get(uploadDir, r.getEvidenceFilePath());
+        if (!Files.exists(filePath)) return ResponseEntity.notFound().build();
+
+        byte[] data = Files.readAllBytes(filePath);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + r.getEvidenceFilePath().substring(r.getEvidenceFilePath().indexOf("_") + 1) + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(data);
+    }
+
+    // ===== REPLY =====
+    @PostMapping("/{id}/reply")
+    public String reply(@PathVariable Long id, @RequestParam String message,
+                        Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        ReportAttack r = service.getById(id);
+        if (user == null || r == null) return "redirect:/report-attack";
+
+        String senderType = canSeeAllReports(user) ? "ADMIN" : "USER";
+        messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
+
+        // Notify the other party
+        if ("ADMIN".equals(senderType)) {
+            // Notify user
+            if (r.getUserId() != null) {
+                notificationService.createNotification(
+                    "💬 Update kwenye Report " + r.getReportId(),
+                    message.substring(0, Math.min(80, message.length())),
+                    "INFO", "/report-attack/view/" + id
+                );
+            }
+        } else {
+            // Notify admin
+            notificationService.createNotification(
+                "💬 Ujumbe kutoka " + user.getUsername(),
+                "Report " + r.getReportId() + ": " + message.substring(0, Math.min(80, message.length())),
+                "INFO", "/report-attack/admin/" + id
+            );
+        }
+
+        return "redirect:/report-attack/view/" + id;
+    }
+
+    // ===== ADMIN LIST =====
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (!canSeeAllReports(user)) return "redirect:/access-denied";
 
-        List<ReportAttack> all = service.getAll();
-        model.addAttribute("reports", all);
+        model.addAttribute("reports", service.getAll());
         model.addAttribute("user", user);
         model.addAttribute("newCount", service.countNew());
         model.addAttribute("todayCount", service.countToday());
         model.addAttribute("totalCount", service.countTotal());
-
-        List<User> assignable = userRepository.findAll().stream()
-                .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics())
-                .toList();
-        model.addAttribute("assignableUsers", assignable);
-
+        model.addAttribute("assignableUsers", userRepository.findAll().stream()
+                .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList());
         return "report-attack-admin";
     }
 
-    // ===== ADMIN UPDATE — Kumsaidia mtu =====
+    // ===== ADMIN UPDATE =====
     @PostMapping("/admin/{id}/update")
     public String updateStatus(@PathVariable Long id,
                                 @RequestParam String status,
@@ -184,9 +260,31 @@ public class ReportAttackController {
             }
         }
 
-        auditService.log("ATTACK_HELP", "ReportAttack", String.valueOf(id),
-                "Status: " + status + " | Assigned: " + assignedName);
+        // Add admin response as a message
+        if (adminResponse != null && !adminResponse.isEmpty()) {
+            messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), "ADMIN", adminResponse));
+        }
+
+        // Notify user
+        ReportAttack r = service.getById(id);
+        if (r != null && r.getUserId() != null) {
+            notificationService.createNotification(
+                "🔄 Report Yako Imebadilishwa — " + status,
+                "Report " + r.getReportId() + ": Status ni " + status,
+                "INFO", "/report-attack/view/" + id
+            );
+        }
 
         return "redirect:/report-attack/admin";
+    }
+
+    private String detectFileType(String contentType) {
+        if (contentType == null) return "FILE";
+        if (contentType.startsWith("image/")) return "PHOTO";
+        if (contentType.startsWith("video/")) return "VIDEO";
+        if (contentType.startsWith("audio/")) return "AUDIO";
+        if (contentType.contains("pdf") || contentType.contains("word") ||
+            contentType.contains("document") || contentType.contains("text")) return "DOCUMENT";
+        return "FILE";
     }
 }
