@@ -19,11 +19,21 @@ public class AIChatService {
     @Value("${groq.api.key:}")
     private String apiKey;
 
-    @Value("${groq.model:llama-3.3-70b-versatile}")
+    @Value("${groq.model:llama-3.1-8b-instant}")
     private String model;
 
-    // Groq API URL — sahihi
     private static final String GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+
+    // Models zinazofanya kazi Groq (kwa fallback)
+    private static final String[] FALLBACK_MODELS = {
+        "llama-3.1-8b-instant",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-70b-versatile",
+        "llama3-8b-8192",
+        "llama3-70b-8192",
+        "mixtral-8x7b-32768",
+        "gemma2-9b-it"
+    };
 
     public boolean isConfigured() {
         return apiKey != null && !apiKey.isEmpty() && !apiKey.equals("null");
@@ -32,23 +42,39 @@ public class AIChatService {
     public String chat(String userMessage, String context) {
         log.info("===== GROQ REQUEST =====");
         log.info("Model: {}", model);
-        log.info("URL: {}", GROQ_URL);
-        log.info("Key length: {}", apiKey != null ? apiKey.length() : 0);
-        log.info("Message: {}", userMessage);
 
         if (!isConfigured()) {
             return "❌ AI Haijawekwa. Wasiliana na admin.";
         }
 
+        // Try primary model
+        String response = tryModel(model, userMessage, context);
+        if (response != null && !response.startsWith("❌")) {
+            return response;
+        }
+
+        // Try fallback models
+        log.warn("Primary model failed, trying fallbacks...");
+        for (String fallback : FALLBACK_MODELS) {
+            if (fallback.equals(model)) continue;
+            log.info("Trying fallback: {}", fallback);
+            String fbResponse = tryModel(fallback, userMessage, context);
+            if (fbResponse != null && !fbResponse.startsWith("❌")) {
+                log.info("✅ Fallback model worked: {}", fallback);
+                return fbResponse + "\n\n_(Model: " + fallback + ")_";
+            }
+        }
+
+        return response; // Return error from primary
+    }
+
+    private String tryModel(String modelName, String userMessage, String context) {
         try {
             String systemPrompt = "Wewe ni AI Assistant wa Cyber Forensics. "
-                + "Jibu kwa Kiswahili kwa ufupi (sentensi 2-5). "
-                + "Unaweza kusaidia: security, kazi, elimu, maisha, tech. "
-                + "Tumia emoji. Context: " + (context != null ? context : "Hakuna");
+                + "Jibu kwa Kiswahili kwa ufupi. Context: " + (context != null ? context : "");
 
-            // Manual JSON build — safe escaping
             String jsonBody = "{"
-                + "\"model\":\"" + model + "\","
+                + "\"model\":\"" + modelName + "\","
                 + "\"messages\":["
                 + "{\"role\":\"system\",\"content\":\"" + escapeJson(systemPrompt) + "\"},"
                 + "{\"role\":\"user\",\"content\":\"" + escapeJson(userMessage) + "\"}"
@@ -71,30 +97,27 @@ public class AIChatService {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            log.info("HTTP Status: {}", response.statusCode());
-            log.info("Response: {}", response.body().substring(0, Math.min(500, response.body().length())));
+            log.info("Model {} — Status: {}", modelName, response.statusCode());
 
             if (response.statusCode() == 200) {
                 String text = extractContent(response.body());
                 if (text != null && !text.trim().isEmpty()) {
-                    log.info("✅ SUCCESS: {} chars", text.length());
                     return text;
                 }
-                log.error("Empty content from response");
-                return "❌ Response ilikuwa tupu. Jaribu tena.";
+            } else if (response.statusCode() == 404) {
+                log.warn("Model {} haipo", modelName);
+                return "❌ Model `" + modelName + "` haipo. Jaribu mwingine.";
             } else if (response.statusCode() == 401) {
                 return "❌ API Key si sahihi. Update kwenye Render.";
-            } else if (response.statusCode() == 404) {
-                return "❌ Model haipo: `" + model + "`. Badilisha kwenye Render.";
             } else if (response.statusCode() == 429) {
                 return "⏱️ Rate limit. Subiri dakika 1.";
-            } else {
-                return "❌ Hitilafu ya Groq: " + response.statusCode();
             }
 
+            return "❌ Hitilafu: " + response.statusCode();
+
         } catch (Exception e) {
-            log.error("Exception: {}", e.getMessage(), e);
-            return "❌ Hitilafu ya mtandao: " + e.getMessage();
+            log.error("Exception for model {}: {}", modelName, e.getMessage());
+            return "❌ Hitilafu: " + e.getMessage();
         }
     }
 
@@ -140,7 +163,6 @@ public class AIChatService {
             }
             return sb.toString();
         } catch (Exception e) {
-            log.error("Parse failed: {}", e.getMessage());
             return null;
         }
     }
