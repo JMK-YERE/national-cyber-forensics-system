@@ -27,14 +27,17 @@ public class ReportAttack {
     @Column(name = "reporter_email", length = 100)
     private String reporterEmail;
 
+    @Column(name = "reporter_id_number", length = 100)
+    private String reporterIdNumber;  // NIDA, Passport, n.k.
+
+    @Column(name = "reporter_address", length = 200)
+    private String reporterAddress;
+
     @Column(name = "attack_type", nullable = false, length = 50)
     private String attackType;
-    // PHONE_STOLEN, SOCIAL_MEDIA_HACKED, BANK_CARD_LOST, MONEY_STOLEN,
-    // EMAIL_HACKED, PHISHING, DOCUMENTS_STOLEN, HOME_BREAK_IN,
-    // IDENTITY_THEFT, SIM_SWAP, RANSOMWARE, OTHER
 
     @Column(name = "attack_category", length = 50)
-    private String attackCategory; // PHYSICAL, DIGITAL, FINANCIAL, SOCIAL
+    private String attackCategory;
 
     @Column(nullable = false, length = 200)
     private String title;
@@ -51,6 +54,12 @@ public class ReportAttack {
     @Column(length = 50)
     private String region;
 
+    @Column(length = 10)
+    private String country = "TZ";
+
+    @Column(name = "country_name", length = 100)
+    private String countryName;
+
     @Column(name = "latitude")
     private Double latitude;
 
@@ -60,14 +69,20 @@ public class ReportAttack {
     @Column(name = "financial_loss_tzs")
     private BigDecimal financialLossTzs;
 
+    @Column(name = "financial_currency", length = 10)
+    private String financialCurrency = "TZS";
+
     @Column(name = "has_evidence")
     private Boolean hasEvidence = false;
 
     @Column(name = "evidence_description", columnDefinition = "TEXT")
     private String evidenceDescription;
 
+    @Column(name = "evidence_file_path", length = 500)
+    private String evidenceFilePath;
+
     @Column(length = 30)
-    private String status = "NEW"; // NEW, REVIEWING, INVESTIGATING, RESOLVED, CLOSED
+    private String status = "NEW";
 
     @Column(length = 20)
     private String priority = "MEDIUM";
@@ -83,6 +98,9 @@ public class ReportAttack {
 
     @Column(name = "ai_recommendation", columnDefinition = "TEXT")
     private String aiRecommendation;
+
+    @Column(name = "police_case_number", length = 50)
+    private String policeCaseNumber;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -131,6 +149,10 @@ public class ReportAttack {
     public void setReporterPhone(String reporterPhone) { this.reporterPhone = reporterPhone; }
     public String getReporterEmail() { return reporterEmail; }
     public void setReporterEmail(String reporterEmail) { this.reporterEmail = reporterEmail; }
+    public String getReporterIdNumber() { return reporterIdNumber; }
+    public void setReporterIdNumber(String reporterIdNumber) { this.reporterIdNumber = reporterIdNumber; }
+    public String getReporterAddress() { return reporterAddress; }
+    public void setReporterAddress(String reporterAddress) { this.reporterAddress = reporterAddress; }
     public String getAttackType() { return attackType; }
     public void setAttackType(String attackType) { this.attackType = attackType; }
     public String getAttackCategory() { return attackCategory; }
@@ -145,16 +167,24 @@ public class ReportAttack {
     public void setLocation(String location) { this.location = location; }
     public String getRegion() { return region; }
     public void setRegion(String region) { this.region = region; }
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
+    public String getCountryName() { return countryName; }
+    public void setCountryName(String countryName) { this.countryName = countryName; }
     public Double getLatitude() { return latitude; }
     public void setLatitude(Double latitude) { this.latitude = latitude; }
     public Double getLongitude() { return longitude; }
     public void setLongitude(Double longitude) { this.longitude = longitude; }
     public BigDecimal getFinancialLossTzs() { return financialLossTzs; }
     public void setFinancialLossTzs(BigDecimal financialLossTzs) { this.financialLossTzs = financialLossTzs; }
+    public String getFinancialCurrency() { return financialCurrency; }
+    public void setFinancialCurrency(String financialCurrency) { this.financialCurrency = financialCurrency; }
     public Boolean getHasEvidence() { return hasEvidence; }
     public void setHasEvidence(Boolean hasEvidence) { this.hasEvidence = hasEvidence; }
     public String getEvidenceDescription() { return evidenceDescription; }
     public void setEvidenceDescription(String evidenceDescription) { this.evidenceDescription = evidenceDescription; }
+    public String getEvidenceFilePath() { return evidenceFilePath; }
+    public void setEvidenceFilePath(String evidenceFilePath) { this.evidenceFilePath = evidenceFilePath; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public String getPriority() { return priority; }
@@ -167,6 +197,8 @@ public class ReportAttack {
     public void setAdminResponse(String adminResponse) { this.adminResponse = adminResponse; }
     public String getAiRecommendation() { return aiRecommendation; }
     public void setAiRecommendation(String aiRecommendation) { this.aiRecommendation = aiRecommendation; }
+    public String getPoliceCaseNumber() { return policeCaseNumber; }
+    public void setPoliceCaseNumber(String policeCaseNumber) { this.policeCaseNumber = policeCaseNumber; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

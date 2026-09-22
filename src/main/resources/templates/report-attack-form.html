@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚨 Report Attack - Cyber Forensics TZ</title>
+    <title th:text="#{report.title}">Report Attack</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
     <style>
         .attack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 15px 0; }
@@ -13,21 +13,25 @@
         .attack-option input { display: none; }
         .attack-option .icon { font-size: 30px; margin-bottom: 8px; }
         .attack-option .label { font-size: 11px; color: var(--dark-blue); font-weight: 600; }
-        .alert-banner { background: linear-gradient(135deg, var(--deep-red), var(--red-light)); color: var(--white); padding: 25px; border-radius: 10px; margin-bottom: 20px; text-align: center; box-shadow: var(--shadow-lg); }
-        .alert-banner h2 { color: var(--white); margin: 0; font-size: 24px; }
-        .alert-banner p { color: rgba(255,255,255,0.95); margin: 10px 0 0 0; font-size: 14px; }
+        .lang-switcher { text-align: right; padding: 10px 0; font-size: 12px; }
+        .lang-switcher a { margin-left: 10px; padding: 4px 10px; border-radius: 4px; }
+        .lang-switcher a.active { background: var(--dark-blue); color: white; }
         .contact-section { background: rgba(201, 162, 39, 0.08); border-left: 4px solid var(--gold); padding: 20px; border-radius: 8px; margin: 20px 0; }
         .contact-section h4 { color: var(--dark-blue); margin-bottom: 8px; }
         .contact-section p { font-size: 12px; color: var(--text-muted); margin-bottom: 15px; }
+        .country-selector { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; }
+        .country-btn { padding: 8px 15px; border: 2px solid var(--border-blue); border-radius: 20px; background: white; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+        .country-btn:hover { border-color: var(--dark-blue); }
+        .country-btn.active { background: var(--dark-blue); color: white; border-color: var(--dark-blue); }
     </style>
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="logo">🌍 CYBER FORENSICS — INTERNATIONAL</div>
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/report-attack}">🚨 Report Attack</a>
-        <a th:href="@{/ai/assistant}">🤖 AI Assistant</a>
+        <a th:href="@{/report-attack}">🚨 Report</a>
+        <a th:href="@{/ai/assistant}">🤖 AI</a>
         <a th:href="@{/tools/security-center}">🛡️ Tools</a>
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
@@ -36,17 +40,47 @@
 </div>
 
 <div class="container">
-    <div class="alert-banner">
-        <h2>🚨 RIPOTI ATTACK / SHIDA</h2>
-        <p>Ukiibiwa, kuhackiwa, au kuona shida yoyote — ripoti hapa. Tutakusaidia haraka!</p>
+    <!-- LANGUAGE SWITCHER -->
+    <div class="lang-switcher">
+        🌐 Lugha:
+        <a th:href="@{/report-attack?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'">🇹🇿 Kiswahili</a>
+        <a th:href="@{/report-attack?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'">🇬🇧 English</a>
+        <a th:href="@{/report-attack?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'">🇫🇷 Français</a>
+        <a th:href="@{/report-attack?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'">🇸🇦 العربية</a>
     </div>
 
-    <!-- FORM -->
-    <div class="card">
-        <h2>📝 Ripoti Sasa</h2>
-        <form th:action="@{/report-attack/new}" method="post" style="margin-top:20px;">
+    <div class="card" style="text-align:center; background:linear-gradient(135deg, var(--deep-red), var(--red-light)); color:white; padding:30px;">
+        <h1 style="color:white; font-size:28px; margin:0;">🚨 REPORT ATTACK / SHIDA</h1>
+        <p style="color:white; margin:10px 0 0 0; font-size:15px;">Report any attack — get help immediately</p>
+    </div>
 
-            <label>CHAGUA AINA YA ATTACK *</label>
+    <form th:action="@{/report-attack/new}" method="post" style="margin-top:20px;">
+
+        <!-- COUNTRY SELECTOR -->
+        <div class="card">
+            <h2>🌍 1. Chagua Nchi / Select Country</h2>
+            <div class="country-selector">
+                <button type="button" class="country-btn active" data-country="TZ" onclick="selectCountry(this)">🇹🇿 Tanzania</button>
+                <button type="button" class="country-btn" data-country="KE" onclick="selectCountry(this)">🇰🇪 Kenya</button>
+                <button type="button" class="country-btn" data-country="UG" onclick="selectCountry(this)">🇺🇬 Uganda</button>
+                <button type="button" class="country-btn" data-country="RW" onclick="selectCountry(this)">🇷🇼 Rwanda</button>
+                <button type="button" class="country-btn" data-country="BI" onclick="selectCountry(this)">🇧🇮 Burundi</button>
+                <button type="button" class="country-btn" data-country="SS" onclick="selectCountry(this)">🇸🇸 South Sudan</button>
+                <button type="button" class="country-btn" data-country="CD" onclick="selectCountry(this)">🇨🇩 DR Congo</button>
+                <button type="button" class="country-btn" data-country="ZM" onclick="selectCountry(this)">🇿🇲 Zambia</button>
+                <button type="button" class="country-btn" data-country="MW" onclick="selectCountry(this)">🇲🇼 Malawi</button>
+                <button type="button" class="country-btn" data-country="MZ" onclick="selectCountry(this)">🇲🇿 Mozambique</button>
+                <button type="button" class="country-btn" data-country="ZA" onclick="selectCountry(this)">🇿🇦 South Africa</button>
+                <button type="button" class="country-btn" data-country="NG" onclick="selectCountry(this)">🇳🇬 Nigeria</button>
+                <button type="button" class="country-btn" data-country="GH" onclick="selectCountry(this)">🇬🇭 Ghana</button>
+                <button type="button" class="country-btn" data-country="OTHER" onclick="selectCountry(this)">🌍 Other</button>
+            </div>
+            <input type="hidden" name="country" id="countryInput" value="TZ">
+        </div>
+
+        <!-- ATTACK TYPE -->
+        <div class="card">
+            <h2>📋 2. Aina ya Attack / Attack Type *</h2>
             <div class="attack-grid">
                 <label class="attack-option" onclick="selectAttack(this)">
                     <input type="radio" name="attackType" value="PHONE_STOLEN" required>
@@ -56,7 +90,7 @@
                 <label class="attack-option" onclick="selectAttack(this)">
                     <input type="radio" name="attackType" value="SOCIAL_MEDIA_HACKED">
                     <div class="icon">👤</div>
-                    <div class="label">Social Media</div>
+                    <div class="label">Social Media Hacked</div>
                 </label>
                 <label class="attack-option" onclick="selectAttack(this)">
                     <input type="radio" name="attackType" value="BANK_CARD_LOST">
@@ -109,98 +143,84 @@
                     <div class="label">Nyingine</div>
                 </label>
             </div>
+        </div>
 
-            <label>KICHWA / TITLE *</label>
+        <!-- DETAILS -->
+        <div class="card">
+            <h2>📝 3. Maelezo / Details</h2>
+
+            <label>Kichwa / Title *</label>
             <input type="text" name="title" required placeholder="mfano: Simu yangu iliibiwa jana usiku">
 
-            <label>MAELEZO KAMILI *</label>
-            <textarea name="description" rows="5" required placeholder="Eleza kilichotokea, lini, wapi, na jinsi..."></textarea>
+            <label>Maelezo / Description *</label>
+            <textarea name="description" rows="5" required placeholder="Eleza kilichotokea, lini, wapi..."></textarea>
 
-            <label>MKOA *</label>
+            <label>Mkoa / Region *</label>
             <select name="region" required>
-                <option value="">-- Chagua Mkoa --</option>
-                <option>Dar es Salaam</option>
-                <option>Arusha</option>
-                <option>Mwanza</option>
-                <option>Dodoma</option>
-                <option>Mbeya</option>
-                <option>Morogoro</option>
-                <option>Tanga</option>
-                <option>Zanzibar</option>
-                <option>Kilimanjaro</option>
-                <option>Tabora</option>
-                <option>Kigoma</option>
-                <option>Iringa</option>
-                <option>Mtwara</option>
-                <option>Ruvuma</option>
-                <option>Singida</option>
-                <option>Shinyanga</option>
-                <option>Kagera</option>
-                <option>Mara</option>
-                <option>Manyara</option>
-                <option>Rukwa</option>
-                <option>Katavi</option>
-                <option>Njombe</option>
-                <option>Simiyu</option>
-                <option>Geita</option>
-                <option>Songwe</option>
-                <option>Pwani</option>
-                <option>Lindi</option>
+                <option value="">-- Chagua --</option>
+                <option th:each="r : ${defaultCountry.regions}" th:value="${r}" th:text="${r}"></option>
             </select>
 
-            <label>MAHALI (Optional)</label>
-            <input type="text" name="location" placeholder="mfano: Kariakoo, Dar es Salaam">
+            <label>Mahali / Location</label>
+            <input type="text" name="location" placeholder="mfano: Kariakoo">
 
-            <label>TAREHE ILIYOTOKEA (Optional)</label>
+            <label>Tarehe / Date Occurred</label>
             <input type="datetime-local" name="dateOccurred">
 
-            <label>HASARA (TZS) — Optional</label>
+            <label>Hasara / Financial Loss</label>
             <input type="number" name="financialLossTzs" placeholder="0" step="0.01">
+        </div>
 
-            <!-- ===== CONTACT INFO — MUHIMU KWA USAIDIZI ===== -->
-            <div class="contact-section">
-                <h4>📞 TAARIFA ZAKO ZA MAWASILIANO</h4>
-                <p>Tunahitaji hizi ili tuweze kukusaidia haraka na kufuatilia tukio lako. <strong>Hazitaonekana kwa mtu mwingine</strong> — admin tu.</p>
+        <!-- CONTACT INFO — KWA USAIDIZI -->
+        <div class="card contact-section">
+            <h4>📞 4. Taarifa Zako za Mawasiliano / Your Contact Info</h4>
+            <p>Tunahitaji hizi kwa msaada zaidi na kuwasiliana na Polisi. <strong>Hazitaonekana kwa mtu mwingine</strong> — Admin/Investigator tu.</p>
 
-                <label>JINA LAKO *</label>
-                <input type="text" name="reporterName" required placeholder="mfano: Joseph Jonas" 
-                       th:value="${user.fullName != null ? user.fullName : user.username}">
+            <label>Jina Kamili / Full Name *</label>
+            <input type="text" name="reporterName" required th:value="${user.fullName != null ? user.fullName : user.username}">
 
-                <label>NAMBA YA SIMU *</label>
-                <input type="tel" name="reporterPhone" required placeholder="+255 7XX XXX XXX"
-                       th:value="${user.phone != null ? user.phone : ''}">
+            <label>Namba ya Simu / Phone *</label>
+            <input type="tel" name="reporterPhone" required placeholder="+255 7XX XXX XXX" th:value="${user.phone != null ? user.phone : ''}">
 
-                <label>EMAIL YAKO *</label>
-                <input type="email" name="reporterEmail" required placeholder="email@example.com"
-                       th:value="${user.email}">
-            </div>
+            <label>Email *</label>
+            <input type="email" name="reporterEmail" required th:value="${user.email}">
 
-            <label>UNA USHAHIDI? (picha, screenshots, n.k.)</label>
+            <label>Namba ya NIDA / Passport / ID Number</label>
+            <input type="text" name="reporterIdNumber" placeholder="mfano: 19900101-12345-00001-12">
+
+            <label>Anwani / Address</label>
+            <input type="text" name="reporterAddress" placeholder="mfano: Kariakoo, Dar es Salaam">
+        </div>
+
+        <!-- EVIDENCE -->
+        <div class="card">
+            <h2>📎 5. Ushahidi / Evidence</h2>
+            <label>Una ushahidi? / Do you have evidence?</label>
             <select name="hasEvidence">
-                <option value="false">Hapana</option>
-                <option value="true">Ndiyo</option>
+                <option value="false">Hapana / No</option>
+                <option value="true">Ndiyo / Yes</option>
             </select>
 
-            <label>ELEZA USHAHIDI (Optional)</label>
-            <textarea name="evidenceDescription" rows="3" placeholder="Eleza ushahidi ulionao..."></textarea>
+            <label>Eleza ushahidi / Describe evidence</label>
+            <textarea name="evidenceDescription" rows="3" placeholder="mfano: Nina screenshots, picha za simu, receipts..."></textarea>
+        </div>
 
-            <button type="submit" class="btn btn-danger" style="width:100%; padding:18px; font-size:16px; margin-top:20px;">
-                🚨 TUMA TAARIFA HARAKA
-            </button>
-        </form>
-    </div>
+        <button type="submit" class="btn btn-danger" style="width:100%; padding:20px; font-size:18px; margin-top:20px;">
+            🚨 TUMA TAARIFA / SUBMIT REPORT
+        </button>
+    </form>
 
-    <!-- MY REPORTS (Individual anaona ZAKE pekee) -->
+    <!-- MY REPORTS -->
     <div class="card" th:if="${myReports != null && !myReports.isEmpty()}">
-        <h2>📋 Taarifa Zangu</h2>
+        <h2>📋 Taarifa Zangu / My Reports</h2>
         <table style="margin-top:15px;">
             <thead>
             <tr>
                 <th>Report ID</th>
                 <th>Aina</th>
                 <th>Mkoa</th>
+                <th>Nchi</th>
                 <th>Status</th>
-                <th>Tarehe</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -209,18 +229,18 @@
                 <td th:text="${r.reportId}"></td>
                 <td th:text="${r.attackTypeLabel}"></td>
                 <td th:text="${r.region}"></td>
+                <td th:text="${r.countryName}"></td>
                 <td th:text="${r.status}"></td>
-                <td th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td><a th:href="@{'/report-attack/view/' + ${r.id}}">View</a></td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- ADMIN — Link tu (Admin anaona zote) -->
-    <div class="card" th:if="${canSeeAll}">
+    <!-- ADMIN LINK -->
+    <div class="card" th:if="${canSeeAll}" style="background:rgba(201, 162, 39, 0.1); border-left:4px solid var(--gold);">
         <h3>🔒 Admin Access</h3>
-        <p>Wewe ni Admin/Pro/Forensics — unaweza kuona reports zote.</p>
+        <p>Wewe ni Admin/Investigator — unaweza kuona na kusaidia reports zote.</p>
         <a th:href="@{/report-attack/admin}" class="btn btn-primary" style="margin-top:10px;">📋 View All Reports</a>
     </div>
 </div>
@@ -229,6 +249,11 @@
 function selectAttack(el) {
     document.querySelectorAll('.attack-option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
+}
+function selectCountry(el) {
+    document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('countryInput').value = el.getAttribute('data-country');
 }
 </script>
 </body>

@@ -1,20 +1,23 @@
 package com.tz.forensics.controller;
 
+import com.tz.forensics.config.CountryConfig;
 import com.tz.forensics.entity.ReportAttack;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
-import com.tz.forensics.service.AuditService;
-import com.tz.forensics.service.EmailService;
-import com.tz.forensics.service.NotificationService;
-import com.tz.forensics.service.ReportAttackService;
+import com.tz.forensics.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/report-attack")
@@ -38,44 +41,41 @@ public class ReportAttackController {
         this.emailService = emailService;
     }
 
-    // ===== CHECK KAMA USER NI ADMIN/PRO/FORENSICS =====
     private boolean canSeeAllReports(User user) {
         return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
     }
 
-    // ===== REPORT FORM (KILA MTU) =====
     @GetMapping
     public String showForm(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
 
         model.addAttribute("user", user);
-        // Individual anaona reports ZAKE PEKEE
         model.addAttribute("myReports", service.getMine(user.getId()));
         model.addAttribute("report", new ReportAttack());
         model.addAttribute("canSeeAll", canSeeAllReports(user));
-        
-        // Admin/Pro/Forensics wanaona reports zote
-        if (canSeeAllReports(user)) {
-            model.addAttribute("allReports", service.getAll());
-        } else {
-            model.addAttribute("allReports", null);
-        }
-        
+        model.addAttribute("countries", CountryConfig.COUNTRIES.values());
+        model.addAttribute("defaultCountry", CountryConfig.getCountry("TZ"));
+
         return "report-attack-form";
     }
 
-    // ===== SUBMIT REPORT =====
     @PostMapping("/new")
     public String createReport(@ModelAttribute ReportAttack report,
                                 @RequestParam(required = false)
                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateOccurred,
+                                @RequestParam(required = false) String country,
                                 Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
 
         report.setUserId(user.getId());
         report.setDateOccurred(dateOccurred);
+
+        if (country == null || country.isEmpty()) country = "TZ";
+        report.setCountry(country);
+        CountryConfig.CountryInfo ci = CountryConfig.getCountry(country);
+        report.setCountryName(ci.name);
 
         if (report.getReporterName() == null || report.getReporterName().isBlank()) {
             report.setReporterName(user.getFullName() != null ? user.getFullName() : user.getUsername());
@@ -89,20 +89,15 @@ public class ReportAttackController {
 
         ReportAttack saved = service.create(report);
         auditService.log("REPORT_ATTACK", "ReportAttack", saved.getReportId(),
-                "Type: " + saved.getAttackType() + " | Region: " + saved.getRegion() + " | Phone: " + saved.getReporterPhone());
+                "Type: " + saved.getAttackType() + " | Country: " + country);
 
-        // Notify admin
         try {
             notificationService.createNotification(
                 "🚨 Attack Mpya: " + saved.getAttackTypeLabel(),
-                saved.getTitle() + " (" + saved.getRegion() + ") | Contact: " + saved.getReporterPhone(),
+                saved.getTitle() + " (" + saved.getRegion() + ", " + saved.getCountryName() + ")",
                 "CRITICAL", "/report-attack/admin"
             );
-        } catch (Exception e) { System.err.println("Notif failed: " + e.getMessage()); }
-
-        try {
-            emailService.sendIncidentAlert(saved.getReportId(), saved.getTitle(), saved.getPriority());
-        } catch (Exception e) { System.err.println("Email failed: " + e.getMessage()); }
+        } catch (Exception e) { System.err.println("Notif: " + e.getMessage()); }
 
         return "redirect:/report-attack/success?id=" + saved.getId();
     }
@@ -115,17 +110,16 @@ public class ReportAttackController {
 
         model.addAttribute("report", r);
         model.addAttribute("user", user);
+        model.addAttribute("country", CountryConfig.getCountry(r.getCountry()));
         return "report-attack-success";
     }
 
-    // ===== VIEW REPORT =====
     @GetMapping("/view/{id}")
     public String view(@PathVariable Long id, Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
         if (user == null || r == null) return "redirect:/report-attack";
 
-        // Individual anaweza kuona report yake pekee
         if (!canSeeAllReports(user) && !r.getUserId().equals(user.getId())) {
             return "redirect:/access-denied";
         }
@@ -133,16 +127,15 @@ public class ReportAttackController {
         model.addAttribute("report", r);
         model.addAttribute("user", user);
         model.addAttribute("canSeeAll", canSeeAllReports(user));
+        model.addAttribute("country", CountryConfig.getCountry(r.getCountry()));
         return "report-attack-detail";
     }
 
-    // ===== ADMIN VIEW — ADMIN/PRO/FORENSICS PEKEE =====
+    // ===== ADMIN VIEW — Only Admin/Pro/Forensics =====
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (!canSeeAllReports(user)) {
-            return "redirect:/access-denied";
-        }
+        if (!canSeeAllReports(user)) return "redirect:/access-denied";
 
         List<ReportAttack> all = service.getAll();
         model.addAttribute("reports", all);
@@ -164,11 +157,10 @@ public class ReportAttackController {
                                 @RequestParam String status,
                                 @RequestParam(required = false) String adminResponse,
                                 @RequestParam(required = false) Long assignedTo,
+                                @RequestParam(required = false) String policeCaseNumber,
                                 Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (!canSeeAllReports(user)) {
-            return "redirect:/access-denied";
-        }
+        if (!canSeeAllReports(user)) return "redirect:/access-denied";
 
         String assignedName = null;
         if (assignedTo != null) {
@@ -177,6 +169,16 @@ public class ReportAttackController {
         }
 
         service.updateStatus(id, status, adminResponse, assignedTo, assignedName);
+        
+        // Update police case number
+        if (policeCaseNumber != null && !policeCaseNumber.isEmpty()) {
+            ReportAttack r = service.getById(id);
+            if (r != null) {
+                r.setPoliceCaseNumber(policeCaseNumber);
+                service.save(r);
+            }
+        }
+
         auditService.log("ATTACK_UPDATE", "ReportAttack", String.valueOf(id), "Status: " + status);
         return "redirect:/report-attack/admin";
     }
