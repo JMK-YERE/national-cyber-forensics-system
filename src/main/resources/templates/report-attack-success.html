@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>✅ Imepokelewa - Report Attack</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/report-attack}">🚨 Reports</a>
+        <a th:href="@{/threat-map}">🗺️ Threat Map</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card" style="text-align:center; padding:40px; border-top: 5px solid var(--emerald);">
+        <div style="font-size:80px;">✅</div>
+        <h1 style="color:var(--emerald);">Taarifa Yako Imepokelewa!</h1>
+        <p>Asante kwa ku-report. Timu yetu itakusaidia haraka.</p>
+    </div>
+
+    <div class="card" style="background:rgba(255,215,0,0.1); border-left:4px solid var(--gold);">
+        <h2 style="color:var(--dark-blue);">📋 Report ID Yako</h2>
+        <div style="background:var(--dark-blue); padding:20px; border-radius:8px; text-align:center; margin:15px 0;">
+            <span style="font-family:monospace; font-size:28px; color:var(--gold); letter-spacing:3px; font-weight:bold;"
+                  th:text="${report.reportId}"></span>
+        </div>
+        <p style="font-size:13px;">Hifadhi code hii — utaitumia kufuatilia taarifa yako.</p>
+    </div>
+
+    <!-- AI RECOMMENDATIONS -->
+    <div class="card" th:if="${report.aiRecommendation != null}">
+        <h2>🤖 AI Inakushauri — Hatua za Haraka</h2>
+        <div style="background:linear-gradient(135deg, rgba(15, 37, 87, 0.05), rgba(201, 162, 39, 0.05)); padding:20px; border-radius:8px; border-left:4px solid var(--dark-blue); white-space:pre-line; font-size:14px; line-height:1.9;"
+             th:text="${report.aiRecommendation}"></div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="card">
+        <h2>📊 Hali ya Report Yako</h2>
+        <p><strong>Status:</strong> <span class="badge badge-critical" th:text="${report.status}"></span></p>
+        <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
+        <p><strong>Mkoa:</strong> <span th:text="${report.region}"></span></p>
+        <p><strong>Tarehe:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+    </div>
+
+    <div class="card">
+        <h3>🗺️ Ramani ya Attacks</h3>
+        <p>Report yako imeonekana kwenye ramani ya Tanzania. Bonyeza hapa kuona.</p>
+        <a th:href="@{/threat-map}" class="btn btn-primary" style="margin-top:15px;">🗺️ Fungua Threat Map</a>
+    </div>
+
+    <div style="text-align:center; margin:30px 0;">
+        <a th:href="@{/report-attack}" class="btn">← Ripoti Nyingine</a>
+        <a th:href="@{/dashboard}" class="btn btn-primary">🏠 Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

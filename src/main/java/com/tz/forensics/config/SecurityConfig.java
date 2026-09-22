@@ -71,7 +71,7 @@ public class SecurityConfig {
                 .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/incidents/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/report-attack/all").hasAnyRole("ADMIN", "CYBER_PRO")
+                .requestMatchers("/report-attack/admin/**").hasAnyRole("ADMIN", "CYBER_PRO")
 
                 // ===== WHISTLEBLOWER ADMIN — Login required =====
                 .requestMatchers("/whistleblower/admin/**").hasAnyRole("ADMIN", "CYBER_PRO")

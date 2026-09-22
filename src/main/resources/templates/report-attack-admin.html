@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>🚨 Attack Reports - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ - ADMIN</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/report-attack/admin}">🚨 Attack Reports</a>
+        <a th:href="@{/threat-map}">🗺️ Threat Map</a>
+        <a th:href="@{/incidents}">📋 Incidents</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>🚨 Attack Reports — Zote</h1>
+        <p>Reports zote za attacks kutoka kwa users.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-value" th:text="${totalCount}">0</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${newCount}" style="color:var(--deep-red);">0</div>
+            <div class="stat-label">NEW</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${todayCount}">0</div>
+            <div class="stat-label">Today</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>Report ID</th>
+                <th>Aina</th>
+                <th>Kichwa</th>
+                <th>Mkoa</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assigned</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${reports.isEmpty()}">
+                <td colspan="8" style="text-align:center;">Hakuna reports bado.</td>
+            </tr>
+            <tr th:each="r : ${reports}" th:class="${r.statusClass}">
+                <td th:text="${r.reportId}" style="color:var(--gold); font-weight:bold;"></td>
+                <td th:text="${r.attackTypeLabel}"></td>
+                <td th:text="${r.title}"></td>
+                <td th:text="${r.region}"></td>
+                <td th:text="${r.priority}"></td>
+                <td th:text="${r.status}"></td>
+                <td th:text="${r.assignedToName != null ? r.assignedToName : '—'}"></td>
+                <td>
+                    <form th:action="@{'/report-attack/admin/' + ${r.id} + '/update'}" method="post" style="display:flex; gap:5px; align-items:center;">
+                        <select name="status" style="padding:4px; font-size:11px;">
+                            <option value="NEW" th:selected="${r.status == 'NEW'}">NEW</option>
+                            <option value="REVIEWING" th:selected="${r.status == 'REVIEWING'}">REVIEWING</option>
+                            <option value="INVESTIGATING" th:selected="${r.status == 'INVESTIGATING'}">INVESTIGATING</option>
+                            <option value="RESOLVED" th:selected="${r.status == 'RESOLVED'}">RESOLVED</option>
+                            <option value="CLOSED" th:selected="${r.status == 'CLOSED'}">CLOSED</option>
+                        </select>
+                        <select name="assignedTo" style="padding:4px; font-size:11px;">
+                            <option value="">-- Assign --</option>
+                            <option th:each="u : ${assignableUsers}" th:value="${u.id}" th:text="${u.username}"></option>
+                        </select>
+                        <input type="text" name="adminResponse" placeholder="Response..." style="padding:4px; font-size:11px; width:120px;">
+                        <button type="submit" class="btn" style="padding:4px 10px; font-size:11px;">💾</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>🗺️ Ona Attacks Kwenye Ramani</h3>
+        <a th:href="@{/threat-map}" class="btn btn-primary" style="margin-top:10px;">🗺️ Fungua Threat Map</a>
+    </div>
+</div>
+</body>
+</html>

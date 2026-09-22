@@ -1,9 +1,9 @@
 package com.tz.forensics.controller;
 
 import com.tz.forensics.entity.Incident;
-import com.tz.forensics.entity.PersonalIncident;
+import com.tz.forensics.entity.ReportAttack;
 import com.tz.forensics.repository.IncidentRepository;
-import com.tz.forensics.repository.PersonalIncidentRepository;
+import com.tz.forensics.repository.ReportAttackRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +17,8 @@ import java.util.stream.Collectors;
 public class ThreatMapController {
 
     private final IncidentRepository incidentRepo;
-    private final PersonalIncidentRepository personalRepo;
+    private final ReportAttackRepository attackRepo;
 
-    // Tanzania regions with coordinates (lat, lng)
     private static final Map<String, double[]> REGION_COORDS = new LinkedHashMap<>();
     static {
         REGION_COORDS.put("Dar es Salaam", new double[]{-6.7924, 39.2083});
@@ -49,26 +48,19 @@ public class ThreatMapController {
         REGION_COORDS.put("Songwe", new double[]{-8.8514, 32.8925});
         REGION_COORDS.put("Pwani", new double[]{-6.9333, 38.9167});
         REGION_COORDS.put("Lindi", new double[]{-10.0000, 39.7167});
-        REGION_COORDS.put("Mtwara", new double[]{-10.2667, 40.1833});
-        REGION_COORDS.put("Kusini Pemba", new double[]{-5.4000, 39.6500});
-        REGION_COORDS.put("Kusini Unguja", new double[]{-6.2833, 39.4500});
-        REGION_COORDS.put("Kaskazini Pemba", new double[]{-4.9500, 39.7000});
-        REGION_COORDS.put("Kaskazini Unguja", new double[]{-5.8500, 39.3000});
     }
 
     public ThreatMapController(IncidentRepository incidentRepo,
-                                 PersonalIncidentRepository personalRepo) {
+                                 ReportAttackRepository attackRepo) {
         this.incidentRepo = incidentRepo;
-        this.personalRepo = personalRepo;
+        this.attackRepo = attackRepo;
     }
 
     @GetMapping("/threat-map")
     public String threatMap(Model model) {
-        // Get all incidents
         List<Incident> incidents = incidentRepo.findAll();
-        List<PersonalIncident> personalIncidents = personalRepo.findAll();
+        List<ReportAttack> attacks = attackRepo.findAll();
 
-        // Count by region
         Map<String, Integer> regionCounts = new LinkedHashMap<>();
         Map<String, Integer> regionCritical = new LinkedHashMap<>();
         Map<String, Integer> regionResolved = new LinkedHashMap<>();
@@ -79,7 +71,7 @@ public class ThreatMapController {
             regionResolved.put(region, 0);
         }
 
-        // Count incidents by region
+        // Incidents
         for (Incident inc : incidents) {
             String region = inc.getRegion();
             if (region != null && regionCounts.containsKey(region)) {
@@ -93,41 +85,48 @@ public class ThreatMapController {
             }
         }
 
-        for (PersonalIncident pi : personalIncidents) {
-            String region = pi.getRegion();
+        // Report Attacks
+        for (ReportAttack ra : attacks) {
+            String region = ra.getRegion();
             if (region != null && regionCounts.containsKey(region)) {
                 regionCounts.put(region, regionCounts.get(region) + 1);
-                if ("CRITICAL".equalsIgnoreCase(pi.getPriority())) {
+                if ("CRITICAL".equalsIgnoreCase(ra.getPriority()) || "HIGH".equalsIgnoreCase(ra.getPriority())) {
                     regionCritical.put(region, regionCritical.get(region) + 1);
+                }
+                if ("RESOLVED".equalsIgnoreCase(ra.getStatus()) || "CLOSED".equalsIgnoreCase(ra.getStatus())) {
+                    regionResolved.put(region, regionResolved.get(region) + 1);
                 }
             }
         }
 
-        // Top 5 regions
+        // Top 5
         List<Map.Entry<String, Integer>> top5 = regionCounts.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .limit(5)
                 .collect(Collectors.toList());
 
-        // Recent 7 days trend
+        // Recent 7 days
         LocalDateTime weekAgo = LocalDateTime.now().minus(7, ChronoUnit.DAYS);
         long recentIncidents = incidents.stream()
                 .filter(i -> i.getDateReported() != null && i.getDateReported().isAfter(weekAgo))
                 .count();
-
-        long recentPersonal = personalIncidents.stream()
-                .filter(p -> p.getCreatedAt() != null && p.getCreatedAt().isAfter(weekAgo))
+        long recentAttacks = attacks.stream()
+                .filter(a -> a.getCreatedAt() != null && a.getCreatedAt().isAfter(weekAgo))
                 .count();
 
-        model.addAttribute("totalIncidents", incidents.size() + personalIncidents.size());
-        model.addAttribute("recentIncidents", recentIncidents + recentPersonal);
+        model.addAttribute("totalIncidents", incidents.size() + attacks.size());
+        model.addAttribute("recentIncidents", recentIncidents + recentAttacks);
         model.addAttribute("totalCritical", regionCritical.values().stream().mapToInt(Integer::intValue).sum());
         model.addAttribute("totalResolved", regionResolved.values().stream().mapToInt(Integer::intValue).sum());
         model.addAttribute("regionCounts", regionCounts);
-        model.addAttribute("regionCritical", regionCritical);
-        model.addAttribute("regionResolved", regionResolved);
         model.addAttribute("top5", top5);
         model.addAttribute("regionCoords", REGION_COORDS);
+
+        // Recent attacks for map (last 24h)
+        List<ReportAttack> recent24h = attacks.stream()
+                .filter(a -> a.getCreatedAt() != null && a.getCreatedAt().isAfter(LocalDateTime.now().minusHours(24)))
+                .collect(Collectors.toList());
+        model.addAttribute("recent24hAttacks", recent24h);
 
         return "threat-map";
     }

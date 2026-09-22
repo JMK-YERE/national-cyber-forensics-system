@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 Report Attack - Cyber Forensics TZ</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .attack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 15px 0; }
+        .attack-option { background: var(--white); border: 2px solid var(--border-blue); border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; text-align: center; }
+        .attack-option:hover { border-color: var(--dark-blue); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .attack-option.selected { border-color: var(--dark-blue); background: rgba(15, 37, 87, 0.08); }
+        .attack-option input { display: none; }
+        .attack-option .icon { font-size: 32px; margin-bottom: 8px; }
+        .attack-option .label { font-size: 12px; color: var(--dark-blue); font-weight: 600; }
+        .alert-banner { background: linear-gradient(135deg, var(--deep-red), var(--red-light)); color: var(--white); padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .alert-banner h2 { color: var(--white); margin: 0; font-size: 22px; }
+        .alert-banner p { color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/report-attack}">🚨 Report Attack</a>
+        <a th:href="@{/threat-map}">🗺️ Threat Map</a>
+        <a th:href="@{/ai/assistant}">🤖 AI</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="alert-banner">
+        <h2>🚨 RIPOTI ATTACK / SHIDA</h2>
+        <p>Ukiibiwa, kuhackiwa, au kuona shida yoyote — ripoti hapa. Tutakusaidia haraka!</p>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-value" th:text="${totalReports}">0</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${todayReports}">0</div>
+            <div class="stat-label">Last 24h</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${recentAttacks != null ? recentAttacks.size() : 0}">0</div>
+            <div class="stat-label">Recent Attacks</div>
+        </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="card">
+        <h2>📝 Ripoti Sasa</h2>
+        <form th:action="@{/report-attack/new}" method="post" style="margin-top:20px;">
+
+            <label>CHAGUA AINA YA ATTACK *</label>
+            <div class="attack-grid">
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="PHONE_STOLEN" required>
+                    <div class="icon">📱</div>
+                    <div class="label">Simu Iliibiwa</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="SOCIAL_MEDIA_HACKED">
+                    <div class="icon">👤</div>
+                    <div class="label">Social Media Hacked</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="BANK_CARD_LOST">
+                    <div class="icon">💳</div>
+                    <div class="label">Kadi ya Benki</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="MONEY_STOLEN">
+                    <div class="icon">💰</div>
+                    <div class="label">Pesa Iliibiwa</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="EMAIL_HACKED">
+                    <div class="icon">📧</div>
+                    <div class="label">Email Hacked</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="PHISHING">
+                    <div class="icon">🎣</div>
+                    <div class="label">Phishing</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="SIM_SWAP">
+                    <div class="icon">📲</div>
+                    <div class="label">SIM Swap</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="RANSOMWARE">
+                    <div class="icon">🦠</div>
+                    <div class="label">Ransomware</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="HOME_BREAK_IN">
+                    <div class="icon">🏠</div>
+                    <div class="label">Nyumbani</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="IDENTITY_THEFT">
+                    <div class="icon">🆔</div>
+                    <div class="label">Utambulisho</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="DOCUMENTS_STOLEN">
+                    <div class="icon">💼</div>
+                    <div class="label">Documents</div>
+                </label>
+                <label class="attack-option" onclick="selectAttack(this)">
+                    <input type="radio" name="attackType" value="OTHER">
+                    <div class="icon">⚠️</div>
+                    <div class="label">Nyingine</div>
+                </label>
+            </div>
+
+            <label>KICHWA / TITLE *</label>
+            <input type="text" name="title" required placeholder="mfano: Simu yangu iliibiwa jana usiku">
+
+            <label>MAELEZO KAMILI *</label>
+            <textarea name="description" rows="5" required placeholder="Eleza kilichotokea, lini, wapi, na jinsi..."></textarea>
+
+            <label>MKOA * (Inaonekana kwenye ramani)</label>
+            <select name="region" required>
+                <option value="">-- Chagua Mkoa --</option>
+                <option>Dar es Salaam</option>
+                <option>Arusha</option>
+                <option>Mwanza</option>
+                <option>Dodoma</option>
+                <option>Mbeya</option>
+                <option>Morogoro</option>
+                <option>Tanga</option>
+                <option>Zanzibar</option>
+                <option>Kilimanjaro</option>
+                <option>Tabora</option>
+                <option>Kigoma</option>
+                <option>Iringa</option>
+                <option>Mtwara</option>
+                <option>Ruvuma</option>
+                <option>Singida</option>
+                <option>Shinyanga</option>
+                <option>Kagera</option>
+                <option>Mara</option>
+                <option>Manyara</option>
+                <option>Rukwa</option>
+                <option>Katavi</option>
+                <option>Njombe</option>
+                <option>Simiyu</option>
+                <option>Geita</option>
+                <option>Songwe</option>
+                <option>Pwani</option>
+                <option>Lindi</option>
+            </select>
+
+            <label>MAHALI (Optional)</label>
+            <input type="text" name="location" placeholder="mfano: Kariakoo, Dar es Salaam">
+
+            <label>TAREHE ILIYOTOKEA (Optional)</label>
+            <input type="datetime-local" name="dateOccurred">
+
+            <label>HASARA (TZS) — Optional</label>
+            <input type="number" name="financialLossTzs" placeholder="0" step="0.01">
+
+            <label>UNA USHAHIDI? (picha, screenshots, n.k.)</label>
+            <select name="hasEvidence">
+                <option value="false">Hapana</option>
+                <option value="true">Ndiyo</option>
+            </select>
+
+            <label>ELEZA USHAHIDI (Optional)</label>
+            <textarea name="evidenceDescription" rows="3" placeholder="Eleza ushahidi ulionao..."></textarea>
+
+            <button type="submit" class="btn btn-danger" style="width:100%; padding:18px; font-size:16px; margin-top:20px;">
+                🚨 TUMA TAARIFA HARAKA
+            </button>
+        </form>
+    </div>
+
+    <!-- MY REPORTS -->
+    <div class="card" th:if="${myReports != null && !myReports.isEmpty()}">
+        <h2>📋 Taarifa Zangu</h2>
+        <table style="margin-top:15px;">
+            <thead>
+            <tr>
+                <th>Report ID</th>
+                <th>Aina</th>
+                <th>Mkoa</th>
+                <th>Status</th>
+                <th>Tarehe</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${myReports}" th:class="${r.statusClass}">
+                <td th:text="${r.reportId}"></td>
+                <td th:text="${r.attackTypeLabel}"></td>
+                <td th:text="${r.region}"></td>
+                <td th:text="${r.status}"></td>
+                <td th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td><a th:href="@{'/report-attack/view/' + ${r.id}}">View</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- RECENT ATTACKS -->
+    <div class="card" th:if="${recentAttacks != null && !recentAttacks.isEmpty()}">
+        <h2>⚡ Attacks za Hivi Karibuni (24h)</h2>
+        <table style="margin-top:15px;">
+            <thead>
+            <tr>
+                <th>Report ID</th>
+                <th>Aina</th>
+                <th>Mkoa</th>
+                <th>Priority</th>
+                <th>Muda</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${recentAttacks}">
+                <td th:text="${r.reportId}"></td>
+                <td th:text="${r.attackTypeLabel}"></td>
+                <td th:text="${r.region}"></td>
+                <td><span th:text="${r.priority}" class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(r.priority)}"></span></td>
+                <td th:text="${#temporals.format(r.createdAt, 'HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function selectAttack(el) {
+    document.querySelectorAll('.attack-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Report Detail</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🇹🇿 CYBER FORENSICS TZ</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/report-attack}">🚨 Reports</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1 th:text="${report.attackTypeLabel}"></h1>
+        <p><strong>Report ID:</strong> <span th:text="${report.reportId}" style="color:var(--gold);"></span></p>
+        <p><strong>Kichwa:</strong> <span th:text="${report.title}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${report.status}"></span></p>
+        <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
+        <p><strong>Mkoa:</strong> <span th:text="${report.region}"></span></p>
+        <p><strong>Mahali:</strong> <span th:text="${report.location}"></span></p>
+        <p><strong>Tarehe:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <p th:if="${report.financialLossTzs != null}"><strong>Hasara:</strong> TZS <span th:text="${report.financialLossTzs}"></span></p>
+    </div>
+
+    <div class="card">
+        <h2>📝 Maelezo</h2>
+        <p th:text="${report.description}" style="white-space:pre-wrap;"></p>
+    </div>
+
+    <div class="card" th:if="${report.aiRecommendation != null}">
+        <h2>🤖 AI Recommendations</h2>
+        <div style="background:rgba(15,37,87,0.05); padding:20px; border-radius:8px; border-left:4px solid var(--dark-blue); white-space:pre-line; line-height:1.9;"
+             th:text="${report.aiRecommendation}"></div>
+    </div>
+
+    <div class="card" th:if="${report.adminResponse != null}">
+        <h2>👤 Admin Response</h2>
+        <div style="background:rgba(27,122,74,0.08); padding:20px; border-radius:8px; border-left:4px solid var(--emerald);"
+             th:text="${report.adminResponse}"></div>
+        <p style="margin-top:15px; font-size:12px;">
+            <strong>Assigned to:</strong> <span th:text="${report.assignedToName}"></span>
+        </p>
+    </div>
+</div>
+</body>
+</html>
