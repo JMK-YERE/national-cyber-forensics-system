@@ -6,22 +6,21 @@
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="navbar">
+    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics System</span></div>
     <div class="nav-links">
         <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
         <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
-        <a th:href="@{/my-accounts}" th:text="#{nav.myAccounts}">My Accounts</a>
         <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
         <a th:href="@{/tools/security-center}" th:text="#{nav.tools}">Tools</a>
-        <!-- LANGUAGE SWITCHER -->
-        <span style="color:var(--gold); margin-left:15px;">
-            <a th:href="@{/lang?lang=sw&redirect=/dashboard}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
-            <a th:href="@{/lang?lang=en&redirect=/dashboard}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
-            <a th:href="@{/lang?lang=fr&redirect=/dashboard}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
-            <a th:href="@{/lang?lang=ar&redirect=/dashboard}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
+        <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
+            <a th:href="@{/lang?lang=sw}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
+            <a th:href="@{/lang?lang=en}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
+            <a th:href="@{/lang?lang=fr}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
+            <a th:href="@{/lang?lang=ar}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
         </span>
         <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn" th:text="#{nav.logout}">Logout</button>
+            <button type="submit" class="logout-btn">Logout</button>
         </form>
     </div>
 </div>
@@ -33,31 +32,19 @@
     </div>
 
     <div class="stats-grid">
-        <div class="stat-box">
-            <div class="stat-value" th:text="${user.securityScore != null ? user.securityScore : 0}">0</div>
-            <div class="stat-label" th:text="#{dashboard.securityScore}">Security Score</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${user.countSocialAccounts()}">0</div>
-            <div class="stat-label" th:text="#{dashboard.socialAccounts}">Social Accounts</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
-            <div class="stat-label" th:text="#{dashboard.twoFactor}">2FA</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
-            <div class="stat-label" th:text="#{dashboard.breachChecked}">Breach Checked</div>
-        </div>
+        <div class="stat-box"><div class="stat-value" th:text="${user.securityScore != null ? user.securityScore : 0}">0</div><div class="stat-label">Security Score</div></div>
+        <div class="stat-box"><div class="stat-value" th:text="${user.countSocialAccounts()}">0</div><div class="stat-label">Social Accounts</div></div>
+        <div class="stat-box"><div class="stat-value" th:text="${user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div><div class="stat-label">2FA</div></div>
+        <div class="stat-box"><div class="stat-value" th:text="${user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div><div class="stat-label">Breach Checked</div></div>
     </div>
 
+    <!-- QUICK ACTIONS — BILA KURUDIA -->
     <div class="card">
-        <h2 th:text="#{dashboard.quickActions}">Quick Actions</h2>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
-            <a th:href="@{/report-attack}" class="btn btn-primary" th:text="#{nav.report}">Report</a>
-            <a th:href="@{/ai/assistant}" class="btn" th:text="#{nav.ai}">AI</a>
-            <a th:href="@{/my-accounts}" class="btn" th:text="#{nav.myAccounts}">My Accounts</a>
-            <a th:href="@{/tools/security-center}" class="btn" th:text="#{nav.tools}">Tools</a>
+        <h2>⚡ Quick Actions</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-top:15px;">
+            <a th:href="@{/report-attack}" class="btn btn-danger" style="text-align:center; padding:20px;">🚨 Report Attack</a>
+            <a th:href="@{/ai/assistant}" class="btn btn-primary" style="text-align:center; padding:20px;">🤖 AI Assistant</a>
+            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px;">🛡️ Security Tools</a>
         </div>
     </div>
 </div>

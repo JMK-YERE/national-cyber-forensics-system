@@ -38,7 +38,8 @@
 </div>
 
 <div class="container">
-    <div class="admin-header">
+    <div class="lang-bar"><a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'">SW</a><a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'">EN</a><a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'">FR</a><a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'">AR</a></div>
+<div class="admin-header">
         <h1>👑 Admin Reports Panel</h1>
         <p>Simamia reports zote za watumiaji. Unaweza kuona na kusaidia.</p>
     </div>

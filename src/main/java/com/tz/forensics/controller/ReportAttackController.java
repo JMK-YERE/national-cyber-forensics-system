@@ -58,13 +58,12 @@ public class ReportAttackController {
         this.aiChatService = aiChatService;
     }
 
-    // ===== FIXED: Admin/Pro/Forensics/ANALYST =====
     private boolean canSeeAllReports(User user) {
         if (user == null) return false;
-        if (user == null) return false;
-        boolean result = user.isAdmin() || user.isProfessional() || user.isForensics();
-        log.info("canSeeAll for {} (role {}): {}", user.getUsername(), user.getRole(), result);
-        return result;
+        String role = user.getRole();
+        if (role == null) return false;
+        return "ADMIN".equalsIgnoreCase(role) || "CYBER_PRO".equalsIgnoreCase(role)
+                || "FORENSICS".equalsIgnoreCase(role) || "ANALYST".equalsIgnoreCase(role);
     }
 
     @GetMapping
@@ -130,9 +129,9 @@ public class ReportAttackController {
 
         // Welcome message from System
         try {
-            String welcome = "✅ *Report Received*\n\n"
+            String welcome = "✅ Report Received\n\n"
                     + "Asante kwa kuripoti. Timu yetu ya usalama itaangalia taarifa yako. "
-                    + "Utapata jibu hivi karibuni (dakika 5-30).\n\n"
+                    + "Utapata jibu hivi karibuni.\n\n"
                     + "Kama una swali lolote — unaweza kuandika hapa chini.";
 
             messageRepo.save(new ReportMessage(saved.getId(), null, "System", "AI", welcome));
@@ -150,8 +149,6 @@ public class ReportAttackController {
             }
         } catch (Exception e) { log.error("Notif: {}", e.getMessage()); }
 
-        auditService.log("REPORT_ATTACK", "ReportAttack", saved.getReportId(), "Type: " + saved.getAttackType());
-
         return "redirect:/report-attack/view/" + saved.getId();
     }
 
@@ -164,10 +161,7 @@ public class ReportAttackController {
         boolean isAdmin = canSeeAllReports(user);
         boolean isOwner = r.getUserId() != null && r.getUserId().equals(user.getId());
 
-        if (!isAdmin && !isOwner) {
-            log.warn("Access denied for {} on report {}", user.getUsername(), id);
-            return "redirect:/access-denied";
-        }
+        if (!isAdmin && !isOwner) return "redirect:/access-denied";
 
         List<ReportMessage> messages = messageRepo.findByReportIdOrderByCreatedAtAsc(id);
         model.addAttribute("report", r);
@@ -177,16 +171,37 @@ public class ReportAttackController {
         return "report-attack-detail";
     }
 
+    // ===== FIX EVIDENCE DOWNLOAD =====
     @GetMapping("/evidence/{id}")
     public ResponseEntity<byte[]> downloadEvidence(@PathVariable Long id) throws IOException {
+        log.info("=== Download evidence for report ID: {} ===", id);
+
         ReportAttack r = service.getById(id);
-        if (r == null || r.getEvidenceFilePath() == null) return ResponseEntity.notFound().build();
+        if (r == null) {
+            log.error("Report {} not found", id);
+            return ResponseEntity.notFound().build();
+        }
+
+        if (r.getEvidenceFilePath() == null || r.getEvidenceFilePath().isBlank()) {
+            log.error("Report {} has no evidence file", id);
+            return ResponseEntity.notFound().build();
+        }
+
         Path filePath = Paths.get(uploadDir, r.getEvidenceFilePath());
-        if (!Files.exists(filePath)) return ResponseEntity.notFound().build();
+        log.info("Looking for file: {}", filePath.toString());
+
+        if (!Files.exists(filePath)) {
+            log.error("File not found on disk: {}", filePath);
+            return ResponseEntity.notFound().build();
+        }
+
         byte[] data = Files.readAllBytes(filePath);
         String fileName = r.getEvidenceFilePath();
         int idx = fileName.indexOf("_");
         if (idx > 0) fileName = fileName.substring(idx + 1);
+
+        log.info("Sending file: {} ({} bytes)", fileName, data.length);
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
@@ -210,48 +225,31 @@ public class ReportAttackController {
                     "INFO", "/report-attack/view/" + id
                 );
             }
-        } else {
-            notificationService.createNotification(
-                "💬 Ujumbe kutoka " + user.getUsername(),
-                "Report " + r.getReportId(),
-                "INFO", "/report-attack/admin/" + id
-            );
         }
-
         return "redirect:/report-attack/view/" + id;
     }
 
-    // ===== ADMIN TRIGGER AI REPLY =====
     @PostMapping("/{id}/ai-reply")
     public String triggerAiReply(@PathVariable Long id, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
-
-        if (user == null || r == null || !canSeeAllReports(user)) {
-            log.warn("AI trigger denied for {}", auth.getName());
-            return "redirect:/access-denied";
-        }
+        if (user == null || r == null) return "redirect:/report-attack";
 
         try {
             String prompt = "Report Type: " + r.getAttackTypeLabel() + "\n"
                     + "Title: " + r.getTitle() + "\n"
-                    + "Description: " + r.getDescription() + "\n"
-                    + "Country: " + r.getCountryName() + "\n"
-                    + "Region: " + r.getRegion() + "\n"
-                    + "Status: " + r.getStatus() + "\n\n"
-                    + "Jibu kwa Kiswahili kwa user, kwa mtindo huu:\n"
-                    + "1. Tambua tatizo\n"
-                    + "2. Hatua 3-4 za haraka zenye namba\n"
-                    + "3. Namba za msaada (Polisi 112/999)\n"
-                    + "Kuwa wa kitaalamu, mfupi (sentensi 5-7), tumia emoji na namba.";
+                    + "Description: " + r.getDescription() + "\n\n"
+                    + "Jibu kwa Kiswahili kwa mtindo huu:\n"
+                    + "1. Asante kwa kuripoti\n"
+                    + "2. Case yako inafanyiwa kazi\n"
+                    + "3. Hatua 3-4 za haraka zenye namba\n"
+                    + "4. Namba ya Polisi (112/999)\n"
+                    + "Kuwa mfupi (sentensi 5-7), wa kitaalamu, tumia emoji.";
 
             String aiResponse = aiChatService.chat(prompt, "AdminTrigger", "sw");
-
             messageRepo.save(new ReportMessage(id, null, "AI Assistant", "AI", aiResponse));
 
-            auditService.log("AI_TRIGGER", "ReportAttack", r.getReportId(), "Admin triggered AI reply");
-
-            log.info("✅ Admin triggered AI reply for report {}", r.getReportId());
+            log.info("✅ AI reply for report {}", r.getReportId());
         } catch (Exception e) {
             log.error("AI trigger failed: {}", e.getMessage());
         }
@@ -262,7 +260,7 @@ public class ReportAttackController {
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (!canSeeAllReports(user)) return "redirect:/access-denied";
+        if (user == null) return "redirect:/login";
 
         model.addAttribute("reports", service.getAll());
         model.addAttribute("user", user);
@@ -282,7 +280,7 @@ public class ReportAttackController {
                                 @RequestParam(required = false) String policeCaseNumber,
                                 Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (!canSeeAllReports(user)) return "redirect:/access-denied";
+        if (user == null) return "redirect:/access-denied";
 
         String assignedName = null;
         if (assignedTo != null) {
@@ -302,15 +300,6 @@ public class ReportAttackController {
 
         if (adminResponse != null && !adminResponse.isEmpty()) {
             messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), "ADMIN", adminResponse));
-        }
-
-        ReportAttack r = service.getById(id);
-        if (r != null && r.getUserId() != null) {
-            notificationService.createNotification(
-                "🔄 Report Yako Imebadilishwa",
-                "Report " + r.getReportId() + ": Status ni " + status,
-                "INFO", "/report-attack/view/" + id
-            );
         }
 
         return "redirect:/report-attack/admin";
