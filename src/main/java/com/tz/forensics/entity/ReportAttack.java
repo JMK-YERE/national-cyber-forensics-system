@@ -72,9 +72,9 @@ public class ReportAttack {
     @Column(name = "financial_currency", length = 10)
     private String financialCurrency = "TZS";
 
-    // ===== SPECIFIC DETAILS (JSON-like string) =====
+    // ===== SPECIFIC DETAILS — JSON-like =====
     @Column(name = "specific_details", columnDefinition = "TEXT")
-    private String specificDetails; // JSON string with details per attack type
+    private String specificDetails;
 
     // ===== EVIDENCE =====
     @Column(name = "has_evidence")
@@ -87,12 +87,11 @@ public class ReportAttack {
     private String evidenceFilePath;
 
     @Column(name = "evidence_file_type", length = 100)
-    private String evidenceFileType; // PHOTO, VIDEO, AUDIO, DOCUMENT, FILE
+    private String evidenceFileType;
 
     @Column(name = "evidence_file_size")
     private Long evidenceFileSize;
 
-    // ===== STATUS =====
     @Column(length = 30)
     private String status = "NEW";
 
