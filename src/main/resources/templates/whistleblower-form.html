@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Report - Whistleblower Portal</title>
+    <title th:text="#{whistleblower.submitReport} + ' - ' + #{app.title}">Submit Confidential Report</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
     <style>
         .alert-banner { background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
@@ -12,108 +12,124 @@
         .privacy-box { background: rgba(201, 162, 39, 0.1); border-left: 4px solid #c9a227; padding: 20px; border-radius: 8px; margin: 20px 0; }
         .privacy-box ul { padding-left: 20px; line-height: 1.8; color: #555; }
         .required-star { color: #8b1a1a; }
+        .lang-switcher { display: flex; gap: 8px; align-items: center; margin-left: 15px; padding-left: 15px; border-left: 1px solid rgba(255,255,255,0.3); }
+        .lang-switcher a { color: white !important; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.1); }
+        .lang-switcher a:hover { background: rgba(255,255,255,0.2); }
+        .lang-switcher a.active-lang { background: #c9a227; color: #0f2557 !important; font-weight: bold; }
     </style>
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ Cyber Forensics System</div>
+    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics System</span></div>
     <div class="nav-links">
-        <a th:href="@{/whistleblower}">Home</a>
-        <a th:href="@{/whistleblower/track}">Track Report</a>
-        <a th:href="@{/login}">Login</a>
-        <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
-            <a th:href="@{/lang?lang=sw}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
-            <a th:href="@{/lang?lang=en}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
-            <a th:href="@{/lang?lang=fr}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
-            <a th:href="@{/lang?lang=ar}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
-        </span>
+        <a th:href="@{/whistleblower}" th:text="#{whistleblower.home}">Home</a>
+        <a th:href="@{/whistleblower/track}" th:text="#{whistleblower.trackReport}">Track Report</a>
+        <a th:href="@{/login}" th:text="#{whistleblower.login}">Login</a>
+
+        <!-- LANGUAGE SWITCHER — Kwa wasioingia -->
+        <div class="lang-switcher">
+            <a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
+            <a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
+            <a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
+            <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
+        </div>
     </div>
 </div>
 
 <div class="container">
     <div class="alert-banner">
-        <h2>🔒 Submit Confidential Report</h2>
-        <p>Your identity will remain anonymous.</p>
+        <h2>🔒 <span th:text="#{whistleblower.submitReport}">Submit Confidential Report</span></h2>
+        <p th:text="#{whistleblower.anonymous}">Your identity will remain anonymous.</p>
     </div>
 
     <div class="card">
         <form th:action="@{/whistleblower/submit}" method="post" enctype="multipart/form-data">
 
-            <label>Country *</label>
+            <label><span th:text="#{report.country}">Country</span> <span class="required-star">*</span></label>
             <select name="country" required>
                 <option th:each="c : ${countries}" th:value="${c.code}" th:text="${c.name}"></option>
             </select>
 
-            <label>Report Type *</label>
+            <label><span th:text="#{whistleblower.reportType}">Report Type</span> <span class="required-star">*</span></label>
             <select name="category" required>
-                <option value="">Select Report Type</option>
-                <option value="CORRUPTION">Corruption / Bribery</option>
-                <option value="FRAUD">Fraud</option>
-                <option value="CYBER_ATTACK">Cyber Attack</option>
-                <option value="HARASSMENT">Harassment</option>
-                <option value="DRUGS">Drug Trafficking</option>
-                <option value="HUMAN_TRAFFICKING">Human Trafficking</option>
-                <option value="TAX_EVASION">Tax Evasion</option>
-                <option value="MONEY_LAUNDERING">Money Laundering</option>
-                <option value="TERRORISM">Terrorism</option>
-                <option value="OTHER">Other</option>
+                <option value="" th:text="#{whistleblower.selectType}">Select Report Type</option>
+                <option value="CORRUPTION" th:text="#{category.CORRUPTION}">Corruption / Bribery</option>
+                <option value="FRAUD" th:text="#{category.FRAUD}">Fraud</option>
+                <option value="CYBER_ATTACK" th:text="#{category.CYBER_ATTACK}">Cyber Attack</option>
+                <option value="HARASSMENT" th:text="#{category.HARASSMENT}">Harassment</option>
+                <option value="DRUGS" th:text="#{category.DRUGS}">Drug Trafficking</option>
+                <option value="HUMAN_TRAFFICKING" th:text="#{category.HUMAN_TRAFFICKING}">Human Trafficking</option>
+                <option value="TAX_EVASION" th:text="#{category.TAX_EVASION}">Tax Evasion</option>
+                <option value="MONEY_LAUNDERING" th:text="#{category.MONEY_LAUNDERING}">Money Laundering</option>
+                <option value="TERRORISM" th:text="#{category.TERRORISM}">Terrorism</option>
+                <option value="OTHER" th:text="#{category.OTHER}">Other</option>
             </select>
 
-            <label>Urgency Level</label>
+            <label th:text="#{whistleblower.urgency}">Urgency Level</label>
             <select name="urgency">
-                <option value="NORMAL">Normal</option>
-                <option value="URGENT">Urgent</option>
-                <option value="CRITICAL">Critical</option>
+                <option value="NORMAL" th:text="#{urgency.NORMAL}">Normal</option>
+                <option value="URGENT" th:text="#{urgency.URGENT}">Urgent</option>
+                <option value="CRITICAL" th:text="#{urgency.CRITICAL}">Critical</option>
             </select>
 
-            <label>Title *</label>
-            <input type="text" name="title" required placeholder="Brief description">
+            <label><span th:text="#{report.title2}">Title</span> <span class="required-star">*</span></label>
+            <input type="text" name="title" required th:placeholder="#{whistleblower.titlePlaceholder}">
 
-            <label>Full Description *</label>
-            <textarea name="description" rows="6" required placeholder="Describe what happened..."></textarea>
+            <label><span th:text="#{report.description}">Full Description</span> <span class="required-star">*</span></label>
+            <textarea name="description" rows="6" required th:placeholder="#{whistleblower.descPlaceholder}"></textarea>
 
-            <label>Involved Parties (Optional)</label>
-            <textarea name="involvedParties" rows="3" placeholder="Names, positions, organizations"></textarea>
+            <label th:text="#{whistleblower.involvedParties}">Involved Parties (Optional)</label>
+            <textarea name="involvedParties" rows="3" th:placeholder="#{whistleblower.involvedPlaceholder}"></textarea>
 
-            <label>Location (Optional)</label>
-            <input type="text" name="location" placeholder="City, street, specific place">
+            <label th:text="#{whistleblower.location}">Location (Optional)</label>
+            <input type="text" name="location" th:placeholder="#{whistleblower.locationPlaceholder}">
 
-            <label>Region (Optional)</label>
-            <input type="text" name="region" placeholder="Region or area name">
+            <label th:text="#{whistleblower.region}">Region (Optional)</label>
+            <input type="text" name="region" th:placeholder="#{whistleblower.regionPlaceholder}">
 
-            <label>Date Occurred (Optional)</label>
+            <label th:text="#{report.dateOccurred}">Date Occurred (Optional)</label>
             <input type="datetime-local" name="dateOccurred">
 
-            <label>Evidence Description (Optional)</label>
-            <textarea name="evidence" rows="3" placeholder="Describe evidence you have"></textarea>
+            <label th:text="#{whistleblower.evidenceDesc}">Evidence Description (Optional)</label>
+            <textarea name="evidence" rows="3" th:placeholder="#{whistleblower.evidencePlaceholder}"></textarea>
 
             <div class="privacy-box">
-                <h4 style="color: #0f2557; margin-bottom: 10px;">📎 Upload Evidence (Optional)</h4>
+                <h4 style="color: #0f2557; margin-bottom: 10px;">📎 <span th:text="#{whistleblower.uploadEvidence}">Upload Evidence (Optional)</span></h4>
                 <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
-                    Upload photo, video, audio, or document
+                    <span th:text="#{whistleblower.uploadHint}">Upload photo, video, audio, or document</span>
                 </p>
                 <input type="file" name="evidenceFile" 
                        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip">
             </div>
 
             <div class="privacy-box">
-                <h4 style="color: #0f2557; margin-bottom: 10px;">📞 Contact Info (Optional)</h4>
+                <h4 style="color: #0f2557; margin-bottom: 10px;">📞 <span th:text="#{whistleblower.contactOptional}">Contact Info (Optional)</span></h4>
                 <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
-                    Provide contact to receive updates. Encrypted.
+                    <span th:text="#{whistleblower.contactHint}">Provide contact to receive updates. Encrypted.</span>
                 </p>
-                <input type="text" name="contactEncrypted" placeholder="Email or phone">
+                <input type="text" name="contactEncrypted" th:placeholder="#{whistleblower.contactPlaceholder}">
                 <div style="margin-top: 10px;">
                     <label style="display: inline; text-transform: none;">
                         <input type="checkbox" name="wantsUpdates" value="true" style="width: auto;">
-                        I want to receive updates
+                        <span th:text="#{whistleblower.wantUpdates}">I want to receive updates</span>
                     </label>
                 </div>
             </div>
 
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;">
-                🔒 SUBMIT REPORT ANONYMOUSLY
+                🔒 <span th:text="#{whistleblower.submitBtn}">SUBMIT REPORT ANONYMOUSLY</span>
             </button>
         </form>
+    </div>
+
+    <div class="privacy-box">
+        <h3 style="color: #0f2557; margin-bottom: 10px;">⚠️ <span th:text="#{whistleblower.important}">Important</span></h3>
+        <ul>
+            <li th:text="#{whistleblower.privacy1}">Your identity is protected</li>
+            <li th:text="#{whistleblower.privacy2}">No IP tracking</li>
+            <li th:text="#{whistleblower.privacy3}">Encrypted submission</li>
+            <li th:text="#{whistleblower.privacy4}">You will receive a tracking code</li>
+        </ul>
     </div>
 </div>
 </body>

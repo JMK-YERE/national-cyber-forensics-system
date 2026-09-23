@@ -98,6 +98,7 @@ public class CountryConfig implements WebMvcConfigurer {
         resolver.setDefaultLocale(new Locale("en"));
         resolver.setCookieName("lang");
         resolver.setCookieMaxAge(365 * 24 * 60 * 60);
+        resolver.setCookieMaxAge(365 * 24 * 60 * 60);
         return resolver;
     }
 

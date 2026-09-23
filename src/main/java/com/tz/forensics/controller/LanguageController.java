@@ -15,23 +15,28 @@ public class LanguageController {
                                   @RequestParam(required = false) String redirect,
                                   HttpServletRequest request,
                                   HttpServletResponse response) {
-        // Set cookie
+        // Set cookie for language
         Cookie cookie = new Cookie("lang", lang);
         cookie.setMaxAge(365 * 24 * 60 * 60);
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        // Determine redirect
+        // Redirect logic
         String target = "/dashboard";
+
         if (redirect != null && !redirect.isEmpty()) {
             target = redirect;
         } else {
-            // Use referer if available
+            // Use Referer header
             String referer = request.getHeader("Referer");
             if (referer != null && referer.contains("/")) {
                 try {
                     String path = referer.substring(referer.indexOf("/", 8));
                     if (path.startsWith("/") && !path.contains("/lang")) {
+                        // Remove query params
+                        if (path.contains("?")) {
+                            path = path.substring(0, path.indexOf("?"));
+                        }
                         target = path;
                     }
                 } catch (Exception ignored) {}
