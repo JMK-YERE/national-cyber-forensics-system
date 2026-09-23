@@ -14,9 +14,17 @@ public class WhistleblowerReport {
     @Column(name = "tracking_code", unique = true, nullable = false, length = 20)
     private String trackingCode;
 
+    // ===== NEW FIELDS =====
+    @Column(length = 10)
+    private String country = "TZ";
+
+    @Column(name = "country_name", length = 100)
+    private String countryName;
+
     @Column(nullable = false, length = 50)
     private String category;
-    // CORRUPTION, FRAUD, CYBER_ATTACK, HARASSMENT, DRUGS, HUMAN_TRAFFICKING, TAX_EVASION, OTHER
+    // CORRUPTION, FRAUD, CYBER_ATTACK, HARASSMENT, DRUGS,
+    // HUMAN_TRAFFICKING, TAX_EVASION, MONEY_LAUNDERING, TERRORISM, OTHER
 
     @Column(length = 50)
     private String urgency = "NORMAL"; // NORMAL, URGENT, CRITICAL
@@ -42,16 +50,26 @@ public class WhistleblowerReport {
     @Column(columnDefinition = "TEXT")
     private String evidence;
 
-    // ===== REPORTER INFO (OPTIONAL & ENCRYPTED) =====
+    // ===== EVIDENCE UPLOAD =====
+    @Column(name = "evidence_file_path", length = 500)
+    private String evidenceFilePath;
+
+    @Column(name = "evidence_file_type", length = 100)
+    private String evidenceFileType;
+
+    @Column(name = "evidence_file_size")
+    private Long evidenceFileSize;
+
+    // ===== CONTACT (optional) =====
     @Column(name = "contact_encrypted", columnDefinition = "TEXT")
-    private String contactEncrypted; // AES-256 encrypted
+    private String contactEncrypted;
 
     @Column(name = "wants_updates")
     private Boolean wantsUpdates = false;
 
     // ===== STATUS =====
     @Column(length = 30)
-    private String status = "NEW"; // NEW, REVIEWING, INVESTIGATING, ACTION_TAKEN, CLOSED, REJECTED
+    private String status = "NEW";
 
     @Column(length = 20)
     private String priority = "MEDIUM";
@@ -83,17 +101,17 @@ public class WhistleblowerReport {
     }
 
     public String getCategoryLabel() {
-        return switch (category) {
-            case "CORRUPTION" -> "💰 Rushwa / Ufisadi";
-            case "FRAUD" -> "🎭 Utapeli";
-            case "CYBER_ATTACK" -> "💻 Mashambulizi ya Mtandao";
-            case "HARASSMENT" -> "😢 Unyanyasaji";
-            case "DRUGS" -> "💊 Dawa za Kulevya";
-            case "HUMAN_TRAFFICKING" -> "🚨 Biashara ya Binadamu";
-            case "TAX_EVASION" -> "📊 Kukwepa Kodi";
-            case "MONEY_LAUNDERING" -> "💵 Utakatishaji Fedha";
-            case "TERRORISM" -> "💥 Ugaidi";
-            default -> "⚠️ Nyingine";
+        return switch (category != null ? category : "OTHER") {
+            case "CORRUPTION" -> "💰 Corruption / Bribery";
+            case "FRAUD" -> "🎭 Fraud";
+            case "CYBER_ATTACK" -> "💻 Cyber Attack";
+            case "HARASSMENT" -> "😢 Harassment";
+            case "DRUGS" -> "💊 Drug Trafficking";
+            case "HUMAN_TRAFFICKING" -> "🚨 Human Trafficking";
+            case "TAX_EVASION" -> "📊 Tax Evasion";
+            case "MONEY_LAUNDERING" -> "💵 Money Laundering";
+            case "TERRORISM" -> "💥 Terrorism";
+            default -> "⚠️ Other";
         };
     }
 
@@ -102,6 +120,10 @@ public class WhistleblowerReport {
     public void setId(Long id) { this.id = id; }
     public String getTrackingCode() { return trackingCode; }
     public void setTrackingCode(String trackingCode) { this.trackingCode = trackingCode; }
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
+    public String getCountryName() { return countryName; }
+    public void setCountryName(String countryName) { this.countryName = countryName; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
     public String getUrgency() { return urgency; }
@@ -120,6 +142,12 @@ public class WhistleblowerReport {
     public void setDateOccurred(LocalDateTime dateOccurred) { this.dateOccurred = dateOccurred; }
     public String getEvidence() { return evidence; }
     public void setEvidence(String evidence) { this.evidence = evidence; }
+    public String getEvidenceFilePath() { return evidenceFilePath; }
+    public void setEvidenceFilePath(String evidenceFilePath) { this.evidenceFilePath = evidenceFilePath; }
+    public String getEvidenceFileType() { return evidenceFileType; }
+    public void setEvidenceFileType(String evidenceFileType) { this.evidenceFileType = evidenceFileType; }
+    public Long getEvidenceFileSize() { return evidenceFileSize; }
+    public void setEvidenceFileSize(Long evidenceFileSize) { this.evidenceFileSize = evidenceFileSize; }
     public String getContactEncrypted() { return contactEncrypted; }
     public void setContactEncrypted(String contactEncrypted) { this.contactEncrypted = contactEncrypted; }
     public Boolean getWantsUpdates() { return wantsUpdates; }

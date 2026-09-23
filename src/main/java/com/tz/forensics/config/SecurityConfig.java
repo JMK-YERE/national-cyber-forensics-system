@@ -50,7 +50,7 @@ public class SecurityConfig {
                                  "/sitemap.xml", "/robots.txt").permitAll()
                 .requestMatchers("/whistleblower", "/whistleblower/report",
                                  "/whistleblower/submit", "/whistleblower/success",
-                                 "/whistleblower/track", "/whistleblower/track/**").permitAll()
+                                 "/whistleblower/track", "/whistleblower/track/**", "/whistleblower/admin/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")

@@ -1,20 +1,27 @@
 package com.tz.forensics.controller;
 
-import com.tz.forensics.entity.User;
+import com.tz.forensics.config.CountryConfig;
 import com.tz.forensics.entity.WhistleblowerMessage;
 import com.tz.forensics.entity.WhistleblowerReport;
 import com.tz.forensics.repository.UserRepository;
-import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.WhistleblowerService;
+import com.tz.forensics.service.AuditService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/whistleblower")
@@ -24,6 +31,9 @@ public class WhistleblowerController {
     private final UserRepository userRepository;
     private final AuditService auditService;
 
+    @Value("${app.upload.dir:uploads/whistleblower}")
+    private String uploadDir;
+
     public WhistleblowerController(WhistleblowerService service,
                                     UserRepository userRepository,
                                     AuditService auditService) {
@@ -32,27 +42,50 @@ public class WhistleblowerController {
         this.auditService = auditService;
     }
 
-    // ===== PUBLIC PAGES =====
-
     @GetMapping
-    public String home() {
+    public String home(Model model) {
+        model.addAttribute("countries", CountryConfig.COUNTRIES.values());
         return "whistleblower-home";
     }
 
     @GetMapping("/report")
     public String reportForm(Model model) {
         model.addAttribute("report", new WhistleblowerReport());
+        model.addAttribute("countries", CountryConfig.COUNTRIES.values());
+        model.addAttribute("defaultCountry", CountryConfig.getCountry("TZ"));
         return "whistleblower-form";
     }
 
     @PostMapping("/submit")
     public String submitReport(@ModelAttribute WhistleblowerReport report,
-                                @RequestParam(required = false) 
+                                @RequestParam(required = false) String country,
+                                @RequestParam(required = false)
                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateOccurred,
+                                @RequestParam(required = false) MultipartFile evidenceFile,
                                 RedirectAttributes ra) {
+
+        if (country == null || country.isEmpty()) country = "TZ";
+        report.setCountry(country);
+        report.setCountryName(CountryConfig.getCountry(country).name);
         report.setDateOccurred(dateOccurred);
 
-        // NO IP tracking, NO user identification
+        // Handle evidence file
+        if (evidenceFile != null && !evidenceFile.isEmpty()) {
+            try {
+                Path uploadPath = Paths.get(uploadDir);
+                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+                String storedName = UUID.randomUUID() + "_" + evidenceFile.getOriginalFilename();
+                Path targetPath = uploadPath.resolve(storedName);
+                Files.write(targetPath, evidenceFile.getBytes());
+
+                report.setEvidenceFilePath(storedName);
+                report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
+                report.setEvidenceFileSize(evidenceFile.getSize());
+            } catch (IOException e) {
+                System.err.println("File upload failed: " + e.getMessage());
+            }
+        }
+
         WhistleblowerReport saved = service.createReport(report);
 
         ra.addFlashAttribute("successCode", saved.getTrackingCode());
@@ -73,7 +106,7 @@ public class WhistleblowerController {
     public String trackReport(@RequestParam String code, Model model) {
         WhistleblowerReport report = service.findByTrackingCode(code);
         if (report == null) {
-            model.addAttribute("error", "Code haipo au si sahihi. Angalia herufi na namba.");
+            model.addAttribute("error", "Tracking code haipo au si sahihi.");
             return "whistleblower-track";
         }
         List<WhistleblowerMessage> messages = service.getMessages(report.getId());
@@ -88,15 +121,14 @@ public class WhistleblowerController {
                                  @RequestParam String code,
                                  RedirectAttributes ra) {
         service.addMessage(id, "REPORTER", message);
-        ra.addFlashAttribute("success", "✅ Ujumbe wako umetumwa kwa admin.");
+        ra.addFlashAttribute("success", "✅ Ujumbe wako umetumwa.");
         return "redirect:/whistleblower/track?code=" + code;
     }
 
-    // ===== ADMIN PAGES =====
-
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
-        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (auth == null) return "redirect:/login";
+        var user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null || (!user.isAdmin() && !user.isProfessional())) {
             return "redirect:/access-denied";
         }
@@ -108,13 +140,12 @@ public class WhistleblowerController {
 
     @GetMapping("/admin/{id}")
     public String adminDetail(@PathVariable Long id, Authentication auth, Model model) {
-        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        var user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null || (!user.isAdmin() && !user.isProfessional())) {
             return "redirect:/access-denied";
         }
         WhistleblowerReport report = service.getById(id);
         if (report == null) return "redirect:/whistleblower/admin";
-
         model.addAttribute("report", report);
         model.addAttribute("messages", service.getMessages(id));
         model.addAttribute("user", user);
@@ -127,7 +158,7 @@ public class WhistleblowerController {
                                @RequestParam(required = false) String adminResponse,
                                @RequestParam(required = false) String internalNotes,
                                Authentication auth) {
-        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        var user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null || (!user.isAdmin() && !user.isProfessional())) {
             return "redirect:/access-denied";
         }
@@ -136,15 +167,13 @@ public class WhistleblowerController {
         return "redirect:/whistleblower/admin/" + id;
     }
 
-    @PostMapping("/admin/{id}/reply")
-    public String adminReply(@PathVariable Long id,
-                              @RequestParam String message,
-                              Authentication auth) {
-        User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null || (!user.isAdmin() && !user.isProfessional())) {
-            return "redirect:/access-denied";
-        }
-        service.addMessage(id, "ADMIN", message);
-        return "redirect:/whistleblower/admin/" + id;
+    private String detectFileType(String contentType) {
+        if (contentType == null) return "FILE";
+        if (contentType.startsWith("image/")) return "PHOTO";
+        if (contentType.startsWith("video/")) return "VIDEO";
+        if (contentType.startsWith("audio/")) return "AUDIO";
+        if (contentType.contains("pdf") || contentType.contains("word") ||
+            contentType.contains("document") || contentType.contains("text")) return "DOCUMENT";
+        return "FILE";
     }
 }
