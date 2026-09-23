@@ -45,19 +45,34 @@ public class SecurityConfig {
         http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/register", "/lang", "/css/**", "/js/**", "/images/**",
-                                 "/error", "/access-denied", "/google*.html", "/*.html",
-                                 "/sitemap.xml", "/robots.txt").permitAll()
-                .requestMatchers("/whistleblower", "/whistleblower/report",
-                                 "/whistleblower/submit", "/whistleblower/success",
-                                 "/whistleblower/track", "/whistleblower/track/**", "/whistleblower/admin/**").permitAll()
+                // ===== PUBLIC — bila login =====
+                .requestMatchers(
+                    "/login", "/register", "/lang",
+                    "/css/**", "/js/**", "/images/**",
+                    "/error", "/access-denied",
+                    "/google*.html", "/*.html",
+                    "/sitemap.xml", "/robots.txt",
+                    // Whistleblower — PUBLIC kabisa
+                    "/whistleblower",
+                    "/whistleblower/report",
+                    "/whistleblower/submit",
+                    "/whistleblower/success",
+                    "/whistleblower/track",
+                    "/whistleblower/track/**"
+                ).permitAll()
+
+                // ===== ADMIN ONLY =====
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/incidents/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/threat-map").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/report-attack/admin/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
+
+                // ===== ADMIN/PRO/FORENSICS =====
+                .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
+                .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
+                .requestMatchers("/incidents/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
+                .requestMatchers("/threat-map").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
+                .requestMatchers("/report-attack/admin/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
                 .requestMatchers("/whistleblower/admin/**").hasAnyRole("ADMIN", "CYBER_PRO")
+
+                // ===== EVERYONE LOGGED IN =====
                 .requestMatchers("/report-attack/**").authenticated()
                 .requestMatchers("/dashboard/**").authenticated()
                 .requestMatchers("/notifications/**").authenticated()

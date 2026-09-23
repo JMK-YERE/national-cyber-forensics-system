@@ -16,105 +16,96 @@
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
+    <div class="logo">🛡️ Cyber Forensics System</div>
     <div class="nav-links">
-        <a th:href="@{/whistleblower}">🏠 Home</a>
-        <a th:href="@{/whistleblower/track}">🔍 Track Report</a>
-        <a th:href="@{/login}">🔐 Login</a>
+        <a th:href="@{/whistleblower}">Home</a>
+        <a th:href="@{/whistleblower/track}">Track Report</a>
+        <a th:href="@{/login}">Login</a>
+        <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
+            <a th:href="@{/lang?lang=sw}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
+            <a th:href="@{/lang?lang=en}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
+            <a th:href="@{/lang?lang=fr}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
+            <a th:href="@{/lang?lang=ar}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
+        </span>
     </div>
 </div>
 
 <div class="container">
     <div class="alert-banner">
         <h2>🔒 Submit Confidential Report</h2>
-        <p>Your identity will remain anonymous. We protect your privacy.</p>
+        <p>Your identity will remain anonymous.</p>
     </div>
 
     <div class="card">
         <form th:action="@{/whistleblower/submit}" method="post" enctype="multipart/form-data">
 
-            <!-- COUNTRY -->
-            <label>Country <span class="required-star">*</span></label>
+            <label>Country *</label>
             <select name="country" required>
                 <option th:each="c : ${countries}" th:value="${c.code}" th:text="${c.name}"></option>
             </select>
 
-            <!-- REPORT TYPE -->
-            <label>Report Type <span class="required-star">*</span></label>
+            <label>Report Type *</label>
             <select name="category" required>
-                <option value="">-- Select Report Type --</option>
-                <option value="CORRUPTION">💰 Corruption / Bribery</option>
-                <option value="FRAUD">🎭 Fraud</option>
-                <option value="CYBER_ATTACK">💻 Cyber Attack</option>
-                <option value="HARASSMENT">😢 Harassment</option>
-                <option value="DRUGS">💊 Drug Trafficking</option>
-                <option value="HUMAN_TRAFFICKING">🚨 Human Trafficking</option>
-                <option value="TAX_EVASION">📊 Tax Evasion</option>
-                <option value="MONEY_LAUNDERING">💵 Money Laundering</option>
-                <option value="TERRORISM">💥 Terrorism</option>
-                <option value="OTHER">⚠️ Other</option>
+                <option value="">Select Report Type</option>
+                <option value="CORRUPTION">Corruption / Bribery</option>
+                <option value="FRAUD">Fraud</option>
+                <option value="CYBER_ATTACK">Cyber Attack</option>
+                <option value="HARASSMENT">Harassment</option>
+                <option value="DRUGS">Drug Trafficking</option>
+                <option value="HUMAN_TRAFFICKING">Human Trafficking</option>
+                <option value="TAX_EVASION">Tax Evasion</option>
+                <option value="MONEY_LAUNDERING">Money Laundering</option>
+                <option value="TERRORISM">Terrorism</option>
+                <option value="OTHER">Other</option>
             </select>
 
-            <!-- URGENCY -->
             <label>Urgency Level</label>
             <select name="urgency">
-                <option value="NORMAL">🟢 Normal</option>
-                <option value="URGENT">🟠 Urgent</option>
-                <option value="CRITICAL">🔴 Critical</option>
+                <option value="NORMAL">Normal</option>
+                <option value="URGENT">Urgent</option>
+                <option value="CRITICAL">Critical</option>
             </select>
 
-            <!-- TITLE -->
-            <label>Title <span class="required-star">*</span></label>
-            <input type="text" name="title" required placeholder="Brief description of the issue">
+            <label>Title *</label>
+            <input type="text" name="title" required placeholder="Brief description">
 
-            <!-- DESCRIPTION -->
-            <label>Full Description <span class="required-star">*</span></label>
-            <textarea name="description" rows="6" required placeholder="Describe what happened in detail..."></textarea>
+            <label>Full Description *</label>
+            <textarea name="description" rows="6" required placeholder="Describe what happened..."></textarea>
 
-            <!-- INVOLVED PARTIES -->
             <label>Involved Parties (Optional)</label>
-            <textarea name="involvedParties" rows="3" placeholder="Names, positions, organizations..."></textarea>
+            <textarea name="involvedParties" rows="3" placeholder="Names, positions, organizations"></textarea>
 
-            <!-- LOCATION -->
             <label>Location (Optional)</label>
-            <input type="text" name="location" placeholder="City, address, specific location">
+            <input type="text" name="location" placeholder="City, street, specific place">
 
-            <!-- REGION -->
-            <label>Region</label>
-            <select name="region">
-                <option value="">-- Select Region --</option>
-                <option th:each="r : ${defaultCountry.regions}" th:value="${r}" th:text="${r}"></option>
-            </select>
+            <label>Region (Optional)</label>
+            <input type="text" name="region" placeholder="Region or area name">
 
-            <!-- DATE -->
             <label>Date Occurred (Optional)</label>
             <input type="datetime-local" name="dateOccurred">
 
-            <!-- EVIDENCE DESCRIPTION -->
-            <label>Evidence You Have (Optional)</label>
-            <textarea name="evidence" rows="3" placeholder="Documents, photos, recordings you have..."></textarea>
+            <label>Evidence Description (Optional)</label>
+            <textarea name="evidence" rows="3" placeholder="Describe evidence you have"></textarea>
 
-            <!-- EVIDENCE UPLOAD -->
             <div class="privacy-box">
                 <h4 style="color: #0f2557; margin-bottom: 10px;">📎 Upload Evidence (Optional)</h4>
                 <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
-                    Upload any evidence you have: photo, video, audio, or document.
+                    Upload photo, video, audio, or document
                 </p>
                 <input type="file" name="evidenceFile" 
                        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip">
             </div>
 
-            <!-- CONTACT (Optional) -->
             <div class="privacy-box">
-                <h4 style="color: #0f2557; margin-bottom: 10px;">📞 Your Contact Info (Optional)</h4>
+                <h4 style="color: #0f2557; margin-bottom: 10px;">📞 Contact Info (Optional)</h4>
                 <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
-                    If you want to receive updates, provide your contact. This is <strong>encrypted</strong>.
+                    Provide contact to receive updates. Encrypted.
                 </p>
-                <input type="text" name="contactEncrypted" placeholder="Email or phone (encrypted)">
+                <input type="text" name="contactEncrypted" placeholder="Email or phone">
                 <div style="margin-top: 10px;">
                     <label style="display: inline; text-transform: none;">
                         <input type="checkbox" name="wantsUpdates" value="true" style="width: auto;">
-                        I want to receive updates about my report
+                        I want to receive updates
                     </label>
                 </div>
             </div>
@@ -123,16 +114,6 @@
                 🔒 SUBMIT REPORT ANONYMOUSLY
             </button>
         </form>
-    </div>
-
-    <div class="privacy-box">
-        <h3 style="color: #0f2557; margin-bottom: 10px;">⚠️ Important</h3>
-        <ul>
-            <li>Your identity is protected</li>
-            <li>No IP tracking</li>
-            <li>Encrypted submission</li>
-            <li>You will receive a <strong>tracking code</strong></li>
-        </ul>
     </div>
 </div>
 </body>
