@@ -2,34 +2,56 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>🚨 Attack Reports - Admin</title>
+    <title>Admin Reports - Cyber Forensics System</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .admin-header { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; }
+        .admin-header h1 { color: white; margin: 0; }
+        .admin-header p { color: rgba(255,255,255,0.9); margin-top: 10px; }
+        .report-row { background: white; border: 1px solid rgba(15,37,87,0.15); border-radius: 8px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; }
+        .report-row:hover { border-color: #8b5cf6; box-shadow: 0 4px 15px rgba(139,92,246,0.15); }
+        .report-row h3 { color: #0f2557; margin: 0 0 10px 0; }
+        .report-meta { display: flex; flex-wrap: wrap; gap: 20px; font-size: 13px; color: #555; margin-top: 10px; }
+        .action-buttons { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .btn-view { background: #0f2557; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; }
+        .btn-ai { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
+        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,92,246,0.4); }
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .badge-new { background: #8b1a1a; color: white; }
+        .badge-critical { background: #c73030; color: white; }
+        .badge-high { background: #d97706; color: white; }
+        .badge-medium { background: #c9a227; color: #0f2557; }
+    </style>
 </head>
 <body>
 <div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ - ADMIN</div>
+    <div class="logo">🛡️ Cyber Forensics System</div>
     <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/report-attack/admin}">🚨 Attack Reports</a>
-        <a th:href="@{/threat-map}">🗺️ Threat Map</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/report-attack}">Report</a>
+        <a th:href="@{/report-attack/admin}" style="color:#ffd700;">👑 Admin Reports</a>
+        <a th:href="@{/ai/assistant}">AI</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
     </div>
 </div>
 
 <div class="container">
-    <div class="card">
-        <h1>🚨 Attack Reports — Zote</h1>
-        <p>Reports zote za attacks kutoka kwa users.</p>
+    <div class="admin-header">
+        <h1>👑 Admin Reports Panel</h1>
+        <p>Simamia reports zote za watumiaji. Unaweza kuona na kusaidia.</p>
     </div>
 
+    <!-- STATS -->
     <div class="stats-grid">
         <div class="stat-box">
             <div class="stat-value" th:text="${totalCount}">0</div>
             <div class="stat-label">Total Reports</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" th:text="${newCount}" style="color:var(--deep-red);">0</div>
-            <div class="stat-label">NEW</div>
+            <div class="stat-value" th:text="${newCount}" style="color:#8b1a1a;">0</div>
+            <div class="stat-label">New</div>
         </div>
         <div class="stat-box">
             <div class="stat-value" th:text="${todayCount}">0</div>
@@ -37,57 +59,46 @@
         </div>
     </div>
 
+    <!-- REPORTS LIST -->
     <div class="card">
-        <table>
-            <thead>
-            <tr>
-                <th>Report ID</th>
-                <th>Aina</th>
-                <th>Kichwa</th>
-                <th>Mkoa</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Assigned</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:if="${reports.isEmpty()}">
-                <td colspan="8" style="text-align:center;">Hakuna reports bado.</td>
-            </tr>
-            <tr th:each="r : ${reports}" th:class="${r.statusClass}">
-                <td th:text="${r.reportId}" style="color:var(--gold); font-weight:bold;"></td>
-                <td th:text="${r.attackTypeLabel}"></td>
-                <td th:text="${r.title}"></td>
-                <td th:text="${r.region}"></td>
-                <td th:text="${r.priority}"></td>
-                <td th:text="${r.status}"></td>
-                <td th:text="${r.assignedToName != null ? r.assignedToName : '—'}"></td>
-                <td>
-                    <form th:action="@{'/report-attack/admin/' + ${r.id} + '/update'}" method="post" style="display:flex; gap:5px; align-items:center;">
-                        <select name="status" style="padding:4px; font-size:11px;">
-                            <option value="NEW" th:selected="${r.status == 'NEW'}">NEW</option>
-                            <option value="REVIEWING" th:selected="${r.status == 'REVIEWING'}">REVIEWING</option>
-                            <option value="INVESTIGATING" th:selected="${r.status == 'INVESTIGATING'}">INVESTIGATING</option>
-                            <option value="RESOLVED" th:selected="${r.status == 'RESOLVED'}">RESOLVED</option>
-                            <option value="CLOSED" th:selected="${r.status == 'CLOSED'}">CLOSED</option>
-                        </select>
-                        <select name="assignedTo" style="padding:4px; font-size:11px;">
-                            <option value="">-- Assign --</option>
-                            <option th:each="u : ${assignableUsers}" th:value="${u.id}" th:text="${u.username}"></option>
-                        </select>
-                        <input type="text" name="adminResponse" placeholder="Response..." style="padding:4px; font-size:11px; width:120px;">
-                        <button type="submit" class="btn" style="padding:4px 10px; font-size:11px;">💾</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+        <h2>📋 All Reports</h2>
 
-    <div class="card">
-        <h3>🗺️ Ona Attacks Kwenye Ramani</h3>
-        <a th:href="@{/threat-map}" class="btn btn-primary" style="margin-top:10px;">🗺️ Fungua Threat Map</a>
+        <div th:if="${reports.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
+            No reports yet.
+        </div>
+
+        <div th:each="r : ${reports}" class="report-row">
+            <h3>
+                <span th:if="${r.status == 'NEW'}" class="badge badge-new">NEW</span>
+                <span th:text="${r.attackTypeLabel}"></span>
+                -
+                <span th:text="${r.title}"></span>
+            </h3>
+
+            <div class="report-meta">
+                <span><strong>Report ID:</strong> <span th:text="${r.reportId}" style="color:#c9a227; font-family:monospace;"></span></span>
+                <span><strong>Reporter:</strong> <span th:text="${r.reporterName}"></span></span>
+                <span><strong>Phone:</strong> <span th:text="${r.reporterPhone}"></span></span>
+                <span><strong>Region:</strong> <span th:text="${r.region}"></span></span>
+                <span><strong>Country:</strong> <span th:text="${r.countryName}"></span></span>
+                <span><strong>Priority:</strong> <span th:text="${r.priority}"></span></span>
+                <span><strong>Date:</strong> <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span></span>
+            </div>
+
+            <div class="action-buttons">
+                <!-- VIEW BUTTON — Kila mtu anaweza kuona -->
+                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="btn-view">
+                    👁️ View Report & Help
+                </a>
+
+                <!-- AI BUTTON — Admin anaweza kubonyeza -->
+                <form th:action="@{'/report-attack/' + ${r.id} + '/ai-reply'}" method="post" style="display:inline;">
+                    <button type="submit" class="btn-ai">
+                        🤖 Let AI Reply Now
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 </body>

@@ -61,6 +61,7 @@ public class ReportAttackController {
     // ===== FIXED: Admin/Pro/Forensics/ANALYST =====
     private boolean canSeeAllReports(User user) {
         if (user == null) return false;
+        if (user == null) return false;
         boolean result = user.isAdmin() || user.isProfessional() || user.isForensics();
         log.info("canSeeAll for {} (role {}): {}", user.getUsername(), user.getRole(), result);
         return result;
