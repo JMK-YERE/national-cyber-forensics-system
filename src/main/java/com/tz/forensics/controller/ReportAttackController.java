@@ -39,6 +39,7 @@ public class ReportAttackController {
     private final AuditService auditService;
     private final NotificationService notificationService;
     private final ReportMessageRepository messageRepo;
+    private final AIChatService aiChatService;
 
     @Value("${app.upload.dir:uploads/evidence}")
     private String uploadDir;
@@ -47,12 +48,14 @@ public class ReportAttackController {
                                    UserRepository userRepository,
                                    AuditService auditService,
                                    NotificationService notificationService,
-                                   ReportMessageRepository messageRepo) {
+                                   ReportMessageRepository messageRepo,
+                                   AIChatService aiChatService) {
         this.service = service;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.notificationService = notificationService;
         this.messageRepo = messageRepo;
+        this.aiChatService = aiChatService;
     }
 
     private boolean canSeeAllReports(User user) {
@@ -115,26 +118,37 @@ public class ReportAttackController {
                 report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
                 report.setEvidenceFileSize(evidenceFile.getSize());
                 report.setHasEvidence(true);
-            } catch (IOException e) {
-                log.error("File upload failed: {}", e.getMessage());
-            }
+            } catch (IOException e) { log.error("File: {}", e.getMessage()); }
         }
 
         ReportAttack saved = service.create(report);
-        auditService.log("REPORT_ATTACK", "ReportAttack", saved.getReportId(),
-                "Type: " + saved.getAttackType());
 
+        // Send initial welcome message from AI (a simple acknowledgment, not full reply)
+        try {
+            String welcome = "✅ *Report Received*\n\n"
+                    + "Asante kwa kuripoti. Timu yetu ya usalama (Admin) "
+                    + "inaangalia taarifa yako. Utapata jibu hivi karibuni.\n\n"
+                    + "Kama una swali lolote — unaweza kuandika hapa chini.";
+
+            messageRepo.save(new ReportMessage(
+                saved.getId(), null, "System", "AI", welcome
+            ));
+        } catch (Exception e) { log.error("Welcome msg: {}", e.getMessage()); }
+
+        // Notify admins
         try {
             List<User> admins = userRepository.findAll().stream()
                     .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
             for (User admin : admins) {
                 notificationService.createNotification(
                     "🚨 New Report: " + saved.getAttackTypeLabel(),
-                    saved.getTitle(),
+                    saved.getTitle() + " | " + saved.getReporterName(),
                     "CRITICAL", "/report-attack/admin"
                 );
             }
         } catch (Exception e) { log.error("Notif: {}", e.getMessage()); }
+
+        auditService.log("REPORT_ATTACK", "ReportAttack", saved.getReportId(), "Type: " + saved.getAttackType());
 
         return "redirect:/report-attack/view/" + saved.getId();
     }
@@ -172,6 +186,7 @@ public class ReportAttackController {
                 .body(data);
     }
 
+    // ===== USER/ADMIN REPLY =====
     @PostMapping("/{id}/reply")
     public String reply(@PathVariable Long id, @RequestParam String message, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
@@ -180,6 +195,60 @@ public class ReportAttackController {
 
         String senderType = canSeeAllReports(user) ? "ADMIN" : "USER";
         messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
+
+        if ("ADMIN".equals(senderType)) {
+            if (r.getUserId() != null) {
+                notificationService.createNotification(
+                    "💬 Update kwenye Report " + r.getReportId(),
+                    message.substring(0, Math.min(80, message.length())),
+                    "INFO", "/report-attack/view/" + id
+                );
+            }
+        } else {
+            notificationService.createNotification(
+                "💬 Ujumbe kutoka " + user.getUsername(),
+                "Report " + r.getReportId(),
+                "INFO", "/report-attack/admin/" + id
+            );
+        }
+
+        return "redirect:/report-attack/view/" + id;
+    }
+
+    // ===== 🎯 ADMIN BUTTON: Trigger AI Reply NOW =====
+    @PostMapping("/{id}/ai-reply")
+    public String triggerAiReply(@PathVariable Long id, Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        ReportAttack r = service.getById(id);
+
+        if (user == null || r == null || !canSeeAllReports(user)) {
+            return "redirect:/report-attack";
+        }
+
+        try {
+            String prompt = "Report Type: " + r.getAttackTypeLabel() + "\n"
+                    + "Title: " + r.getTitle() + "\n"
+                    + "Description: " + r.getDescription() + "\n"
+                    + "Country: " + r.getCountryName() + "\n"
+                    + "Region: " + r.getRegion() + "\n"
+                    + "Status: " + r.getStatus() + "\n\n"
+                    + "Jibu kwa Kiswahili kwa user, kwa mtindo huu:\n"
+                    + "1. Tambua tatizo\n"
+                    + "2. Hatua 3-4 za haraka\n"
+                    + "3. Namba za msaada (Polisi 112/999)\n"
+                    + "Kuwa wa kitaalamu, mfupi (sentensi 5-7), tumia emoji na namba.";
+
+            String aiResponse = aiChatService.chat(prompt, "AdminTrigger", "sw");
+
+            messageRepo.save(new ReportMessage(id, null, "AI Assistant", "AI", aiResponse));
+
+            auditService.log("AI_TRIGGER", "ReportAttack", r.getReportId(), "Admin triggered AI reply");
+
+            log.info("✅ Admin triggered AI reply for report {}", r.getReportId());
+        } catch (Exception e) {
+            log.error("AI trigger failed: {}", e.getMessage());
+        }
+
         return "redirect:/report-attack/view/" + id;
     }
 
@@ -215,6 +284,28 @@ public class ReportAttackController {
         }
 
         service.updateStatus(id, status, adminResponse, assignedTo, assignedName);
+
+        if (policeCaseNumber != null && !policeCaseNumber.isEmpty()) {
+            ReportAttack r = service.getById(id);
+            if (r != null) {
+                r.setPoliceCaseNumber(policeCaseNumber);
+                service.save(r);
+            }
+        }
+
+        if (adminResponse != null && !adminResponse.isEmpty()) {
+            messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), "ADMIN", adminResponse));
+        }
+
+        ReportAttack r = service.getById(id);
+        if (r != null && r.getUserId() != null) {
+            notificationService.createNotification(
+                "🔄 Report Yako Imebadilishwa",
+                "Report " + r.getReportId() + ": Status ni " + status,
+                "INFO", "/report-attack/view/" + id
+            );
+        }
+
         return "redirect:/report-attack/admin";
     }
 
