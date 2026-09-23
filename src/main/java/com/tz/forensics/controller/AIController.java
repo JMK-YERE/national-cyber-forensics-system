@@ -4,6 +4,7 @@ import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.AIChatService;
 import com.tz.forensics.service.AuditService;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +36,7 @@ public class AIController {
         model.addAttribute("user", user);
         model.addAttribute("history", chatHistory.getOrDefault(auth.getName(), new ArrayList<>()));
         model.addAttribute("isConfigured", aiChatService.isConfigured());
+        model.addAttribute("currentLang", LocaleContextHolder.getLocale().getLanguage());
         return "ai-assistant";
     }
 
@@ -44,8 +46,11 @@ public class AIController {
         if (user == null) return "redirect:/login";
 
         String username = auth.getName();
+        String currentLang = LocaleContextHolder.getLocale().getLanguage();
         String context = buildContext(user);
-        String response = aiChatService.chat(message, context);
+
+        // Pass language kwenye AI
+        String response = aiChatService.chat(message, context, currentLang);
 
         List<Map<String, String>> history = chatHistory.computeIfAbsent(username, k -> new ArrayList<>());
         history.add(createChatEntry("user", message));
@@ -56,7 +61,7 @@ public class AIController {
         }
 
         auditService.log("AI_QUERY", "AIChat", username,
-                "Query: " + message.substring(0, Math.min(50, message.length())));
+                "Lang: " + currentLang + " | Query: " + message.substring(0, Math.min(50, message.length())));
 
         return "redirect:/ai/assistant";
     }
@@ -78,9 +83,9 @@ public class AIController {
     private String buildContext(User user) {
         if (user == null) return "";
         StringBuilder sb = new StringBuilder();
-        sb.append("Mtumiaji: ").append(user.getUsername()).append(". ");
+        sb.append("User: ").append(user.getUsername()).append(". ");
         sb.append("Role: ").append(user.getRole()).append(". ");
-        if (user.getOrganization() != null) sb.append("Taasisi: ").append(user.getOrganization()).append(". ");
+        if (user.getOrganization() != null) sb.append("Org: ").append(user.getOrganization()).append(". ");
         return sb.toString();
     }
 }

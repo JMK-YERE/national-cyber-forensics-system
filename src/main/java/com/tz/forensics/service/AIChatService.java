@@ -10,6 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Locale;
 
 @Service
 public class AIChatService {
@@ -19,62 +20,31 @@ public class AIChatService {
     @Value("${groq.api.key:}")
     private String apiKey;
 
-    @Value("${groq.model:llama-3.1-8b-instant}")
+    @Value("${groq.model:openai/gpt-oss-120b}")
     private String model;
 
     private static final String GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-
-    // Models zinazofanya kazi Groq (kwa fallback)
-    private static final String[] FALLBACK_MODELS = {
-        "llama-3.1-8b-instant",
-        "llama-3.3-70b-versatile",
-        "llama-3.1-70b-versatile",
-        "llama3-8b-8192",
-        "llama3-70b-8192",
-        "mixtral-8x7b-32768",
-        "gemma2-9b-it"
-    };
 
     public boolean isConfigured() {
         return apiKey != null && !apiKey.isEmpty() && !apiKey.equals("null");
     }
 
     public String chat(String userMessage, String context) {
-        log.info("===== GROQ REQUEST =====");
-        log.info("Model: {}", model);
-
-        if (!isConfigured()) {
-            return "❌ AI Haijawekwa. Wasiliana na admin.";
-        }
-
-        // Try primary model
-        String response = tryModel(model, userMessage, context);
-        if (response != null && !response.startsWith("❌")) {
-            return response;
-        }
-
-        // Try fallback models
-        log.warn("Primary model failed, trying fallbacks...");
-        for (String fallback : FALLBACK_MODELS) {
-            if (fallback.equals(model)) continue;
-            log.info("Trying fallback: {}", fallback);
-            String fbResponse = tryModel(fallback, userMessage, context);
-            if (fbResponse != null && !fbResponse.startsWith("❌")) {
-                log.info("✅ Fallback model worked: {}", fallback);
-                return fbResponse + "\n\n_(Model: " + fallback + ")_";
-            }
-        }
-
-        return response; // Return error from primary
+        return chat(userMessage, context, "en");
     }
 
-    private String tryModel(String modelName, String userMessage, String context) {
+    public String chat(String userMessage, String context, String lang) {
+        log.info("=== AI REQUEST (lang: {}) ===", lang);
+
+        if (!isConfigured()) {
+            return getErrorResponse(lang, "AI not configured");
+        }
+
         try {
-            String systemPrompt = "Wewe ni AI Assistant wa Cyber Forensics. "
-                + "Jibu kwa Kiswahili kwa ufupi. Context: " + (context != null ? context : "");
+            String systemPrompt = buildSystemPrompt(lang, context);
 
             String jsonBody = "{"
-                + "\"model\":\"" + modelName + "\","
+                + "\"model\":\"" + model + "\","
                 + "\"messages\":["
                 + "{\"role\":\"system\",\"content\":\"" + escapeJson(systemPrompt) + "\"},"
                 + "{\"role\":\"user\",\"content\":\"" + escapeJson(userMessage) + "\"}"
@@ -97,27 +67,74 @@ public class AIChatService {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            log.info("Model {} — Status: {}", modelName, response.statusCode());
+            log.info("Groq status: {}", response.statusCode());
 
             if (response.statusCode() == 200) {
                 String text = extractContent(response.body());
                 if (text != null && !text.trim().isEmpty()) {
                     return text;
                 }
-            } else if (response.statusCode() == 404) {
-                log.warn("Model {} haipo", modelName);
-                return "❌ Model `" + modelName + "` haipo. Jaribu mwingine.";
-            } else if (response.statusCode() == 401) {
-                return "❌ API Key si sahihi. Update kwenye Render.";
-            } else if (response.statusCode() == 429) {
-                return "⏱️ Rate limit. Subiri dakika 1.";
             }
 
-            return "❌ Hitilafu: " + response.statusCode();
+            return getErrorResponse(lang, "Status: " + response.statusCode());
 
         } catch (Exception e) {
-            log.error("Exception for model {}: {}", modelName, e.getMessage());
-            return "❌ Hitilafu: " + e.getMessage();
+            log.error("AI failed: {}", e.getMessage());
+            return getErrorResponse(lang, e.getMessage());
+        }
+    }
+
+    // ===== BUILD SYSTEM PROMPT — By Language =====
+    private String buildSystemPrompt(String lang, String context) {
+        String basePrompt;
+
+        switch (lang != null ? lang.toLowerCase() : "en") {
+            case "sw":
+                basePrompt = "Wewe ni AI Assistant wa Cyber Forensics System. "
+                    + "LAZIMA ujibu kwa KISWAHILI pekee — hata kama mtumiaji anatumia lugha nyingine. "
+                    + "Jibu kwa ufupi (sentensi 2-5) na kwa heshima. "
+                    + "Unaweza kusaidia: cybersecurity, digital forensics, kazi, elimu, maisha, tech, biashara. "
+                    + "Tumia emoji kwa mpangilio mzuri. "
+                    + "Kama mtumiaji ameuliza Kiingereza, BADO jibu kwa KISWAHILI. ";
+                break;
+
+            case "fr":
+                basePrompt = "Vous êtes l'assistant IA du système Cyber Forensics. "
+                    + "VOUS DEVEZ répondre UNIQUEMENT en FRANÇAIS. "
+                    + "Répondez brièvement (2-5 phrases) avec respect. "
+                    + "Vous pouvez aider avec: cybersécurité, forensique numérique, travail, éducation, tech. "
+                    + "Utilisez des emojis. ";
+                break;
+
+            case "ar":
+                basePrompt = "أنت مساعد الذكاء الاصطناعي لنظام Cyber Forensics. "
+                    + "يجب أن ترد باللغة العربية فقط. "
+                    + "أجب بإيجاز (2-5 جمل) باحترام. "
+                    + "يمكنك المساعدة في: الأمن السيبراني، الطب الشرعي الرقمي، العمل، التعليم، التكنولوجيا. "
+                    + "استخدم الرموز التعبيرية. ";
+                break;
+
+            case "en":
+            default:
+                basePrompt = "You are the AI Assistant for Cyber Forensics System. "
+                    + "You MUST respond in ENGLISH ONLY — even if the user writes in another language. "
+                    + "Be brief (2-5 sentences), helpful, and professional. "
+                    + "You can help with: cybersecurity, digital forensics, work, education, life, tech, business. "
+                    + "Use emojis appropriately. "
+                    + "If the user asks in another language, STILL respond in ENGLISH. ";
+                break;
+        }
+
+        basePrompt += "Context: " + (context != null ? context : "None");
+        return basePrompt;
+    }
+
+    private String getErrorResponse(String lang, String error) {
+        switch (lang != null ? lang.toLowerCase() : "en") {
+            case "sw": return "❌ AI haiwezi kujibu kwa sasa. Hitilafu: " + error;
+            case "fr": return "❌ L'IA ne peut pas répondre. Erreur: " + error;
+            case "ar": return "❌ لا يمكن للذكاء الاصطناعي الرد. خطأ: " + error;
+            default: return "❌ AI cannot respond. Error: " + error;
         }
     }
 
