@@ -34,10 +34,9 @@ public class AutoReplyScheduler {
         this.aiChatService = aiChatService;
     }
 
-    // ===== Runs every 2 minutes =====
     @Scheduled(fixedRate = 2 * 60 * 1000)
     public void checkPendingReports() {
-        log.info("=== AI Auto-Reply Check (every 2 min) ===");
+        log.info("=== AI Auto-Reply Check ===");
 
         LocalDateTime cutoff = LocalDateTime.now().minus(MINUTES_TO_WAIT, ChronoUnit.MINUTES);
         List<ReportAttack> allReports = reportRepo.findAll();
@@ -56,7 +55,7 @@ public class AutoReplyScheduler {
                 if (!hasAdminReply && !hasAiReply) {
                     sendAiAutoReply(report);
                 }
-                // User ameuliza swali jipya baada ya AI reply — AI inajibu tena
+                // User ameuliza jipya baada ya AI reply
                 else if (!hasAdminReply && hasAiReply) {
                     LocalDateTime lastAiTime = messages.stream()
                             .filter(m -> "AI".equals(m.getSenderType()))
@@ -90,8 +89,8 @@ public class AutoReplyScheduler {
                     + "Jibu kwa Kiswahili kwa mtindo huu:\n"
                     + "1. Asante kwa kuripoti\n"
                     + "2. Case yako inafanyiwa kazi (investigation started)\n"
-                    + "3. Hatua 3-4 za haraka za kuchukua\n"
-                    + "4. Namba ya Polisi (112/999)\n"
+                    + "3. Hatua 3-4 za haraka zenye namba\n"
+                    + "4. Namba za msaada (Polisi 112/999)\n"
                     + "Kuwa mfupi (sentensi 5-7), wa kitaalamu, tumia emoji.";
 
             String aiResponse = aiChatService.chat(prompt, "AutoReply", "sw");

@@ -58,8 +58,12 @@ public class ReportAttackController {
         this.aiChatService = aiChatService;
     }
 
+    // ===== FIXED: Admin/Pro/Forensics/ANALYST =====
     private boolean canSeeAllReports(User user) {
-        return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
+        if (user == null) return false;
+        boolean result = user.isAdmin() || user.isProfessional() || user.isForensics();
+        log.info("canSeeAll for {} (role {}): {}", user.getUsername(), user.getRole(), result);
+        return result;
     }
 
     @GetMapping
@@ -123,19 +127,16 @@ public class ReportAttackController {
 
         ReportAttack saved = service.create(report);
 
-        // Send initial welcome message from AI (a simple acknowledgment, not full reply)
+        // Welcome message from System
         try {
             String welcome = "✅ *Report Received*\n\n"
-                    + "Asante kwa kuripoti. Timu yetu ya usalama (Admin) "
-                    + "inaangalia taarifa yako. Utapata jibu hivi karibuni.\n\n"
+                    + "Asante kwa kuripoti. Timu yetu ya usalama itaangalia taarifa yako. "
+                    + "Utapata jibu hivi karibuni (dakika 5-30).\n\n"
                     + "Kama una swali lolote — unaweza kuandika hapa chini.";
 
-            messageRepo.save(new ReportMessage(
-                saved.getId(), null, "System", "AI", welcome
-            ));
-        } catch (Exception e) { log.error("Welcome msg: {}", e.getMessage()); }
+            messageRepo.save(new ReportMessage(saved.getId(), null, "System", "AI", welcome));
+        } catch (Exception e) { log.error("Welcome: {}", e.getMessage()); }
 
-        // Notify admins
         try {
             List<User> admins = userRepository.findAll().stream()
                     .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
@@ -143,7 +144,7 @@ public class ReportAttackController {
                 notificationService.createNotification(
                     "🚨 New Report: " + saved.getAttackTypeLabel(),
                     saved.getTitle() + " | " + saved.getReporterName(),
-                    "CRITICAL", "/report-attack/admin"
+                    "CRITICAL", "/report-attack/view/" + saved.getId()
                 );
             }
         } catch (Exception e) { log.error("Notif: {}", e.getMessage()); }
@@ -159,13 +160,18 @@ public class ReportAttackController {
         ReportAttack r = service.getById(id);
         if (user == null || r == null) return "redirect:/report-attack";
 
-        if (!canSeeAllReports(user) && !r.getUserId().equals(user.getId()))
+        boolean isAdmin = canSeeAllReports(user);
+        boolean isOwner = r.getUserId() != null && r.getUserId().equals(user.getId());
+
+        if (!isAdmin && !isOwner) {
+            log.warn("Access denied for {} on report {}", user.getUsername(), id);
             return "redirect:/access-denied";
+        }
 
         List<ReportMessage> messages = messageRepo.findByReportIdOrderByCreatedAtAsc(id);
         model.addAttribute("report", r);
         model.addAttribute("user", user);
-        model.addAttribute("canSeeAll", canSeeAllReports(user));
+        model.addAttribute("canSeeAll", isAdmin);
         model.addAttribute("messages", messages);
         return "report-attack-detail";
     }
@@ -186,7 +192,6 @@ public class ReportAttackController {
                 .body(data);
     }
 
-    // ===== USER/ADMIN REPLY =====
     @PostMapping("/{id}/reply")
     public String reply(@PathVariable Long id, @RequestParam String message, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
@@ -215,14 +220,15 @@ public class ReportAttackController {
         return "redirect:/report-attack/view/" + id;
     }
 
-    // ===== 🎯 ADMIN BUTTON: Trigger AI Reply NOW =====
+    // ===== ADMIN TRIGGER AI REPLY =====
     @PostMapping("/{id}/ai-reply")
     public String triggerAiReply(@PathVariable Long id, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
 
         if (user == null || r == null || !canSeeAllReports(user)) {
-            return "redirect:/report-attack";
+            log.warn("AI trigger denied for {}", auth.getName());
+            return "redirect:/access-denied";
         }
 
         try {
@@ -234,7 +240,7 @@ public class ReportAttackController {
                     + "Status: " + r.getStatus() + "\n\n"
                     + "Jibu kwa Kiswahili kwa user, kwa mtindo huu:\n"
                     + "1. Tambua tatizo\n"
-                    + "2. Hatua 3-4 za haraka\n"
+                    + "2. Hatua 3-4 za haraka zenye namba\n"
                     + "3. Namba za msaada (Polisi 112/999)\n"
                     + "Kuwa wa kitaalamu, mfupi (sentensi 5-7), tumia emoji na namba.";
 
