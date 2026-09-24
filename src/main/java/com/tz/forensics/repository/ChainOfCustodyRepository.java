@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ChainOfCustodyRepository extends JpaRepository<ChainOfCustody, Long> {
     List<ChainOfCustody> findByEvidenceIdOrderByTimestampDesc(Long evidenceId);
+    List<ChainOfCustody> findByReportAttackIdOrderByTimestampDesc(Long reportAttackId);
+    List<ChainOfCustody> findAllByOrderByTimestampDesc();
 }

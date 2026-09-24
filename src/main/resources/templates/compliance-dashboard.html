@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliance Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .generate-card { background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 30px; border-radius: 12px; text-align: center; }
+        .generate-card h3 { color: white; margin-top: 0; }
+        .generate-form { display: flex; gap: 10px; margin-top: 20px; }
+        .generate-form select { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 14px; }
+        .generate-form button { padding: 12px 25px; background: #c9a227; color: #0f2557; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .report-row { background: white; border: 1px solid rgba(15,37,87,0.15); border-radius: 10px; padding: 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .report-row:hover { border-color: #0f2557; box-shadow: 0 4px 15px rgba(15,37,87,0.1); }
+        .score-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .generate-form { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🛡️ Cyber Forensics System</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/report-attack}">Report</a>
+        <a th:href="@{/compliance}">📋 Compliance</a>
+        <a th:href="@{/report-attack/admin}">👑 Admin</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; text-align: center; padding: 30px;">
+        <h1 style="color: white; margin: 0;">📋 Compliance & Audit Reports</h1>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">TCRA, ISO 27001, Data Protection Act — Tanzania</p>
+    </div>
+
+    <div class="card" th:if="${success}" style="background: rgba(27,122,74,0.1); border-left: 4px solid #1b7a4a;">
+        <p style="color: #1b7a4a; margin: 0;" th:text="${success}"></p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-value" th:text="${stats.overallScore} + '%'">0</div>
+            <div class="stat-label">Overall Compliance</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${stats.totalIncidents}">0</div>
+            <div class="stat-label">Total Incidents</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${stats.resolvedIncidents}">0</div>
+            <div class="stat-label">Resolved</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" th:text="${stats.totalEvidence}">0</div>
+            <div class="stat-label">Evidence Files</div>
+        </div>
+    </div>
+
+    <!-- GENERATE NEW REPORT -->
+    <div class="generate-card">
+        <h3>🔍 Generate New Compliance Report</h3>
+        <p style="color: rgba(255,255,255,0.8); font-size: 14px;">Chagua aina ya ripoti</p>
+        <form class="generate-form" th:action="@{/compliance/generate}" method="post">
+            <select name="type" required>
+                <option value="TCRA">🇹🇿 TCRA Compliance Report</option>
+                <option value="ISO27001">📊 ISO 27001 Information Security</option>
+                <option value="DATA_PROTECTION">🔒 Data Protection Act (Tanzania 2022)</option>
+                <option value="ANNUAL">📅 Annual Report</option>
+            </select>
+            <button type="submit">🚀 Generate Report</button>
+        </form>
+    </div>
+
+    <!-- EXISTING REPORTS -->
+    <div class="card">
+        <h2>📄 Existing Reports</h2>
+
+        <div th:if="${reports.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
+            Hakuna reports bado. Unda ripoti mpya juu.
+        </div>
+
+        <div th:each="r : ${reports}" class="report-row">
+            <div>
+                <h3 style="color: #0f2557; margin: 0 0 5px 0;" th:text="${r.title}"></h3>
+                <p style="font-size: 13px; color: #666; margin: 0;">
+                    ID: <span th:text="${r.reportId}"></span> |
+                    Type: <span th:text="${r.reportTypeLabel}"></span> |
+                    Date: <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                </p>
+                <p style="font-size: 12px; color: #999; margin: 5px 0 0 0;">
+                    Status: <strong th:text="${r.status}"></strong> |
+                    By: <span th:text="${r.generatedByName}"></span>
+                </p>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div class="score-circle" th:style="'background: ' + (${r.complianceScore} >= 80 ? '#1b7a4a' : (${r.complianceScore} >= 60 ? '#d97706' : '#8b1a1a')) + '; color: white;'"
+                     th:text="${r.complianceScore} + '%'"></div>
+                <a th:href="@{'/compliance/view/' + ${r.id}}" class="btn btn-primary">👁️ View</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

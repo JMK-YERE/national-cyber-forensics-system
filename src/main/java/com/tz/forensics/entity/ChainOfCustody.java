@@ -14,18 +14,24 @@ public class ChainOfCustody {
     @Column(name = "evidence_id", nullable = false)
     private Long evidenceId;
 
+    @Column(name = "report_attack_id")
+    private Long reportAttackId;
+
     @Column(nullable = false, length = 50)
     private String action;
 
     @Column(name = "performed_by")
     private Long performedBy;
 
-    @Column(name = "performed_by_name")
+    @Column(name = "performed_by_name", length = 100)
     private String performedByName;
+
+    @Column(name = "performed_by_role", length = 50)
+    private String performedByRole;
 
     private LocalDateTime timestamp = LocalDateTime.now();
 
-    @Column(name = "ip_address")
+    @Column(name = "ip_address", length = 45)
     private String ipAddress;
 
     @Column(columnDefinition = "TEXT")
@@ -33,6 +39,12 @@ public class ChainOfCustody {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @Column(name = "hash_at_action", length = 64)
+    private String hashAtAction;
+
+    @Column(name = "digital_signature", length = 512)
+    private String digitalSignature;
 
     public ChainOfCustody() {}
 
@@ -50,12 +62,16 @@ public class ChainOfCustody {
     public void setId(Long id) { this.id = id; }
     public Long getEvidenceId() { return evidenceId; }
     public void setEvidenceId(Long evidenceId) { this.evidenceId = evidenceId; }
+    public Long getReportAttackId() { return reportAttackId; }
+    public void setReportAttackId(Long reportAttackId) { this.reportAttackId = reportAttackId; }
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }
     public Long getPerformedBy() { return performedBy; }
     public void setPerformedBy(Long performedBy) { this.performedBy = performedBy; }
     public String getPerformedByName() { return performedByName; }
     public void setPerformedByName(String performedByName) { this.performedByName = performedByName; }
+    public String getPerformedByRole() { return performedByRole; }
+    public void setPerformedByRole(String performedByRole) { this.performedByRole = performedByRole; }
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
     public String getIpAddress() { return ipAddress; }
@@ -64,4 +80,8 @@ public class ChainOfCustody {
     public void setPurpose(String purpose) { this.purpose = purpose; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+    public String getHashAtAction() { return hashAtAction; }
+    public void setHashAtAction(String hashAtAction) { this.hashAtAction = hashAtAction; }
+    public String getDigitalSignature() { return digitalSignature; }
+    public void setDigitalSignature(String digitalSignature) { this.digitalSignature = digitalSignature; }
 }

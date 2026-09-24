@@ -69,6 +69,7 @@ public class SecurityConfig {
                 .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
                 .requestMatchers("/incidents/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
                 .requestMatchers("/threat-map").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
+                .requestMatchers("/compliance/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
                 .requestMatchers("/report-attack/admin/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
                 .requestMatchers("/whistleblower/admin/**").hasAnyRole("ADMIN", "CYBER_PRO")
 

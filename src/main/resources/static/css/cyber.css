@@ -718,3 +718,86 @@ hr {
     color: var(--dark-blue) !important;
     font-weight: bold;
 }
+
+/* ========================================= */
+/* RESPONSIVE DESIGN — KILA DEVICE */
+/* ========================================= */
+
+/* Tablet — 768px hadi 1024px */
+@media (max-width: 1024px) {
+    .container { max-width: 95%; padding: 0 15px; }
+    h1 { font-size: 24px; }
+    .stats-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+}
+
+/* Mobile Kubwa — 481px hadi 767px */
+@media (max-width: 767px) {
+    body { margin: 0; padding: 0; font-size: 14px; }
+    .container { max-width: 100%; padding: 0 12px; margin: 10px auto; }
+
+    .navbar { padding: 12px 15px; flex-direction: column; align-items: stretch; }
+    .logo { font-size: 16px; text-align: center; margin-bottom: 10px; }
+    .nav-links { flex-direction: column; width: 100%; gap: 8px; }
+    .nav-links a { width: 100%; text-align: center; padding: 10px; font-size: 13px; }
+
+    h1 { font-size: 20px; padding-bottom: 10px; }
+    h2 { font-size: 17px; }
+    h3 { font-size: 15px; }
+
+    .card { padding: 18px; border-radius: 6px; margin-bottom: 12px; }
+
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-box { padding: 15px; }
+    .stat-value { font-size: 24px; }
+    .stat-label { font-size: 10px; }
+
+    .btn { width: 100%; padding: 12px; margin: 5px 0; text-align: center; font-size: 13px; }
+
+    input, textarea, select { padding: 12px; font-size: 14px; }
+
+    table { display: block; overflow-x: auto; white-space: nowrap; font-size: 12px; }
+    th, td { padding: 8px 10px; }
+
+    .grid-2 { grid-template-columns: 1fr; }
+    .auth-container { margin: 20px 12px; padding: 20px; }
+    .report-row { flex-direction: column; align-items: flex-start; }
+    .generate-form { flex-direction: column; }
+
+    .hero h1 { font-size: 22px; }
+    .hero { padding: 30px 15px; }
+}
+
+/* Mobile Ndogo — chini ya 480px */
+@media (max-width: 480px) {
+    body { font-size: 13px; }
+    .container { padding: 0 8px; }
+    h1 { font-size: 18px; }
+    h2 { font-size: 15px; }
+
+    .stats-grid { grid-template-columns: 1fr; gap: 8px; }
+    .stat-value { font-size: 20px; }
+
+    .navbar { padding: 10px; }
+    .logo { font-size: 14px; letter-spacing: 1px; }
+
+    .card { padding: 15px; }
+    .btn { padding: 10px; font-size: 12px; }
+    input, textarea, select { padding: 10px; font-size: 13px; }
+
+    .auth-container { padding: 15px; margin: 15px 8px; }
+}
+
+/* Desktop Kubwa — 1400px+ */
+@media (min-width: 1400px) {
+    .container { max-width: 1320px; }
+    body { font-size: 15px; }
+}
+
+/* Print styles kwa PDF */
+@media print {
+    .navbar, .btn, .logout-btn, .lang-bar { display: none !important; }
+    body { background: white; color: black; }
+    .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    .stat-value { color: #0f2557 !important; }
+}
