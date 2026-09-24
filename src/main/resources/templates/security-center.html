@@ -46,6 +46,90 @@
     </div>
 
     <div class="grid-2">
+        <!-- VIRUSTOTAL SECTION -->
+        <div class="tool-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, #0f2557 0%, #1a3a70 100%); color: white;">
+            <h3 style="color: white;"><span class="tool-icon">🔬</span>VirusTotal Deep Analysis (70+ Antivirus Engines)</h3>
+            <p style="color: rgba(255,255,255,0.9);">Angalia URL, File Hash, IP, au Domain kwa 70+ antivirus engines. BURE kabisa.</p>
+        </div>
+
+        <!-- VT URL -->
+        <div class="tool-card">
+            <h3><span class="tool-icon">🌐</span>VirusTotal — URL Scan</h3>
+            <p>Angalia URL kwa antivirus engines 70+.</p>
+            <form class="tool-form" th:action="@{/tools/vt-url}" method="post">
+                <input type="text" name="url" placeholder="https://example.com" required>
+                <button type="submit">🔍 Scan URL</button>
+            </form>
+            <div th:if="${vtUrlResult != null}" class="result-box"
+                 th:classappend="${vtUrlResult.malicious > 0} ? 'result-danger' : (${vtUrlResult.success} ? 'result-success' : 'result-warning')">
+                <p th:if="${vtUrlResult.success}">
+                    <strong th:text="${vtUrlResult.emoji} + ' ' + ${vtUrlResult.verdict}"></strong>
+                    <span th:if="${vtUrlResult.totalEngines > 0}">
+                        (Malicious: <span th:text="${vtUrlResult.malicious}"></span>
+                        / Total: <span th:text="${vtUrlResult.totalEngines}"></span>)
+                    </span>
+                </p>
+                <p th:if="${!vtUrlResult.success}" th:text="${vtUrlResult.error}"></p>
+            </div>
+        </div>
+
+        <!-- VT FILE HASH -->
+        <div class="tool-card">
+            <h3><span class="tool-icon">#️⃣</span>VirusTotal — File Hash</h3>
+            <p>Angalia file hash (MD5, SHA-1, SHA-256).</p>
+            <form class="tool-form" th:action="@{/tools/vt-hash}" method="post">
+                <input type="text" name="hash" placeholder="Weka hash" required>
+                <button type="submit">🔍 Check Hash</button>
+            </form>
+            <div th:if="${vtHashResult != null}" class="result-box"
+                 th:classappend="${vtHashResult.malicious > 0} ? 'result-danger' : (${vtHashResult.success} ? 'result-success' : 'result-warning')">
+                <p th:if="${vtHashResult.success}">
+                    <strong th:text="${vtHashResult.emoji} + ' ' + ${vtHashResult.verdict}"></strong>
+                    <span th:if="${vtHashResult.totalEngines > 0}">
+                        (<span th:text="${vtHashResult.malicious}"></span>
+                        / <span th:text="${vtHashResult.totalEngines}"></span>)
+                    </span>
+                </p>
+                <p th:if="${!vtHashResult.success}" th:text="${vtHashResult.error}"></p>
+            </div>
+        </div>
+
+        <!-- VT IP -->
+        <div class="tool-card">
+            <h3><span class="tool-icon">📡</span>VirusTotal — IP Scan</h3>
+            <p>Angalia IP kwa antivirus engines.</p>
+            <form class="tool-form" th:action="@{/tools/vt-ip}" method="post">
+                <input type="text" name="ip" placeholder="8.8.8.8" required>
+                <button type="submit">🔍 Check IP</button>
+            </form>
+            <div th:if="${vtIpResult != null}" class="result-box"
+                 th:classappend="${vtIpResult.malicious > 0} ? 'result-danger' : (${vtIpResult.success} ? 'result-success' : 'result-warning')">
+                <p th:if="${vtIpResult.success}">
+                    <strong th:text="${vtIpResult.emoji} + ' ' + ${vtIpResult.verdict}"></strong>
+                    <span th:if="${vtIpResult.country != null}"> | Country: <span th:text="${vtIpResult.country}"></span></span>
+                </p>
+                <p th:if="${!vtIpResult.success}" th:text="${vtIpResult.error}"></p>
+            </div>
+        </div>
+
+        <!-- VT DOMAIN -->
+        <div class="tool-card">
+            <h3><span class="tool-icon">🌍</span>VirusTotal — Domain Scan</h3>
+            <p>Angalia domain kwa antivirus engines.</p>
+            <form class="tool-form" th:action="@{/tools/vt-domain}" method="post">
+                <input type="text" name="domain" placeholder="example.com" required>
+                <button type="submit">🔍 Check Domain</button>
+            </form>
+            <div th:if="${vtDomainResult != null}" class="result-box"
+                 th:classappend="${vtDomainResult.malicious > 0} ? 'result-danger' : (${vtDomainResult.success} ? 'result-success' : 'result-warning')">
+                <p th:if="${vtDomainResult.success}">
+                    <strong th:text="${vtDomainResult.emoji} + ' ' + ${vtDomainResult.verdict}"></strong>
+                    <span th:if="${vtDomainResult.registrar != null}"> | Registrar: <span th:text="${vtDomainResult.registrar}"></span></span>
+                </p>
+                <p th:if="${!vtDomainResult.success}" th:text="${vtDomainResult.error}"></p>
+            </div>
+        </div>
+
 
         <!-- 1. SSL CERTIFICATE -->
         <div class="tool-card">

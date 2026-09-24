@@ -1,7 +1,7 @@
 package com.tz.forensics.controller;
 
 import com.tz.forensics.service.AdvancedSecurityService;
-import com.tz.forensics.service.URLScanService;
+import com.tz.forensics.service.VirusTotalService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,17 +12,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class SecurityToolsController {
 
     private final AdvancedSecurityService service;
-    private final URLScanService urlScanService;
+    private final VirusTotalService virusTotalService;
 
     public SecurityToolsController(AdvancedSecurityService service,
-                                    URLScanService urlScanService) {
+                                    VirusTotalService virusTotalService) {
         this.service = service;
-        this.urlScanService = urlScanService;
+        this.virusTotalService = virusTotalService;
     }
 
     @GetMapping("/security-center")
     public String securityCenter(Model model) {
-        model.addAttribute("urlscanConfigured", urlScanService.isConfigured());
+        model.addAttribute("vtConfigured", virusTotalService.isConfigured());
         return "security-center";
     }
 
@@ -80,22 +80,28 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
-    // ===== URLSCAN =====
-    @PostMapping("/urlscan-scan")
-    public String urlscanScan(@RequestParam String url, RedirectAttributes ra) {
-        ra.addFlashAttribute("urlscanResult", urlScanService.scanUrl(url));
+    // ===== VIRUSTOTAL ENDPOINTS =====
+    @PostMapping("/vt-url")
+    public String vtUrl(@RequestParam String url, RedirectAttributes ra) {
+        ra.addFlashAttribute("vtUrlResult", virusTotalService.checkUrl(url));
         return "redirect:/tools/security-center";
     }
 
-    @PostMapping("/urlscan-result")
-    public String urlscanResult(@RequestParam String uuid, RedirectAttributes ra) {
-        ra.addFlashAttribute("urlscanDetail", urlScanService.getResult(uuid));
+    @PostMapping("/vt-hash")
+    public String vtHash(@RequestParam String hash, RedirectAttributes ra) {
+        ra.addFlashAttribute("vtHashResult", virusTotalService.checkFileHash(hash));
         return "redirect:/tools/security-center";
     }
 
-    @PostMapping("/urlscan-search")
-    public String urlscanSearch(@RequestParam String domain, RedirectAttributes ra) {
-        ra.addFlashAttribute("urlscanSearch", urlScanService.searchDomain(domain));
+    @PostMapping("/vt-ip")
+    public String vtIp(@RequestParam String ip, RedirectAttributes ra) {
+        ra.addFlashAttribute("vtIpResult", virusTotalService.checkIP(ip));
+        return "redirect:/tools/security-center";
+    }
+
+    @PostMapping("/vt-domain")
+    public String vtDomain(@RequestParam String domain, RedirectAttributes ra) {
+        ra.addFlashAttribute("vtDomainResult", virusTotalService.checkDomain(domain));
         return "redirect:/tools/security-center";
     }
 }
