@@ -206,7 +206,50 @@
                 <p th:if="${domainResult.ip}"><strong>IP:</strong> <span th:text="${domainResult.ip}"></span></p>
                 <p th:text="${domainResult.message}"></p>
             </div>
+                <!-- 10. URLSCAN.IO -->
+        <div class="tool-card">
+            <h3><span class="tool-icon">🔬</span>URLScan.io Deep Scan</h3>
+            <p>Deep scan ya URL — screenshot, DNS, IP, headers, n.k. (BURE)</p>
+
+            <div th:if="${urlscanConfigured}">
+                <form class="tool-form" th:action="@{/tools/urlscan-scan}" method="post">
+                    <input type="text" name="url" placeholder="https://example.com" required>
+                    <button type="submit">🔬 Deep Scan</button>
+                </form>
+            </div>
+            <div th:if="${!urlscanConfigured}" class="result-box result-warning">
+                <p>⚠️ URLScan API haijawekwa. Weka <code>URLSCAN_API_KEY</code> kwenye Render.</p>
+            </div>
+
+            <div th:if="${urlscanResult != null}" class="result-box"
+                 th:classappend="${urlscanResult.success} ? 'result-success' : 'result-danger'">
+                <p th:text="${urlscanResult.message}"></p>
+                <p th:if="${urlscanResult.error}" th:text="${urlscanResult.error}"></p>
+                <p th:if="${urlscanResult.resultUrl}">
+                    <a th:href="${urlscanResult.resultUrl}" target="_blank" class="btn" style="margin-top:10px; display:inline-block;">
+                        👁️ View Full Scan Result
+                    </a>
+                </p>
+            </div>
+
+            <hr style="margin: 15px 0;">
+            <p style="font-size:12px; color:#666;">Au search kwa domain:</p>
+            <form class="tool-form" th:action="@{/tools/urlscan-search}" method="post">
+                <input type="text" name="domain" placeholder="example.com" required>
+                <button type="submit">🔍 Search</button>
+            </form>
+
+            <div th:if="${urlscanSearch != null}" class="result-box"
+                 th:classappend="${urlscanSearch.success} ? 'result-info' : 'result-danger'">
+                <p th:if="${urlscanSearch.success}">
+                    <strong>Domain:</strong> <span th:text="${urlscanSearch.domain}"></span><br>
+                    <strong>Results:</strong> <span th:text="${urlscanSearch.count}"></span>
+                </p>
+                <p th:if="${urlscanSearch.error}" th:text="${urlscanSearch.error}"></p>
+            </div>
         </div>
+
+</div>
 
     </div>
 </div>
