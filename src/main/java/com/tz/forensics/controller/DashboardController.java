@@ -1,30 +1,23 @@
 package com.tz.forensics.controller;
 
-import com.tz.forensics.entity.Incident;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
-import com.tz.forensics.service.CaseFileService;
-import com.tz.forensics.service.IncidentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.List;
-
 @Controller
 public class DashboardController {
 
-    private final IncidentService incidentService;
-    private final UserRepository userRepository;
-    private final CaseFileService caseFileService;
+    private static final Logger log = LoggerFactory.getLogger(DashboardController.class);
 
-    public DashboardController(IncidentService incidentService,
-                                UserRepository userRepository,
-                                CaseFileService caseFileService) {
-        this.incidentService = incidentService;
+    private final UserRepository userRepository;
+
+    public DashboardController(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.caseFileService = caseFileService;
     }
 
     @GetMapping("/")
@@ -34,6 +27,10 @@ public class DashboardController {
 
     @GetMapping("/dashboard")
     public String dashboard(Authentication auth, Model model) {
+        if (auth == null || auth.getName() == null) {
+            return "redirect:/login";
+        }
+
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
 
@@ -41,31 +38,11 @@ public class DashboardController {
         model.addAttribute("username", user.getUsername());
         model.addAttribute("role", user.getRole());
 
-        // ===== DIFFERENT DATA KWA KILA ROLE =====
-        if (user.isIndividual()) {
-            // Individual: Only their own social media stats
-            model.addAttribute("totalIncidents", 0);
-        } else {
-            // Professionals: All incidents
-            List<Incident> allIncidents = incidentService.getAllIncidents();
-            model.addAttribute("totalIncidents", allIncidents.size());
+        String role = user.getRole() != null ? user.getRole() : "INDIVIDUAL";
+        log.info("Dashboard access: user={}, role={}", user.getUsername(), role);
 
-            long openCases = caseFileService.countOpen();
-            long investigatingCases = caseFileService.countInvestigating();
-            long closedCases = caseFileService.countClosed();
-
-            model.addAttribute("openCases", openCases);
-            model.addAttribute("investigatingCases", investigatingCases);
-            model.addAttribute("closedCases", closedCases);
-
-            // Kwa Cyber Pro / Forensics — my tasks
-            if (user.isProfessional() || user.isForensics()) {
-                model.addAttribute("myTasks", incidentService.getMyActiveIncidents(user.getId()));
-            }
-        }
-
-        // ===== ROUTE KWA ROLE =====
-        return switch (user.getRole() != null ? user.getRole() : "INDIVIDUAL") {
+        // Route kwa role
+        return switch (role) {
             case "ADMIN" -> "dashboard-admin";
             case "CYBER_PRO" -> "dashboard-professional";
             case "FORENSICS" -> "dashboard-forensics";
