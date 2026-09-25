@@ -3,92 +3,102 @@ package com.tz.forensics.service;
 import com.tz.forensics.entity.WhistleblowerMessage;
 import com.tz.forensics.entity.WhistleblowerReport;
 import com.tz.forensics.repository.WhistleblowerMessageRepository;
-import com.tz.forensics.repository.WhistleblowerRepository;
+import com.tz.forensics.repository.WhistleblowerReportRepository;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 
 @Service
 public class WhistleblowerService {
 
-    private final WhistleblowerRepository reportRepo;
+    private final WhistleblowerReportRepository reportRepo;
     private final WhistleblowerMessageRepository messageRepo;
 
-    private static final String CHARACTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    private static final SecureRandom random = new SecureRandom();
-
-    public WhistleblowerService(WhistleblowerRepository reportRepo,
+    public WhistleblowerService(WhistleblowerReportRepository reportRepo,
                                  WhistleblowerMessageRepository messageRepo) {
         this.reportRepo = reportRepo;
         this.messageRepo = messageRepo;
     }
 
     public WhistleblowerReport createReport(WhistleblowerReport report) {
-        String code = generateTrackingCode();
-        report.setTrackingCode(code);
+        report.setTrackingCode(generateTrackingCode());
+        report.setCreatedAt(LocalDateTime.now());
         report.setStatus("NEW");
-        report.setPriority(determinePriority(report.getCategory(), report.getUrgency()));
-        return reportRepo.save(report);
-    }
+        report.setPriority(mapUrgencyToPriority(report.getUrgency()));
+        WhistleblowerReport saved = reportRepo.save(report);
 
-    public WhistleblowerReport findByTrackingCode(String code) {
-        return reportRepo.findByTrackingCode(code.toUpperCase()).orElse(null);
-    }
-
-    public List<WhistleblowerReport> getAll() {
-        return reportRepo.findAllByOrderByCreatedAtDesc();
+        // Add welcome message from system
+        messageRepo.save(new WhistleblowerMessage(
+            saved.getId(), "SYSTEM",
+            "✅ Taarifa yako imepokelewa kwa usalama. Tumia code hii kufuatilia: " + saved.getTrackingCode()
+        ));
+        return saved;
     }
 
     public WhistleblowerReport getById(Long id) {
         return reportRepo.findById(id).orElse(null);
     }
 
-    public void updateStatus(Long id, String status, String response, String internalNotes) {
-        WhistleblowerReport r = reportRepo.findById(id).orElse(null);
-        if (r != null) {
-            r.setStatus(status);
-            if (response != null && !response.isEmpty()) r.setAdminResponse(response);
-            if (internalNotes != null && !internalNotes.isEmpty()) r.setInternalNotes(internalNotes);
-            r.setUpdatedAt(LocalDateTime.now());
-            reportRepo.save(r);
-        }
+    public WhistleblowerReport findByTrackingCode(String code) {
+        return reportRepo.findByTrackingCode(code.toUpperCase().trim()).orElse(null);
     }
 
-    public void addMessage(Long reportId, String senderType, String message) {
-        messageRepo.save(new WhistleblowerMessage(reportId, senderType, message));
+    public List<WhistleblowerReport> getAll() {
+        return reportRepo.findAllByOrderByCreatedAtDesc();
     }
 
     public List<WhistleblowerMessage> getMessages(Long reportId) {
         return messageRepo.findByReportIdOrderByCreatedAtAsc(reportId);
     }
 
-    public long countNew() { return reportRepo.countByStatus("NEW"); }
+    public void addMessage(Long reportId, String senderType, String message) {
+        messageRepo.save(new WhistleblowerMessage(reportId, senderType, message));
+    }
+
+    public void updateStatus(Long id, String status, String adminResponse, String internalNotes) {
+        WhistleblowerReport r = reportRepo.findById(id).orElse(null);
+        if (r != null) {
+            r.setStatus(status);
+            if (adminResponse != null && !adminResponse.isEmpty()) {
+                r.setAdminResponse(adminResponse);
+                // Also add as message
+                messageRepo.save(new WhistleblowerMessage(id, "ADMIN", adminResponse));
+            }
+            if (internalNotes != null) {
+                r.setInternalNotes(internalNotes);
+            }
+            r.setUpdatedAt(LocalDateTime.now());
+            reportRepo.save(r);
+        }
+    }
+
+    public long countNew() {
+        return reportRepo.countByStatus("NEW");
+    }
+
+    public long countToday() {
+        return reportRepo.countByCreatedAtAfter(LocalDateTime.now().withHour(0).withMinute(0));
+    }
 
     private String generateTrackingCode() {
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        SecureRandom random = new SecureRandom();
         StringBuilder sb = new StringBuilder("WB-");
         for (int i = 0; i < 8; i++) {
-            sb.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
-        }
-        // Ensure uniqueness
-        if (reportRepo.findByTrackingCode(sb.toString()).isPresent()) {
-            return generateTrackingCode();
+            sb.append(chars.charAt(random.nextInt(chars.length())));
         }
         return sb.toString();
     }
 
-    private String determinePriority(String category, String urgency) {
-        if ("CRITICAL".equals(urgency)) return "CRITICAL";
-        if ("URGENT".equals(urgency)) return "HIGH";
-        if (category != null) {
-            return switch (category) {
-                case "HUMAN_TRAFFICKING", "TERRORISM", "DRUGS" -> "CRITICAL";
-                case "CORRUPTION", "MONEY_LAUNDERING", "CYBER_ATTACK" -> "HIGH";
-                default -> "MEDIUM";
-            };
-        }
-        return "MEDIUM";
+    private String mapUrgencyToPriority(String urgency) {
+        if (urgency == null) return "MEDIUM";
+        return switch (urgency.toUpperCase()) {
+            case "CRITICAL" -> "CRITICAL";
+            case "HIGH" -> "HIGH";
+            case "LOW" -> "LOW";
+            default -> "MEDIUM";
+        };
     }
 }

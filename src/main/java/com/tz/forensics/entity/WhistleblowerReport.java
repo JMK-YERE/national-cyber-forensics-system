@@ -11,23 +11,14 @@ public class WhistleblowerReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tracking_code", unique = true, nullable = false, length = 20)
+    @Column(name = "tracking_code", unique = true, length = 20)
     private String trackingCode;
 
-    // ===== NEW FIELDS =====
-    @Column(length = 10)
-    private String country = "TZ";
-
-    @Column(name = "country_name", length = 100)
-    private String countryName;
-
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String category;
-    // CORRUPTION, FRAUD, CYBER_ATTACK, HARASSMENT, DRUGS,
-    // HUMAN_TRAFFICKING, TAX_EVASION, MONEY_LAUNDERING, TERRORISM, OTHER
 
     @Column(length = 50)
-    private String urgency = "NORMAL"; // NORMAL, URGENT, CRITICAL
+    private String urgency = "NORMAL";
 
     @Column(nullable = false, length = 200)
     private String title;
@@ -35,7 +26,7 @@ public class WhistleblowerReport {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(name = "involved_parties", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String involvedParties;
 
     @Column(length = 100)
@@ -50,7 +41,6 @@ public class WhistleblowerReport {
     @Column(columnDefinition = "TEXT")
     private String evidence;
 
-    // ===== EVIDENCE UPLOAD =====
     @Column(name = "evidence_file_path", length = 500)
     private String evidenceFilePath;
 
@@ -60,14 +50,18 @@ public class WhistleblowerReport {
     @Column(name = "evidence_file_size")
     private Long evidenceFileSize;
 
-    // ===== CONTACT (optional) =====
     @Column(name = "contact_encrypted", columnDefinition = "TEXT")
     private String contactEncrypted;
 
     @Column(name = "wants_updates")
     private Boolean wantsUpdates = false;
 
-    // ===== STATUS =====
+    @Column(length = 10)
+    private String country = "TZ";
+
+    @Column(name = "country_name", length = 100)
+    private String countryName;
+
     @Column(length = 30)
     private String status = "NEW";
 
@@ -91,39 +85,41 @@ public class WhistleblowerReport {
 
     public WhistleblowerReport() {}
 
-    public String getStatusClass() {
-        return switch (status) {
-            case "NEW" -> "status-critical";
-            case "REVIEWING", "INVESTIGATING" -> "status-investigation";
-            case "ACTION_TAKEN", "CLOSED" -> "status-resolved";
-            default -> "";
-        };
-    }
-
     public String getCategoryLabel() {
-        return switch (category != null ? category : "OTHER") {
+        if (category == null) return "❓ Other";
+        return switch (category) {
             case "CORRUPTION" -> "💰 Corruption / Bribery";
             case "FRAUD" -> "🎭 Fraud";
             case "CYBER_ATTACK" -> "💻 Cyber Attack";
             case "HARASSMENT" -> "😢 Harassment";
-            case "DRUGS" -> "💊 Drug Trafficking";
-            case "HUMAN_TRAFFICKING" -> "🚨 Human Trafficking";
+            case "DRUG_TRAFFICKING" -> "💊 Drug Trafficking";
+            case "HUMAN_TRAFFICKING" -> "🚫 Human Trafficking";
             case "TAX_EVASION" -> "📊 Tax Evasion";
-            case "MONEY_LAUNDERING" -> "💵 Money Laundering";
-            case "TERRORISM" -> "💥 Terrorism";
-            default -> "⚠️ Other";
+            case "ENVIRONMENTAL" -> "🌍 Environmental Crime";
+            case "OTHER" -> "❓ Other";
+            default -> "❓ " + category;
         };
     }
+
+    public String getPriorityLabel() {
+        if (priority == null) return "MEDIUM";
+        return switch (priority) {
+            case "CRITICAL" -> "🔴 CRITICAL";
+            case "HIGH" -> "🟠 HIGH";
+            case "MEDIUM" -> "🟡 MEDIUM";
+            case "LOW" -> "🟢 LOW";
+            default -> "🟡 MEDIUM";
+        };
+    }
+
+    @PreUpdate
+    public void preUpdate() { this.updatedAt = LocalDateTime.now(); }
 
     // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getTrackingCode() { return trackingCode; }
     public void setTrackingCode(String trackingCode) { this.trackingCode = trackingCode; }
-    public String getCountry() { return country; }
-    public void setCountry(String country) { this.country = country; }
-    public String getCountryName() { return countryName; }
-    public void setCountryName(String countryName) { this.countryName = countryName; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
     public String getUrgency() { return urgency; }
@@ -152,6 +148,10 @@ public class WhistleblowerReport {
     public void setContactEncrypted(String contactEncrypted) { this.contactEncrypted = contactEncrypted; }
     public Boolean getWantsUpdates() { return wantsUpdates; }
     public void setWantsUpdates(Boolean wantsUpdates) { this.wantsUpdates = wantsUpdates; }
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
+    public String getCountryName() { return countryName; }
+    public void setCountryName(String countryName) { this.countryName = countryName; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public String getPriority() { return priority; }

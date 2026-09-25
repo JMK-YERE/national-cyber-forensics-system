@@ -14,10 +14,10 @@ public class WhistleblowerMessage {
     @Column(name = "report_id", nullable = false)
     private Long reportId;
 
-    @Column(name = "sender_type", nullable = false, length = 20)
-    private String senderType; // REPORTER, ADMIN
+    @Column(name = "sender_type", length = 20, nullable = false)
+    private String senderType;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String message;
 
     @Column(name = "created_at")
