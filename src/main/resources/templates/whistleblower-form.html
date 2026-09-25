@@ -3,134 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="#{whistleblower.submitReport} + ' - ' + #{app.title}">Submit Confidential Report</title>
+    <title>Report Anonymously</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
-    <style>
-        .alert-banner { background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-        .alert-banner h2 { color: white; margin: 0; font-size: 24px; }
-        .alert-banner p { color: rgba(255,255,255,0.9); margin: 10px 0 0 0; }
-        .privacy-box { background: rgba(201, 162, 39, 0.1); border-left: 4px solid #c9a227; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .privacy-box ul { padding-left: 20px; line-height: 1.8; color: #555; }
-        .required-star { color: #8b1a1a; }
-        .lang-switcher { display: flex; gap: 8px; align-items: center; margin-left: 15px; padding-left: 15px; border-left: 1px solid rgba(255,255,255,0.3); }
-        .lang-switcher a { color: white !important; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.1); }
-        .lang-switcher a:hover { background: rgba(255,255,255,0.2); }
-        .lang-switcher a.active-lang { background: #c9a227; color: #0f2557 !important; font-weight: bold; }
-    </style>
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics System</span></div>
+    <div class="logo">🛡️ Whistleblower Portal</div>
     <div class="nav-links">
-        <a th:href="@{/whistleblower}" th:text="#{whistleblower.home}">Home</a>
-        <a th:href="@{/whistleblower/track}" th:text="#{whistleblower.trackReport}">Track Report</a>
-        <a th:href="@{/login}" th:text="#{whistleblower.login}">Login</a>
-
-        <!-- LANGUAGE SWITCHER — Kwa wasioingia -->
-        <div class="lang-switcher">
-            <a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
-            <a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
-            <a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
-            <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
-        </div>
+        <a th:href="@{/whistleblower}">Home</a>
+        <a th:href="@{/whistleblower/track}">Track Report</a>
+        <a th:href="@{/login}">Login</a>
     </div>
 </div>
 
-<div class="container">
-    <div class="alert-banner">
-        <h2>🔒 <span th:text="#{whistleblower.submitReport}">Submit Confidential Report</span></h2>
-        <p th:text="#{whistleblower.anonymous}">Your identity will remain anonymous.</p>
+<div class="container" style="max-width: 800px; margin: 30px auto;">
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 30px;">
+        <h1 style="color: white; margin: 0;">🚨 Report Anonymously</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">
+            🔒 Your identity will remain anonymous. Hakuna jina lako litakaloonekana.
+        </p>
     </div>
 
-    <div class="card">
-        <form th:action="@{/whistleblower/submit}" method="post" enctype="multipart/form-data">
+    <form th:action="@{/whistleblower/submit}" method="post" enctype="multipart/form-data" class="card" style="margin-top: 20px;">
+        <h2>📝 Report Details</h2>
 
-            <label><span th:text="#{report.country}">Country</span> <span class="required-star">*</span></label>
-            <select name="country" required>
-                <option th:each="c : ${countries}" th:value="${c.code}" th:text="${c.name}"></option>
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Aina ya Tukio *</label>
+            <select name="category" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
+                <option value="">-- Chagua Aina --</option>
+                <option th:value="'CORRUPTION'" th:selected="${report.category == 'CORRUPTION'}">💰 Corruption / Bribery</option>
+                <option th:value="'FRAUD'" th:selected="${report.category == 'FRAUD'}">🎭 Fraud</option>
+                <option th:value="'CYBER_ATTACK'" th:selected="${report.category == 'CYBER_ATTACK'}">💻 Cyber Attack</option>
+                <option th:value="'HARASSMENT'" th:selected="${report.category == 'HARASSMENT'}">😢 Harassment</option>
+                <option th:value="'DRUG_TRAFFICKING'">💊 Drug Trafficking</option>
+                <option th:value="'HUMAN_TRAFFICKING'">🚫 Human Trafficking</option>
+                <option th:value="'TAX_EVASION'">📊 Tax Evasion</option>
+                <option th:value="'ENVIRONMENTAL'">🌍 Environmental Crime</option>
+                <option th:value="'OTHER'">❓ Other</option>
             </select>
+        </div>
 
-            <label><span th:text="#{whistleblower.reportType}">Report Type</span> <span class="required-star">*</span></label>
-            <select name="category" required>
-                <option value="" th:text="#{whistleblower.selectType}">Select Report Type</option>
-                <option value="CORRUPTION" th:text="#{category.CORRUPTION}">Corruption / Bribery</option>
-                <option value="FRAUD" th:text="#{category.FRAUD}">Fraud</option>
-                <option value="CYBER_ATTACK" th:text="#{category.CYBER_ATTACK}">Cyber Attack</option>
-                <option value="HARASSMENT" th:text="#{category.HARASSMENT}">Harassment</option>
-                <option value="DRUGS" th:text="#{category.DRUGS}">Drug Trafficking</option>
-                <option value="HUMAN_TRAFFICKING" th:text="#{category.HUMAN_TRAFFICKING}">Human Trafficking</option>
-                <option value="TAX_EVASION" th:text="#{category.TAX_EVASION}">Tax Evasion</option>
-                <option value="MONEY_LAUNDERING" th:text="#{category.MONEY_LAUNDERING}">Money Laundering</option>
-                <option value="TERRORISM" th:text="#{category.TERRORISM}">Terrorism</option>
-                <option value="OTHER" th:text="#{category.OTHER}">Other</option>
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Kiwango cha Dharura *</label>
+            <select name="urgency" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
+                <option value="LOW">🟢 Low - Kawaida</option>
+                <option value="MEDIUM" selected>🟡 Medium - Muhimu</option>
+                <option value="HIGH">🟠 High - Haraka</option>
+                <option value="CRITICAL">🔴 Critical - Hatari sana</option>
             </select>
+        </div>
 
-            <label th:text="#{whistleblower.urgency}">Urgency Level</label>
-            <select name="urgency">
-                <option value="NORMAL" th:text="#{urgency.NORMAL}">Normal</option>
-                <option value="URGENT" th:text="#{urgency.URGENT}">Urgent</option>
-                <option value="CRITICAL" th:text="#{urgency.CRITICAL}">Critical</option>
-            </select>
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Kichwa cha Habari *</label>
+            <input type="text" name="title" required maxlength="200" placeholder="Mfano: Rushwa katika ofisi ya..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
+        </div>
 
-            <label><span th:text="#{report.title2}">Title</span> <span class="required-star">*</span></label>
-            <input type="text" name="title" required th:placeholder="#{whistleblower.titlePlaceholder}">
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Maelezo Kamili *</label>
+            <textarea name="description" rows="6" required placeholder="Eleza kwa undani kile kilichotokea..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);"></textarea>
+        </div>
 
-            <label><span th:text="#{report.description}">Full Description</span> <span class="required-star">*</span></label>
-            <textarea name="description" rows="6" required th:placeholder="#{whistleblower.descPlaceholder}"></textarea>
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Watu/Waathirika Wanaohusika</label>
+            <textarea name="involvedParties" rows="3" placeholder="Majina, vyeo..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);"></textarea>
+        </div>
 
-            <label th:text="#{whistleblower.involvedParties}">Involved Parties (Optional)</label>
-            <textarea name="involvedParties" rows="3" th:placeholder="#{whistleblower.involvedPlaceholder}"></textarea>
-
-            <label th:text="#{whistleblower.location}">Location (Optional)</label>
-            <input type="text" name="location" th:placeholder="#{whistleblower.locationPlaceholder}">
-
-            <label th:text="#{whistleblower.region}">Region (Optional)</label>
-            <input type="text" name="region" th:placeholder="#{whistleblower.regionPlaceholder}">
-
-            <label th:text="#{report.dateOccurred}">Date Occurred (Optional)</label>
-            <input type="datetime-local" name="dateOccurred">
-
-            <label th:text="#{whistleblower.evidenceDesc}">Evidence Description (Optional)</label>
-            <textarea name="evidence" rows="3" th:placeholder="#{whistleblower.evidencePlaceholder}"></textarea>
-
-            <div class="privacy-box">
-                <h4 style="color: #0f2557; margin-bottom: 10px;">📎 <span th:text="#{whistleblower.uploadEvidence}">Upload Evidence (Optional)</span></h4>
-                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
-                    <span th:text="#{whistleblower.uploadHint}">Upload photo, video, audio, or document</span>
-                </p>
-                <input type="file" name="evidenceFile" 
-                       accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="display:block; font-weight: 600; margin-bottom: 5px;">Mahali</label>
+                <input type="text" name="location" placeholder="Mji, eneo" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
             </div>
-
-            <div class="privacy-box">
-                <h4 style="color: #0f2557; margin-bottom: 10px;">📞 <span th:text="#{whistleblower.contactOptional}">Contact Info (Optional)</span></h4>
-                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
-                    <span th:text="#{whistleblower.contactHint}">Provide contact to receive updates. Encrypted.</span>
-                </p>
-                <input type="text" name="contactEncrypted" th:placeholder="#{whistleblower.contactPlaceholder}">
-                <div style="margin-top: 10px;">
-                    <label style="display: inline; text-transform: none;">
-                        <input type="checkbox" name="wantsUpdates" value="true" style="width: auto;">
-                        <span th:text="#{whistleblower.wantUpdates}">I want to receive updates</span>
-                    </label>
-                </div>
+            <div>
+                <label style="display:block; font-weight: 600; margin-bottom: 5px;">Mkoa</label>
+                <input type="text" name="region" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
             </div>
+        </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;">
-                🔒 <span th:text="#{whistleblower.submitBtn}">SUBMIT REPORT ANONYMOUSLY</span>
-            </button>
-        </form>
-    </div>
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Tarehe ya Tukio</label>
+            <input type="datetime-local" name="dateOccurred" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
+        </div>
 
-    <div class="privacy-box">
-        <h3 style="color: #0f2557; margin-bottom: 10px;">⚠️ <span th:text="#{whistleblower.important}">Important</span></h3>
-        <ul>
-            <li th:text="#{whistleblower.privacy1}">Your identity is protected</li>
-            <li th:text="#{whistleblower.privacy2}">No IP tracking</li>
-            <li th:text="#{whistleblower.privacy3}">Encrypted submission</li>
-            <li th:text="#{whistleblower.privacy4}">You will receive a tracking code</li>
-        </ul>
-    </div>
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-weight: 600; margin-bottom: 5px;">📎 Ushahidi (Picha/Video/Document)</label>
+            <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
+        </div>
+
+        <div class="card" style="background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a; margin: 20px 0;">
+            <p style="margin: 0; font-size: 13px; color: #333;">
+                🔒 <strong>100% Anonymous:</strong> Hatuombi jina lako, barua pepe, au namba ya simu. 
+                Utapata <strong>tracking code</strong> baada ya kutuma ili kufuatilia ripoti yako.
+            </p>
+        </div>
+
+        <button type="submit" class="btn btn-danger" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold;">
+            🔒 TUMA RIPOTI KWA SIRI
+        </button>
+    </form>
 </div>
 </body>
 </html>

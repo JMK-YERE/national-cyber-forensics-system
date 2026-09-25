@@ -26,7 +26,7 @@ public class WhistleblowerReport {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "involved_parties", columnDefinition = "TEXT")
     private String involvedParties;
 
     @Column(length = 100)
@@ -101,21 +101,9 @@ public class WhistleblowerReport {
         };
     }
 
-    public String getPriorityLabel() {
-        if (priority == null) return "MEDIUM";
-        return switch (priority) {
-            case "CRITICAL" -> "🔴 CRITICAL";
-            case "HIGH" -> "🟠 HIGH";
-            case "MEDIUM" -> "🟡 MEDIUM";
-            case "LOW" -> "🟢 LOW";
-            default -> "🟡 MEDIUM";
-        };
-    }
-
     @PreUpdate
     public void preUpdate() { this.updatedAt = LocalDateTime.now(); }
 
-    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getTrackingCode() { return trackingCode; }

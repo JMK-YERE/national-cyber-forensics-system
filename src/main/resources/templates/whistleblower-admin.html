@@ -2,56 +2,46 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>🕵️ Whistleblower Reports - Admin</title>
+    <title>Whistleblower Reports — Admin</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ - ADMIN</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/whistleblower/admin}">🕵️ Whistleblower</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <div class="card">
-        <h1>🕵️ Whistleblower Reports</h1>
-        <p>Reports zote za anonymous — hakuna taarifa za waandishi.</p>
-        <div style="margin-top:10px;">
-            <span class="badge badge-critical" th:text="'NEW: ' + ${newCount}"></span>
-        </div>
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px;">
+        <h1 style="color: white; margin: 0;">🕵️ Whistleblower Reports</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">All anonymous reports</p>
     </div>
 
-    <div class="card">
-        <table>
-            <thead>
-            <tr>
-                <th>Code</th>
-                <th>Aina</th>
-                <th>Kichwa</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Tarehe</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:if="${reports.isEmpty()}">
-                <td colspan="7" style="text-align:center;">Hakuna reports bado.</td>
-            </tr>
-            <tr th:each="r : ${reports}" th:class="${r.statusClass}">
-                <td th:text="${r.trackingCode}" style="color:#ffd700;"></td>
-                <td th:text="${r.categoryLabel}"></td>
-                <td th:text="${r.title}"></td>
-                <td th:text="${r.priority}"></td>
-                <td th:text="${r.status}"></td>
-                <td th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd')}"></td>
-                <td><a th:href="@{'/whistleblower/admin/' + ${r.id}}">View</a></td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="stats-grid" style="margin-top: 20px;">
+        <div class="stat-box"><div class="stat-value" th:text="${newCount}">0</div><div class="stat-label">New</div></div>
+        <div class="stat-box"><div class="stat-value" th:text="${todayCount}">0</div><div class="stat-label">Today</div></div>
+        <div class="stat-box"><div class="stat-value" th:text="${#lists.size(reports)}">0</div><div class="stat-label">Total</div></div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h2>📋 All Reports</h2>
+        <div th:if="${reports.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
+            Hakuna reports bado.
+        </div>
+        <div th:each="r : ${reports}" style="padding: 15px; margin: 10px 0; background: rgba(15,37,87,0.03); border-left: 4px solid #0f2557; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <strong style="color: #c9a227; font-family: monospace;" th:text="${r.trackingCode}"></strong>
+                    <span style="margin-left: 10px;" th:text="${r.categoryLabel}"></span>
+                    <br>
+                    <span th:text="${r.title}"></span>
+                    <br>
+                    <small style="color: #888;">
+                        Status: <strong th:text="${r.status}"></strong> |
+                        Priority: <strong th:text="${r.priority}"></strong> |
+                        <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                    </small>
+                </div>
+                <a th:href="@{'/whistleblower/admin/' + ${r.id}}" class="btn btn-primary" style="text-decoration: none;">👁️ View</a>
+            </div>
+        </div>
     </div>
 </div>
 </body>

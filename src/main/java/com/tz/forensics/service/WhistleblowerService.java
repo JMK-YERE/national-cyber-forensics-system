@@ -26,13 +26,12 @@ public class WhistleblowerService {
         report.setTrackingCode(generateTrackingCode());
         report.setCreatedAt(LocalDateTime.now());
         report.setStatus("NEW");
-        report.setPriority(mapUrgencyToPriority(report.getUrgency()));
+        report.setPriority(mapUrgency(report.getUrgency()));
         WhistleblowerReport saved = reportRepo.save(report);
 
-        // Add welcome message from system
         messageRepo.save(new WhistleblowerMessage(
             saved.getId(), "SYSTEM",
-            "✅ Taarifa yako imepokelewa kwa usalama. Tumia code hii kufuatilia: " + saved.getTrackingCode()
+            "✅ Taarifa yako imepokelewa kwa usalama. Tracking code: " + saved.getTrackingCode()
         ));
         return saved;
     }
@@ -63,21 +62,15 @@ public class WhistleblowerService {
             r.setStatus(status);
             if (adminResponse != null && !adminResponse.isEmpty()) {
                 r.setAdminResponse(adminResponse);
-                // Also add as message
                 messageRepo.save(new WhistleblowerMessage(id, "ADMIN", adminResponse));
             }
-            if (internalNotes != null) {
-                r.setInternalNotes(internalNotes);
-            }
+            if (internalNotes != null) r.setInternalNotes(internalNotes);
             r.setUpdatedAt(LocalDateTime.now());
             reportRepo.save(r);
         }
     }
 
-    public long countNew() {
-        return reportRepo.countByStatus("NEW");
-    }
-
+    public long countNew() { return reportRepo.countByStatus("NEW"); }
     public long countToday() {
         return reportRepo.countByCreatedAtAfter(LocalDateTime.now().withHour(0).withMinute(0));
     }
@@ -92,7 +85,7 @@ public class WhistleblowerService {
         return sb.toString();
     }
 
-    private String mapUrgencyToPriority(String urgency) {
+    private String mapUrgency(String urgency) {
         if (urgency == null) return "MEDIUM";
         return switch (urgency.toUpperCase()) {
             case "CRITICAL" -> "CRITICAL";

@@ -2,72 +2,80 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Whistleblower Report - Admin</title>
+    <title>WB Report — Admin</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ - ADMIN</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/whistleblower/admin}">🕵️ Reports</a>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <div class="card">
-        <h1 th:text="'🕵️ ' + ${report.trackingCode}"></h1>
-        <p><strong>Aina:</strong> <span th:text="${report.categoryLabel}"></span></p>
-        <p><strong>Kichwa:</strong> <span th:text="${report.title}"></span></p>
-        <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
+    <div style="margin: 15px 0;">
+        <a th:href="@{/whistleblower/admin}" class="btn" style="text-decoration: none;">← Back to WB Reports</a>
+    </div>
+
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px;">
+        <h1 style="color: white; margin: 0;" th:text="${report.title}"></h1>
+        <p style="color: rgba(255,255,255,0.9);">
+            <span th:text="${report.trackingCode}" style="font-family: monospace; color: #c9a227;"></span> |
+            <span th:text="${report.categoryLabel}"></span>
+        </p>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h2>📋 Report Details</h2>
         <p><strong>Status:</strong> <span th:text="${report.status}"></span></p>
-        <p><strong>Mkoa:</strong> <span th:text="${report.region}"></span></p>
-        <p><strong>Tarehe:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
+        <p><strong>Urgency:</strong> <span th:text="${report.urgency}"></span></p>
+        <p><strong>Region:</strong> <span th:text="${report.region}"></span></p>
+        <p><strong>Location:</strong> <span th:text="${report.location}"></span></p>
+        <p><strong>Date:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
     </div>
 
     <div class="card">
-        <h2>📝 Maelezo</h2>
-        <p th:text="${report.description}" style="white-space:pre-wrap;"></p>
-        <div th:if="${report.involvedParties}" style="margin-top:15px;">
-            <strong>Wanaohusika:</strong>
-            <p th:text="${report.involvedParties}"></p>
+        <h2>📝 Description</h2>
+        <p th:text="${report.description}" style="white-space: pre-wrap;"></p>
+    </div>
+
+    <div class="card" th:if="${report.involvedParties != null}">
+        <h2>👥 Involved Parties</h2>
+        <p th:text="${report.involvedParties}" style="white-space: pre-wrap;"></p>
+    </div>
+
+    <div class="card" th:if="${report.evidenceFilePath != null}">
+        <h2>📎 Evidence</h2>
+        <p><strong>Type:</strong> <span th:text="${report.evidenceFileType}"></span></p>
+        <p><strong>Size:</strong> <span th:text="${report.evidenceFileSize != null ? (report.evidenceFileSize / 1024) + ' KB' : 'N/A'}"></span></p>
+    </div>
+
+    <div class="card">
+        <h2>💬 Messages</h2>
+        <div th:each="m : ${messages}" style="padding: 12px; margin: 8px 0; border-radius: 8px;"
+             th:style="${m.senderType == 'ADMIN'} ? 'background: rgba(201,162,39,0.12); border-left: 4px solid #c9a227;' : (${m.senderType == 'SYSTEM'} ? 'background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a;' : 'background: rgba(15,37,87,0.08); border-left: 4px solid #0f2557;')">
+            <div style="font-size: 12px; font-weight: bold;">
+                <span th:if="${m.senderType == 'ADMIN'}">👤 Admin</span>
+                <span th:if="${m.senderType == 'REPORTER'}">🕵️ Reporter (Anonymous)</span>
+                <span th:if="${m.senderType == 'SYSTEM'}">⚙️ System</span>
+                <span style="float: right; color: #888; font-weight: normal;" th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+            </div>
+            <div th:text="${m.message}" style="margin-top: 8px; white-space: pre-wrap;"></div>
         </div>
     </div>
 
     <div class="card">
-        <h2>🔄 Update Status</h2>
-        <form th:action="@{'/whistleblower/admin/' + ${report.id} + '/update'}" method="post" style="margin-top:15px;">
-            <label>Status</label>
-            <select name="status">
-                <option value="NEW">NEW</option>
-                <option value="REVIEWING">REVIEWING</option>
-                <option value="INVESTIGATING">INVESTIGATING</option>
-                <option value="ACTION_TAKEN">ACTION TAKEN</option>
-                <option value="CLOSED">CLOSED</option>
-                <option value="REJECTED">REJECTED</option>
+        <h2>⚙️ Update Report</h2>
+        <form th:action="@{'/whistleblower/admin/' + ${report.id} + '/update'}" method="post">
+            <label>Status:</label>
+            <select name="status" required style="width:100%; padding:10px; margin:5px 0 15px 0;">
+                <option value="NEW" th:selected="${report.status == 'NEW'}">NEW</option>
+                <option value="INVESTIGATING" th:selected="${report.status == 'INVESTIGATING'}">INVESTIGATING</option>
+                <option value="RESOLVED" th:selected="${report.status == 'RESOLVED'}">RESOLVED</option>
+                <option value="CLOSED" th:selected="${report.status == 'CLOSED'}">CLOSED</option>
             </select>
-
-            <label>Response kwa Reporter</label>
-            <textarea name="adminResponse" rows="3" placeholder="Jibu kwa reporter..."></textarea>
-
-            <label>Internal Notes (private)</label>
-            <textarea name="internalNotes" rows="3" placeholder="Notes za ndani..."></textarea>
-
-            <button type="submit" class="btn btn-primary">💾 Save</button>
-        </form>
-    </div>
-
-    <div class="card">
-        <h2>💬 Mazungumzo</h2>
-        <div th:each="m : ${messages}" style="margin-bottom:15px; padding:12px; border-radius:6px; background:rgba(0,0,0,0.3);"
-             th:classappend="${m.senderType == 'ADMIN'} ? 'chat-ai' : 'chat-user'">
-            <div style="font-size:11px; color:#00d4ff; margin-bottom:5px;"
-                 th:text="${m.senderType == 'ADMIN'} ? '🕵️ Admin' : '👤 Reporter'"></div>
-            <div th:text="${m.message}"></div>
-        </div>
-        <form th:action="@{'/whistleblower/admin/' + ${report.id} + '/reply'}" method="post" style="margin-top:15px;">
-            <textarea name="message" rows="3" required placeholder="Andika ujumbe..."></textarea>
-            <button type="submit" class="btn btn-primary">📤 Tuma</button>
+            <label>Response to Reporter:</label>
+            <textarea name="adminResponse" rows="4" placeholder="Jibu litaonekana kwa reporter..." style="width:100%; padding:10px; margin:5px 0 15px 0;"></textarea>
+            <label>Internal Notes (sio kwa reporter):</label>
+            <textarea name="internalNotes" rows="3" style="width:100%; padding:10px; margin:5px 0 15px 0;" th:text="${report.internalNotes}"></textarea>
+            <button type="submit" class="btn btn-primary" style="padding:12px 25px;">💾 Update Report</button>
         </form>
     </div>
 </div>

@@ -2,41 +2,81 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{whistleblower.portalTitle}">Whistleblower Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whistleblower Portal</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics System</span></div>
+    <div class="logo">🛡️ Cyber Forensics System</div>
     <div class="nav-links">
-        <a th:href="@{/whistleblower}" th:text="#{whistleblower.home}">Home</a>
-        <a th:href="@{/whistleblower/track}" th:text="#{whistleblower.trackTitle}">Track Report</a>
-        <a th:href="@{/login}" th:text="#{whistleblower.login}">Login</a>
-        <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
-            <a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active-lang'" style="color:white; padding:4px 8px;">SW</a>
-            <a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active-lang'" style="color:white; padding:4px 8px;">EN</a>
-            <a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active-lang'" style="color:white; padding:4px 8px;">FR</a>
-            <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active-lang'" style="color:white; padding:4px 8px;">AR</a>
+        <a th:href="@{/whistleblower}">Home</a>
+        <a th:href="@{/whistleblower/track}">TRACK YOUR REPORT</a>
+        <a th:href="@{/login}">Login</a>
+        <span style="margin-left:15px;">
+            <a th:href="@{/whistleblower?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active-lang'" style="padding:4px 8px; color:white;">SW</a>
+            <a th:href="@{/whistleblower?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active-lang'" style="padding:4px 8px; color:white;">EN</a>
+            <a th:href="@{/whistleblower?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active-lang'" style="padding:4px 8px; color:white;">FR</a>
+            <a th:href="@{/whistleblower?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active-lang'" style="padding:4px 8px; color:white;">AR</a>
         </span>
     </div>
 </div>
-<div class="container">
-    <div class="hero" style="text-align:center; padding:40px; background:linear-gradient(135deg, #0f2557, #1a3a70); color:white; border-radius:10px;">
-        <h1 th:text="#{whistleblower.portalTitle}">Whistleblower Portal</h1>
-        <p th:text="#{whistleblower.portalSubtitle}">Report corruption, bribery, harassment anonymously.</p>
-        <div style="margin-top:30px;">
-            <a th:href="@{/whistleblower/report}" class="btn btn-primary" th:text="#{whistleblower.reportNow}">Report Now</a>
-            <a th:href="@{/whistleblower/track}" class="btn" th:text="#{whistleblower.trackTitle}">Track Report</a>
+
+<div class="container" style="max-width: 1100px; margin: 30px auto;">
+    <!-- HERO -->
+    <div style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 60px 40px; border-radius: 12px; text-align: center;">
+        <h1 style="color: white; font-size: 38px; margin: 0 0 15px 0;">Whistleblower Portal</h1>
+        <p style="color: rgba(255,255,255,0.9); font-size: 16px; max-width: 700px; margin: 0 auto 30px;">
+            Report corruption, bribery, harassment anonymously. Your safety is our priority.
+        </p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a th:href="@{/whistleblower/report}" class="btn btn-danger" style="padding: 15px 40px; font-size: 16px; text-decoration: none; font-weight: bold;">
+                🚨 REPORT NOW
+            </a>
+            <a th:href="@{/whistleblower/track}" class="btn btn-primary" style="padding: 15px 40px; font-size: 16px; text-decoration: none; font-weight: bold; background: white; color: #0f2557;">
+                🔍 TRACK YOUR REPORT
+            </a>
         </div>
     </div>
-    <div class="card" style="margin-top:30px;">
-        <h2 th:text="#{whistleblower.whatReport}">What can you report?</h2>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-top:20px;">
-            <div class="stat-box"><div class="stat-value">💰</div><div class="stat-label" th:text="#{category.CORRUPTION}">Corruption</div></div>
-            <div class="stat-box"><div class="stat-value">🎭</div><div class="stat-label" th:text="#{category.FRAUD}">Fraud</div></div>
-            <div class="stat-box"><div class="stat-value">💻</div><div class="stat-label" th:text="#{category.CYBER_ATTACK}">Cyber Attack</div></div>
-            <div class="stat-box"><div class="stat-value">😢</div><div class="stat-label" th:text="#{category.HARASSMENT}">Harassment</div></div>
+
+    <!-- WHAT YOU CAN REPORT -->
+    <div class="card" style="margin-top: 30px;">
+        <h2>What can you report?</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 20px;">
+            <a th:href="@{/whistleblower/report(category='CORRUPTION')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557; transition: all 0.2s;">
+                <div style="font-size: 40px; margin-bottom: 10px;">💰</div>
+                <div style="font-weight: bold;">CORRUPTION / BRIBERY</div>
+            </a>
+            <a th:href="@{/whistleblower/report(category='FRAUD')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557; transition: all 0.2s;">
+                <div style="font-size: 40px; margin-bottom: 10px;">🎭</div>
+                <div style="font-weight: bold;">FRAUD</div>
+            </a>
+            <a th:href="@{/whistleblower/report(category='CYBER_ATTACK')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557; transition: all 0.2s;">
+                <div style="font-size: 40px; margin-bottom: 10px;">💻</div>
+                <div style="font-weight: bold;">CYBER ATTACK</div>
+            </a>
+            <a th:href="@{/whistleblower/report(category='HARASSMENT')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557; transition: all 0.2s;">
+                <div style="font-size: 40px; margin-bottom: 10px;">😢</div>
+                <div style="font-weight: bold;">HARASSMENT</div>
+            </a>
+            <a th:href="@{/whistleblower/report(category='DRUG_TRAFFICKING')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557;">
+                <div style="font-size: 40px; margin-bottom: 10px;">💊</div>
+                <div style="font-weight: bold;">DRUG TRAFFICKING</div>
+            </a>
+            <a th:href="@{/whistleblower/report(category='TAX_EVASION')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557;">
+                <div style="font-size: 40px; margin-bottom: 10px;">📊</div>
+                <div style="font-weight: bold;">TAX EVASION</div>
+            </a>
         </div>
+    </div>
+
+    <!-- SAFETY NOTICE -->
+    <div class="card" style="margin-top: 20px; background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a;">
+        <h3 style="color: #1b7a4a; margin-top: 0;">🔒 Your Safety is Important</h3>
+        <p style="margin: 0; color: #333;">
+            Your identity will remain <strong>100% anonymous</strong>. We don't track IP addresses, 
+            and you'll receive a tracking code to follow up on your report.
+        </p>
     </div>
 </div>
 </body>
