@@ -15,47 +15,48 @@ public class NotificationService {
         this.notificationRepository = notificationRepository;
     }
 
+    // ===== CREATE NOTIFICATION =====
     public void createNotification(String title, String message, String type, String linkUrl) {
         Notification notification = new Notification(null, title, message, type, linkUrl);
         notificationRepository.save(notification);
     }
 
+    // ===== INCIDENT NOTIFICATION =====
     public void createIncidentNotification(String incidentId, String title, String severity) {
-        String emoji = severity != null && "CRITICAL".equalsIgnoreCase(severity) ? "🚨" : "📌";
-        createNotification(emoji + " Report " + incidentId, title, severity != null ? severity : "INFO", "/report-attack");
+        String emoji;
+        if ("CRITICAL".equalsIgnoreCase(severity)) emoji = "🚨";
+        else if ("HIGH".equalsIgnoreCase(severity)) emoji = "⚠️";
+        else if ("MEDIUM".equalsIgnoreCase(severity)) emoji = "📌";
+        else emoji = "ℹ️";
+
+        String notifTitle = emoji + " Tukio Jipya: " + incidentId;
+        String notifMessage = title + " (Severity: " + severity + ")";
+        String notifType = (severity != null) ? severity.toUpperCase() : "INFO";
+
+        createNotification(notifTitle, notifMessage, notifType, "/report-attack");
     }
 
-    public void createReportMessageNotification(String reportId, String message) {
-        String emoji = switch (severity != null ? severity.toUpperCase() : "MEDIUM") {
-            case "CRITICAL" -> "🚨";
-            case "HIGH" -> "⚠️";
-            case "MEDIUM" -> "📌";
-            default -> "ℹ️";
-        };
-        createNotification(
-                emoji + " Tukio Jipya: " + incidentId,
-                title + " (Severity: " + severity + ")",
-                severity != null ? severity.toUpperCase() : "INFO",
-                "/incidents"
-        );
-    }
-
+    // ===== GET ALL =====
     public List<Notification> getAllNotifications() {
         return notificationRepository.findAllByOrderByCreatedAtDesc();
     }
 
+    // ===== GET UNREAD =====
     public List<Notification> getUnreadNotifications() {
         return notificationRepository.findByIsReadFalseOrderByCreatedAtDesc();
     }
 
+    // ===== GET LATEST 10 =====
     public List<Notification> getLatestNotifications() {
         return notificationRepository.findTop10ByOrderByCreatedAtDesc();
     }
 
+    // ===== COUNT UNREAD =====
     public long getUnreadCount() {
         return notificationRepository.countByIsReadFalse();
     }
 
+    // ===== MARK AS READ =====
     public void markAsRead(Long id) {
         notificationRepository.findById(id).ifPresent(n -> {
             n.setIsRead(true);
@@ -63,6 +64,7 @@ public class NotificationService {
         });
     }
 
+    // ===== MARK ALL AS READ =====
     public void markAllAsRead() {
         List<Notification> unread = notificationRepository.findByIsReadFalseOrderByCreatedAtDesc();
         unread.forEach(n -> n.setIsRead(true));
