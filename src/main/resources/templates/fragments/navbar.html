@@ -16,14 +16,18 @@
            style="color:#c9a227; font-weight:bold;">👑 <span th:text="#{nav.admin}">Admin</span></a>
 
         <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
-            <a th:href="@{/dashboard?lang=sw}" style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;"
-               th:classappend="${#locale.language == 'sw'} ? 'active-lang'">🇹🇿 SW</a>
-            <a th:href="@{/dashboard?lang=en}" style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;"
-               th:classappend="${#locale.language == 'en'} ? 'active-lang'">🇬🇧 EN</a>
-            <a th:href="@{/dashboard?lang=fr}" style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;"
-               th:classappend="${#locale.language == 'fr'} ? 'active-lang'">🇫🇷 FR</a>
-            <a th:href="@{/dashboard?lang=ar}" style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;"
-               th:classappend="${#locale.language == 'ar'} ? 'active-lang'">🇸🇦 AR</a>
+            <a th:href="@{${#httpServletRequest.requestURI} + '?lang=sw'}"
+               th:classappend="${#locale.language == 'sw'} ? 'active-lang'"
+               style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;">🇹🇿 SW</a>
+            <a th:href="@{${#httpServletRequest.requestURI} + '?lang=en'}"
+               th:classappend="${#locale.language == 'en'} ? 'active-lang'"
+               style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;">🇬🇧 EN</a>
+            <a th:href="@{${#httpServletRequest.requestURI} + '?lang=fr'}"
+               th:classappend="${#locale.language == 'fr'} ? 'active-lang'"
+               style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;">🇫🇷 FR</a>
+            <a th:href="@{${#httpServletRequest.requestURI} + '?lang=ar'}"
+               th:classappend="${#locale.language == 'ar'} ? 'active-lang'"
+               style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;">🇸🇦 AR</a>
         </span>
 
         <form th:action="@{/logout}" method="post" style="display:inline;">
