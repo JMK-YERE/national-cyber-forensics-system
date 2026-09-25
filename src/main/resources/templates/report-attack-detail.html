@@ -11,45 +11,43 @@
         .msg-admin { background: rgba(201,162,39,0.12); border-left: 4px solid #c9a227; }
         .msg-ai { background: rgba(139,92,246,0.1); border-left: 4px solid #8b5cf6; }
         .msg-system { background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a; }
-        .action-panel { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(167,139,250,0.08)); border: 3px solid #8b5cf6; padding: 25px; border-radius: 12px; margin: 20px 0; }
-        .action-button { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
-        .admin-button { background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
+        .ai-panel { background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(167,139,250,0.05)); border: 2px solid #8b5cf6; padding: 20px; border-radius: 10px; margin: 15px 0; }
+        .ai-button { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; text-decoration: none; display: inline-block; }
+        .admin-panel { background: linear-gradient(135deg, rgba(201,162,39,0.15), rgba(234,179,8,0.08)); border: 3px solid #c9a227; padding: 25px; border-radius: 12px; margin: 20px 0; }
+        .admin-button { background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; text-decoration: none; display: inline-block; }
         .evidence-box { background: rgba(27,122,74,0.08); border-left: 5px solid #1b7a4a; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .download-btn { background: #1b7a4a; color: white; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; }
-        .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; padding: 10px 0; }
-        .lang-bar a { padding: 6px 14px; background: white; border: 2px solid rgba(15,37,87,0.2); border-radius: 20px; color: #0f2557; font-size: 12px; font-weight: 600; text-decoration: none; }
-        .lang-bar a.active { background: #0f2557; color: white; border-color: #0f2557; }
+        .download-btn { background: #1b7a4a; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; }
         .msg-header { font-size: 12px; font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; }
         .msg-body { white-space: pre-wrap; line-height: 1.7; }
-        .timer-info { background: rgba(217,119,6,0.1); border-left: 4px solid #d97706; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 13px; }
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <div class="lang-bar">
-        <a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'">SW</a>
-        <a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'">EN</a>
-        <a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'">FR</a>
-        <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'">AR</a>
+    <!-- BACK BUTTON -->
+    <div style="margin:15px 0;">
+        <a th:href="@{/report-attack}" class="btn" style="text-decoration:none;">← Back to Reports</a>
     </div>
 
-    <!-- ACTION PANEL — KWA WOTE (user + admin) -->
-    <div class="action-panel">
-        <h2 style="color:#8b5cf6; margin-top:0;">🤖 AI Assistant Actions</h2>
-        <p>Unaweza kuomba AI ijibu mara moja:</p>
+    <!-- ADMIN ACTIONS PANEL — INAONEKANA KWA ADMIN PEKEE -->
+    <div class="admin-panel" th:if="${canSeeAll}">
+        <h2 style="color:#c9a227; margin-top:0;">👑 Admin Actions</h2>
+        <p>Unaweza kuona reports zote na kufanya maamuzi:</p>
+        <a th:href="@{/report-attack/admin}" class="admin-button">📋 View All Reports</a>
+        <a th:href="@{/report-attack/admin}" class="admin-button">⚙️ Manage This Report</a>
+    </div>
+
+    <!-- AI PANEL — INAONEKANA KWA WOTE -->
+    <div class="ai-panel">
+        <h2 style="color:#8b5cf6; margin-top:0;">🤖 AI Assistant</h2>
+        <p>Kama unahitaji msaada wa haraka, unaweza kuomba AI ijibu sasa:</p>
         <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
-            <button type="submit" class="action-button">🤖 Omba AI Ijibu Sasa</button>
+            <button type="submit" class="ai-button">🤖 Omba AI Ijibu Sasa</button>
         </form>
-        <!-- View All Reports: inaonekana kwa admin pekee -->
-        <a th:if="${canSeeAll}" th:href="@{/report-attack/admin}" class="admin-button">📋 View All Reports</a>
-    </div>
-
-    <!-- TIMER INFO -->
-    <div class="timer-info">
-        <strong>⏰ Auto-Reply:</strong> Kama admin hajajibu ndani ya <strong>dakika 5</strong>, 
-        AI itajibu automatically. Kama unataka AI ijibu sasa — bonyeza button hapo juu.
+        <p style="font-size:13px; color:#666; margin-top:10px;">
+            ⏰ Auto-reply: AI itajibu automatically kama admin hajajibu ndani ya dakika 5.
+        </p>
     </div>
 
     <!-- REPORT DETAILS -->
@@ -63,19 +61,17 @@
         <p><strong>Country:</strong> <span th:text="${report.countryName}"></span></p>
         <p><strong>Region:</strong> <span th:text="${report.region}"></span></p>
         <p><strong>Date:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+
+        <!-- Police Case Number — Admin PEKEE -->
+        <p th:if="${canSeeAll && report.policeCaseNumber != null}">
+            <strong>Police Case #:</strong> <span th:text="${report.policeCaseNumber}"></span>
+        </p>
     </div>
 
     <!-- DESCRIPTION -->
     <div class="card">
         <h2>📝 Description</h2>
         <p th:text="${report.description}" style="white-space: pre-wrap;"></p>
-    </div>
-
-    <!-- AI RECOMMENDATIONS -->
-    <div class="card" th:if="${report.aiRecommendation != null}">
-        <h2>🤖 AI Recommendations</h2>
-        <div style="background:linear-gradient(135deg, rgba(15,37,87,0.05), rgba(201,162,39,0.05)); border-left: 4px solid #0f2557; padding: 20px; border-radius: 8px; white-space: pre-line; line-height: 1.9;"
-             th:text="${report.aiRecommendation}"></div>
     </div>
 
     <!-- EVIDENCE -->
@@ -86,7 +82,7 @@
         <a th:href="@{'/report-attack/evidence/' + ${report.id}}" class="download-btn">⬇️ Download Evidence</a>
     </div>
 
-    <!-- MESSAGES — ZOTE ZINAONEKANA KWA WOTE -->
+    <!-- MESSAGES -->
     <div class="card">
         <h2>💬 Messages & Discussion</h2>
         <p style="font-size:13px; color:#666;">Mawasiliano kati yako, admin, na AI.</p>
@@ -111,9 +107,8 @@
             <div class="msg-body" th:text="${m.message}"></div>
         </div>
 
-        <!-- REPLY FORM -->
         <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post" style="margin-top:25px;">
-            <textarea name="message" rows="3" required placeholder="Andika ujumbe wako..." style="width:100%;"></textarea>
+            <textarea name="message" rows="3" required placeholder="Andika ujumbe wako..." style="width:100%; padding:10px;"></textarea>
             <button type="submit" class="btn btn-primary" style="margin-top:10px;">📤 Send Message</button>
         </form>
     </div>

@@ -3,332 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="#{report.title} + ' - ' + #{app.title}">Report Attack</title>
+    <title>Report Attack</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
-    <style>
-        .attack-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 15px 0; }
-        .attack-option { background: white; border: 2px solid rgba(15, 37, 87, 0.2); border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; text-align: center; }
-        .attack-option:hover { border-color: #0f2557; box-shadow: 0 4px 12px rgba(15,37,87,0.15); transform: translateY(-2px); }
-        .attack-option.selected { border-color: #8b1a1a; background: rgba(139, 26, 26, 0.08); }
-        .attack-option input { display: none; }
-        .attack-option .icon { font-size: 30px; margin-bottom: 8px; }
-        .attack-option .label { font-size: 11px; color: #0f2557; font-weight: 600; }
-        .dynamic-fields { background: linear-gradient(135deg, rgba(15,37,87,0.05), rgba(201,162,39,0.05)); border-left: 4px solid #c9a227; padding: 25px; border-radius: 8px; margin: 20px 0; display: none; }
-        .dynamic-fields.active { display: block; }
-        .contact-section { background: rgba(201, 162, 39, 0.08); border-left: 4px solid #c9a227; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .alert-banner { background: linear-gradient(135deg, #8b1a1a, #c73030); color: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-        .alert-banner h2 { color: white; margin: 0; font-size: 24px; }
-        .required-star { color: #8b1a1a; }
-    </style>
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics System</span></div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
-        <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
-        <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
-            <a th:href="@{/lang?lang=sw}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
-            <a th:href="@{/lang?lang=en}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
-            <a th:href="@{/lang?lang=fr}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
-            <a th:href="@{/lang?lang=ar}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
-        </span>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <div class="alert-banner">
-        <h2>🚨 Report Attack</h2>
-        <p style="color:white; margin:10px 0 0 0;">Report any security incident</p>
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 30px;">
+        <h1 style="color: white; margin: 0;">🚨 Report Cyber Attack</h1>
+        <p style="color: rgba(255,255,255,0.9);">Toa taarifa ya tukio la kimtandao</p>
     </div>
 
-    <div class="card" th:if="${canSeeAll}" style="background:rgba(201,162,39,0.15); border-left:5px solid #c9a227;">
-        <h2>👑 Admin View</h2>
-        <a th:href="@{/report-attack/admin}" class="btn btn-primary">View All Reports</a>
-    </div>
-
+    <!-- NEW REPORT FORM -->
     <div class="card">
-        <h2>📝 Report</h2>
-
+        <h2>📝 New Report</h2>
         <form th:action="@{/report-attack/new}" method="post" enctype="multipart/form-data">
-
-            <label>Country <span class="required-star">*</span></label>
-            <select name="country" required>
-                <option th:each="c : ${countries}" th:value="${c.code}" th:text="${c.name}"></option>
-            </select>
-
-            <label style="margin-top:20px;">Attack Type <span class="required-star">*</span></label>
-            <div class="attack-selector">
-                <div class="attack-option" data-type="PHONE_STOLEN" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="PHONE_STOLEN">
-                    <div class="icon">📱</div>
-                    <div class="label">Phone Stolen</div>
+            <div style="display:grid; gap:15px;">
+                <div>
+                    <label><strong>Title</strong></label>
+                    <input type="text" name="title" required style="width:100%; padding:10px; margin-top:5px;">
                 </div>
-                <div class="attack-option" data-type="SOCIAL_MEDIA_HACKED" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="SOCIAL_MEDIA_HACKED">
-                    <div class="icon">👤</div>
-                    <div class="label">Social Media</div>
+                <div>
+                    <label><strong>Attack Type</strong></label>
+                    <select name="attackType" required style="width:100%; padding:10px; margin-top:5px;">
+                        <option value="PHISHING">🎣 Phishing</option>
+                        <option value="RANSOMWARE">🔒 Ransomware</option>
+                        <option value="HACKING">💻 Hacking</option>
+                        <option value="FRAUD">💰 Fraud</option>
+                        <option value="CYBERBULLYING">😢 Cyberbullying</option>
+                        <option value="DATA_BREACH">📊 Data Breach</option>
+                        <option value="OTHER">❓ Other</option>
+                    </select>
                 </div>
-                <div class="attack-option" data-type="BANK_CARD_LOST" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="BANK_CARD_LOST">
-                    <div class="icon">💳</div>
-                    <div class="label">Bank Card</div>
+                <div>
+                    <label><strong>Description</strong></label>
+                    <textarea name="description" rows="5" required style="width:100%; padding:10px; margin-top:5px;"></textarea>
                 </div>
-                <div class="attack-option" data-type="MONEY_STOLEN" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="MONEY_STOLEN">
-                    <div class="icon">💰</div>
-                    <div class="label">Money Stolen</div>
+                <div>
+                    <label><strong>Region</strong></label>
+                    <input type="text" name="region" style="width:100%; padding:10px; margin-top:5px;">
                 </div>
-                <div class="attack-option" data-type="EMAIL_HACKED" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="EMAIL_HACKED">
-                    <div class="icon">📧</div>
-                    <div class="label">Email Hacked</div>
+                <div>
+                    <label><strong>Evidence File (optional)</strong></label>
+                    <input type="file" name="evidenceFile" style="width:100%; padding:10px; margin-top:5px;">
                 </div>
-                <div class="attack-option" data-type="PHISHING" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="PHISHING">
-                    <div class="icon">🎣</div>
-                    <div class="label">Phishing</div>
-                </div>
-                <div class="attack-option" data-type="SIM_SWAP" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="SIM_SWAP">
-                    <div class="icon">📲</div>
-                    <div class="label">SIM Swap</div>
-                </div>
-                <div class="attack-option" data-type="RANSOMWARE" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="RANSOMWARE">
-                    <div class="icon">🦠</div>
-                    <div class="label">Ransomware</div>
-                </div>
-                <div class="attack-option" data-type="HOME_BREAK_IN" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="HOME_BREAK_IN">
-                    <div class="icon">🏠</div>
-                    <div class="label">Break-In</div>
-                </div>
-                <div class="attack-option" data-type="IDENTITY_THEFT" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="IDENTITY_THEFT">
-                    <div class="icon">🆔</div>
-                    <div class="label">ID Theft</div>
-                </div>
-                <div class="attack-option" data-type="DOCUMENTS_STOLEN" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="DOCUMENTS_STOLEN">
-                    <div class="icon">💼</div>
-                    <div class="label">Documents</div>
-                </div>
-                <div class="attack-option" data-type="OTHER" onclick="selectType(this)">
-                    <input type="radio" name="attackType" value="OTHER">
-                    <div class="icon">⚠️</div>
-                    <div class="label">Other</div>
-                </div>
+                <button type="submit" class="btn btn-danger" style="padding:15px; font-size:16px;">🚨 SUBMIT REPORT</button>
             </div>
-
-            <!-- DYNAMIC FIELDS -->
-            <div id="dynamicFields">
-                <div class="dynamic-fields" id="fields-PHONE_STOLEN">
-                    <h3 style="color:#0f2557;">📱 Phone Details</h3>
-                    <label>Phone Model</label>
-                    <input type="text" name="phoneModel" placeholder="Samsung Galaxy A54">
-                    <label>IMEI Number</label>
-                    <input type="text" name="phoneImei" placeholder="123456789012345">
-                    <label>Color</label>
-                    <input type="text" name="phoneColor" placeholder="Black">
-                    <label>SIM Card Number</label>
-                    <input type="text" name="phoneSimCard" placeholder="+255 7XX XXX XXX">
-                    <label>Mobile Operator</label>
-                    <select name="phoneOperator">
-                        <option value="">--</option>
-                        <option>Vodacom</option><option>Airtel</option><option>Tigo</option>
-                        <option>Halotel</option><option>TTCL</option><option>Other</option>
-                    </select>
-                    <label>Last Seen Location</label>
-                    <input type="text" name="phoneLastSeen" placeholder="Kariakoo, Dar es Salaam">
-                </div>
-
-                <div class="dynamic-fields" id="fields-SOCIAL_MEDIA_HACKED">
-                    <h3 style="color:#0f2557;">👤 Social Media Details</h3>
-                    <label>Platform</label>
-                    <select name="socialPlatform">
-                        <option value="">--</option>
-                        <option>Facebook</option><option>Instagram</option><option>TikTok</option>
-                        <option>WhatsApp</option><option>X (Twitter)</option><option>Other</option>
-                    </select>
-                    <label>Username</label>
-                    <input type="text" name="socialUsername" placeholder="@username">
-                    <label>Email Used</label>
-                    <input type="email" name="socialEmail">
-                </div>
-
-                <div class="dynamic-fields" id="fields-BANK_CARD_LOST">
-                    <h3 style="color:#0f2557;">💳 Bank Card Details</h3>
-                    <label>Bank Name</label>
-                    <input type="text" name="bankName" placeholder="CRDB, NMB">
-                    <label>Last 4 Digits</label>
-                    <input type="text" name="bankCardLast4" maxlength="4" placeholder="1234">
-                    <label>Account Number</label>
-                    <input type="text" name="bankAccountNumber">
-                </div>
-
-                <div class="dynamic-fields" id="fields-MONEY_STOLEN">
-                    <h3 style="color:#0f2557;">💰 Money Stolen Details</h3>
-                    <label>Amount</label>
-                    <input type="number" name="moneyAmount" placeholder="0.00">
-                    <label>Payment Method</label>
-                    <select name="moneyPaymentMethod">
-                        <option value="">--</option>
-                        <option>M-Pesa</option><option>Tigo Pesa</option><option>Airtel Money</option>
-                        <option>Halopesa</option><option>Bank Transfer</option><option>Cash</option>
-                    </select>
-                    <label>Reference</label>
-                    <input type="text" name="moneyReference">
-                </div>
-
-                <div class="dynamic-fields" id="fields-EMAIL_HACKED">
-                    <h3 style="color:#0f2557;">📧 Email Details</h3>
-                    <label>Email Address</label>
-                    <input type="email" name="emailHackedAddress">
-                    <label>Recovery Email</label>
-                    <input type="email" name="emailRecovery">
-                </div>
-
-                <div class="dynamic-fields" id="fields-PHISHING">
-                    <h3 style="color:#0f2557;">🎣 Phishing Details</h3>
-                    <label>Where Received</label>
-                    <input type="text" name="phishingPlatform" placeholder="Email, SMS, WhatsApp">
-                    <label>Sender Info</label>
-                    <input type="text" name="phishingSender">
-                    <label>Did you click?</label>
-                    <select name="phishingLinkClicked"><option>No</option><option>Yes</option></select>
-                </div>
-
-                <div class="dynamic-fields" id="fields-SIM_SWAP">
-                    <h3 style="color:#0f2557;">📲 SIM Swap Details</h3>
-                    <label>Phone Number</label>
-                    <input type="tel" name="simPhoneNumber">
-                    <label>Operator</label>
-                    <select name="simOperator">
-                        <option value="">--</option>
-                        <option>Vodacom</option><option>Airtel</option><option>Tigo</option>
-                        <option>Halotel</option><option>TTCL</option>
-                    </select>
-                </div>
-
-                <div class="dynamic-fields" id="fields-RANSOMWARE">
-                    <h3 style="color:#0f2557;">🦠 Ransomware Details</h3>
-                    <label>System Affected</label>
-                    <input type="text" name="ransomwareSystem" placeholder="Windows Server">
-                    <label>Ransom Amount</label>
-                    <input type="number" name="ransomwareAmount">
-                    <label>File Extension</label>
-                    <input type="text" name="ransomwareExtension" placeholder=".locked">
-                </div>
-
-                <div class="dynamic-fields" id="fields-HOME_BREAK_IN">
-                    <h3 style="color:#0f2557;">🏠 Break-In Details</h3>
-                    <label>Location</label>
-                    <input type="text" name="homeLocation">
-                    <label>Items Stolen</label>
-                    <textarea name="homeItemsStolen" rows="3"></textarea>
-                    <label>Police Report Number</label>
-                    <input type="text" name="homePoliceReport">
-                </div>
-
-                <div class="dynamic-fields" id="fields-IDENTITY_THEFT">
-                    <h3 style="color:#0f2557;">🆔 ID Theft Details</h3>
-                    <label>ID Type</label>
-                    <select name="identityType">
-                        <option value="">--</option>
-                        <option>NIDA</option><option>Passport</option>
-                        <option>Driver License</option><option>Voter ID</option>
-                    </select>
-                    <label>ID Number</label>
-                    <input type="text" name="identityNumber">
-                </div>
-
-                <div class="dynamic-fields" id="fields-DOCUMENTS_STOLEN">
-                    <h3 style="color:#0f2557;">💼 Documents Details</h3>
-                    <label>Document Type</label>
-                    <input type="text" name="documentsType">
-                    <label>Number of Documents</label>
-                    <input type="number" name="documentsCount" min="0">
-                    <label>Description</label>
-                    <textarea name="documentsDescription" rows="3"></textarea>
-                </div>
-            </div>
-
-            <label style="margin-top:20px;">Title <span class="required-star">*</span></label>
-            <input type="text" name="title" required>
-
-            <label>Description <span class="required-star">*</span></label>
-            <textarea name="description" rows="5" required></textarea>
-
-            <!-- REGION + LOCATION — TEXT INPUTS -->
-            <label>Region <span class="required-star">*</span></label>
-            <input type="text" name="region" required placeholder="e.g. Dar es Salaam, Arusha">
-
-            <label>Location (Optional)</label>
-            <input type="text" name="location" placeholder="e.g. Kariakoo, Street name">
-
-            <label>Date Occurred (Optional)</label>
-            <input type="datetime-local" name="dateOccurred">
-
-            <div class="contact-section">
-                <h4>📞 Contact Info</h4>
-                <label>Full Name <span class="required-star">*</span></label>
-                <input type="text" name="reporterName" required th:value="${user.fullName != null ? user.fullName : user.username}">
-
-                <label>Phone <span class="required-star">*</span></label>
-                <input type="tel" name="reporterPhone" required th:value="${user.phone != null ? user.phone : ''}">
-
-                <label>Email <span class="required-star">*</span></label>
-                <input type="email" name="reporterEmail" required th:value="${user.email}">
-            </div>
-
-            <div class="contact-section" style="background:rgba(15,37,87,0.05); border-left-color:#0f2557;">
-                <h4>📎 Evidence (Optional)</h4>
-                <label>Upload File (Photo / Video / Audio / Document)</label>
-                <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip">
-                <label>Describe evidence</label>
-                <textarea name="evidenceDescription" rows="3"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-danger" style="width:100%; padding:18px; font-size:16px; margin-top:20px;">
-                🚨 SUBMIT REPORT
-            </button>
         </form>
     </div>
+
+    <!-- MY REPORTS — INAONEKANA KWA WOTE -->
+    <div class="card">
+        <h2>📋 My Reports</h2>
+        <p style="color:#666;">Reports zako binafsi</p>
+
+        <div th:if="${myReports == null || myReports.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
+            <p>Hakuna reports bado.</p>
+        </div>
+
+        <div th:each="r : ${myReports}" style="padding:15px; margin:10px 0; border-radius:8px; background:rgba(15,37,87,0.03); border-left:4px solid #0f2557;">
+            <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <strong th:text="${r.reportId}"></strong>
+                    <span style="color:#666;"> — </span>
+                    <span th:text="${r.title}"></span>
+                    <br>
+                    <small style="color:#888;">
+                        Status: <strong th:text="${r.status}"></strong> |
+                        <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                    </small>
+                </div>
+                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="btn btn-primary" style="text-decoration:none;">👁️ View</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN VIEW: ALL REPORTS -->
+    <div class="card" th:if="${canSeeAll}" style="border-left:4px solid #c9a227;">
+        <h2 style="color:#c9a227;">👑 All Reports (Admin View)</h2>
+        <p style="color:#666;">Reports zote kutoka watumiaji wote</p>
+
+        <div th:each="r : ${allReports}" style="padding:15px; margin:10px 0; border-radius:8px; background:rgba(201,162,39,0.05); border-left:4px solid #c9a227;">
+            <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <strong th:text="${r.reportId}"></strong>
+                    <span th:text="${r.title}"></span>
+                    <br>
+                    <small style="color:#888;">
+                        By: <span th:text="${r.reporterName}"></span> |
+                        Status: <strong th:text="${r.status}"></strong>
+                    </small>
+                </div>
+                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="btn" style="text-decoration:none;">👁️ View</a>
+            </div>
+        </div>
+    </div>
 </div>
-
-<script>
-function selectType(el) {
-    document.querySelectorAll('.attack-option').forEach(o => {
-        o.classList.remove('selected');
-        o.style.borderColor = 'rgba(15,37,87,0.2)';
-        o.style.background = 'white';
-    });
-    el.classList.add('selected');
-    el.style.borderColor = '#8b1a1a';
-    el.style.background = 'rgba(139,26,26,0.08)';
-    el.querySelector('input[type="radio"]').checked = true;
-
-    const type = el.getAttribute('data-type');
-    document.querySelectorAll('.dynamic-fields').forEach(f => {
-        f.classList.remove('active');
-        f.style.display = 'none';
-    });
-    const matching = document.getElementById('fields-' + type);
-    if (matching) {
-        matching.classList.add('active');
-        matching.style.display = 'block';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const firstOption = document.querySelector('.attack-option');
-    if (firstOption) selectType(firstOption);
-});
-</script>
 </body>
 </html>

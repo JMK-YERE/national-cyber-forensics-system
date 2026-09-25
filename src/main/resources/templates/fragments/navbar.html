@@ -9,19 +9,17 @@
         <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
         <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
         <a th:href="@{/tools/security-center}" th:text="#{nav.tools}">Tools</a>
-        <a th:href="@{/notifications}" style="position:relative;">
-            🔔 <span th:text="#{nav.notifications}">Notifications</span>
-        </a>
-        
-        <!-- Admin Panel: Inaonekana tu kwa ADMIN, CYBER_PRO, FORENSICS, ANALYST -->
-        <a sec:authorize="hasAnyRole('ADMIN', 'CYBER_PRO', 'FORENSICS', 'ANALYST')" 
-           th:href="@{/report-attack/admin}">👑 Admin Panel</a>
+        <a th:href="@{/notifications}">🔔 <span th:text="#{nav.notifications}">Notifications</span></a>
+
+        <!-- Admin Panel — INAONEKANA KWA ADMIN, CYBER_PRO, FORENSICS, ANALYST PEKEE -->
+        <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')"
+           th:href="@{/report-attack/admin}" style="color:#c9a227; font-weight:bold;">👑 Admin Panel</a>
 
         <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
-            <a th:href="@{/lang?lang=sw}" class="lang-link" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
-            <a th:href="@{/lang?lang=en}" class="lang-link" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
-            <a th:href="@{/lang?lang=fr}" class="lang-link" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
-            <a th:href="@{/lang?lang=ar}" class="lang-link" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
+            <a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
+            <a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
+            <a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
+            <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
         </span>
 
         <form th:action="@{/logout}" method="post" style="display:inline;">
