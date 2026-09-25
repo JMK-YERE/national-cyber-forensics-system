@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="#{nav.dashboard} + ' - ' + #{app.title}">Dashboard</title>
+    <title th:text="#{nav.dashboard}">Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
@@ -12,7 +12,7 @@
 <div class="container">
     <div class="card">
         <h1><span th:text="#{dashboard.welcome}">Welcome</span>, <span th:text="${username}">User</span>!</h1>
-        <p>Hii ni dashboard yako ya kibinafsi.</p>
+        <p th:text="#{dashboard.personal}">Hii ni dashibodi yako binafsi.</p>
     </div>
 
     <div class="stats-grid">
@@ -34,7 +34,6 @@
         </div>
     </div>
 
-    <!-- QUICK ACTIONS -->
     <div class="card">
         <h2 th:text="#{dashboard.quickActions}">Quick Actions</h2>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-top:15px;">
@@ -53,12 +52,11 @@
         </div>
     </div>
 
-    <!-- MY REPORTS -->
     <div class="card">
-        <h2>📋 My Reports</h2>
-        <p>Ona reports zako na mawasiliano na admin.</p>
+        <h2 th:text="#{dashboard.myReports}">My Reports</h2>
+        <p th:text="#{dashboard.reportsDesc}">Ona ripoti zako na mawasiliano na admin.</p>
         <a th:href="@{/report-attack}" class="btn btn-primary" style="margin-top:15px;">
-            📋 View My Reports
+            📋 <span th:text="#{dashboard.viewMyReports}">View My Reports</span>
         </a>
     </div>
 </div>
