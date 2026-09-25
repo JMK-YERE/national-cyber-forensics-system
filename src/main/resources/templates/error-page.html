@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🛡️ Cyber Forensics System</div>
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/login}">Login</a>
+    </div>
+</div>
+
+<div class="container" style="max-width: 700px; margin: 50px auto;">
+    <div class="card" style="text-align: center; padding: 40px; background: rgba(220,38,38,0.08); border: 3px solid #dc2626;">
+        <div style="font-size: 70px; margin-bottom: 20px;">⚠️</div>
+        <h1 style="color: #dc2626; margin: 0 0 15px 0;">Hitilafu Imetokea</h1>
+        <p style="font-size: 16px; color: #333;">
+            <strong>Status:</strong> <span th:text="${statusCode}">500</span>
+        </p>
+        <p style="color: #666;" th:text="${errorMessage}">An unexpected error occurred</p>
+    </div>
+
+    <div class="card" style="text-align: center; margin-top: 20px;">
+        <p>Samahani kwa usumbufu. Tafadhali jaribu tena au rudi kwenye ukurasa wa mwanzo.</p>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+            <a th:href="@{/dashboard}" class="btn btn-primary" style="text-decoration: none;">🏠 Dashboard</a>
+            <a th:href="@{/login}" class="btn" style="text-decoration: none; background: white; color: #0f2557; border: 2px solid #0f2557;">🔐 Login</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="#{nav.dashboard}">Dashboard</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
@@ -11,52 +11,52 @@
 
 <div class="container">
     <div class="card">
-        <h1><span th:text="#{dashboard.welcome}">Welcome</span>, <span th:text="${username}">User</span>!</h1>
-        <p th:text="#{dashboard.personal}">Hii ni dashibodi yako binafsi.</p>
+        <h1>Karibu, <span th:text="${username}">User</span>!</h1>
+        <p>Hii ni dashibodi yako binafsi.</p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box">
-            <div class="stat-value" th:text="${user.securityScore != null ? user.securityScore : 0}">0</div>
-            <div class="stat-label" th:text="#{dashboard.securityScore}">Security Score</div>
+            <div class="stat-value" th:text="${user?.securityScore != null ? user.securityScore : 0}">0</div>
+            <div class="stat-label">Security Score</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" th:text="${user.countSocialAccounts()}">0</div>
-            <div class="stat-label" th:text="#{dashboard.socialAccounts}">Social Accounts</div>
+            <div class="stat-value" th:text="${user != null ? (user.socialAccounts != null ? #strings.length(user.socialAccounts) : 0) : 0}">0</div>
+            <div class="stat-label">Social Accounts</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" th:text="${user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
-            <div class="stat-label" th:text="#{dashboard.twoFactor}">2FA</div>
+            <div class="stat-value" th:text="${user?.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
+            <div class="stat-label">2FA</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" th:text="${user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
-            <div class="stat-label" th:text="#{dashboard.breachChecked}">Breach Checked</div>
+            <div class="stat-value" th:text="${user?.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
+            <div class="stat-label">Breach Checked</div>
         </div>
     </div>
 
     <div class="card">
-        <h2 th:text="#{dashboard.quickActions}">Quick Actions</h2>
+        <h2>Vitendo vya Haraka</h2>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-top:15px;">
-            <a th:href="@{/report-attack}" class="btn btn-danger" style="text-align:center; padding:20px;">
-                🚨 <span th:text="#{nav.report}">Report Attack</span>
+            <a th:href="@{/report-attack}" class="btn btn-danger" style="text-align:center; padding:20px; text-decoration:none;">
+                🚨 Ripoti Tukio
             </a>
-            <a th:href="@{/ai/assistant}" class="btn btn-primary" style="text-align:center; padding:20px;">
-                🤖 <span th:text="#{nav.ai}">AI Assistant</span>
+            <a th:href="@{/ai/assistant}" class="btn btn-primary" style="text-align:center; padding:20px; text-decoration:none;">
+                🤖 Msaidizi wa AI
             </a>
-            <a th:href="@{/notifications}" class="btn" style="text-align:center; padding:20px;">
-                🔔 <span th:text="#{nav.notifications}">Notifications</span>
+            <a th:href="@{/notifications}" class="btn" style="text-align:center; padding:20px; text-decoration:none;">
+                🔔 Taarifa
             </a>
-            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px;">
-                🛡️ <span th:text="#{nav.tools}">Security Tools</span>
+            <a th:href="@{/tools/security-center}" class="btn" style="text-align:center; padding:20px; text-decoration:none;">
+                🛡️ Zana za Usalama
             </a>
         </div>
     </div>
 
     <div class="card">
-        <h2 th:text="#{dashboard.myReports}">My Reports</h2>
-        <p th:text="#{dashboard.reportsDesc}">Ona ripoti zako na mawasiliano na admin.</p>
-        <a th:href="@{/report-attack}" class="btn btn-primary" style="margin-top:15px;">
-            📋 <span th:text="#{dashboard.viewMyReports}">View My Reports</span>
+        <h2>Ripoti Zangu</h2>
+        <p>Ona ripoti zako na mawasiliano na admin.</p>
+        <a th:href="@{/report-attack}" class="btn btn-primary" style="margin-top:15px; text-decoration:none;">
+            📋 Ona Ripoti Zangu
         </a>
     </div>
 </div>
