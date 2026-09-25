@@ -127,13 +127,8 @@ public class ReportAttackController {
 
         ReportAttack saved = service.create(report);
 
-        // Welcome message from System
         try {
-            String welcome = "✅ Report Received\n\n"
-                    + "Asante kwa kuripoti. Timu yetu ya usalama itaangalia taarifa yako. "
-                    + "Utapata jibu hivi karibuni.\n\n"
-                    + "Kama una swali lolote — unaweza kuandika hapa chini.";
-
+            String welcome = "✅ Report Received\n\nAsante kwa kuripoti. Timu yetu itaangalia taarifa yako. Utapata jibu hivi karibuni.";
             messageRepo.save(new ReportMessage(saved.getId(), null, "System", "AI", welcome));
         } catch (Exception e) { log.error("Welcome: {}", e.getMessage()); }
 
@@ -167,41 +162,21 @@ public class ReportAttackController {
         model.addAttribute("report", r);
         model.addAttribute("user", user);
         model.addAttribute("canSeeAll", isAdmin);
+        model.addAttribute("isOwner", isOwner);
         model.addAttribute("messages", messages);
         return "report-attack-detail";
     }
 
-    // ===== FIX EVIDENCE DOWNLOAD =====
     @GetMapping("/evidence/{id}")
     public ResponseEntity<byte[]> downloadEvidence(@PathVariable Long id) throws IOException {
-        log.info("=== Download evidence for report ID: {} ===", id);
-
         ReportAttack r = service.getById(id);
-        if (r == null) {
-            log.error("Report {} not found", id);
-            return ResponseEntity.notFound().build();
-        }
-
-        if (r.getEvidenceFilePath() == null || r.getEvidenceFilePath().isBlank()) {
-            log.error("Report {} has no evidence file", id);
-            return ResponseEntity.notFound().build();
-        }
-
+        if (r == null || r.getEvidenceFilePath() == null) return ResponseEntity.notFound().build();
         Path filePath = Paths.get(uploadDir, r.getEvidenceFilePath());
-        log.info("Looking for file: {}", filePath.toString());
-
-        if (!Files.exists(filePath)) {
-            log.error("File not found on disk: {}", filePath);
-            return ResponseEntity.notFound().build();
-        }
-
+        if (!Files.exists(filePath)) return ResponseEntity.notFound().build();
         byte[] data = Files.readAllBytes(filePath);
         String fileName = r.getEvidenceFilePath();
         int idx = fileName.indexOf("_");
         if (idx > 0) fileName = fileName.substring(idx + 1);
-
-        log.info("Sending file: {} ({} bytes)", fileName, data.length);
-
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
@@ -229,6 +204,7 @@ public class ReportAttackController {
         return "redirect:/report-attack/view/" + id;
     }
 
+    // ===== AI REPLY — User anaweza pia =====
     @PostMapping("/{id}/ai-reply")
     public String triggerAiReply(@PathVariable Long id, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
@@ -242,14 +218,14 @@ public class ReportAttackController {
                     + "Jibu kwa Kiswahili kwa mtindo huu:\n"
                     + "1. Asante kwa kuripoti\n"
                     + "2. Case yako inafanyiwa kazi\n"
-                    + "3. Hatua 3-4 za haraka zenye namba\n"
+                    + "3. Hatua 3-4 za haraka\n"
                     + "4. Namba ya Polisi (112/999)\n"
-                    + "Kuwa mfupi (sentensi 5-7), wa kitaalamu, tumia emoji.";
+                    + "Kuwa mfupi, wa kitaalamu, tumia emoji.";
 
-            String aiResponse = aiChatService.chat(prompt, "AdminTrigger", "sw");
+            String aiResponse = aiChatService.chat(prompt, "UserTrigger", "sw");
             messageRepo.save(new ReportMessage(id, null, "AI Assistant", "AI", aiResponse));
 
-            log.info("✅ AI reply for report {}", r.getReportId());
+            log.info("AI reply triggered by {} for report {}", user.getUsername(), r.getReportId());
         } catch (Exception e) {
             log.error("AI trigger failed: {}", e.getMessage());
         }

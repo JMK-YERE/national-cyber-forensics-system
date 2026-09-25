@@ -69,7 +69,6 @@ public class WhistleblowerController {
         report.setCountryName(CountryConfig.getCountry(country).name);
         report.setDateOccurred(dateOccurred);
 
-        // Handle evidence file
         if (evidenceFile != null && !evidenceFile.isEmpty()) {
             try {
                 Path uploadPath = Paths.get(uploadDir);
@@ -87,7 +86,6 @@ public class WhistleblowerController {
         }
 
         WhistleblowerReport saved = service.createReport(report);
-
         ra.addFlashAttribute("successCode", saved.getTrackingCode());
         return "redirect:/whistleblower/success";
     }
