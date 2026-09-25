@@ -66,6 +66,16 @@ public class ReportAttackController {
                 || "FORENSICS".equalsIgnoreCase(role) || "ANALYST".equalsIgnoreCase(role);
     }
 
+    private void notifyAdmins(String title, String message, String type, String linkUrl) {
+        try {
+            List<User> admins = userRepository.findAll().stream()
+                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
+            for (User admin : admins) {
+                notificationService.createNotification(admin.getId(), title, message, type, linkUrl);
+            }
+        } catch (Exception e) { log.error("Notify admins failed: {}", e.getMessage()); }
+    }
+
     @GetMapping
     public String showForm(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
@@ -131,16 +141,12 @@ public class ReportAttackController {
             String welcome = "✅ Report Received\n\nAsante kwa kuripoti. Timu yetu itaangalia taarifa yako. Utapata jibu hivi karibuni.";
             messageRepo.save(new ReportMessage(saved.getId(), null, "System", "SYSTEM", welcome));
             
-            // Notify admins
-            List<User> admins = userRepository.findAll().stream()
-                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
-            for (User admin : admins) {
-                notificationService.createNotification(
-                    "🚨 New Report: " + saved.getAttackTypeLabel(),
-                    saved.getTitle() + " | " + saved.getReporterName(),
-                    "CRITICAL", "/report-attack/view/" + saved.getId()
-                );
-            }
+            // Notify admins ONLY
+            notifyAdmins(
+                "🚨 New Report: " + saved.getAttackTypeLabel(),
+                saved.getTitle() + " | " + saved.getReporterName(),
+                "CRITICAL", "/report-attack/view/" + saved.getId()
+            );
         } catch (Exception e) { log.error("Notif: {}", e.getMessage()); }
 
         return "redirect:/report-attack/view/" + saved.getId();
@@ -191,11 +197,12 @@ public class ReportAttackController {
         String senderType = canSeeAllReports(user) ? "ADMIN" : "USER";
         messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
 
-        // Notify the other party
+        // Notify the OTHER party ONLY
         if ("ADMIN".equals(senderType)) {
-            // Admin replied -> notify user
+            // Admin replied -> notify the user who reported
             if (r.getUserId() != null) {
                 notificationService.createNotification(
+                    r.getUserId(),
                     "💬 Admin amejibu Report " + r.getReportId(),
                     message.substring(0, Math.min(80, message.length())),
                     "INFO", "/report-attack/view/" + id
@@ -203,17 +210,11 @@ public class ReportAttackController {
             }
         } else {
             // User replied -> notify admins
-            try {
-                List<User> admins = userRepository.findAll().stream()
-                        .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
-                for (User admin : admins) {
-                    notificationService.createNotification(
-                        "💬 User amejibu Report " + r.getReportId(),
-                        message.substring(0, Math.min(80, message.length())),
-                        "INFO", "/report-attack/view/" + id
-                    );
-                }
-            } catch (Exception e) { log.error("Notif: {}", e.getMessage()); }
+            notifyAdmins(
+                "💬 User amejibu Report " + r.getReportId(),
+                message.substring(0, Math.min(80, message.length())),
+                "INFO", "/report-attack/view/" + id
+            );
         }
         return "redirect:/report-attack/view/" + id;
     }
@@ -238,9 +239,10 @@ public class ReportAttackController {
             String aiResponse = aiChatService.chat(prompt, "UserTrigger", "sw");
             messageRepo.save(new ReportMessage(id, null, "AI Assistant", "AI", aiResponse));
 
-            // Notify user
+            // Notify the USER who reported
             if (r.getUserId() != null) {
                 notificationService.createNotification(
+                    r.getUserId(),
                     "🤖 AI imejibu Report " + r.getReportId(),
                     aiResponse.substring(0, Math.min(80, aiResponse.length())),
                     "INFO", "/report-attack/view/" + id
@@ -300,6 +302,7 @@ public class ReportAttackController {
             ReportAttack r = service.getById(id);
             if (r != null && r.getUserId() != null) {
                 notificationService.createNotification(
+                    r.getUserId(),
                     "👤 Admin amejibu Report " + r.getReportId(),
                     adminResponse.substring(0, Math.min(80, adminResponse.length())),
                     "INFO", "/report-attack/view/" + id

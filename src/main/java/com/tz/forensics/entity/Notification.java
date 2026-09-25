@@ -12,7 +12,7 @@ public class Notification {
     private Long id;
 
     @Column(name = "user_id")
-    private Long userId;
+    private Long userId; // Nani anapaswa kuona notification hii
 
     @Column(nullable = false, length = 200)
     private String title;
@@ -23,7 +23,7 @@ public class Notification {
     @Column(length = 30)
     private String type = "INFO";
 
-    @Column(name = "link_url")
+    @Column(name = "link_url", length = 500)
     private String linkUrl;
 
     @Column(name = "is_read")

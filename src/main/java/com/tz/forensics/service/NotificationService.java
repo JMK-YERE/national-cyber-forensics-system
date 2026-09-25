@@ -15,48 +15,23 @@ public class NotificationService {
         this.notificationRepository = notificationRepository;
     }
 
-    // ===== CREATE NOTIFICATION =====
-    public void createNotification(String title, String message, String type, String linkUrl) {
-        Notification notification = new Notification(null, title, message, type, linkUrl);
-        notificationRepository.save(notification);
+    public void createNotification(Long userId, String title, String message, String type, String linkUrl) {
+        Notification n = new Notification(userId, title, message, type, linkUrl);
+        notificationRepository.save(n);
     }
 
-    // ===== INCIDENT NOTIFICATION =====
-    public void createIncidentNotification(String incidentId, String title, String severity) {
-        String emoji;
-        if ("CRITICAL".equalsIgnoreCase(severity)) emoji = "🚨";
-        else if ("HIGH".equalsIgnoreCase(severity)) emoji = "⚠️";
-        else if ("MEDIUM".equalsIgnoreCase(severity)) emoji = "📌";
-        else emoji = "ℹ️";
-
-        String notifTitle = emoji + " Tukio Jipya: " + incidentId;
-        String notifMessage = title + " (Severity: " + severity + ")";
-        String notifType = (severity != null) ? severity.toUpperCase() : "INFO";
-
-        createNotification(notifTitle, notifMessage, notifType, "/report-attack");
+    public List<Notification> getNotificationsForUser(Long userId) {
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
-    // ===== GET ALL =====
-    public List<Notification> getAllNotifications() {
-        return notificationRepository.findAllByOrderByCreatedAtDesc();
+    public List<Notification> getUnreadNotifications(Long userId) {
+        return notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
     }
 
-    // ===== GET UNREAD =====
-    public List<Notification> getUnreadNotifications() {
-        return notificationRepository.findByIsReadFalseOrderByCreatedAtDesc();
+    public long getUnreadCount(Long userId) {
+        return notificationRepository.countByUserIdAndIsReadFalse(userId);
     }
 
-    // ===== GET LATEST 10 =====
-    public List<Notification> getLatestNotifications() {
-        return notificationRepository.findTop10ByOrderByCreatedAtDesc();
-    }
-
-    // ===== COUNT UNREAD =====
-    public long getUnreadCount() {
-        return notificationRepository.countByIsReadFalse();
-    }
-
-    // ===== MARK AS READ =====
     public void markAsRead(Long id) {
         notificationRepository.findById(id).ifPresent(n -> {
             n.setIsRead(true);
@@ -64,9 +39,8 @@ public class NotificationService {
         });
     }
 
-    // ===== MARK ALL AS READ =====
-    public void markAllAsRead() {
-        List<Notification> unread = notificationRepository.findByIsReadFalseOrderByCreatedAtDesc();
+    public void markAllAsRead(Long userId) {
+        List<Notification> unread = notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
         unread.forEach(n -> n.setIsRead(true));
         notificationRepository.saveAll(unread);
     }
