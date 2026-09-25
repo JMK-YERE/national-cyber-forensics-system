@@ -2,85 +2,40 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="#{whistleblower.title} + ' - ' + #{app.title}">Whistleblower Portal</title>
+    <title th:text="#{whistleblower.portalTitle}">Whistleblower Portal</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
-    <style>
-        .hero { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #0f2557, #1a3a70); border-radius: 10px; color: white; margin-bottom: 25px; }
-        .hero h1 { color: white; font-size: 36px; margin-bottom: 20px; }
-        .hero p { color: rgba(255,255,255,0.9); font-size: 16px; max-width: 700px; margin: 0 auto; }
-        .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
-        .action-card { background: white; border: 2px solid rgba(15,37,87,0.15); border-radius: 10px; padding: 40px 30px; text-align: center; transition: all 0.3s; text-decoration: none; color: inherit; }
-        .action-card:hover { border-color: #0f2557; box-shadow: 0 10px 30px rgba(15,37,87,0.15); transform: translateY(-5px); }
-        .action-card .icon { font-size: 60px; margin-bottom: 15px; }
-        .action-card h3 { color: #0f2557; font-size: 20px; margin-bottom: 10px; }
-        .action-card p { font-size: 13px; color: #666; }
-        .warning-box { background: rgba(201,162,39,0.1); border-left: 4px solid #c9a227; padding: 25px; border-radius: 8px; margin: 30px 0; }
-        .warning-box h3 { color: #0f2557; margin-bottom: 15px; }
-        .warning-box ul { padding-left: 20px; color: #555; font-size: 14px; line-height: 2; }
-        .lang-switcher { display: flex; gap: 8px; align-items: center; margin-left: 15px; padding-left: 15px; border-left: 1px solid rgba(255,255,255,0.3); }
-        .lang-switcher a { color: white !important; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.1); }
-        .lang-switcher a:hover { background: rgba(255,255,255,0.2); }
-        .lang-switcher a.active-lang { background: #c9a227; color: #0f2557 !important; font-weight: bold; }
-    </style>
 </head>
 <body>
 <div class="navbar">
     <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics System</span></div>
     <div class="nav-links">
         <a th:href="@{/whistleblower}" th:text="#{whistleblower.home}">Home</a>
-        <a th:href="@{/whistleblower/track}" th:text="#{whistleblower.trackReport}">Track Report</a>
+        <a th:href="@{/whistleblower/track}" th:text="#{whistleblower.trackTitle}">Track Report</a>
         <a th:href="@{/login}" th:text="#{whistleblower.login}">Login</a>
-        <div class="lang-switcher">
-            <a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
-            <a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active-lang'">EN</a>
-            <a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
-            <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
-        </div>
+        <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
+            <a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active-lang'" style="color:white; padding:4px 8px;">SW</a>
+            <a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active-lang'" style="color:white; padding:4px 8px;">EN</a>
+            <a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active-lang'" style="color:white; padding:4px 8px;">FR</a>
+            <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active-lang'" style="color:white; padding:4px 8px;">AR</a>
+        </span>
     </div>
 </div>
-
 <div class="container">
-    <div class="hero">
-        <div style="font-size: 80px;">🕵️</div>
+    <div class="hero" style="text-align:center; padding:40px; background:linear-gradient(135deg, #0f2557, #1a3a70); color:white; border-radius:10px;">
         <h1 th:text="#{whistleblower.portalTitle}">Whistleblower Portal</h1>
         <p th:text="#{whistleblower.portalSubtitle}">Report corruption, bribery, harassment anonymously.</p>
+        <div style="margin-top:30px;">
+            <a th:href="@{/whistleblower/report}" class="btn btn-primary" th:text="#{whistleblower.reportNow}">Report Now</a>
+            <a th:href="@{/whistleblower/track}" class="btn" th:text="#{whistleblower.trackTitle}">Track Report</a>
+        </div>
     </div>
-
-    <div class="action-grid">
-        <a th:href="@{/whistleblower/report}" class="action-card">
-            <div class="icon">📝</div>
-            <h3 th:text="#{whistleblower.reportNow}">Report Now</h3>
-            <p th:text="#{whistleblower.reportNowDesc}">Submit your report with confidentiality</p>
-        </a>
-        <a th:href="@{/whistleblower/track}" class="action-card">
-            <div class="icon">🔍</div>
-            <h3 th:text="#{whistleblower.trackTitle}">Track Your Report</h3>
-            <p th:text="#{whistleblower.trackDesc}">Follow up using your tracking code</p>
-        </a>
-    </div>
-
-    <div class="warning-box">
-        <h3>🛡️ <span th:text="#{whistleblower.yourSafety}">Your Safety is Important</span></h3>
-        <ul>
-            <li th:text="#{whistleblower.privacy1}">Your identity is protected</li>
-            <li th:text="#{whistleblower.privacy2}">No IP tracking</li>
-            <li th:text="#{whistleblower.privacy3}">Encrypted submission</li>
-            <li th:text="#{whistleblower.privacy4}">You will receive a tracking code</li>
-        </ul>
-    </div>
-
-    <div class="card">
+    <div class="card" style="margin-top:30px;">
         <h2 th:text="#{whistleblower.whatReport}">What can you report?</h2>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-top:20px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-top:20px;">
             <div class="stat-box"><div class="stat-value">💰</div><div class="stat-label" th:text="#{category.CORRUPTION}">Corruption</div></div>
             <div class="stat-box"><div class="stat-value">🎭</div><div class="stat-label" th:text="#{category.FRAUD}">Fraud</div></div>
             <div class="stat-box"><div class="stat-value">💻</div><div class="stat-label" th:text="#{category.CYBER_ATTACK}">Cyber Attack</div></div>
             <div class="stat-box"><div class="stat-value">😢</div><div class="stat-label" th:text="#{category.HARASSMENT}">Harassment</div></div>
-            <div class="stat-box"><div class="stat-value">💊</div><div class="stat-label" th:text="#{category.DRUGS}">Drugs</div></div>
-            <div class="stat-box"><div class="stat-value">🚨</div><div class="stat-label" th:text="#{category.HUMAN_TRAFFICKING}">Trafficking</div></div>
-            <div class="stat-box"><div class="stat-value">📊</div><div class="stat-label" th:text="#{category.TAX_EVASION}">Tax Evasion</div></div>
-            <div class="stat-box"><div class="stat-value">💵</div><div class="stat-label" th:text="#{category.MONEY_LAUNDERING}">Money Laundering</div></div>
         </div>
     </div>
 </div>

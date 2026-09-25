@@ -9,114 +9,72 @@
         .msg-user { background: rgba(15,37,87,0.05); border-left: 4px solid #0f2557; }
         .msg-admin { background: rgba(201,162,39,0.1); border-left: 4px solid #c9a227; }
         .msg-ai { background: rgba(139,92,246,0.08); border-left: 4px solid #8b5cf6; }
-        .ai-box { background: linear-gradient(135deg, rgba(15,37,87,0.05), rgba(201,162,39,0.05)); border-left: 4px solid #0f2557; padding: 20px; border-radius: 8px; white-space: pre-line; line-height: 1.9; font-size: 14px; }
         .admin-panel { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(167,139,250,0.08)); border: 3px solid #8b5cf6; padding: 25px; border-radius: 12px; margin: 20px 0; }
         .admin-button { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
-        .admin-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,92,246,0.5); }
-        .evidence-box { background: rgba(27,122,74,0.08); border-left: 5px solid #1b7a4a; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .download-btn { background: #1b7a4a; color: white; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; }
-        .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; padding: 10px 0; }
-        .lang-bar a { padding: 6px 14px; background: white; border: 2px solid rgba(15,37,87,0.2); border-radius: 20px; color: #0f2557; font-size: 12px; font-weight: 600; text-decoration: none; }
-        .lang-bar a.active { background: #0f2557; color: white; border-color: #0f2557; }
     </style>
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ Cyber Forensics System</div>
+    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
     <div class="nav-links">
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}">Report</a>
+        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
+        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
         <a th:href="@{/report-attack/admin}">👑 Admin</a>
         <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">Logout</button>
+            <button type="submit" class="logout-btn" th:text="#{nav.logout}">Logout</button>
         </form>
     </div>
 </div>
 
 <div class="container">
-    <!-- LANGUAGE SWITCHER -->
-    <div class="lang-bar">
-        <a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'">SW</a>
-        <a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'">EN</a>
-        <a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'">FR</a>
-        <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'">AR</a>
+    <div class="lang-bar" style="text-align:right; padding:10px 0;">
+        <a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'" style="margin:0 5px; padding:5px 12px; background:white; border:2px solid #0f2557; border-radius:15px; text-decoration:none; color:#0f2557; font-weight:bold;">SW</a>
+        <a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'" style="margin:0 5px; padding:5px 12px; background:white; border:2px solid #0f2557; border-radius:15px; text-decoration:none; color:#0f2557; font-weight:bold;">EN</a>
+        <a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'" style="margin:0 5px; padding:5px 12px; background:white; border:2px solid #0f2557; border-radius:15px; text-decoration:none; color:#0f2557; font-weight:bold;">FR</a>
+        <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'" style="margin:0 5px; padding:5px 12px; background:white; border:2px solid #0f2557; border-radius:15px; text-decoration:none; color:#0f2557; font-weight:bold;">AR</a>
     </div>
 
-    <!-- ADMIN PANEL — KILA MTU ALIYEINGIA -->
-    <div class="admin-panel">
+    <div class="admin-panel" th:if="${canSeeAll}">
         <h2 style="color:#8b5cf6; margin-top:0;">👑 Admin Actions</h2>
-        <p style="color:#333;">Unaweza ku-trigger AI reply au kuona reports zote:</p>
-
-        <div style="margin-top: 20px;">
-            <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
-                <button type="submit" class="admin-button">
-                    🤖 Ruhusu AI Ijibu Sasa
-                </button>
-            </form>
-
-            <a th:href="@{/report-attack/admin}" class="admin-button">
-                📋 View All Reports
-            </a>
-        </div>
+        <p>Unaweza ku-trigger AI reply au kuona reports zote:</p>
+        <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
+            <button type="submit" class="admin-button">🤖 Ruhusu AI Ijibu Sasa</button>
+        </form>
+        <a th:href="@{/report-attack/admin}" class="admin-button">📋 View All Reports</a>
     </div>
 
-    <!-- REPORT DETAILS -->
     <div class="card">
         <h1>📋 Report Details</h1>
-        <div style="padding: 10px 0; border-bottom: 1px solid rgba(15,37,87,0.1);">
-            <strong>Report ID:</strong>
-            <span style="color:#c9a227; font-weight:bold; font-family:monospace;" th:text="${report.reportId}"></span>
-        </div>
-        <p><strong>Title:</strong> <span th:text="${report.title}"></span></p>
-        <p><strong>Attack Type:</strong> <span th:text="${report.attackTypeLabel}"></span></p>
-        <p><strong>Status:</strong> <span th:text="${report.status}"></span></p>
-        <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
-        <p><strong>Country:</strong> <span th:text="${report.countryName}"></span></p>
-        <p><strong>Region:</strong> <span th:text="${report.region}"></span></p>
-        <p><strong>Date:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <p><strong th:text="#{report.title2}">Title:</strong> <span th:text="${report.title}"></span></p>
+        <p><strong th:text="#{report.status}">Status:</strong> <span th:text="${report.status}"></span></p>
+        <p><strong th:text="#{report.region}">Region:</strong> <span th:text="${report.region}"></span></p>
+        <p><strong th:text="#{general.date}">Date:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
     </div>
 
-    <!-- DESCRIPTION -->
     <div class="card">
-        <h2>📝 Description</h2>
+        <h2 th:text="#{report.description}">Description</h2>
         <p th:text="${report.description}" style="white-space: pre-wrap;"></p>
     </div>
 
-    <!-- AI RECOMMENDATIONS -->
-    <div class="card" th:if="${report.aiRecommendation != null}">
-        <h2>🤖 AI Recommendations</h2>
-        <div class="ai-box" th:text="${report.aiRecommendation}"></div>
-    </div>
-
-    <!-- EVIDENCE -->
-    <div class="evidence-box" th:if="${report.evidenceFilePath != null}">
-        <h2 style="color:#1b7a4a; margin-top:0;">📎 Evidence</h2>
-        <p><strong>Type:</strong> <span th:text="${report.evidenceFileType}"></span></p>
-        <p><strong>Size:</strong> <span th:text="${report.evidenceFileSize != null ? (report.evidenceFileSize / 1024) + ' KB' : 'N/A'}"></span></p>
-        <a th:href="@{'/report-attack/evidence/' + ${report.id}}" class="download-btn">
-            ⬇️ Download Evidence
-        </a>
-    </div>
-
-    <!-- MESSAGES — KILA MTU ANAONA -->
-    <div class="card">
-        <h2>💬 Messages & Discussion</h2>
-        <p style="font-size:13px; color:#666;">Mawasiliano kati yako na timu ya usalama.</p>
-
+    <div class="card" th:if="${messages != null && !messages.isEmpty()}">
+        <h2 th:text="#{report.messages}">Messages & Discussion</h2>
         <div th:each="m : ${messages}" class="msg-box"
              th:classappend="${m.senderType == 'ADMIN'} ? 'msg-admin' : (${m.senderType == 'AI'} ? 'msg-ai' : 'msg-user')">
             <div style="font-size:12px; font-weight:bold; margin-bottom:8px;">
-                <span th:if="${m.senderType == 'ADMIN'}">👤 Security Team</span>
+                <span th:if="${m.senderType == 'ADMIN'}">👤 Security Team (Admin)</span>
                 <span th:if="${m.senderType == 'USER'}">👤 You</span>
-                <span th:if="${m.senderType == 'AI'}" style="color:#8b5cf6;">🤖 AI Assistant</span>
+                <span th:if="${m.senderType == 'AI'}">🤖 AI Assistant</span>
                 <span style="float:right; font-weight:normal; color:#888;"
                       th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
             </div>
             <div th:text="${m.message}" style="white-space: pre-wrap;"></div>
         </div>
+    </div>
 
-        <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post" style="margin-top:20px;">
-            <textarea name="message" rows="3" required placeholder="Andika ujumbe..."></textarea>
+    <div class="card">
+        <h3 th:text="#{report.sendMessage}">Send Message</h3>
+        <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post">
+            <textarea name="message" rows="3" required placeholder="Andika ujumbe..." style="width:100%;"></textarea>
             <button type="submit" class="btn btn-primary" style="margin-top:10px;">📤 Send</button>
         </form>
     </div>
