@@ -19,6 +19,10 @@
         .download-btn { background: #1b7a4a; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; }
         .msg-header { font-size: 12px; font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; }
         .msg-body { white-space: pre-wrap; line-height: 1.7; }
+        .type-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; color: white; font-weight: bold; }
+        .dynamic-field { display: flex; padding: 10px 0; border-bottom: 1px solid rgba(15,37,87,0.1); }
+        .dynamic-field .label { font-weight: 600; color: #0f2557; min-width: 200px; }
+        .dynamic-field .value { color: #333; flex: 1; }
     </style>
 </head>
 <body>
@@ -29,7 +33,7 @@
         <a th:href="@{/report-attack}" class="btn" style="text-decoration:none;">← Back to Reports</a>
     </div>
 
-    <!-- ===== ADMIN ACTIONS — ADMIN PEKEE ===== -->
+    <!-- ADMIN ACTIONS — ADMIN PEKEE -->
     <div class="admin-panel" th:if="${canSeeAll}">
         <h2 style="color:#c9a227; margin-top:0;">👑 Admin Actions</h2>
         <p>Unaweza kuona reports zote na kufanya maamuzi:</p>
@@ -37,44 +41,56 @@
         <a th:href="@{/report-attack/admin}" class="admin-button">⚙️ Manage This Report</a>
     </div>
 
-    <!-- ===== AI PANEL — KWA WOTE (user + admin) ===== -->
+    <!-- AI PANEL — KWA WOTE -->
     <div class="ai-panel">
         <h2 style="color:#8b5cf6; margin-top:0;">🤖 AI Assistant</h2>
         <p>Kama unahitaji msaada wa haraka, unaweza kuomba AI ijibu sasa:</p>
         <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
             <button type="submit" class="ai-button">🤖 Omba AI Ijibu Sasa</button>
         </form>
-        <!-- Auto-reply info — INAONEKANA KWA ADMIN PEKEE -->
         <p th:if="${canSeeAll}" style="font-size:13px; color:#666; margin-top:10px;">
             ⏰ Auto-reply: AI itajibu automatically kama admin hajajibu ndani ya dakika 5.
         </p>
     </div>
 
-    <!-- ===== REPORT DETAILS ===== -->
+    <!-- REPORT DETAILS -->
     <div class="card">
         <h1>📋 Report Details</h1>
+
+        <p>
+            <strong>Aina ya Tukio:</strong>
+            <span class="type-badge" th:style="'background:' + ${report.attackTypeColor}"
+                  th:text="${report.attackTypeLabel}"></span>
+        </p>
         <p><strong>Report ID:</strong> <span style="color:#c9a227; font-family:monospace; font-weight:bold;" th:text="${report.reportId}"></span></p>
         <p><strong>Title:</strong> <span th:text="${report.title}"></span></p>
-        <p><strong>Type:</strong> <span th:text="${report.attackTypeLabel}"></span></p>
         <p><strong>Status:</strong> <span th:text="${report.status}"></span></p>
         <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
         <p><strong>Country:</strong> <span th:text="${report.countryName}"></span></p>
         <p><strong>Region:</strong> <span th:text="${report.region}"></span></p>
         <p><strong>Date:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
 
-        <!-- Police Case Number — ADMIN PEKEE -->
         <p th:if="${canSeeAll && report.policeCaseNumber != null}">
             <strong>Police Case #:</strong> <span th:text="${report.policeCaseNumber}"></span>
         </p>
     </div>
 
-    <!-- ===== DESCRIPTION ===== -->
+    <!-- DYNAMIC DETAILS — zinaonekana kulingana na aina -->
+    <div class="card" th:if="${dynFields != null && !dynFields.isEmpty()}">
+        <h2>📋 <span th:text="${report.attackTypeLabel}"></span> — Maelezo ya Ziada</h2>
+        <div th:each="f : ${dynFields}" class="dynamic-field">
+            <div class="label" th:text="${f.label} + ':'"></div>
+            <div class="value" th:text="${f.value}"></div>
+        </div>
+    </div>
+
+    <!-- DESCRIPTION -->
     <div class="card">
         <h2>📝 Description</h2>
         <p th:text="${report.description}" style="white-space: pre-wrap;"></p>
     </div>
 
-    <!-- ===== EVIDENCE — OWNER au ADMIN PEKEE ===== -->
+    <!-- EVIDENCE — OWNER au ADMIN PEKEE -->
     <div class="evidence-box" th:if="${report.evidenceFilePath != null and (isOwner or canSeeAll)}">
         <h2 style="color:#1b7a4a; margin-top:0;">📎 Evidence</h2>
         <p><strong>Type:</strong> <span th:text="${report.evidenceFileType}"></span></p>
@@ -82,7 +98,7 @@
         <a th:href="@{'/report-attack/evidence/' + ${report.id}}" class="download-btn">⬇️ Download Evidence</a>
     </div>
 
-    <!-- ===== MESSAGES ===== -->
+    <!-- MESSAGES -->
     <div class="card">
         <h2>💬 Messages & Discussion</h2>
         <p style="font-size:13px; color:#666;">Mawasiliano kati yako, admin, na AI.</p>

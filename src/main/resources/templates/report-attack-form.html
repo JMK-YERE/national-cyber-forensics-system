@@ -5,6 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Attack</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #0f2557; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid rgba(15,37,87,0.2);
+            border-radius: 6px; font-size: 14px; font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: #0f2557; box-shadow: 0 0 0 3px rgba(15,37,87,0.1);
+        }
+        .dynamic-section {
+            background: linear-gradient(135deg, rgba(15,37,87,0.03), rgba(201,162,39,0.03));
+            border-left: 4px solid #0f2557; padding: 20px; border-radius: 8px; margin: 20px 0;
+        }
+        .dynamic-section h3 { color: #0f2557; margin-top: 0; }
+        .required { color: #dc2626; }
+        .type-badge {
+            display: inline-block; padding: 6px 12px; border-radius: 20px;
+            color: white; font-weight: bold; font-size: 13px; margin-bottom: 10px;
+        }
+        .report-row {
+            padding: 15px; margin: 10px 0; border-radius: 8px;
+            background: rgba(15,37,87,0.03); border-left: 4px solid #0f2557;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .report-row:hover { background: rgba(15,37,87,0.06); }
+    </style>
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
@@ -18,42 +46,69 @@
     <!-- NEW REPORT FORM -->
     <div class="card">
         <h2>📝 New Report</h2>
-        <form th:action="@{/report-attack/new}" method="post" enctype="multipart/form-data">
-            <div style="display:grid; gap:15px;">
-                <div>
-                    <label><strong>Title</strong></label>
-                    <input type="text" name="title" required style="width:100%; padding:10px; margin-top:5px;">
-                </div>
-                <div>
-                    <label><strong>Attack Type</strong></label>
-                    <select name="attackType" required style="width:100%; padding:10px; margin-top:5px;">
-                        <option value="PHISHING">🎣 Phishing</option>
-                        <option value="RANSOMWARE">🔒 Ransomware</option>
-                        <option value="HACKING">💻 Hacking</option>
-                        <option value="FRAUD">💰 Fraud</option>
-                        <option value="CYBERBULLYING">😢 Cyberbullying</option>
-                        <option value="DATA_BREACH">📊 Data Breach</option>
-                        <option value="OTHER">❓ Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label><strong>Description</strong></label>
-                    <textarea name="description" rows="5" required style="width:100%; padding:10px; margin-top:5px;"></textarea>
-                </div>
-                <div>
-                    <label><strong>Region</strong></label>
-                    <input type="text" name="region" style="width:100%; padding:10px; margin-top:5px;">
-                </div>
-                <div>
-                    <label><strong>Evidence File (optional)</strong></label>
-                    <input type="file" name="evidenceFile" style="width:100%; padding:10px; margin-top:5px;">
-                </div>
-                <button type="submit" class="btn btn-danger" style="padding:15px; font-size:16px;">🚨 SUBMIT REPORT</button>
+        <form th:action="@{/report-attack/new}" method="post" enctype="multipart/form-data" id="reportForm">
+
+            <!-- STEP 1: AINA YA TUKIO -->
+            <div class="form-group">
+                <label>1. Aina ya Tukio <span class="required">*</span></label>
+                <select name="attackType" id="attackType" required onchange="switchDynamicFields()">
+                    <option value="">-- Chagua Aina ya Tukio --</option>
+                    <option th:each="t : ${incidentTypes}"
+                            th:value="${t.name()}"
+                            th:text="${t.icon} + ' ' + ${t.label}"
+                            th:attr="data-color=${t.color}"></option>
+                </select>
             </div>
+
+            <!-- STEP 2: TAARIFA ZA MSINGI -->
+            <div class="form-group">
+                <label>2. Kichwa cha Habari <span class="required">*</span></label>
+                <input type="text" name="title" required placeholder="Mfano: Nimeibiwa kwenye Facebook">
+            </div>
+
+            <div class="form-group">
+                <label>3. Maelezo ya Jumla <span class="required">*</span></label>
+                <textarea name="description" rows="4" required placeholder="Eleza kwa ufupi kile kilichotokea..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>4. Mkoa</label>
+                <input type="text" name="region" placeholder="Mfano: Dar es Salaam">
+            </div>
+
+            <div class="form-group">
+                <label>5. Tarehe ya Tukio</label>
+                <input type="datetime-local" name="dateOccurred">
+            </div>
+
+            <div class="form-group">
+                <label>6. Nchi</label>
+                <select name="country">
+                    <option th:each="c : ${countries}" th:value="${c.code}" th:text="${c.name}"
+                            th:selected="${c.code == 'TZ'}"></option>
+                </select>
+            </div>
+
+            <!-- STEP 3: DYNAMIC FIELDS -->
+            <div class="dynamic-section" id="dynamicSection" style="display:none;">
+                <div id="typeBadge" class="type-badge"></div>
+                <h3 id="dynamicTitle">📋 Maelezo ya Ziada</h3>
+                <div id="dynamicFields"></div>
+            </div>
+
+            <!-- STEP 4: EVIDENCE -->
+            <div class="form-group">
+                <label>7. Ushahidi (Picha/Video/Document)</label>
+                <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx">
+            </div>
+
+            <button type="submit" class="btn btn-danger" style="padding:15px 30px; font-size:16px; margin-top:15px;">
+                🚨 SUBMIT REPORT
+            </button>
         </form>
     </div>
 
-    <!-- MY REPORTS — INAONEKANA KWA WOTE -->
+    <!-- MY REPORTS -->
     <div class="card">
         <h2>📋 My Reports</h2>
         <p style="color:#666;">Reports zako binafsi</p>
@@ -62,20 +117,20 @@
             <p>Hakuna reports bado.</p>
         </div>
 
-        <div th:each="r : ${myReports}" style="padding:15px; margin:10px 0; border-radius:8px; background:rgba(15,37,87,0.03); border-left:4px solid #0f2557;">
-            <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                <div>
-                    <strong th:text="${r.reportId}"></strong>
-                    <span style="color:#666;"> — </span>
-                    <span th:text="${r.title}"></span>
-                    <br>
-                    <small style="color:#888;">
-                        Status: <strong th:text="${r.status}"></strong> |
-                        <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-                    </small>
-                </div>
-                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="btn btn-primary" style="text-decoration:none;">👁️ View</a>
+        <div th:each="r : ${myReports}" class="report-row">
+            <div>
+                <span th:text="${r.attackTypeIcon}" style="font-size:20px;"></span>
+                <strong th:text="${r.reportId}"></strong>
+                <span style="color:#666;"> — </span>
+                <span th:text="${r.title}"></span>
+                <br>
+                <small style="color:#888;">
+                    <span th:text="${r.attackTypeLabel}"></span> |
+                    Status: <strong th:text="${r.status}"></strong> |
+                    <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                </small>
             </div>
+            <a th:href="@{'/report-attack/view/' + ${r.id}}" class="btn btn-primary" style="text-decoration:none;">👁️ View</a>
         </div>
     </div>
 
@@ -84,21 +139,98 @@
         <h2 style="color:#c9a227;">👑 All Reports (Admin View)</h2>
         <p style="color:#666;">Reports zote kutoka watumiaji wote</p>
 
-        <div th:each="r : ${allReports}" style="padding:15px; margin:10px 0; border-radius:8px; background:rgba(201,162,39,0.05); border-left:4px solid #c9a227;">
-            <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                <div>
-                    <strong th:text="${r.reportId}"></strong>
-                    <span th:text="${r.title}"></span>
-                    <br>
-                    <small style="color:#888;">
-                        By: <span th:text="${r.reporterName}"></span> |
-                        Status: <strong th:text="${r.status}"></strong>
-                    </small>
-                </div>
-                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="btn" style="text-decoration:none;">👁️ View</a>
+        <div th:each="r : ${allReports}" class="report-row" style="border-left-color:#c9a227; background:rgba(201,162,39,0.05);">
+            <div>
+                <span th:text="${r.attackTypeIcon}" style="font-size:20px;"></span>
+                <strong th:text="${r.reportId}"></strong>
+                <span th:text="${r.title}"></span>
+                <br>
+                <small style="color:#888;">
+                    By: <span th:text="${r.reporterName}"></span> |
+                    <span th:text="${r.attackTypeLabel}"></span> |
+                    Status: <strong th:text="${r.status}"></strong>
+                </small>
             </div>
+            <a th:href="@{'/report-attack/view/' + ${r.id}}" class="btn" style="text-decoration:none;">👁️ View</a>
         </div>
     </div>
 </div>
+
+<!-- ===================================================== -->
+<!-- JAVASCRIPT — DYNAMIC FIELD SWITCHING -->
+<!-- ===================================================== -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const ALL_FIELDS = /*[[${allFields}]]*/ {};
+
+    function switchDynamicFields() {
+        const select = document.getElementById('attackType');
+        const type = select.value;
+        const section = document.getElementById('dynamicSection');
+        const container = document.getElementById('dynamicFields');
+        const badge = document.getElementById('typeBadge');
+        const title = document.getElementById('dynamicTitle');
+
+        container.innerHTML = '';
+
+        if (!type || !ALL_FIELDS[type] || ALL_FIELDS[type].length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+
+        const selectedOption = select.options[select.selectedIndex];
+        const color = selectedOption.getAttribute('data-color') || '#0f2557';
+        badge.style.background = color;
+        badge.textContent = selectedOption.textContent;
+        title.textContent = '📋 Maelezo ya ' + selectedOption.textContent.replace(/^[^\s]+\s/, '');
+
+        ALL_FIELDS[type].forEach(function(field) {
+            const div = document.createElement('div');
+            div.className = 'form-group';
+
+            const label = document.createElement('label');
+            label.innerHTML = field.label + (field.required ? ' <span class="required">*</span>' : '');
+            div.appendChild(label);
+
+            let input;
+            if (field.type === 'textarea') {
+                input = document.createElement('textarea');
+                input.rows = 3;
+            } else if (field.type === 'select') {
+                input = document.createElement('select');
+                const empty = document.createElement('option');
+                empty.value = '';
+                empty.textContent = '-- Chagua --';
+                input.appendChild(empty);
+                (field.options || []).forEach(function(opt) {
+                    const o = document.createElement('option');
+                    o.value = opt;
+                    o.textContent = opt;
+                    input.appendChild(o);
+                });
+            } else if (field.type === 'boolean') {
+                input = document.createElement('select');
+                const opt1 = document.createElement('option'); opt1.value = ''; opt1.textContent = '-- Chagua --'; input.appendChild(opt1);
+                const opt2 = document.createElement('option'); opt2.value = 'true'; opt2.textContent = 'Ndiyo'; input.appendChild(opt2);
+                const opt3 = document.createElement('option'); opt3.value = 'false'; opt3.textContent = 'Hapana'; input.appendChild(opt3);
+            } else {
+                input = document.createElement('input');
+                input.type = field.type;
+            }
+
+            input.name = field.name;
+            if (field.required) input.required = true;
+            if (field.type === 'date') input.type = 'date';
+            if (field.type === 'number') input.type = 'number';
+
+            div.appendChild(input);
+            container.appendChild(div);
+        });
+    }
+    /*]]>*/
+</script>
+
 </body>
 </html>
