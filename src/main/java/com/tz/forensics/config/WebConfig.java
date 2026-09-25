@@ -1,6 +1,7 @@
 package com.tz.forensics.config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
@@ -19,11 +20,12 @@ public class WebConfig implements WebMvcConfigurer {
         SessionLocaleResolver resolver = new SessionLocaleResolver() {
             @Override
             public Locale resolveLocale(HttpServletRequest request) {
-                // 1. Check if user manually set a locale (session)
-                Locale sessionLocale = (Locale) request.getSession().getAttribute("SPRING_SECURITY_LAST_LOCALE");
+                // 1. Angalia kama user amechagua lugha manually kwenye session
+                Locale sessionLocale = (Locale) request.getSession()
+                        .getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
                 if (sessionLocale != null) return sessionLocale;
 
-                // 2. Auto-detect from browser Accept-Language header
+                // 2. Auto-detect kutoka browser Accept-Language
                 String acceptLanguage = request.getHeader("Accept-Language");
                 if (acceptLanguage != null) {
                     String lang = acceptLanguage.toLowerCase();
