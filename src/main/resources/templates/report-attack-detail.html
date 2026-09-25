@@ -11,18 +11,30 @@
         .msg-admin { background: rgba(201,162,39,0.12); border-left: 4px solid #c9a227; }
         .msg-ai { background: rgba(139,92,246,0.1); border-left: 4px solid #8b5cf6; }
         .msg-system { background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a; }
+        .msg-header { font-size: 12px; font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .msg-body { white-space: pre-wrap; line-height: 1.7; }
+
         .ai-panel { background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(167,139,250,0.05)); border: 2px solid #8b5cf6; padding: 20px; border-radius: 10px; margin: 15px 0; }
         .ai-button { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; text-decoration: none; display: inline-block; }
         .admin-panel { background: linear-gradient(135deg, rgba(201,162,39,0.15), rgba(234,179,8,0.08)); border: 3px solid #c9a227; padding: 25px; border-radius: 12px; margin: 20px 0; }
         .admin-button { background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; text-decoration: none; display: inline-block; margin: 5px; }
         .evidence-box { background: rgba(27,122,74,0.08); border-left: 5px solid #1b7a4a; padding: 20px; border-radius: 8px; margin: 20px 0; }
         .download-btn { background: #1b7a4a; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; }
-        .msg-header { font-size: 12px; font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; }
-        .msg-body { white-space: pre-wrap; line-height: 1.7; }
         .type-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; color: white; font-weight: bold; }
-        .dynamic-field { display: flex; padding: 10px 0; border-bottom: 1px solid rgba(15,37,87,0.1); }
-        .dynamic-field .label { font-weight: 600; color: #0f2557; min-width: 200px; }
-        .dynamic-field .value { color: #333; flex: 1; }
+
+        /* Simple header kwa user */
+        .user-header {
+            background: linear-gradient(135deg, #0f2557, #1a3a70);
+            color: white; padding: 25px 30px; border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .user-header h1 { color: white; margin: 0 0 10px 0; font-size: 22px; }
+        .user-header .meta { color: rgba(255,255,255,0.85); font-size: 13px; }
+        .status-badge {
+            display: inline-block; padding: 5px 14px; border-radius: 20px;
+            background: rgba(255,255,255,0.2); color: white; font-weight: bold;
+            font-size: 12px; letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -33,100 +45,155 @@
         <a th:href="@{/report-attack}" class="btn" style="text-decoration:none;">← Back to Reports</a>
     </div>
 
-    <!-- ADMIN ACTIONS — ADMIN PEKEE -->
-    <div class="admin-panel" th:if="${canSeeAll}">
-        <h2 style="color:#c9a227; margin-top:0;">👑 Admin Actions</h2>
-        <p>Unaweza kuona reports zote na kufanya maamuzi:</p>
-        <a th:href="@{/report-attack/admin}" class="admin-button">📋 View All Reports</a>
-        <a th:href="@{/report-attack/admin}" class="admin-button">⚙️ Manage This Report</a>
-    </div>
-
-    <!-- AI PANEL — KWA WOTE -->
-    <div class="ai-panel">
-        <h2 style="color:#8b5cf6; margin-top:0;">🤖 AI Assistant</h2>
-        <p>Kama unahitaji msaada wa haraka, unaweza kuomba AI ijibu sasa:</p>
-        <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
-            <button type="submit" class="ai-button">🤖 Omba AI Ijibu Sasa</button>
-        </form>
-        <p th:if="${canSeeAll}" style="font-size:13px; color:#666; margin-top:10px;">
-            ⏰ Auto-reply: AI itajibu automatically kama admin hajajibu ndani ya dakika 5.
-        </p>
-    </div>
-
-    <!-- REPORT DETAILS -->
-    <div class="card">
-        <h1>📋 Report Details</h1>
-
-        <p>
-            <strong>Aina ya Tukio:</strong>
-            <span class="type-badge" th:style="'background:' + ${report.attackTypeColor}"
-                  th:text="${report.attackTypeLabel}"></span>
-        </p>
-        <p><strong>Report ID:</strong> <span style="color:#c9a227; font-family:monospace; font-weight:bold;" th:text="${report.reportId}"></span></p>
-        <p><strong>Title:</strong> <span th:text="${report.title}"></span></p>
-        <p><strong>Status:</strong> <span th:text="${report.status}"></span></p>
-        <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
-        <p><strong>Country:</strong> <span th:text="${report.countryName}"></span></p>
-        <p><strong>Region:</strong> <span th:text="${report.region}"></span></p>
-        <p><strong>Date:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
-
-        <p th:if="${canSeeAll && report.policeCaseNumber != null}">
-            <strong>Police Case #:</strong> <span th:text="${report.policeCaseNumber}"></span>
-        </p>
-    </div>
-
-    <!-- DYNAMIC DETAILS — zinaonekana kulingana na aina -->
-    <div class="card" th:if="${dynFields != null && !dynFields.isEmpty()}">
-        <h2>📋 <span th:text="${report.attackTypeLabel}"></span> — Maelezo ya Ziada</h2>
-        <div th:each="f : ${dynFields}" class="dynamic-field">
-            <div class="label" th:text="${f.label} + ':'"></div>
-            <div class="value" th:text="${f.value}"></div>
-        </div>
-    </div>
-
-    <!-- DESCRIPTION -->
-    <div class="card">
-        <h2>📝 Description</h2>
-        <p th:text="${report.description}" style="white-space: pre-wrap;"></p>
-    </div>
-
-    <!-- EVIDENCE — OWNER au ADMIN PEKEE -->
-    <div class="evidence-box" th:if="${report.evidenceFilePath != null and (isOwner or canSeeAll)}">
-        <h2 style="color:#1b7a4a; margin-top:0;">📎 Evidence</h2>
-        <p><strong>Type:</strong> <span th:text="${report.evidenceFileType}"></span></p>
-        <p><strong>Size:</strong> <span th:text="${report.evidenceFileSize != null ? (report.evidenceFileSize / 1024) + ' KB' : 'N/A'}"></span></p>
-        <a th:href="@{'/report-attack/evidence/' + ${report.id}}" class="download-btn">⬇️ Download Evidence</a>
-    </div>
-
-    <!-- MESSAGES -->
-    <div class="card">
-        <h2>💬 Messages & Discussion</h2>
-        <p style="font-size:13px; color:#666;">Mawasiliano kati yako, admin, na AI.</p>
-
-        <div th:if="${messages == null || messages.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
-            <p style="font-size:50px;">💬</p>
-            <p>Hakuna mazungumzo bado.</p>
-        </div>
-
-        <div th:each="m : ${messages}" class="msg-box"
-             th:classappend="${m.senderType == 'ADMIN'} ? 'msg-admin' : (${m.senderType == 'AI'} ? 'msg-ai' : (${m.senderType == 'SYSTEM'} ? 'msg-system' : 'msg-user'))">
-            <div class="msg-header">
-                <span>
-                    <span th:if="${m.senderType == 'ADMIN'}" style="color:#c9a227;">👤 Security Team (Admin)</span>
-                    <span th:if="${m.senderType == 'USER'}" style="color:#0f2557;">👤 You</span>
-                    <span th:if="${m.senderType == 'AI'}" style="color:#8b5cf6;">🤖 AI Assistant</span>
-                    <span th:if="${m.senderType == 'SYSTEM'}" style="color:#1b7a4a;">⚙️ System</span>
-                </span>
-                <span style="color:#888; font-weight:normal;"
-                      th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+    <!-- ============================================= -->
+    <!-- USER VIEW — Title + Status + Messages PEKEE  -->
+    <!-- ============================================= -->
+    <div th:unless="${canSeeAll}">
+        <!-- User Header — simple -->
+        <div class="user-header">
+            <h1 th:text="${report.title}">Report Title</h1>
+            <div class="meta">
+                <span>Report ID: </span>
+                <span th:text="${report.reportId}" style="font-family: monospace; color: #c9a227;"></span>
+                <span style="margin: 0 10px;">•</span>
+                <span class="status-badge" th:text="${report.status}">NEW</span>
+                <span style="margin: 0 10px;">•</span>
+                <span th:text="${report.attackTypeLabel}"></span>
             </div>
-            <div class="msg-body" th:text="${m.message}"></div>
         </div>
 
-        <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post" style="margin-top:25px;">
-            <textarea name="message" rows="3" required placeholder="Andika ujumbe wako..." style="width:100%; padding:10px;"></textarea>
-            <button type="submit" class="btn btn-primary" style="margin-top:10px;">📤 Send Message</button>
-        </form>
+        <!-- Messages & Discussion — PEKEE -->
+        <div class="card">
+            <h2>💬 Messages & Discussion</h2>
+            <p style="font-size:13px; color:#666;">Mawasiliano kati yako, admin, na AI.</p>
+
+            <div th:if="${messages == null || messages.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
+                <p style="font-size:50px;">💬</p>
+                <p>Hakuna mazungumzo bado.</p>
+            </div>
+
+            <div th:each="m : ${messages}" class="msg-box"
+                 th:classappend="${m.senderType == 'ADMIN'} ? 'msg-admin' : (${m.senderType == 'AI'} ? 'msg-ai' : (${m.senderType == 'SYSTEM'} ? 'msg-system' : 'msg-user'))">
+                <div class="msg-header">
+                    <span>
+                        <span th:if="${m.senderType == 'ADMIN'}" style="color:#c9a227;">👤 Security Team</span>
+                        <span th:if="${m.senderType == 'USER'}" style="color:#0f2557;">👤 You</span>
+                        <span th:if="${m.senderType == 'AI'}" style="color:#8b5cf6;">🤖 AI Assistant</span>
+                        <span th:if="${m.senderType == 'SYSTEM'}" style="color:#1b7a4a;">⚙️ System</span>
+                    </span>
+                    <span style="color:#888; font-weight:normal;"
+                          th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                </div>
+                <div class="msg-body" th:text="${m.message}"></div>
+            </div>
+
+            <!-- Reply Form -->
+            <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post" style="margin-top:25px;">
+                <textarea name="message" rows="3" required placeholder="Andika ujumbe wako..." style="width:100%; padding:10px;"></textarea>
+                <button type="submit" class="btn btn-primary" style="margin-top:10px;">📤 Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- ADMIN VIEW — Kila kitu                       -->
+    <!-- ============================================= -->
+    <div th:if="${canSeeAll}">
+
+        <!-- Admin Actions Panel -->
+        <div class="admin-panel">
+            <h2 style="color:#c9a227; margin-top:0;">👑 Admin Actions</h2>
+            <p>Unaweza kuona reports zote na kufanya maamuzi:</p>
+            <a th:href="@{/report-attack/admin}" class="admin-button">📋 View All Reports</a>
+        </div>
+
+        <!-- AI Panel — Admin pekee -->
+        <div class="ai-panel">
+            <h2 style="color:#8b5cf6; margin-top:0;">🤖 AI Assistant</h2>
+            <p>Unaweza kuomba AI ijibu sasa:</p>
+            <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
+                <button type="submit" class="ai-button">🤖 Omba AI Ijibu Sasa</button>
+            </form>
+            <p style="font-size:13px; color:#666; margin-top:10px;">
+                ⏰ Auto-reply: AI itajibu automatically kama admin hajajibu ndani ya dakika 5.
+            </p>
+        </div>
+
+        <!-- Report Details — Admin pekee -->
+        <div class="card">
+            <h1>📋 Report Details</h1>
+            <p>
+                <strong>Aina ya Tukio:</strong>
+                <span class="type-badge" th:style="'background:' + ${report.attackTypeColor}"
+                      th:text="${report.attackTypeLabel}"></span>
+            </p>
+            <p><strong>Report ID:</strong> <span style="color:#c9a227; font-family:monospace; font-weight:bold;" th:text="${report.reportId}"></span></p>
+            <p><strong>Title:</strong> <span th:text="${report.title}"></span></p>
+            <p><strong>Status:</strong> <span th:text="${report.status}"></span></p>
+            <p><strong>Priority:</strong> <span th:text="${report.priority}"></span></p>
+            <p><strong>Reporter:</strong> <span th:text="${report.reporterName}"></span></p>
+            <p><strong>Country:</strong> <span th:text="${report.countryName}"></span></p>
+            <p><strong>Region:</strong> <span th:text="${report.region}"></span></p>
+            <p><strong>Date:</strong> <span th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+            <p th:if="${report.policeCaseNumber != null}">
+                <strong>Police Case #:</strong> <span th:text="${report.policeCaseNumber}"></span>
+            </p>
+        </div>
+
+        <!-- Dynamic Details — Admin pekee -->
+        <div class="card" th:if="${dynFields != null && !dynFields.isEmpty()}">
+            <h2>📋 <span th:text="${report.attackTypeLabel}"></span> — Maelezo ya Ziada</h2>
+            <div th:each="f : ${dynFields}" style="display:flex; padding:10px 0; border-bottom:1px solid rgba(15,37,87,0.1);">
+                <div style="font-weight:600; color:#0f2557; min-width:200px;" th:text="${f.label} + ':'"></div>
+                <div style="color:#333; flex:1;" th:text="${f.value}"></div>
+            </div>
+        </div>
+
+        <!-- Description — Admin pekee -->
+        <div class="card">
+            <h2>📝 Description</h2>
+            <p th:text="${report.description}" style="white-space: pre-wrap;"></p>
+        </div>
+
+        <!-- Evidence — Admin pekee -->
+        <div class="evidence-box" th:if="${report.evidenceFilePath != null}">
+            <h2 style="color:#1b7a4a; margin-top:0;">📎 Evidence</h2>
+            <p><strong>Type:</strong> <span th:text="${report.evidenceFileType}"></span></p>
+            <p><strong>Size:</strong> <span th:text="${report.evidenceFileSize != null ? (report.evidenceFileSize / 1024) + ' KB' : 'N/A'}"></span></p>
+            <a th:href="@{'/report-attack/evidence/' + ${report.id}}" class="download-btn">⬇️ Download Evidence</a>
+        </div>
+
+        <!-- Messages — Admin pia -->
+        <div class="card">
+            <h2>💬 Messages & Discussion</h2>
+            <p style="font-size:13px; color:#666;">Mawasiliano kati ya user, admin, na AI.</p>
+
+            <div th:if="${messages == null || messages.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
+                <p style="font-size:50px;">💬</p>
+                <p>Hakuna mazungumzo bado.</p>
+            </div>
+
+            <div th:each="m : ${messages}" class="msg-box"
+                 th:classappend="${m.senderType == 'ADMIN'} ? 'msg-admin' : (${m.senderType == 'AI'} ? 'msg-ai' : (${m.senderType == 'SYSTEM'} ? 'msg-system' : 'msg-user'))">
+                <div class="msg-header">
+                    <span>
+                        <span th:if="${m.senderType == 'ADMIN'}" style="color:#c9a227;">👤 Security Team (Admin)</span>
+                        <span th:if="${m.senderType == 'USER'}" style="color:#0f2557;">👤 <span th:text="${report.reporterName}">User</span></span>
+                        <span th:if="${m.senderType == 'AI'}" style="color:#8b5cf6;">🤖 AI Assistant</span>
+                        <span th:if="${m.senderType == 'SYSTEM'}" style="color:#1b7a4a;">⚙️ System</span>
+                    </span>
+                    <span style="color:#888; font-weight:normal;"
+                          th:text="${#temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                </div>
+                <div class="msg-body" th:text="${m.message}"></div>
+            </div>
+
+            <!-- Admin Reply Form -->
+            <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post" style="margin-top:25px;">
+                <textarea name="message" rows="3" required placeholder="Jibu user..." style="width:100%; padding:10px;"></textarea>
+                <button type="submit" class="btn btn-primary" style="margin-top:10px;">📤 Send Reply to User</button>
+            </form>
+        </div>
     </div>
 </div>
 </body>

@@ -11,7 +11,6 @@
         <a th:href="@{/tools/security-center}" th:text="#{nav.tools}">Tools</a>
         <a th:href="@{/notifications}">🔔 <span th:text="#{nav.notifications}">Notifications</span></a>
 
-        <!-- Admin Panel — ADMIN PEKEE -->
         <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')"
            th:href="@{/report-attack/admin}"
            style="color:#c9a227; font-weight:bold;">👑 Admin Panel</a>
