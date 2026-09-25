@@ -129,10 +129,9 @@ public class ReportAttackController {
 
         try {
             String welcome = "✅ Report Received\n\nAsante kwa kuripoti. Timu yetu itaangalia taarifa yako. Utapata jibu hivi karibuni.";
-            messageRepo.save(new ReportMessage(saved.getId(), null, "System", "AI", welcome));
-        } catch (Exception e) { log.error("Welcome: {}", e.getMessage()); }
-
-        try {
+            messageRepo.save(new ReportMessage(saved.getId(), null, "System", "SYSTEM", welcome));
+            
+            // Notify admins
             List<User> admins = userRepository.findAll().stream()
                     .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
             for (User admin : admins) {
@@ -192,19 +191,33 @@ public class ReportAttackController {
         String senderType = canSeeAllReports(user) ? "ADMIN" : "USER";
         messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
 
+        // Notify the other party
         if ("ADMIN".equals(senderType)) {
+            // Admin replied -> notify user
             if (r.getUserId() != null) {
                 notificationService.createNotification(
-                    "💬 Update kwenye Report " + r.getReportId(),
+                    "💬 Admin amejibu Report " + r.getReportId(),
                     message.substring(0, Math.min(80, message.length())),
                     "INFO", "/report-attack/view/" + id
                 );
             }
+        } else {
+            // User replied -> notify admins
+            try {
+                List<User> admins = userRepository.findAll().stream()
+                        .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
+                for (User admin : admins) {
+                    notificationService.createNotification(
+                        "💬 User amejibu Report " + r.getReportId(),
+                        message.substring(0, Math.min(80, message.length())),
+                        "INFO", "/report-attack/view/" + id
+                    );
+                }
+            } catch (Exception e) { log.error("Notif: {}", e.getMessage()); }
         }
         return "redirect:/report-attack/view/" + id;
     }
 
-    // ===== AI REPLY — User anaweza pia =====
     @PostMapping("/{id}/ai-reply")
     public String triggerAiReply(@PathVariable Long id, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
@@ -225,6 +238,14 @@ public class ReportAttackController {
             String aiResponse = aiChatService.chat(prompt, "UserTrigger", "sw");
             messageRepo.save(new ReportMessage(id, null, "AI Assistant", "AI", aiResponse));
 
+            // Notify user
+            if (r.getUserId() != null) {
+                notificationService.createNotification(
+                    "🤖 AI imejibu Report " + r.getReportId(),
+                    aiResponse.substring(0, Math.min(80, aiResponse.length())),
+                    "INFO", "/report-attack/view/" + id
+                );
+            }
             log.info("AI reply triggered by {} for report {}", user.getUsername(), r.getReportId());
         } catch (Exception e) {
             log.error("AI trigger failed: {}", e.getMessage());
@@ -236,7 +257,7 @@ public class ReportAttackController {
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null) return "redirect:/login";
+        if (user == null || !canSeeAllReports(user)) return "redirect:/access-denied";
 
         model.addAttribute("reports", service.getAll());
         model.addAttribute("user", user);
@@ -256,7 +277,7 @@ public class ReportAttackController {
                                 @RequestParam(required = false) String policeCaseNumber,
                                 Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null) return "redirect:/access-denied";
+        if (user == null || !canSeeAllReports(user)) return "redirect:/access-denied";
 
         String assignedName = null;
         if (assignedTo != null) {
@@ -276,6 +297,14 @@ public class ReportAttackController {
 
         if (adminResponse != null && !adminResponse.isEmpty()) {
             messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), "ADMIN", adminResponse));
+            ReportAttack r = service.getById(id);
+            if (r != null && r.getUserId() != null) {
+                notificationService.createNotification(
+                    "👤 Admin amejibu Report " + r.getReportId(),
+                    adminResponse.substring(0, Math.min(80, adminResponse.length())),
+                    "INFO", "/report-attack/view/" + id
+                );
+            }
         }
 
         return "redirect:/report-attack/admin";

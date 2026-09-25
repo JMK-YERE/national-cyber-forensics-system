@@ -13,7 +13,6 @@
         .msg-system { background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a; }
         .action-panel { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(167,139,250,0.08)); border: 3px solid #8b5cf6; padding: 25px; border-radius: 12px; margin: 20px 0; }
         .action-button { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
-        .action-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,92,246,0.5); }
         .admin-button { background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
         .evidence-box { background: rgba(27,122,74,0.08); border-left: 5px solid #1b7a4a; padding: 20px; border-radius: 8px; margin: 20px 0; }
         .download-btn { background: #1b7a4a; color: white; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; }
@@ -39,11 +38,12 @@
     <!-- ACTION PANEL — KWA WOTE (user + admin) -->
     <div class="action-panel">
         <h2 style="color:#8b5cf6; margin-top:0;">🤖 AI Assistant Actions</h2>
-        <p>Unaweza kuomba AI ijibu mara moja, au kuona reports zote (kama una ruhusa):</p>
+        <p>Unaweza kuomba AI ijibu mara moja:</p>
         <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
             <button type="submit" class="action-button">🤖 Omba AI Ijibu Sasa</button>
         </form>
-        <a th:href="@{/report-attack/admin}" class="admin-button">📋 View All Reports</a>
+        <!-- View All Reports: inaonekana kwa admin pekee -->
+        <a th:if="${canSeeAll}" th:href="@{/report-attack/admin}" class="admin-button">📋 View All Reports</a>
     </div>
 
     <!-- TIMER INFO -->

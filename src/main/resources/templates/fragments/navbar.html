@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <div class="navbar" th:fragment="navbar">
     <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
@@ -11,7 +12,10 @@
         <a th:href="@{/notifications}" style="position:relative;">
             🔔 <span th:text="#{nav.notifications}">Notifications</span>
         </a>
-        <a th:href="@{/report-attack/admin}">👑 Admin Panel</a>
+        
+        <!-- Admin Panel: Inaonekana tu kwa ADMIN, CYBER_PRO, FORENSICS, ANALYST -->
+        <a sec:authorize="hasAnyRole('ADMIN', 'CYBER_PRO', 'FORENSICS', 'ANALYST')" 
+           th:href="@{/report-attack/admin}">👑 Admin Panel</a>
 
         <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
             <a th:href="@{/lang?lang=sw}" class="lang-link" th:classappend="${#locale.language == 'sw'} ? 'active-lang'">SW</a>
