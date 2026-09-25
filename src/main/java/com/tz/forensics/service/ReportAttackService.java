@@ -24,7 +24,6 @@ public class ReportAttackService {
         report.setReportId(reportId);
         report.setStatus("NEW");
         report.setPriority(determinePriority(report.getAttackType()));
-        report.setAttackCategory(determineCategory(report.getAttackType()));
         report.setAiRecommendation(getAIRecommendation(report.getAttackType()));
         return repo.save(report);
     }
