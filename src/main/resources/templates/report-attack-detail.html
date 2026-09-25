@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Detail</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
     <style>
@@ -10,10 +11,10 @@
         .msg-admin { background: rgba(201,162,39,0.12); border-left: 4px solid #c9a227; }
         .msg-ai { background: rgba(139,92,246,0.1); border-left: 4px solid #8b5cf6; }
         .msg-system { background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a; }
-        .admin-panel { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(167,139,250,0.08)); border: 3px solid #8b5cf6; padding: 25px; border-radius: 12px; margin: 20px 0; }
-        .admin-button { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
-        .user-panel { background: rgba(15,37,87,0.05); border-left: 4px solid #0f2557; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .user-button { background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
+        .action-panel { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(167,139,250,0.08)); border: 3px solid #8b5cf6; padding: 25px; border-radius: 12px; margin: 20px 0; }
+        .action-button { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
+        .action-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,92,246,0.5); }
+        .admin-button { background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 15px 30px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: bold; margin: 5px; text-decoration: none; display: inline-block; }
         .evidence-box { background: rgba(27,122,74,0.08); border-left: 5px solid #1b7a4a; padding: 20px; border-radius: 8px; margin: 20px 0; }
         .download-btn { background: #1b7a4a; color: white; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; }
         .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; padding: 10px 0; }
@@ -25,17 +26,7 @@
     </style>
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🛡️ Cyber Forensics System</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}">Report</a>
-        <a th:href="@{/report-attack/admin}" th:if="${canSeeAll}">👑 Admin Panel</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
     <div class="lang-bar">
@@ -45,29 +36,20 @@
         <a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'">AR</a>
     </div>
 
-    <!-- ADMIN PANEL -->
-    <div class="admin-panel" th:if="${canSeeAll}">
-        <h2 style="color:#8b5cf6; margin-top:0;">👑 Admin Actions</h2>
-        <p>Unaweza ku-trigger AI reply au kuona reports zote:</p>
+    <!-- ACTION PANEL — KWA WOTE (user + admin) -->
+    <div class="action-panel">
+        <h2 style="color:#8b5cf6; margin-top:0;">🤖 AI Assistant Actions</h2>
+        <p>Unaweza kuomba AI ijibu mara moja, au kuona reports zote (kama una ruhusa):</p>
         <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
-            <button type="submit" class="admin-button">🤖 Ruhusu AI Ijibu Sasa</button>
+            <button type="submit" class="action-button">🤖 Omba AI Ijibu Sasa</button>
         </form>
         <a th:href="@{/report-attack/admin}" class="admin-button">📋 View All Reports</a>
-    </div>
-
-    <!-- USER PANEL — AI BUTTON kwa user pia -->
-    <div class="user-panel" th:if="${!canSeeAll}">
-        <h2 style="color:#0f2557; margin-top:0;">🤖 Need Help Now?</h2>
-        <p>Kama unahitaji msaada wa haraka, unaweza kuomba AI ijibu mara moja.</p>
-        <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
-            <button type="submit" class="user-button">🤖 Omba AI Ijibu Sasa</button>
-        </form>
     </div>
 
     <!-- TIMER INFO -->
     <div class="timer-info">
         <strong>⏰ Auto-Reply:</strong> Kama admin hajajibu ndani ya <strong>dakika 5</strong>, 
-        AI itajibu automatically.
+        AI itajibu automatically. Kama unataka AI ijibu sasa — bonyeza button hapo juu.
     </div>
 
     <!-- REPORT DETAILS -->
@@ -104,7 +86,7 @@
         <a th:href="@{'/report-attack/evidence/' + ${report.id}}" class="download-btn">⬇️ Download Evidence</a>
     </div>
 
-    <!-- MESSAGES — ZOTE ZINAONEKANA -->
+    <!-- MESSAGES — ZOTE ZINAONEKANA KWA WOTE -->
     <div class="card">
         <h2>💬 Messages & Discussion</h2>
         <p style="font-size:13px; color:#666;">Mawasiliano kati yako, admin, na AI.</p>

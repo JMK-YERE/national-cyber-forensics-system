@@ -21,6 +21,11 @@ public class NotificationService {
     }
 
     public void createIncidentNotification(String incidentId, String title, String severity) {
+        String emoji = severity != null && "CRITICAL".equalsIgnoreCase(severity) ? "🚨" : "📌";
+        createNotification(emoji + " Report " + incidentId, title, severity != null ? severity : "INFO", "/report-attack");
+    }
+
+    public void createReportMessageNotification(String reportId, String message) {
         String emoji = switch (severity != null ? severity.toUpperCase() : "MEDIUM") {
             case "CRITICAL" -> "🚨";
             case "HIGH" -> "⚠️";
