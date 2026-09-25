@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface ReportMessageRepository extends JpaRepository<ReportMessage, Long> {
     List<ReportMessage> findByReportIdOrderByCreatedAtAsc(Long reportId);
-    long countByReportIdAndIsReadFalse(Long reportId);
+    List<ReportMessage> findByReportIdOrderByCreatedAtDesc(Long reportId);
+    long countByReportId(Long reportId);
 }

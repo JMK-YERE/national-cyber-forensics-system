@@ -34,28 +34,38 @@ public class AutoReplyScheduler {
         this.aiChatService = aiChatService;
     }
 
+    // ===== Runs every 2 minutes =====
     @Scheduled(fixedRate = 2 * 60 * 1000)
     public void checkPendingReports() {
-        log.info("=== AI Auto-Reply Check ===");
+        log.info("=== AI Auto-Reply Check (every 2 min) ===");
 
         LocalDateTime cutoff = LocalDateTime.now().minus(MINUTES_TO_WAIT, ChronoUnit.MINUTES);
         List<ReportAttack> allReports = reportRepo.findAll();
 
+        log.info("Checking {} reports", allReports.size());
+
         for (ReportAttack report : allReports) {
             try {
+                // Skip if closed
                 if ("CLOSED".equals(report.getStatus()) || "RESOLVED".equals(report.getStatus())) continue;
-                if (report.getCreatedAt() == null || report.getCreatedAt().isAfter(cutoff)) continue;
+
+                // Skip if report is too new
+                if (report.getCreatedAt() == null || report.getCreatedAt().isAfter(cutoff)) {
+                    continue;
+                }
 
                 List<ReportMessage> messages = messageRepo.findByReportIdOrderByCreatedAtAsc(report.getId());
 
                 boolean hasAdminReply = messages.stream().anyMatch(m -> "ADMIN".equals(m.getSenderType()));
                 boolean hasAiReply = messages.stream().anyMatch(m -> "AI".equals(m.getSenderType()));
 
+                log.info("Report {}: hasAdmin={}, hasAi={}", report.getReportId(), hasAdminReply, hasAiReply);
+
                 // Admin hajajibu na AI hajajibu — AI inajibu
                 if (!hasAdminReply && !hasAiReply) {
                     sendAiAutoReply(report);
                 }
-                // User ameuliza jipya baada ya AI reply
+                // User ameuliza swali jipya baada ya AI reply — AI inajibu tena
                 else if (!hasAdminReply && hasAiReply) {
                     LocalDateTime lastAiTime = messages.stream()
                             .filter(m -> "AI".equals(m.getSenderType()))
@@ -90,7 +100,7 @@ public class AutoReplyScheduler {
                     + "1. Asante kwa kuripoti\n"
                     + "2. Case yako inafanyiwa kazi (investigation started)\n"
                     + "3. Hatua 3-4 za haraka zenye namba\n"
-                    + "4. Namba za msaada (Polisi 112/999)\n"
+                    + "4. Namba ya Polisi (112/999)\n"
                     + "Kuwa mfupi (sentensi 5-7), wa kitaalamu, tumia emoji.";
 
             String aiResponse = aiChatService.chat(prompt, "AutoReply", "sw");
