@@ -3,27 +3,31 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <div class="navbar" th:fragment="navbar">
-    <div class="logo">🛡️ Cyber Forensics System</div>
+    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics System</span></div>
     <div class="nav-links">
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}">Report</a>
-        <a th:href="@{/ai/assistant}">AI</a>
-        <a th:href="@{/tools/security-center}">Tools</a>
-        <a th:href="@{/notifications}">🔔 Notifications</a>
+        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
+        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
+        <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
+        <a th:href="@{/tools/security-center}" th:text="#{nav.tools}">Tools</a>
+        <a th:href="@{/notifications}">🔔 <span th:text="#{nav.notifications}">Notifications</span></a>
 
         <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')"
            th:href="@{/report-attack/admin}"
-           style="color:#c9a227; font-weight:bold;">👑 Admin Panel</a>
+           style="color:#c9a227; font-weight:bold;">👑 <span th:text="#{nav.admin}">Admin</span></a>
 
         <span style="margin-left:15px; padding-left:15px; border-left:1px solid rgba(255,255,255,0.3);">
-            <a th:href="@{/dashboard?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active-lang'" style="color:white; padding:4px 8px; text-decoration:none;">🇹🇿 SW</a>
-            <a th:href="@{/dashboard?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active-lang'" style="color:white; padding:4px 8px; text-decoration:none;">🇬🇧 EN</a>
-            <a th:href="@{/dashboard?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active-lang'" style="color:white; padding:4px 8px; text-decoration:none;">🇫🇷 FR</a>
-            <a th:href="@{/dashboard?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active-lang'" style="color:white; padding:4px 8px; text-decoration:none;">🇸🇦 AR</a>
+            <a th:href="@{/dashboard?lang=sw}" style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;"
+               th:classappend="${#locale.language == 'sw'} ? 'active-lang'">🇹🇿 SW</a>
+            <a th:href="@{/dashboard?lang=en}" style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;"
+               th:classappend="${#locale.language == 'en'} ? 'active-lang'">🇬🇧 EN</a>
+            <a th:href="@{/dashboard?lang=fr}" style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;"
+               th:classappend="${#locale.language == 'fr'} ? 'active-lang'">🇫🇷 FR</a>
+            <a th:href="@{/dashboard?lang=ar}" style="color:white; padding:4px 8px; text-decoration:none; font-weight:600;"
+               th:classappend="${#locale.language == 'ar'} ? 'active-lang'">🇸🇦 AR</a>
         </span>
 
         <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">Logout</button>
+            <button type="submit" class="logout-btn" th:text="#{nav.logout}">Logout</button>
         </form>
     </div>
 </div>

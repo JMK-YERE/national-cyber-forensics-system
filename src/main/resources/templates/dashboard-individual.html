@@ -10,26 +10,26 @@
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <div class="card">
-        <h1>Karibu, <span th:text="${username}">User</span>!</h1>
-        <p>Hii ni dashibodi yako binafsi.</p>
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 30px;">
+        <h1 style="color: white; margin: 0;">👤 Karibu, <span th:text="${username}">User</span>!</h1>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Hii ni dashibodi yako binafsi.</p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box">
-            <div class="stat-value" th:text="${user?.securityScore != null ? user.securityScore : 0}">0</div>
+            <div class="stat-value" th:text="${user != null && user.securityScore != null ? user.securityScore : 0}">0</div>
             <div class="stat-label">Security Score</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" th:text="${user != null ? (user.socialAccounts != null ? #strings.length(user.socialAccounts) : 0) : 0}">0</div>
+            <div class="stat-value" th:text="${user != null ? user.countSocialAccounts() : 0}">0</div>
             <div class="stat-label">Social Accounts</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" th:text="${user?.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
+            <div class="stat-value" th:text="${user != null && user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
             <div class="stat-label">2FA</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value" th:text="${user?.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
+            <div class="stat-value" th:text="${user != null && user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
             <div class="stat-label">Breach Checked</div>
         </div>
     </div>
