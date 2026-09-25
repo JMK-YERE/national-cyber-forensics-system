@@ -2,46 +2,42 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{nav.dashboard} + ' - ADMIN'">Admin Dashboard</title>
+    <title th:text="#{nav.dashboard}">Admin Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <div class="card">
-        <h1>👑 <span th:text="#{nav.dashboard}">Admin Dashboard</span></h1>
-        <p><span th:text="#{dashboard.welcome}">Welcome</span>, <strong th:text="${username}"></strong>!</p>
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 30px;">
+        <h1 style="color: white; margin: 0;">👑 Admin Dashboard</h1>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">
+            <span th:text="#{dashboard.welcome}">Welcome</span>, <span th:text="${username}"></span>
+        </p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box">
-            <div class="stat-value" th:text="${totalIncidents}">0</div>
-            <div class="stat-label" th:text="#{dashboard.totalIncidents}">Total Incidents</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${openCases}">0</div>
-            <div class="stat-label">Open Cases</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${investigatingCases}">0</div>
-            <div class="stat-label">Investigating</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${closedCases}">0</div>
-            <div class="stat-label">Closed</div>
+            <div class="stat-value" th:text="${totalIncidents != null ? totalIncidents : 0}">0</div>
+            <div class="stat-label">Total Incidents</div>
         </div>
     </div>
 
     <div class="card">
         <h2 th:text="#{dashboard.quickActions}">Quick Actions</h2>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
-            <a th:href="@{/report-attack/admin}" class="btn btn-primary">🚨 <span th:text="#{nav.report}">Reports</span></a>
-            <a th:href="@{/incidents}" class="btn">📋 <span th:text="#{nav.incidents}">Incidents</span></a>
-            <a th:href="@{/cases}" class="btn">📁 <span th:text="#{nav.cases}">Cases</span></a>
-            <a th:href="@{/threat-map}" class="btn">🗺️ <span th:text="#{nav.threatMap}">Threat Map</span></a>
-            <a th:href="@{/audit}" class="btn">📊 <span th:text="#{nav.audit}">Audit</span></a>
-            <a th:href="@{/admin/users}" class="btn btn-danger">👥 <span th:text="#{nav.users}">Users</span></a>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-top:15px;">
+            <a th:href="@{/report-attack/admin}" class="btn btn-primary" style="text-align:center; padding:20px; text-decoration:none;">
+                📋 <span th:text="#{report.allReports}">All Reports</span>
+            </a>
+            <a th:href="@{/whistleblower/admin}" class="btn btn-primary" style="text-align:center; padding:20px; text-decoration:none;">
+                🕵️ <span th:text="#{whistleblower.title}">Whistleblower</span>
+            </a>
+            <a th:href="@{/notifications}" class="btn" style="text-align:center; padding:20px; text-decoration:none;">
+                🔔 <span th:text="#{nav.notifications}">Notifications</span>
+            </a>
+            <a th:href="@{/report-attack}" class="btn" style="text-align:center; padding:20px; text-decoration:none;">
+                🚨 <span th:text="#{nav.report}">Report</span>
+            </a>
         </div>
     </div>
 </div>
