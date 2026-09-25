@@ -13,39 +13,27 @@ import java.util.Random;
 public class ReportAttackService {
 
     private final ReportAttackRepository repo;
-    private static final Random random = new Random();
 
     public ReportAttackService(ReportAttackRepository repo) {
         this.repo = repo;
     }
 
     public ReportAttack create(ReportAttack report) {
-        String reportId = generateReportId(report);
-        report.setReportId(reportId);
-        report.setStatus("NEW");
-        report.setPriority(determinePriority(report.getAttackType()));
-        report.setAiRecommendation(getAIRecommendation(report.getAttackType()));
-        return repo.save(report);
-    }
-
-    // ===== REPORT ID FORMAT — Internal (IN) vs External (EX) =====
-    private String generateReportId(ReportAttack report) {
-        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        int randomNum = 1000 + random.nextInt(9000);
-
-        // Kama report ina userId = Internal (from login user)
-        // Kama haina userId = External (public/whistleblower)
-        if (report.getUserId() != null) {
-            // Internal format: SEC-YYYYMMDD-XXXX
-            return "SEC-" + date + "-" + randomNum;
-        } else {
-            // External format: EXT-YYYYMMDD-XXXX
-            return "EXT-" + date + "-" + randomNum;
+        if (report.getReportId() == null) {
+            report.setReportId(generateReportId());
         }
+        if (report.getCreatedAt() == null) {
+            report.setCreatedAt(LocalDateTime.now());
+        }
+        return repo.save(report);
     }
 
     public ReportAttack save(ReportAttack report) {
         return repo.save(report);
+    }
+
+    public ReportAttack getById(Long id) {
+        return repo.findById(id).orElse(null);
     }
 
     public List<ReportAttack> getAll() {
@@ -56,63 +44,37 @@ public class ReportAttackService {
         return repo.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
-    public List<ReportAttack> getRecent24h() {
-        return repo.findByCreatedAtAfterOrderByCreatedAtDesc(LocalDateTime.now().minusHours(24));
+    public long countNew() {
+        return repo.countByStatus("NEW");
     }
 
-    public ReportAttack getById(Long id) {
-        return repo.findById(id).orElse(null);
+    public long countToday() {
+        return repo.countByCreatedAtAfter(LocalDateTime.now().withHour(0).withMinute(0));
     }
 
-    public void updateStatus(Long id, String status, String response, Long assignedTo, String assignedToName) {
+    public long countTotal() {
+        return repo.count();
+    }
+
+    public void updateStatus(Long id, String status, String adminResponse, Long assignedTo, String assignedName) {
         ReportAttack r = repo.findById(id).orElse(null);
         if (r != null) {
             r.setStatus(status);
-            if (response != null && !response.isEmpty()) r.setAdminResponse(response);
-            if (assignedTo != null) r.setAssignedTo(assignedTo);
-            if (assignedToName != null) r.setAssignedToName(assignedToName);
+            if (adminResponse != null && !adminResponse.isEmpty()) {
+                r.setAdminResponse(adminResponse);
+            }
+            if (assignedTo != null) {
+                r.setAssignedTo(assignedTo);
+                r.setAssignedToName(assignedName);
+            }
             r.setUpdatedAt(LocalDateTime.now());
             repo.save(r);
         }
     }
 
-    public long countNew() { return repo.countByStatus("NEW"); }
-    public long countToday() { return repo.countByCreatedAtAfter(LocalDateTime.now().minusDays(1)); }
-    public long countTotal() { return repo.count(); }
-
-    private String determinePriority(String type) {
-        if (type == null) return "MEDIUM";
-        return switch (type) {
-            case "PHONE_STOLEN", "MONEY_STOLEN", "BANK_CARD_LOST", "HOME_BREAK_IN", "RANSOMWARE" -> "HIGH";
-            case "SOCIAL_MEDIA_HACKED", "EMAIL_HACKED", "IDENTITY_THEFT", "SIM_SWAP" -> "HIGH";
-            default -> "MEDIUM";
-        };
-    }
-
-    private String determineCategory(String type) {
-        if (type == null) return "OTHER";
-        return switch (type) {
-            case "PHONE_STOLEN", "HOME_BREAK_IN", "DOCUMENTS_STOLEN" -> "PHYSICAL";
-            case "SOCIAL_MEDIA_HACKED", "EMAIL_HACKED", "PHISHING", "IDENTITY_THEFT", "SIM_SWAP", "RANSOMWARE" -> "DIGITAL";
-            case "BANK_CARD_LOST", "MONEY_STOLEN" -> "FINANCIAL";
-            default -> "OTHER";
-        };
-    }
-
-    public String getAIRecommendation(String type) {
-        if (type == null) return "Wasiliana na Polisi mara moja.";
-        return switch (type) {
-            case "PHONE_STOLEN" -> "📱 HATUA ZA HARAKA:\n\n1. Fanya simu yako 'locked'\n2. Pata OB number kutoka Polisi\n3. Badilisha password za accounts zote\n4. Futa WhatsApp kwa 'Find My Device'\n5. Zuia SIM kwa kampuni yako\n6. Backup contacts";
-            case "SOCIAL_MEDIA_HACKED" -> "👤 HATUA ZA HARAKA:\n\n1. Tumia 'Forgot Password'\n2. Wasiliana na Support mara moja\n3. Waambie marafiki\n4. Weka 2FA kwenye accounts zote\n5. Badilisha password ya email kwanza";
-            case "BANK_CARD_LOST" -> "💳 HATUA ZA HARAKA:\n\n1. Piga simu benki — ZUIA kadi!\n2. Wasiliana na Polisi\n3. Angalia transactions zote\n4. Omba kadi mpya\n5. Badilisha PIN";
-            case "MONEY_STOLEN" -> "💰 HATUA ZA HARAKA:\n\n1. Wasiliana na benki/wakala\n2. Pata OB number\n3. Angalia transaction history\n4. Weka 2FA kwenye mobile banking\n5. Taarifu regulator";
-            case "EMAIL_HACKED" -> "📧 HATUA ZA HARAKA:\n\n1. Badilisha password mara moja\n2. Angalia 'Recent Security Activity'\n3. Futa apps zisizotumika\n4. Weka 2FA\n5. Waambie contacts zako";
-            case "PHISHING" -> "🎣 HATUA ZA HARAKA:\n\n1. Usibonyeze links tena\n2. Badilisha password kama umeshaitumia\n3. Angalia account\n4. Ripoti kwa platform\n5. Weka 2FA";
-            case "HOME_BREAK_IN" -> "🏠 HATUA ZA HARAKA:\n\n1. Piga simu Polisi mara moja\n2. Usiguse kitu chochote\n3. Piga picha\n4. Andika kilichoibiwa\n5. Wasiliana na bima";
-            case "IDENTITY_THEFT" -> "🆔 HATUA ZA HARAKA:\n\n1. Ripoti Polisi\n2. Wasiliana na benki zote\n3. Weka Fraud Alert\n4. Angalia credit report\n5. Badilisha password zote";
-            case "SIM_SWAP" -> "📲 HATUA ZA HARAKA:\n\n1. Piga simu kampuni — ZUIA SIM\n2. Badilisha passwords zote\n3. Angalia benki\n4. Ripoti Polisi\n5. Weka 2FA (App, sio SMS)";
-            case "RANSOMWARE" -> "🦠 HATUA ZA HARAKA:\n\n1. USILIpe fidia\n2. KATUA mtandao\n3. Ripoti Polisi\n4. Wasiliana IT\n5. Backup data muhimu";
-            default -> "⚠️ HATUA ZA HARAKA:\n\n1. Andika kila kitu\n2. Ripoti Polisi\n3. Taarifu benki\n4. Badilisha passwords\n5. Weka 2FA";
-        };
+    private String generateReportId() {
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        int rand = 1000 + new Random().nextInt(9000);
+        return "SEC-" + date + "-" + rand;
     }
 }
