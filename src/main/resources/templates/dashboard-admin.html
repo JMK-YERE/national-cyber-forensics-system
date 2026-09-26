@@ -2,42 +2,168 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{nav.dashboard}">Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .admin-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 20px;
+            background: white;
+            border: 2px solid rgba(15,37,87,0.15);
+            border-radius: 10px;
+            text-decoration: none;
+            color: #0f2557;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .admin-btn:hover {
+            background: #0f2557;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(15,37,87,0.2);
+        }
+        .admin-btn .icon { font-size: 24px; }
+        .admin-btn .label { flex: 1; }
+        .recent-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: rgba(15,37,87,0.03);
+            border-left: 4px solid #0f2557;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+        }
+        .status-NEW { background: #dc2626; }
+        .status-INVESTIGATING { background: #eab308; }
+        .status-RESOLVED { background: #1b7a4a; }
+        .status-CLOSED { background: #6b7280; }
+    </style>
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
+    <!-- HEADER -->
     <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 30px;">
         <h1 style="color: white; margin: 0;">👑 Admin Dashboard</h1>
         <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">
-            <span th:text="#{dashboard.welcome}">Welcome</span>, <span th:text="${username}"></span>
+            Karibu, <strong th:text="${username}"></strong> —
+            <span th:text="${role}"></span>
         </p>
     </div>
 
+    <!-- STATS -->
     <div class="stats-grid">
         <div class="stat-box">
-            <div class="stat-value" th:text="${totalIncidents != null ? totalIncidents : 0}">0</div>
-            <div class="stat-label">Total Incidents</div>
+            <div class="stat-value" th:text="${totalReports != null ? totalReports : 0}">0</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" style="color: #dc2626;" th:text="${newReports != null ? newReports : 0}">0</div>
+            <div class="stat-label">New Reports</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" style="color: #8b5cf6;" th:text="${totalWb != null ? totalWb : 0}">0</div>
+            <div class="stat-label">Whistleblower</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" style="color: #1b7a4a;" th:text="${totalUsers != null ? totalUsers : 0}">0</div>
+            <div class="stat-label">Total Users</div>
         </div>
     </div>
 
+    <!-- QUICK ACTIONS — ZOTE -->
     <div class="card">
-        <h2 th:text="#{dashboard.quickActions}">Quick Actions</h2>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-top:15px;">
-            <a th:href="@{/report-attack/admin}" class="btn btn-primary" style="text-align:center; padding:20px; text-decoration:none;">
-                📋 <span th:text="#{report.allReports}">All Reports</span>
+        <h2>⚡ Quick Actions</h2>
+        <div class="admin-grid">
+            <a th:href="@{/report-attack/admin}" class="admin-btn">
+                <span class="icon">📋</span>
+                <span class="label">All Reports</span>
             </a>
-            <a th:href="@{/whistleblower/admin}" class="btn btn-primary" style="text-align:center; padding:20px; text-decoration:none;">
-                🕵️ <span th:text="#{whistleblower.title}">Whistleblower</span>
+            <a th:href="@{/whistleblower/admin}" class="admin-btn">
+                <span class="icon">🕵️</span>
+                <span class="label">Whistleblower</span>
             </a>
-            <a th:href="@{/notifications}" class="btn" style="text-align:center; padding:20px; text-decoration:none;">
-                🔔 <span th:text="#{nav.notifications}">Notifications</span>
+            <a th:href="@{/admin/users}" class="admin-btn">
+                <span class="icon">👥</span>
+                <span class="label">Users Management</span>
             </a>
-            <a th:href="@{/report-attack}" class="btn" style="text-align:center; padding:20px; text-decoration:none;">
-                🚨 <span th:text="#{nav.report}">Report</span>
+            <a th:href="@{/admin/audit}" class="admin-btn">
+                <span class="icon">📊</span>
+                <span class="label">Audit Log</span>
             </a>
+            <a th:href="@{/notifications}" class="admin-btn">
+                <span class="icon">🔔</span>
+                <span class="label">Notifications</span>
+            </a>
+            <a th:href="@{/report-attack}" class="admin-btn">
+                <span class="icon">🚨</span>
+                <span class="label">Report Attack</span>
+            </a>
+            <a th:href="@{/ai/assistant}" class="admin-btn">
+                <span class="icon">🤖</span>
+                <span class="label">AI Assistant</span>
+            </a>
+            <a th:href="@{/tools/security-center}" class="admin-btn">
+                <span class="icon">🛡️</span>
+                <span class="label">Security Tools</span>
+            </a>
+            <a th:href="@{/admin/settings}" class="admin-btn">
+                <span class="icon">⚙️</span>
+                <span class="label">System Settings</span>
+            </a>
+            <a th:href="@{/admin/compliance}" class="admin-btn">
+                <span class="icon">📋</span>
+                <span class="label">Compliance Reports</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- RECENT REPORTS -->
+    <div class="card" th:if="${recentReports != null && !recentReports.isEmpty()}">
+        <h2>📋 Recent Reports</h2>
+        <p style="color: #666; font-size: 13px;">Ripoti 5 za mwisho</p>
+
+        <div th:each="r : ${recentReports}" class="recent-item">
+            <div style="flex: 1;">
+                <strong style="color: #c9a227; font-family: monospace;" th:text="${r.reportId}"></strong>
+                <span style="margin-left: 10px;" th:text="${r.attackTypeLabel}"></span>
+                <br>
+                <span style="font-size: 13px;" th:text="${r.title}"></span>
+                <br>
+                <small style="color: #888;">
+                    <span th:text="${r.reporterName}"></span> |
+                    <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                </small>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span class="status-badge"
+                      th:classappend="'status-' + ${r.status}"
+                      th:text="${r.status}">NEW</span>
+                <a th:href="@{'/report-attack/view/' + ${r.id}}"
+                   style="background: #0f2557; color: white; padding: 6px 15px; border-radius: 6px; text-decoration: none; font-size: 12px;">
+                   👁️ View
+                </a>
+            </div>
         </div>
     </div>
 </div>

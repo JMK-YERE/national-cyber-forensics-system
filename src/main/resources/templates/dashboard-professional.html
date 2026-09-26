@@ -2,45 +2,40 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{nav.dashboard} + ' - ' + #{app.title}">Dashboard</title>
+    <title>Professional Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px; }
+        .admin-btn { display: flex; align-items: center; gap: 12px; padding: 18px 20px; background: white; border: 2px solid rgba(15,37,87,0.15); border-radius: 10px; text-decoration: none; color: #0f2557; font-weight: 600; transition: all 0.2s; }
+        .admin-btn:hover { background: #0f2557; color: white; transform: translateY(-2px); }
+        .admin-btn .icon { font-size: 24px; }
+    </style>
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <div class="card">
-        <h1><span th:text="#{dashboard.welcome}">Welcome</span>, <span th:text="${username}">User</span>!</h1>
-        <p>Professional Dashboard</p>
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 30px;">
+        <h1 style="color: white; margin: 0;">👨‍💼 Professional Dashboard</h1>
+        <p style="color: rgba(255,255,255,0.9);">Karibu, <strong th:text="${username}"></strong></p>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-box">
-            <div class="stat-value" th:text="${totalIncidents}">0</div>
-            <div class="stat-label" th:text="#{dashboard.totalIncidents}">Total Incidents</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${openCases}">0</div>
-            <div class="stat-label">Open Cases</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${investigatingCases}">0</div>
-            <div class="stat-label">Investigating</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${closedCases}">0</div>
-            <div class="stat-label">Closed</div>
-        </div>
+        <div class="stat-box"><div class="stat-value" th:text="${totalReports != null ? totalReports : 0}">0</div><div class="stat-label">Total Reports</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: #dc2626;" th:text="${newReports != null ? newReports : 0}">0</div><div class="stat-label">New</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: #8b5cf6;" th:text="${totalWb != null ? totalWb : 0}">0</div><div class="stat-label">Whistleblower</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: #1b7a4a;" th:text="${totalUsers != null ? totalUsers : 0}">0</div><div class="stat-label">Users</div></div>
     </div>
 
     <div class="card">
-        <h2 th:text="#{dashboard.quickActions}">Quick Actions</h2>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
-            <a th:href="@{/incidents/new}" class="btn btn-primary">➕ <span th:text="#{nav.report}">Report</span></a>
-            <a th:href="@{/incidents}" class="btn">📋 <span th:text="#{nav.incidents}">Incidents</span></a>
-            <a th:href="@{/cases}" class="btn">📁 <span th:text="#{nav.cases}">Cases</span></a>
-            <a th:href="@{/threat-map}" class="btn">🗺️ <span th:text="#{nav.threatMap}">Threat Map</span></a>
-            <a th:href="@{/audit}" class="btn">📊 <span th:text="#{nav.audit}">Audit</span></a>
+        <h2>⚡ Quick Actions</h2>
+        <div class="admin-grid">
+            <a th:href="@{/report-attack/admin}" class="admin-btn"><span class="icon">📋</span><span class="label">All Reports</span></a>
+            <a th:href="@{/whistleblower/admin}" class="admin-btn"><span class="icon">🕵️</span><span class="label">Whistleblower</span></a>
+            <a th:href="@{/notifications}" class="admin-btn"><span class="icon">🔔</span><span class="label">Notifications</span></a>
+            <a th:href="@{/report-attack}" class="admin-btn"><span class="icon">🚨</span><span class="label">Report</span></a>
+            <a th:href="@{/ai/assistant}" class="admin-btn"><span class="icon">🤖</span><span class="label">AI Assistant</span></a>
+            <a th:href="@{/tools/security-center}" class="admin-btn"><span class="icon">🛡️</span><span class="label">Tools</span></a>
         </div>
     </div>
 </div>

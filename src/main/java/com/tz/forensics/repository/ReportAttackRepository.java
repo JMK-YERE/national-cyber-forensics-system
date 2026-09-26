@@ -12,4 +12,5 @@ public interface ReportAttackRepository extends JpaRepository<ReportAttack, Long
     List<ReportAttack> findByStatusOrderByCreatedAtDesc(String status);
     long countByStatus(String status);
     long countByCreatedAtAfter(LocalDateTime date);
+    List<ReportAttack> findTop10ByOrderByCreatedAtDesc();
 }
