@@ -2,48 +2,34 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>👤 User Detail - Cyber Forensics</title>
+    <title>User Details</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ - ADMIN</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/admin/users}">👥 Users</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px;">
+        <h1 style="color: white; margin: 0;">👤 <span th:text="${user.username}">User</span></h1>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Maelezo ya Mtumiaji</p>
+    </div>
+
     <div class="card">
-        <h1 th:text="'👤 ' + ${user.username}"></h1>
-        <p><strong>ID:</strong> <span th:text="${user.id}"></span></p>
-        <p><strong>Full Name:</strong> <span th:text="${user.fullName}"></span></p>
+        <h2>📋 Details</h2>
+        <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
         <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
-        <p><strong>Phone:</strong> <span th:text="${user.phone != null ? user.phone : 'N/A'}"></span></p>
-        <p><strong>Organization:</strong> <span th:text="${user.organization != null ? user.organization : 'N/A'}"></span></p>
+        <p><strong>Full Name:</strong> <span th:text="${user.fullName}"></span></p>
+        <p><strong>Phone:</strong> <span th:text="${user.phone}"></span></p>
         <p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
-        <p><strong>Enabled:</strong> <span th:text="${user.enabled}"></span></p>
-        <p><strong>Locked:</strong> <span th:text="${user.accountLocked}"></span></p>
-        <p><strong>Failed Attempts:</strong> <span th:text="${user.failedAttempts}"></span></p>
-        <p><strong>Created:</strong> <span th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+        <p><strong>Organization:</strong> <span th:text="${user.organization}"></span></p>
+        <p><strong>Enabled:</strong> <span th:text="${user.enabled != null && user.enabled ? '✅ Yes' : '❌ No'}"></span></p>
+        <p><strong>Account Locked:</strong> <span th:text="${user.accountLocked != null && user.accountLocked ? '🔒 Yes' : '✅ No'}"></span></p>
+        <p><strong>Last Login:</strong> <span th:text="${user.lastLogin != null ? #temporals.format(user.lastLogin, 'yyyy-MM-dd HH:mm') : 'Never'}"></span></p>
+        <p><strong>Created:</strong> <span th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}"></span></p>
+    </div>
 
-        <hr style="border-color:rgba(0,255,157,0.2);margin:20px 0;">
-
-        <h3>⚡ Actions</h3>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
-            <form th:action="@{'/admin/users/' + ${user.id} + '/unlock'}" method="post">
-                <button type="submit" class="btn">🔓 Unlock Account</button>
-            </form>
-            <form th:action="@{'/admin/users/' + ${user.id} + '/delete'}" method="post"
-                  onsubmit="return confirm('Una uhakika? Hii haiwezi kurudishwa.');">
-                <button type="submit" class="btn btn-danger">🗑️ Delete User</button>
-            </form>
-            <a th:href="@{/admin/users}" class="btn">← Back to Users</a>
-        </div>
+    <div style="margin: 20px 0;">
+        <a th:href="@{/admin/users}" class="btn" style="text-decoration: none;">← Back to Users</a>
     </div>
 </div>
 </body>

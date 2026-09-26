@@ -2,108 +2,93 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👥 Manage Users - Cyber Forensics</title>
+    <title>Users Management</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; margin: 8px 0; background: rgba(15,37,87,0.03); border-left: 4px solid #0f2557; border-radius: 8px; flex-wrap: wrap; gap: 10px; }
+        .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; background: #0f2557; margin-left: 8px; }
+        .role-ADMIN { background: #dc2626; }
+        .role-CYBER_PRO { background: #eab308; }
+        .role-FORENSICS { background: #8b5cf6; }
+        .role-INDIVIDUAL { background: #1b7a4a; }
+        .user-btn { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; color: white; }
+    </style>
 </head>
 <body>
-<div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ - ADMIN</div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
-        <a th:href="@{/cases}">📁 Cases</a>
-        <a th:href="@{/audit}">📊 Audit</a>
-        <a th:href="@{/admin/users}">👥 Users</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
-    </div>
-</div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="container">
-    <div class="card">
-        <h1>👥 User Management</h1>
-        <p>Simamia watumiaji wote wa mfumo — roles, status, na ufikiaji.</p>
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px;">
+        <h1 style="color: white; margin: 0;">👥 Users Management</h1>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Simamia watumiaji wote wa mfumo</p>
+    </div>
 
-        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div class="card" th:if="${success}" style="background: rgba(27,122,74,0.1); border-left: 4px solid #1b7a4a; padding: 15px;">
+        <p style="color: #1b7a4a; margin: 0;" th:text="${success}"></p>
+    </div>
+
+    <div class="card" th:if="${error}" style="background: rgba(220,38,38,0.1); border-left: 4px solid #dc2626; padding: 15px;">
+        <p style="color: #dc2626; margin: 0;" th:text="${error}"></p>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-box">
-            <div class="stat-value" th:text="${totalUsers}">0</div>
-            <div class="stat-label">Total Users</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${adminCount}">0</div>
-            <div class="stat-label">Admins</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${proCount}">0</div>
-            <div class="stat-label">Cyber Pros</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${forensicsCount}">0</div>
-            <div class="stat-label">Forensics</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${individualCount}">0</div>
-            <div class="stat-label">Individuals</div>
-        </div>
+        <div class="stat-box"><div class="stat-value" th:text="${totalUsers}">0</div><div class="stat-label">Total Users</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: #dc2626;" th:text="${adminCount}">0</div><div class="stat-label">Admins</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: #eab308;" th:text="${proCount}">0</div><div class="stat-label">Professionals</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: #1b7a4a;" th:text="${individualCount}">0</div><div class="stat-label">Individuals</div></div>
     </div>
 
     <div class="card">
         <h2>📋 All Users</h2>
-        <table style="margin-top:15px;">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:if="${users.isEmpty()}">
-                <td colspan="7" style="text-align:center;">Hakuna watumiaji bado.</td>
-            </tr>
-            <tr th:each="u : ${users}">
-                <td th:text="${u.id}"></td>
-                <td th:text="${u.username}"></td>
-                <td th:text="${u.fullName}"></td>
-                <td th:text="${u.email}"></td>
-                <td>
-                    <form th:action="@{'/admin/users/' + ${u.id} + '/role'}" method="post" style="display:flex;gap:5px;">
-                        <select name="role" style="padding:4px;font-size:11px;">
-                            <option value="INDIVIDUAL" th:selected="${u.role == 'INDIVIDUAL'}">INDIVIDUAL</option>
-                            <option value="CYBER_PRO" th:selected="${u.role == 'CYBER_PRO'}">CYBER_PRO</option>
-                            <option value="FORENSICS" th:selected="${u.role == 'FORENSICS'}">FORENSICS</option>
-                            <option value="ADMIN" th:selected="${u.role == 'ADMIN'}">ADMIN</option>
-                        </select>
-                        <button type="submit" class="btn" style="padding:4px 10px;font-size:11px;">Save</button>
-                    </form>
-                </td>
-                <td>
-                    <span th:if="${u.enabled}" style="color:#00ff9d;">✅ Enabled</span>
-                    <span th:unless="${u.enabled}" style="color:#ff3b3b;">❌ Disabled</span>
-                    <span th:if="${u.accountLocked}" style="color:#ffc800;">🔒 Locked</span>
-                </td>
-                <td>
-                    <a th:href="@{'/admin/users/' + ${u.id}}" style="margin-right:8px;">View</a>
-                    <form th:action="@{'/admin/users/' + ${u.id} + '/toggle'}" method="post" style="display:inline;">
-                        <button type="submit" class="btn" style="padding:4px 8px;font-size:10px;">
-                            <span th:if="${u.enabled}">Disable</span>
-                            <span th:unless="${u.enabled}">Enable</span>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div th:each="u : ${users}" class="user-row">
+            <div style="flex: 1;">
+                <strong th:text="${u.username}">username</strong>
+                <span class="role-badge" th:classappend="'role-' + ${u.role}" th:text="${u.role}">ROLE</span>
+                <span th:if="${u.accountLocked}" style="background: #dc2626; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">🔒 LOCKED</span>
+                <br>
+                <small style="color: #888;">
+                    <span th:text="${u.email}">email</span> |
+                    <span th:text="${u.enabled != null && u.enabled ? '✅ Active' : '❌ Disabled'}"></span>
+                </small>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <!-- ENABLE/DISABLE -->
+                <form th:action="@{'/admin/users/' + ${u.id} + '/toggle'}" method="post" style="display: inline;">
+                    <button type="submit" class="user-btn" style="background: #0f2557;"
+                            th:text="${u.enabled != null && u.enabled ? 'Disable' : 'Enable'}"></button>
+                </form>
+
+                <!-- UNLOCK -->
+                <form th:if="${u.accountLocked}" th:action="@{'/admin/users/' + ${u.id} + '/unlock'}" method="post" style="display: inline;">
+                    <button type="submit" class="user-btn" style="background: #eab308;">Unlock</button>
+                </form>
+
+                <!-- CHANGE ROLE -->
+                <form th:action="@{'/admin/users/' + ${u.id} + '/role'}" method="post" style="display: flex; gap: 5px;">
+                    <select name="role" style="padding: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 12px;">
+                        <option value="INDIVIDUAL" th:selected="${u.role == 'INDIVIDUAL'}">INDIVIDUAL</option>
+                        <option value="CYBER_PRO" th:selected="${u.role == 'CYBER_PRO'}">CYBER_PRO</option>
+                        <option value="FORENSICS" th:selected="${u.role == 'FORENSICS'}">FORENSICS</option>
+                        <option value="ANALYST" th:selected="${u.role == 'ANALYST'}">ANALYST</option>
+                        <option value="ADMIN" th:selected="${u.role == 'ADMIN'}">ADMIN</option>
+                    </select>
+                    <button type="submit" class="user-btn" style="background: #1b7a4a;">Save</button>
+                </form>
+
+                <!-- VIEW -->
+                <a th:href="@{'/admin/users/' + ${u.id}}" class="user-btn" style="background: #8b5cf6;">View</a>
+
+                <!-- DELETE -->
+                <form th:if="${u.username != 'admin'}" th:action="@{'/admin/users/' + ${u.id} + '/delete'}" method="post" style="display: inline;"
+                      onsubmit="return confirm('Una uhakika unataka kumfuta ${u.username}?');">
+                    <button type="submit" class="user-btn" style="background: #dc2626;">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin: 20px 0;">
+        <a th:href="@{/dashboard}" class="btn" style="text-decoration: none;">← Back to Dashboard</a>
     </div>
 </div>
 </body>
