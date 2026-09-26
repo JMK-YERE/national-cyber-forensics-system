@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users Management</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; margin: 8px 0; background: rgba(15,37,87,0.03); border-left: 4px solid #0f2557; border-radius: 8px; flex-wrap: wrap; gap: 10px; }
+        .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; background: #0f2557; }
+        .role-ADMIN { background: #dc2626; }
+        .role-CYBER_PRO { background: #eab308; }
+        .role-FORENSICS { background: #8b5cf6; }
+        .role-INDIVIDUAL { background: #1b7a4a; }
+        .user-btn { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px;">
+        <h1 style="color: white; margin: 0;">👥 Users Management</h1>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Simamia watumiaji wote wa mfumo</p>
+    </div>
+
+    <div class="card" th:if="${success}" style="background: rgba(27,122,74,0.1); border-left: 4px solid #1b7a4a; padding: 15px;">
+        <p style="color: #1b7a4a; margin: 0;" th:text="${success}"></p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box"><div class="stat-value" th:text="${totalUsers}">0</div><div class="stat-label">Total Users</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: #dc2626;" th:text="${adminCount}">0</div><div class="stat-label">Admins</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: #eab308;" th:text="${professionalCount}">0</div><div class="stat-label">Professionals</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: #1b7a4a;" th:text="${individualCount}">0</div><div class="stat-label">Individuals</div></div>
+    </div>
+
+    <div class="card">
+        <h2>📋 All Users</h2>
+        <div th:each="u : ${users}" class="user-row">
+            <div style="flex: 1;">
+                <strong th:text="${u.username}">username</strong>
+                <span class="role-badge" th:classappend="'role-' + ${u.role}" th:text="${u.role}">ROLE</span>
+                <br>
+                <small style="color: #888;">
+                    <span th:text="${u.email}">email</span> |
+                    <span th:text="${u.enabled != null && u.enabled ? '✅ Active' : '❌ Disabled'}"></span>
+                </small>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <form th:action="@{'/admin/users/' + ${u.id} + '/toggle'}" method="post" style="display: inline;">
+                    <button type="submit" class="user-btn" style="background: #0f2557; color: white;"
+                            th:text="${u.enabled != null && u.enabled ? 'Disable' : 'Enable'}"></button>
+                </form>
+                <form th:action="@{'/admin/users/' + ${u.id} + '/role'}" method="post" style="display: flex; gap: 5px;">
+                    <select name="role" style="padding: 6px; border-radius: 6px; border: 1px solid #ccc;">
+                        <option value="INDIVIDUAL" th:selected="${u.role == 'INDIVIDUAL'}">INDIVIDUAL</option>
+                        <option value="CYBER_PRO" th:selected="${u.role == 'CYBER_PRO'}">CYBER_PRO</option>
+                        <option value="FORENSICS" th:selected="${u.role == 'FORENSICS'}">FORENSICS</option>
+                        <option value="ANALYST" th:selected="${u.role == 'ANALYST'}">ANALYST</option>
+                        <option value="ADMIN" th:selected="${u.role == 'ADMIN'}">ADMIN</option>
+                    </select>
+                    <button type="submit" class="user-btn" style="background: #1b7a4a; color: white;">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin: 20px 0;">
+        <a th:href="@{/dashboard}" class="btn" style="text-decoration: none;">← Back to Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

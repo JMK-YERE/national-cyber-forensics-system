@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>System Settings</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px;">
+        <h1 style="color: white; margin: 0;">⚙️ System Settings</h1>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Mipangilio ya mfumo</p>
+    </div>
+
+    <div class="card">
+        <h2>🔧 General Settings</h2>
+        <div style="padding: 15px; margin: 8px 0; background: rgba(15,37,87,0.03); border-radius: 8px;">
+            <p style="margin: 5px 0;"><strong>Application Name:</strong> Cyber Forensics System</p>
+            <p style="margin: 5px 0;"><strong>Version:</strong> 1.0.0</p>
+            <p style="margin: 5px 0;"><strong>Environment:</strong> Production (Render)</p>
+            <p style="margin: 5px 0;"><strong>Database:</strong> PostgreSQL (Neon)</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📧 Email Settings</h2>
+        <p style="color: #666;">Email notifications hazijawashwa bado.</p>
+    </div>
+
+    <div class="card">
+        <h2>🔒 Security Settings</h2>
+        <div style="padding: 15px; margin: 8px 0; background: rgba(15,37,87,0.03); border-radius: 8px;">
+            <p style="margin: 5px 0;"><strong>2FA:</strong> Optional kwa watumiaji</p>
+            <p style="margin: 5px 0;"><strong>Encryption:</strong> AES-256 kwa evidence</p>
+            <p style="margin: 5px 0;"><strong>Session timeout:</strong> 30 dakika</p>
+        </div>
+    </div>
+
+    <div style="margin: 20px 0;">
+        <a th:href="@{/dashboard}" class="btn" style="text-decoration: none;">← Back to Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

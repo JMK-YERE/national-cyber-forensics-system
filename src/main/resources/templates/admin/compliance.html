@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Compliance Reports</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        .compliance-card { padding: 20px; margin: 10px 0; background: rgba(15,37,87,0.03); border-left: 4px solid #0f2557; border-radius: 8px; }
+        .badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px;">
+        <h1 style="color: white; margin: 0;">📋 Compliance Reports</h1>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">TCRA, ISO 27001, Data Protection Act</p>
+    </div>
+
+    <div class="card">
+        <h2>🇹🇿 TCRA Compliance</h2>
+        <div class="compliance-card">
+            <p style="margin: 5px 0;"><strong>Status:</strong> <span class="badge" style="background: #1b7a4a;">Active</span></p>
+            <p style="margin: 5px 0;">Tanzania Communications Regulatory Authority</p>
+            <p style="margin: 5px 0; color: #666; font-size: 13px;">Ripoti ya uzingatiaji wa TCRA inafanyika kila mwezi.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📊 ISO 27001</h2>
+        <div class="compliance-card">
+            <p style="margin: 5px 0;"><strong>Status:</strong> <span class="badge" style="background: #eab308;">In Progress</span></p>
+            <p style="margin: 5px 0;">International Information Security Standard</p>
+            <p style="margin: 5px 0; color: #666; font-size: 13px;">Kukamilisha controls 114 za ISO 27001.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>🔒 Data Protection Act (Tanzania 2022)</h2>
+        <div class="compliance-card">
+            <p style="margin: 5px 0;"><strong>Status:</strong> <span class="badge" style="background: #1b7a4a;">Compliant</span></p>
+            <p style="margin: 5px 0;">Personal Data Protection Act</p>
+            <p style="margin: 5px 0; color: #666; font-size: 13px;">Ulinzi wa data za kibinafsi unazingatiwa.</p>
+        </div>
+    </div>
+
+    <div style="margin: 20px 0;">
+        <a th:href="@{/dashboard}" class="btn" style="text-decoration: none;">← Back to Dashboard</a>
+    </div>
+</div>
+</body>
+</html>
