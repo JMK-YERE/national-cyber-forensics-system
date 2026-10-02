@@ -5,69 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{login.title}">Login</title>
     <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0F4C3A, #1B7A4A);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-logo { font-size: 60px; margin-bottom: 15px; }
+        .auth-header h1 { color: #0F4C3A; font-size: 24px; margin: 0; }
+        .auth-header p { color: #64748B; font-size: 13px; margin-top: 8px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; color: #0F4C3A; margin-bottom: 8px; font-size: 14px; }
+        .form-group input {
+            width: 100%; padding: 12px 16px;
+            border: 2px solid #E2E8F0; border-radius: 10px;
+            font-size: 14px; transition: all 0.2s;
+        }
+        .form-group input:focus {
+            outline: none; border-color: #1B7A4A;
+            box-shadow: 0 0 0 3px rgba(27,122,74,0.1);
+        }
+        .btn-login {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #0F4C3A, #1B7A4A);
+            color: white; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(15,76,58,0.4);
+        }
+        .auth-footer { text-align: center; margin-top: 25px; font-size: 14px; }
+        .auth-footer a { color: #1B7A4A; text-decoration: none; font-weight: 600; }
+        .auth-footer a:hover { text-decoration: underline; }
+        .alert-error { background: rgba(220,38,38,0.1); border-left: 4px solid #DC2626; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; color: #DC2626; }
+        .alert-success { background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; color: #10B981; }
+    </style>
 </head>
 <body>
-<div class="auth-page">
-    <!-- LANGUAGE SWITCH -->
-    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px 0;">
-        <a th:href="@{/login?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active-lang'"
-           style="padding: 8px 18px; border-radius: 20px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; font-weight: 600; border: 2px solid transparent;">
-           🇹🇿 Kiswahili
-        </a>
-        <a th:href="@{/login?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active-lang'"
-           style="padding: 8px 18px; border-radius: 20px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; font-weight: 600; border: 2px solid transparent;">
-           🇬🇧 English
-        </a>
-        <a th:href="@{/login?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active-lang'"
-           style="padding: 8px 18px; border-radius: 20px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; font-weight: 600; border: 2px solid transparent;">
-           🇫🇷 Français
-        </a>
-        <a th:href="@{/login?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active-lang'"
-           style="padding: 8px 18px; border-radius: 20px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; font-weight: 600; border: 2px solid transparent;">
-           🇸🇦 العربية
-        </a>
+<div class="auth-container">
+    <div class="auth-header">
+        <div class="auth-logo">🔐</div>
+        <h1 th:text="#{login.title}">Cyber Forensics System</h1>
+        <p th:text="#{login.subtitle}">International Security Platform</p>
     </div>
 
-    <div class="auth-container">
-        <div class="auth-header">
-            <div class="auth-logo">🔐</div>
-            <h1 th:text="#{login.title}">Cyber Forensics System</h1>
-            <p th:text="#{login.subtitle}">International Security Platform</p>
-        </div>
+    <div class="alert-error" th:if="${param.error}">
+        <p style="margin: 0;" th:text="#{login.error}">Invalid username or password</p>
+    </div>
 
-        <div class="card" th:if="${param.error}" style="background: rgba(220,38,38,0.1); border-left: 4px solid #dc2626; padding: 15px;">
-            <p style="color: #dc2626; margin: 0;" th:text="#{login.error}">Invalid username or password</p>
-        </div>
+    <div class="alert-success" th:if="${param.logout}">
+        <p style="margin: 0;" th:text="#{login.loggedOut}">You have been logged out</p>
+    </div>
 
-        <div class="card" th:if="${param.logout}" style="background: rgba(27,122,74,0.1); border-left: 4px solid #1b7a4a; padding: 15px;">
-            <p style="color: #1b7a4a; margin: 0;" th:text="#{login.loggedOut}">You have been logged out</p>
+    <form th:action="@{/login}" method="post">
+        <div class="form-group">
+            <label th:text="#{login.username}">Username</label>
+            <input type="text" name="username" required autofocus>
         </div>
-
-        <form th:action="@{/login}" method="post" class="auth-form">
-            <div class="form-group">
-                <label th:text="#{login.username}">Username</label>
-                <input type="text" name="username" required autofocus>
-            </div>
-            <div class="form-group">
-                <label th:text="#{login.password}">Password</label>
-                <input type="password" name="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">
-                🔓 <span th:text="#{login.access}">Access System</span>
-            </button>
-        </form>
-
-        <div class="auth-footer">
-            <p>
-                <span th:text="#{login.noAccount}">Don't have an account?</span>
-                <a th:href="@{/register}" th:text="#{login.register}">Register here</a>
-            </p>
-            <p style="margin-top: 15px;">
-                <a th:href="@{/whistleblower}" style="color: #c9a227; font-weight: bold;">
-                    🕵️ <span th:text="#{login.whistleblower}">Whistleblower Portal</span>
-                </a>
-            </p>
+        <div class="form-group">
+            <label th:text="#{login.password}">Password</label>
+            <input type="password" name="password" required>
         </div>
+        <button type="submit" class="btn-login">🔓 <span th:text="#{login.access}">Access System</span></button>
+    </form>
+
+    <div class="auth-footer">
+        <p>
+            <span th:text="#{login.noAccount}">Don't have an account?</span>
+            <a th:href="@{/register}" th:text="#{login.register}">Register here</a>
+        </p>
+        <p style="margin-top: 12px;">
+            <a th:href="@{/whistleblower}" style="color: #C9A227;">
+                🕵️ <span th:text="#{login.whistleblower}">Whistleblower Portal</span>
+            </a>
+        </p>
     </div>
 </div>
 </body>
