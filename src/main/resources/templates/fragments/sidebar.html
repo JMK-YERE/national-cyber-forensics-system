@@ -6,52 +6,42 @@
     <nav class="sidebar-nav">
 
         <a th:href="@{/dashboard}" class="sidebar-item">
-            <span class="icon">🏠</span>
-            <span class="label">Dashboard</span>
+            <span class="icon">🏠</span><span class="label">Dashboard</span>
         </a>
 
         <a th:href="@{/report-attack}" class="sidebar-item">
-            <span class="icon">🚨</span>
-            <span class="label">Report Attack</span>
+            <span class="icon">🚨</span><span class="label">Report Attack</span>
         </a>
 
         <a th:href="@{/threat-map}" class="sidebar-item">
-            <span class="icon">🗺️</span>
-            <span class="label">Threat Map</span>
+            <span class="icon">🗺️</span><span class="label">Threat Map</span>
         </a>
 
+        <!-- TOOLS ZA MSINGI — kwa wote -->
         <button class="sidebar-item" onclick="toggleSubmenu('toolsMenu', this)">
-            <span class="icon">🛡️</span>
-            <span class="label">Security Tools</span>
+            <span class="icon">🛡️</span><span class="label">Security Tools</span>
             <span class="arrow">▶</span>
         </button>
         <div class="sidebar-submenu" id="toolsMenu">
             <a th:href="@{/tools/security-center}" class="sidebar-subitem"><span class="dot"></span> Security Center</a>
-            <a th:href="@{/tools/password-checker}" class="sidebar-subitem"><span class="dot"></span> Password Checker</a>
-            <a th:href="@{/tools/breach-checker}" class="sidebar-subitem"><span class="dot"></span> Breach Checker</a>
-            <a th:href="@{/tools/email-scanner}" class="sidebar-subitem"><span class="dot"></span> Email Scanner</a>
-            <a th:href="@{/tools/url-checker}" class="sidebar-subitem"><span class="dot"></span> URL Checker</a>
-            <a th:href="@{/tools/dns-lookup}" class="sidebar-subitem"><span class="dot"></span> DNS Lookup</a>
-            <a th:href="@{/tools/ip-lookup}" class="sidebar-subitem"><span class="dot"></span> IP Lookup</a>
-            <a th:href="@{/tools/file-hash}" class="sidebar-subitem"><span class="dot"></span> File Hash</a>
-            <a th:href="@{/tools/encryption}" class="sidebar-subitem"><span class="dot"></span> Encryption</a>
+            <a th:href="@{/tools/password-check}" class="sidebar-subitem"><span class="dot"></span> Password Check</a>
+            <a th:href="@{/tools/breach-check}" class="sidebar-subitem"><span class="dot"></span> Breach Check</a>
+            <a th:href="@{/tools/url-check}" class="sidebar-subitem"><span class="dot"></span> URL Check</a>
+            <a th:href="@{/tools/ip-check}" class="sidebar-subitem"><span class="dot"></span> IP Check</a>
         </div>
 
         <a th:href="@{/notifications}" class="sidebar-item">
-            <span class="icon">🔔</span>
-            <span class="label">Notifications</span>
+            <span class="icon">🔔</span><span class="label">Notifications</span>
         </a>
 
         <a th:href="@{/downloads}" class="sidebar-item">
-            <span class="icon">📥</span>
-            <span class="label">Downloads</span>
+            <span class="icon">📥</span><span class="label">Downloads</span>
         </a>
 
-        <!-- ADMIN -->
+        <!-- ADMIN PANEL — admin/staff pekee -->
         <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')">
             <button class="sidebar-item" onclick="toggleSubmenu('adminMenu', this)">
-                <span class="icon">👑</span>
-                <span class="label">Admin Panel</span>
+                <span class="icon">👑</span><span class="label">Admin Panel</span>
                 <span class="arrow">▶</span>
             </button>
             <div class="sidebar-submenu" id="adminMenu">
@@ -64,43 +54,29 @@
                 <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/settings}" class="sidebar-subitem"><span class="dot"></span> Settings</a>
             </div>
         </div>
-
     </nav>
 </aside>
 
-<!-- AI STATUE — Kulia, Chini Kabisa -->
+<!-- AI STATUE — Kulia Chini -->
 <a th:href="@{/ai/assistant}" class="ai-floating">
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#22D3EE"/>
-                <stop offset="100%" stop-color="#3B82F6"/>
+                <stop offset="0%" stop-color="#22C55E"/>
+                <stop offset="100%" stop-color="#06B6D4"/>
             </linearGradient>
-            <radialGradient id="aiGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.5"/>
-                <stop offset="100%" stop-color="#06B6D4" stop-opacity="0"/>
-            </radialGradient>
         </defs>
-        <!-- Glow circle -->
-        <circle cx="50" cy="50" r="48" fill="url(#aiGlow)"/>
-        <!-- Head -->
+        <circle cx="50" cy="50" r="48" fill="#06B6D4" opacity="0.1"/>
         <circle cx="50" cy="30" r="15" fill="url(#aiGrad)"/>
-        <!-- Eyes -->
         <circle cx="44" cy="28" r="2.5" fill="#0A1628"/>
         <circle cx="56" cy="28" r="2.5" fill="#0A1628"/>
-        <!-- Smile -->
         <path d="M 44 35 Q 50 40 56 35" stroke="#0A1628" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <!-- Neck -->
         <rect x="46" y="43" width="8" height="4" fill="url(#aiGrad)"/>
-        <!-- Body -->
         <path d="M 28 58 Q 28 47 50 47 Q 72 47 72 58 L 72 75 L 28 75 Z" fill="url(#aiGrad)"/>
-        <!-- AI Symbol -->
         <text x="50" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="#0A1628" font-family="Arial">AI</text>
-        <!-- Base -->
         <rect x="26" y="77" width="48" height="6" rx="3" fill="url(#aiGrad)"/>
-        <!-- Antenna -->
-        <line x1="50" y1="15" x2="50" y2="8" stroke="#22D3EE" stroke-width="2"/>
-        <circle cx="50" cy="7" r="3" fill="#22D3EE"/>
+        <line x1="50" y1="15" x2="50" y2="8" stroke="#22C55E" stroke-width="2"/>
+        <circle cx="50" cy="7" r="3" fill="#22C55E"/>
     </svg>
     <div class="ai-floating-label">Uliza AI →</div>
 </a>

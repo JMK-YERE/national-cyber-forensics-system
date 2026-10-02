@@ -10,10 +10,10 @@
 
 <nav class="nav-public">
     <div class="nav-container">
-        <div class="nav-logo">🛡️ <span th:text="#{app.title}">Cyber Forensics Tanzania</span></div>
+        <div class="nav-logo">🛡️ Cyber Forensics Tanzania</div>
         <div class="nav-links">
             <a href="#features" th:text="#{landing.nav.features}">Features</a>
-            <a href="#how" th:text="#{landing.nav.how}">How It Works</a>
+            <a href="#how" th:text="#{landing.nav.how}">How</a>
             <a href="#announcements" th:text="#{landing.nav.announcements}">Announcements</a>
             <a href="#contact" th:text="#{landing.nav.contact}">Contact</a>
         </div>
@@ -45,19 +45,16 @@
                 </div>
             </div>
         </div>
-
-        <div th:if="${slides == null || slides.isEmpty()}" class="slide active" style="background: linear-gradient(135deg, #0A1F44, #1E3A8A);">
+        <div th:if="${slides == null || slides.isEmpty()}" class="slide active">
             <div class="slide-overlay"></div>
             <div class="slide-content">
                 <h1 th:text="#{landing.hero.title}">Karibu Cyber Forensics Tanzania</h1>
                 <p th:text="#{landing.hero.subtitle}">Ulinzi wa Kidijitali kwa Watanzania Wote</p>
                 <div class="hero-cta">
-                    <a th:href="@{/register}" class="btn-primary btn-large" th:text="#{landing.hero.cta.register}">Register</a>
-                    <a href="#how" class="btn-outline-light btn-large" th:text="#{landing.hero.cta.learn}">Learn More</a>
+                    <a th:href="@{/register}" class="btn-primary btn-large">Register</a>
                 </div>
             </div>
         </div>
-
         <div class="slide-dots" id="slideDots"></div>
     </div>
 </section>
@@ -96,7 +93,6 @@
 <section class="announcements" id="announcements">
     <h2 th:text="#{landing.ann.title}">Matangazo ya Umma</h2>
     <p class="section-sub" th:text="#{landing.ann.subtitle}">Taarifa kutoka taasisi mbalimbali</p>
-
     <div class="announcements-grid">
         <div th:each="a : ${announcements}" class="announcement-card">
             <div class="ann-header">
@@ -151,7 +147,7 @@
         </div>
         <div class="emergency-cta">
             <p th:text="#{landing.emg.notAlone}">Wewe si pekee yako. Tuko pamoja nawe.</p>
-            <a th:href="@{/register}" class="btn-primary btn-large" th:text="#{landing.hero.cta.register}">Register</a>
+            <a th:href="@{/register}" class="btn-primary btn-large">Register</a>
         </div>
     </div>
 </section>
@@ -198,7 +194,7 @@
 <footer class="footer" id="contact">
     <div class="footer-content">
         <div class="footer-section">
-            <h3>🛡️ <span th:text="#{app.title}">Cyber Forensics</span></h3>
+            <h3>🛡️ Cyber Forensics</h3>
             <p th:text="#{landing.footer.about}">Ulinzi wa kidijitali.</p>
         </div>
         <div class="footer-section">
@@ -209,11 +205,11 @@
         </div>
         <div class="footer-section">
             <h4 th:text="#{landing.footer.links}">🔗 Links</h4>
-            <p><a th:href="@{/register}" th:text="#{landing.nav.register}">Register</a></p>
-            <p><a th:href="@{/login}" th:text="#{landing.nav.login}">Login</a></p>
+            <p><a th:href="@{/register}">Register</a></p>
+            <p><a th:href="@{/login}">Login</a></p>
         </div>
         <div class="footer-section">
-            <h4>🇹🇿 <span th:text="#{landing.footer.tanzania}">Tanzania</span></h4>
+            <h4>🇹🇿 Tanzania</h4>
             <p>Dar es Salaam</p>
             <p>© 2026</p>
         </div>
