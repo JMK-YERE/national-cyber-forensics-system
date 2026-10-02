@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Case Detail - Cyber Forensics</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ</div>
+    <div class="logo"> CYBER FORENSICS TZ</div></main>
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/cases}">📁 Cases</a>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
-<div class="container">
-    <div class="card">
+<main class="app-main"><div class="app-container">
+    <div class="app-card">
         <h1 th:text="'📁 ' + ${caseFile.caseNumber}"></h1>
-        <a th:href="@{'/reports/case/{id}/pdf'(id=${caseFile.id})}" class="btn btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
+        <a th:href="@{'/reports/case/{id}/pdf'(id=${caseFile.id})}" class="app-btn app-btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
         <p><strong>Title:</strong> <span th:text="${caseFile.title}"></span></p>
         <p><strong>Priority:</strong> <span th:text="${caseFile.priority}"></span></p>
         <p><strong>Status:</strong> <span th:text="${caseFile.status}"></span></p>
@@ -25,16 +25,17 @@
         <hr style="border-color:rgba(0,255,157,0.2);margin:20px 0;">
         <h3>📝 Description</h3>
         <p th:text="${caseFile.description}"></p>
-    </div>
+    </div></main>
 
-    <div class="card" th:if="${caseFile.status != 'CLOSED'}">
+    <div class="app-card" th:if="${caseFile.status != 'CLOSED'}">
         <h3>Close Case</h3>
         <form th:action="@{'/cases/' + ${caseFile.id} + '/close'}" method="post">
             <label>Closure Reason</label>
             <textarea name="reason" rows="3" required></textarea>
-            <button type="submit" class="btn btn-danger" style="margin-top:10px;">Close Case</button>
+            <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px;">Close Case</button>
         </form>
-    </div>
-</div>
+    </div></main>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

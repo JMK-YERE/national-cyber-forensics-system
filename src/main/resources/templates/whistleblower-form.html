@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Anonymously</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ Whistleblower Portal</div>
+    <div class="logo">🛡️ Whistleblower Portal</div></main>
     <div class="nav-links">
         <a th:href="@{/whistleblower}">Home</a>
         <a th:href="@{/whistleblower/track}">Track Report</a>
         <a th:href="@{/login}">Login</a>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
 <div class="container" style="max-width: 800px; margin: 30px auto;">
-    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 30px;">
+    <div class="app-card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 30px;">
         <h1 style="color: white; margin: 0;">🚨 Report Anonymously</h1>
         <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">
             🔒 Your identity will remain anonymous. Hakuna jina lako litakaloonekana.
         </p>
-    </div>
+    </div></main>
 
-    <form th:action="@{/whistleblower/submit}" method="post" enctype="multipart/form-data" class="card" style="margin-top: 20px;">
+    <form th:action="@{/whistleblower/submit}" method="post" enctype="multipart/form-data" class="app-card" style="margin-top: 20px;">
         <h2>📝 Report Details</h2>
 
         <div style="margin-bottom: 15px;">
@@ -41,7 +41,7 @@
                 <option th:value="'ENVIRONMENTAL'">🌍 Environmental Crime</option>
                 <option th:value="'OTHER'">❓ Other</option>
             </select>
-        </div>
+        </div></main>
 
         <div style="margin-bottom: 15px;">
             <label style="display:block; font-weight: 600; margin-bottom: 5px;">Kiwango cha Dharura *</label>
@@ -51,55 +51,56 @@
                 <option value="HIGH">🟠 High - Haraka</option>
                 <option value="CRITICAL">🔴 Critical - Hatari sana</option>
             </select>
-        </div>
+        </div></main>
 
         <div style="margin-bottom: 15px;">
             <label style="display:block; font-weight: 600; margin-bottom: 5px;">Kichwa cha Habari *</label>
             <input type="text" name="title" required maxlength="200" placeholder="Mfano: Rushwa katika ofisi ya..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-        </div>
+        </div></main>
 
         <div style="margin-bottom: 15px;">
             <label style="display:block; font-weight: 600; margin-bottom: 5px;">Maelezo Kamili *</label>
             <textarea name="description" rows="6" required placeholder="Eleza kwa undani kile kilichotokea..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);"></textarea>
-        </div>
+        </div></main>
 
         <div style="margin-bottom: 15px;">
             <label style="display:block; font-weight: 600; margin-bottom: 5px;">Watu/Waathirika Wanaohusika</label>
             <textarea name="involvedParties" rows="3" placeholder="Majina, vyeo..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);"></textarea>
-        </div>
+        </div></main>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div>
                 <label style="display:block; font-weight: 600; margin-bottom: 5px;">Mahali</label>
                 <input type="text" name="location" placeholder="Mji, eneo" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-            </div>
+            </div></main>
             <div>
                 <label style="display:block; font-weight: 600; margin-bottom: 5px;">Mkoa</label>
                 <input type="text" name="region" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <div style="margin-bottom: 15px;">
             <label style="display:block; font-weight: 600; margin-bottom: 5px;">Tarehe ya Tukio</label>
             <input type="datetime-local" name="dateOccurred" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-        </div>
+        </div></main>
 
         <div style="margin-bottom: 15px;">
             <label style="display:block; font-weight: 600; margin-bottom: 5px;">📎 Ushahidi (Picha/Video/Document)</label>
             <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-        </div>
+        </div></main>
 
-        <div class="card" style="background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a; margin: 20px 0;">
+        <div class="app-card" style="background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a; margin: 20px 0;">
             <p style="margin: 0; font-size: 13px; color: #333;">
                 🔒 <strong>100% Anonymous:</strong> Hatuombi jina lako, barua pepe, au namba ya simu. 
                 Utapata <strong>tracking code</strong> baada ya kutuma ili kufuatilia ripoti yako.
             </p>
-        </div>
+        </div></main>
 
-        <button type="submit" class="btn btn-danger" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold;">
+        <button type="submit" class="app-btn app-btn-primary" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold;">
             🔒 TUMA RIPOTI KWA SIRI
         </button>
     </form>
-</div>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

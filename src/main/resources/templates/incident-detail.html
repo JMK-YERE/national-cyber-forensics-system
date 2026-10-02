@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Incident Detail - Cyber Forensics</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ</div>
+    <div class="logo"> CYBER FORENSICS TZ</div></main>
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/incidents}">📋 Incidents</a>
@@ -18,20 +18,20 @@
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
-<div class="container">
-    <div class="card">
+<main class="app-main"><div class="app-container">
+    <div class="app-card">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:15px;">
             <div>
                 <h1 th:text="'📋 ' + ${incident.title}"></h1>
                 <p><strong>Incident ID:</strong> <span th:text="${incident.incidentId}"></span></p>
-            </div>
+            </div></main>
             <div>
-                <a th:href="@{/reports/incident/{id}/pdf(id=${incident.id})}" class="btn btn-primary" target="_blank">📄 Download PDF</a>
-            </div>
-        </div>
+                <a th:href="@{/reports/incident/{id}/pdf(id=${incident.id})}" class="app-btn app-btn-primary" target="_blank">📄 Download PDF</a>
+            </div></main>
+        </div></main>
 
         <p><strong>Reporter:</strong> <span th:text="${incident.reporter}"></span></p>
         <p><strong>Severity:</strong> <span th:text="${incident.severity}"></span></p>
@@ -42,10 +42,10 @@
         <p><strong>Category:</strong> <span th:text="${incident.category}"></span></p>
         <p><strong>Region:</strong> <span th:text="${incident.region}"></span></p>
         <p><strong>Date:</strong> <span th:text="${#temporals.format(incident.dateReported, 'yyyy-MM-dd HH:mm')}"></span></p>
-    </div>
+    </div></main>
 
     <!-- ASSIGNMENT SECTION -->
-    <div class="card" th:if="${assignableUsers != null}">
+    <div class="app-card" th:if="${assignableUsers != null}">
         <h2>👥 Assignment</h2>
         <form th:action="@{'/incidents/' + ${incident.id} + '/assign'}" method="post" style="margin-top:15px;">
             <label>Assign to:</label>
@@ -67,12 +67,12 @@
             <label>Due Date (optional):</label>
             <input type="datetime-local" name="dueDate">
 
-            <button type="submit" class="btn btn-primary" style="margin-top:10px;">👥 Assign</button>
+            <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px;">👥 Assign</button>
         </form>
-    </div>
+    </div></main>
 
     <!-- WORKFLOW SECTION -->
-    <div class="card" th:if="${assignableUsers != null}">
+    <div class="app-card" th:if="${assignableUsers != null}">
         <h2>🔄 Update Workflow</h2>
         <form th:action="@{'/incidents/' + ${incident.id} + '/workflow'}" method="post" style="margin-top:15px;">
             <select name="status">
@@ -82,14 +82,14 @@
                 <option value="REVIEW">REVIEW</option>
                 <option value="COMPLETED">COMPLETED</option>
             </select>
-            <button type="submit" class="btn" style="margin-left:10px;">🔄 Update</button>
+            <button type="submit" class="app-btn app-btn-outline" style="margin-left:10px;">🔄 Update</button>
         </form>
-    </div>
+    </div></main>
 
     <!-- EVIDENCE SECTION -->
-    <div class="card">
+    <div class="app-card">
         <h2>🔬 Digital Evidence</h2>
-        <a th:href="@{'/evidence/upload/' + ${incident.id}}" class="btn btn-primary" style="margin-top:15px;">📤 Upload Evidence</a>
+        <a th:href="@{'/evidence/upload/' + ${incident.id}}" class="app-btn app-btn-primary" style="margin-top:15px;">📤 Upload Evidence</a>
 
         <table th:if="${!evidenceList.isEmpty()}" style="margin-top:20px;">
             <thead>
@@ -115,7 +115,7 @@
                 <td>
                     <a th:href="@{'/evidence/download/' + ${ev.id}}">⬇️</a>
                     <form th:if="${!ev.verified}" th:action="@{'/evidence/verify/' + ${ev.id}}" method="post" style="display:inline;">
-                        <button type="submit" class="btn" style="padding:4px 10px;font-size:11px;">✅</button>
+                        <button type="submit" class="app-btn app-btn-outline" style="padding:4px 10px;font-size:11px;">✅</button>
                     </form>
                 </td>
             </tr>
@@ -124,7 +124,8 @@
         <p th:if="${evidenceList.isEmpty()}" style="text-align:center;margin-top:20px;">
             Hakuna evidence bado.
         </p>
-    </div>
-</div>
+    </div></main>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{nav.ai} + ' - ' + #{app.title}">AI Assistant</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
     <style>
         .chat-container { background: #f5f0e8; border: 1px solid rgba(15,37,87,0.15); border-radius: 8px; padding: 20px; min-height: 400px; max-height: 550px; overflow-y: auto; }
         .chat-msg { margin-bottom: 15px; padding: 12px 16px; border-radius: 10px; max-width: 82%; word-wrap: break-word; font-size: 14px; line-height: 1.6; }
@@ -24,7 +24,7 @@
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
+    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div></main>
     <div class="nav-links">
         <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
         <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
@@ -36,31 +36,31 @@
             <a th:href="@{/lang?lang=fr}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
             <a th:href="@{/lang?lang=ar}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
         </span>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
-<div class="container">
-    <div class="card">
+<main class="app-main"><div class="app-container">
+    <div class="app-card">
         <h1>🤖 <span th:text="#{nav.ai}">AI Assistant</span></h1>
         <p>Ask anything — AI will respond in your selected language.</p>
         <p th:if="${isConfigured}" style="color:var(--emerald); font-weight:600;">✅ AI Connected (Groq)</p>
         <p th:if="${!isConfigured}" style="color:var(--amber); font-weight:600;">⚠️ AI not configured</p>
-    </div>
+    </div></main>
 
-    <div class="card">
+    <div class="app-card">
         <div class="chat-container" id="chatContainer">
             <div th:if="${history.isEmpty()}" style="text-align:center; color:#888; padding:40px;">
                 💬 Start a conversation — ask anything!
-            </div>
+            </div></main>
 
             <div th:each="msg : ${history}"
                  class="chat-msg"
                  th:classappend="${msg.type == 'user'} ? 'chat-user' : 'chat-ai'">
-                <div class="chat-label" th:text="${msg.type == 'user'} ? '👤 You' : '🤖 AI Assistant'"></div>
-                <div th:text="${msg.text}" style="white-space:pre-wrap;"></div>
-                <div class="chat-time" th:text="${msg.time}"></div>
-            </div>
-        </div>
+                <div class="chat-label" th:text="${msg.type == 'user'} ? '👤 You' : '🤖 AI Assistant'"></div></main>
+                <div th:text="${msg.text}" style="white-space:pre-wrap;"></div></main>
+                <div class="chat-time" th:text="${msg.time}"></div></main>
+            </div></main>
+        </div></main>
 
         <!-- QUICK BUTTONS — Kwa lugha -->
         <div class="quick-btns" th:if="${#locale.language == 'sw'}">
@@ -69,7 +69,7 @@
             <button type="button" class="quick-btn" onclick="setMsg('Nifanye nini kama simu yangu iliibiwa?')">📱 Simu Iliibiwa</button>
             <button type="button" class="quick-btn" onclick="setMsg('Nisaidie kuandika CV nzuri')">💼 CV</button>
             <button type="button" class="quick-btn" onclick="setMsg('Nipe stori fupi ya kusisimua')">📖 Stori</button>
-        </div>
+        </div></main>
 
         <div class="quick-btns" th:if="${#locale.language == 'en'}">
             <button type="button" class="quick-btn" onclick="setMsg('What is a good password?')">🔐 Password</button>
@@ -77,31 +77,31 @@
             <button type="button" class="quick-btn" onclick="setMsg('What should I do if my phone is stolen?')">📱 Phone Stolen</button>
             <button type="button" class="quick-btn" onclick="setMsg('Help me write a good CV')">💼 CV</button>
             <button type="button" class="quick-btn" onclick="setMsg('Tell me a short story')">📖 Story</button>
-        </div>
+        </div></main>
 
         <div class="quick-btns" th:if="${#locale.language == 'fr'}">
             <button type="button" class="quick-btn" onclick="setMsg('Quel est un bon mot de passe?')">🔐 Mot de passe</button>
             <button type="button" class="quick-btn" onclick="setMsg('Comment me protéger du phishing?')">🎣 Phishing</button>
             <button type="button" class="quick-btn" onclick="setMsg('Que faire si mon téléphone est volé?')">📱 Vol</button>
             <button type="button" class="quick-btn" onclick="setMsg('Aidez-moi à écrire un bon CV')">💼 CV</button>
-        </div>
+        </div></main>
 
         <div class="quick-btns" th:if="${#locale.language == 'ar'}">
             <button type="button" class="quick-btn" onclick="setMsg('ما هي كلمة المرور الجيدة؟')">🔐 كلمة المرور</button>
             <button type="button" class="quick-btn" onclick="setMsg('كيف أحمي نفسي من التصيد؟')">🎣 التصيد</button>
             <button type="button" class="quick-btn" onclick="setMsg('ماذا أفعل إذا سُرق هاتفي؟')">📱 الهاتف</button>
-        </div>
+        </div></main>
 
         <form th:action="@{/ai/assistant}" method="post" style="margin-top:20px; display:flex; gap:10px;">
             <input type="text" name="message" required placeholder="Ask anything..." style="flex:1; margin:0;" id="messageInput">
-            <button type="submit" class="btn btn-primary" style="white-space:nowrap; margin:0;">📤 Send</button>
+            <button type="submit" class="app-btn app-btn-primary" style="white-space:nowrap; margin:0;">📤 Send</button>
         </form>
 
         <form th:action="@{/ai/clear}" method="post" style="margin-top:10px; text-align:right;">
-            <button type="submit" class="btn" style="font-size:11px; padding:6px 12px;">🗑️ Clear Chat</button>
+            <button type="submit" class="app-btn app-btn-outline" style="font-size:11px; padding:6px 12px;">🗑️ Clear Chat</button>
         </form>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
 <script>
 function setMsg(text) {
@@ -113,5 +113,6 @@ window.addEventListener('load', function() {
     if (c) c.scrollTop = c.scrollHeight;
 });
 </script>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

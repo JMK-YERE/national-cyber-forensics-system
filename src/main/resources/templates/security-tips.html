@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📚 Security Tips - Cyber Forensics</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ</div>
+    <div class="logo"> CYBER FORENSICS TZ</div></main>
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/tools/security-center}">🛡️ Security Center</a>
@@ -16,30 +16,31 @@
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
-<div class="container">
-    <div class="card">
+<main class="app-main"><div class="app-container">
+    <div class="app-card">
         <h1>📚 Security Tips 10 za Tanzania</h1>
         <p>Jifunze jinsi ya kulinda akaunti zako — Facebook, Instagram, WhatsApp, TikTok, Gmail, na benki yako.</p>
-    </div>
+    </div></main>
 
-    <div class="card" th:each="tip : ${tips}" style="margin-bottom:15px;">
+    <div class="app-card" th:each="tip : ${tips}" style="margin-bottom:15px;">
         <div style="display:flex; gap:15px; align-items:flex-start;">
-            <div style="font-size:40px;" th:text="${tip.icon}"></div>
+            <div style="font-size:40px;" th:text="${tip.icon}"></div></main>
             <div>
                 <h3 th:text="${tip.title}" style="margin-bottom:8px;"></h3>
                 <p th:text="${tip.body}"></p>
-            </div>
-        </div>
-    </div>
+            </div></main>
+        </div></main>
+    </div></main>
 
-    <div class="card" style="text-align:center;">
+    <div class="app-card" style="text-align:center;">
         <h3> Usalama ni Jukumu Lako</h3>
         <p>Share tips hizi kwa marafiki na familia yako.</p>
-        <a th:href="@{/tools/security-center}" class="btn">🛡️ Security Center</a>
-    </div>
-</div>
+        <a th:href="@{/tools/security-center}" class="app-btn app-btn-outline">🛡️ Security Center</a>
+    </div></main>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

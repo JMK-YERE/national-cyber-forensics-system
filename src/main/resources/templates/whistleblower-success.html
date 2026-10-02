@@ -4,44 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Submitted</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ Whistleblower Portal</div>
+    <div class="logo">🛡️ Whistleblower Portal</div></main>
     <div class="nav-links">
         <a th:href="@{/whistleblower}">Home</a>
         <a th:href="@{/whistleblower/track}">Track Report</a>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
 <div class="container" style="max-width: 700px; margin: 50px auto;">
-    <div class="card" style="text-align: center; padding: 40px; background: linear-gradient(135deg, rgba(27,122,74,0.08), rgba(27,122,74,0.02)); border: 3px solid #1b7a4a;">
-        <div style="font-size: 70px; margin-bottom: 20px;">✅</div>
+    <div class="app-card" style="text-align: center; padding: 40px; background: linear-gradient(135deg, rgba(27,122,74,0.08), rgba(27,122,74,0.02)); border: 3px solid #1b7a4a;">
+        <div style="font-size: 70px; margin-bottom: 20px;">✅</div></main>
         <h1 style="color: #1b7a4a; margin: 0 0 15px 0;">Report Received!</h1>
         <p style="font-size: 16px; color: #333;">Thank you for your courage. Your report has been submitted anonymously.</p>
-    </div>
+    </div></main>
 
-    <div class="card" style="text-align: center; margin-top: 20px; padding: 30px;">
+    <div class="app-card" style="text-align: center; margin-top: 20px; padding: 30px;">
         <h2 style="color: #0f2557; margin-top: 0;">🔐 Your Tracking Code</h2>
         <div th:if="${successCode}" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px; border-radius: 10px; margin: 20px 0;">
             <div style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #c9a227;"
-                 th:text="${successCode}">WB-ABC12345</div>
-        </div>
+                 th:text="${successCode}">WB-ABC12345</div></main>
+        </div></main>
         <p style="color: #dc2626; font-weight: bold; margin: 20px 0;">
             ⚠️ Save this code safely!
         </p>
         <p style="color: #666;">Tumia code hii kufuatilia ripoti yako. Ukiiipoteza, hautaweza kuona updates.</p>
 
         <div style="display: flex; gap: 10px; justify-content: center; margin-top: 25px; flex-wrap: wrap;">
-            <a th:href="@{/whistleblower/track}" class="btn btn-primary" style="padding: 12px 25px; text-decoration: none;">
+            <a th:href="@{/whistleblower/track}" class="app-btn app-btn-primary" style="padding: 12px 25px; text-decoration: none;">
                 🔍 Track Your Report
             </a>
-            <a th:href="@{/whistleblower}" class="btn" style="padding: 12px 25px; text-decoration: none; background: white; color: #0f2557; border: 2px solid #0f2557;">
+            <a th:href="@{/whistleblower}" class="app-btn app-btn-outline" style="padding: 12px 25px; text-decoration: none; background: white; color: #0f2557; border: 2px solid #0f2557;">
                 🏠 Back to Home
             </a>
-        </div>
-    </div>
-</div>
+        </div></main>
+    </div></main>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

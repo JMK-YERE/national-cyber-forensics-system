@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Security Center - Cyber Forensics System</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
     <style>
         .tool-card { background: white; border: 2px solid rgba(15,37,87,0.1); border-radius: 12px; padding: 25px; margin-bottom: 20px; transition: all 0.3s; }
         .tool-card:hover { border-color: #0f2557; box-shadow: 0 8px 25px rgba(15,37,87,0.1); }
@@ -27,7 +27,7 @@
 </head>
 <body>
 <div class="navbar">
-    <div class="logo">🛡️ Cyber Forensics System</div>
+    <div class="logo">🛡️ Cyber Forensics System</div></main>
     <div class="nav-links">
         <a th:href="@{/dashboard}">Dashboard</a>
         <a th:href="@{/report-attack}">Report</a>
@@ -36,21 +36,21 @@
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">Logout</button>
         </form>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
-<div class="container">
-    <div class="card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; text-align: center; padding: 30px;">
+<main class="app-main"><div class="app-container">
+    <div class="app-card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; text-align: center; padding: 30px;">
         <h1 style="color: white; margin: 0;">🛡️ Security Center</h1>
         <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Professional security tools — bure kabisa</p>
-    </div>
+    </div></main>
 
     <div class="grid-2">
         <!-- VIRUSTOTAL SECTION -->
         <div class="tool-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, #0f2557 0%, #1a3a70 100%); color: white;">
             <h3 style="color: white;"><span class="tool-icon">🔬</span>VirusTotal Deep Analysis (70+ Antivirus Engines)</h3>
             <p style="color: rgba(255,255,255,0.9);">Angalia URL, File Hash, IP, au Domain kwa 70+ antivirus engines. BURE kabisa.</p>
-        </div>
+        </div></main>
 
         <!-- VT URL -->
         <div class="tool-card">
@@ -70,8 +70,8 @@
                     </span>
                 </p>
                 <p th:if="${!vtUrlResult.success}" th:text="${vtUrlResult.error}"></p>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- VT FILE HASH -->
         <div class="tool-card">
@@ -91,8 +91,8 @@
                     </span>
                 </p>
                 <p th:if="${!vtHashResult.success}" th:text="${vtHashResult.error}"></p>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- VT IP -->
         <div class="tool-card">
@@ -109,8 +109,8 @@
                     <span th:if="${vtIpResult.country != null}"> | Country: <span th:text="${vtIpResult.country}"></span></span>
                 </p>
                 <p th:if="${!vtIpResult.success}" th:text="${vtIpResult.error}"></p>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- VT DOMAIN -->
         <div class="tool-card">
@@ -127,8 +127,8 @@
                     <span th:if="${vtDomainResult.registrar != null}"> | Registrar: <span th:text="${vtDomainResult.registrar}"></span></span>
                 </p>
                 <p th:if="${!vtDomainResult.success}" th:text="${vtDomainResult.error}"></p>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
 
         <!-- 1. SSL CERTIFICATE -->
@@ -145,8 +145,8 @@
                 <p th:if="${sslResult.subject}"><strong>Subject:</strong> <span th:text="${sslResult.subject}"></span></p>
                 <p th:if="${sslResult.issuer}"><strong>Issuer:</strong> <span th:text="${sslResult.issuer}"></span></p>
                 <p th:if="${sslResult.notAfter}"><strong>Expires:</strong> <span th:text="${sslResult.notAfter}"></span></p>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- 2. DNS LOOKUP -->
         <div class="tool-card">
@@ -164,8 +164,8 @@
                     <strong>Reachable:</strong> <span th:text="${dnsResult.reachable}"></span>
                 </p>
                 <p th:if="${!dnsResult.success}" th:text="${dnsResult.error}"></p>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- 3. IP REPUTATION -->
         <div class="tool-card">
@@ -180,8 +180,8 @@
                 <p><strong>IP:</strong> <span th:text="${ipResult.ip}"></span></p>
                 <p th:if="${ipResult.reverseDns}"><strong>Reverse DNS:</strong> <span th:text="${ipResult.reverseDns}"></span></p>
                 <p th:text="${ipResult.message}"></p>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- 4. HTTP HEADERS -->
         <div class="tool-card">
@@ -202,8 +202,8 @@
                     <li th:each="g : ${headersResult.good}" th:text="${g}" style="color:#1b7a4a;"></li>
                     <li th:each="w : ${headersResult.warnings}" th:text="${w}" style="color:#d97706;"></li>
                 </ul>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- 5. HASH ANALYZER -->
         <div class="tool-card">
@@ -219,9 +219,9 @@
                 <p><strong>Length:</strong> <span th:text="${hashResult.length}"></span></p>
                 <p th:text="${hashResult.message}"></p>
                 <a th:if="${hashResult.virustotal != null}" th:href="${hashResult.virustotal}" target="_blank"
-                   class="btn" style="font-size:12px; margin-top:10px; display:inline-block;">🔬 Check VirusTotal</a>
-            </div>
-        </div>
+                   class="app-btn app-btn-outline" style="font-size:12px; margin-top:10px; display:inline-block;">🔬 Check VirusTotal</a>
+            </div></main>
+        </div></main>
 
         <!-- 6. PASSWORD BREACH -->
         <div class="tool-card">
@@ -237,8 +237,8 @@
                 <p th:if="${pwBreachResult.breached}">
                     <strong>Imevuja mara:</strong> <span th:text="${pwBreachResult.count}"></span>
                 </p>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- 7. PASSWORD STRENGTH -->
         <div class="tool-card">
@@ -249,13 +249,13 @@
                 <button type="submit">🔍 Analyze</button>
             </form>
             <div th:if="${pwResult != null}" class="result-box result-info">
-                <div class="score-display" th:text="${pwResult.score} + '/100'"></div>
+                <div class="score-display" th:text="${pwResult.score} + '/100'"></div></main>
                 <p style="text-align:center; font-size:18px;" th:text="${pwResult.emoji} + ' ' + ${pwResult.rating}"></p>
                 <ul style="margin-left:20px; margin-top:10px;">
                     <li th:each="f : ${pwResult.feedback}" th:text="${f}"></li>
                 </ul>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- 8. URL REPUTATION -->
         <div class="tool-card">
@@ -273,8 +273,8 @@
                     <li th:each="w : ${urlResult.warnings}" th:text="${w}"></li>
                     <li th:each="s : ${urlResult.safe}" th:text="${s}"></li>
                 </ul>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
         <!-- 9. DOMAIN AGE -->
         <div class="tool-card">
@@ -289,7 +289,7 @@
                 <p><strong>Domain:</strong> <span th:text="${domainResult.domain}"></span></p>
                 <p th:if="${domainResult.ip}"><strong>IP:</strong> <span th:text="${domainResult.ip}"></span></p>
                 <p th:text="${domainResult.message}"></p>
-            </div>
+            </div></main>
                 <!-- 10. URLSCAN.IO -->
         <div class="tool-card">
             <h3><span class="tool-icon">🔬</span>URLScan.io Deep Scan</h3>
@@ -300,21 +300,21 @@
                     <input type="text" name="url" placeholder="https://example.com" required>
                     <button type="submit">🔬 Deep Scan</button>
                 </form>
-            </div>
+            </div></main>
             <div th:if="${!urlscanConfigured}" class="result-box result-warning">
                 <p>⚠️ URLScan API haijawekwa. Weka <code>URLSCAN_API_KEY</code> kwenye Render.</p>
-            </div>
+            </div></main>
 
             <div th:if="${urlscanResult != null}" class="result-box"
                  th:classappend="${urlscanResult.success} ? 'result-success' : 'result-danger'">
                 <p th:text="${urlscanResult.message}"></p>
                 <p th:if="${urlscanResult.error}" th:text="${urlscanResult.error}"></p>
                 <p th:if="${urlscanResult.resultUrl}">
-                    <a th:href="${urlscanResult.resultUrl}" target="_blank" class="btn" style="margin-top:10px; display:inline-block;">
+                    <a th:href="${urlscanResult.resultUrl}" target="_blank" class="app-btn app-btn-outline" style="margin-top:10px; display:inline-block;">
                         👁️ View Full Scan Result
                     </a>
                 </p>
-            </div>
+            </div></main>
 
             <hr style="margin: 15px 0;">
             <p style="font-size:12px; color:#666;">Au search kwa domain:</p>
@@ -330,12 +330,13 @@
                     <strong>Results:</strong> <span th:text="${urlscanSearch.count}"></span>
                 </p>
                 <p th:if="${urlscanSearch.error}" th:text="${urlscanSearch.error}"></p>
-            </div>
-        </div>
+            </div></main>
+        </div></main>
 
-</div>
+</div></main>
 
-    </div>
-</div>
+    </div></main>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>📊 Audit Log - Cyber Forensics</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ</div>
+    <div class="logo"> CYBER FORENSICS TZ</div></main>
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/incidents}">📋 Incidents</a>
@@ -17,19 +17,19 @@
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
-<div class="container">
-    <div class="card">
+<main class="app-main"><div class="app-container">
+    <div class="app-card">
         <h1>📊 Audit Log</h1>
         <p>Kila kitendo kwenye mfumo kinarekodiwa kwa uwazi na usalama.</p>
         <div style="margin-top:10px; padding:10px; background:rgba(255,200,0,0.1); border-left:3px solid #ffc800; font-size:12px;">
             🔒 <strong>Restricted Access:</strong> Audit log inaonekana kwa <strong>Admin, Cyber Professionals, na Forensics Analysts</strong> pekee.
-        </div>
-    </div>
+        </div></main>
+    </div></main>
 
-    <div class="card">
+    <div class="app-card">
         <table>
             <thead>
             <tr>
@@ -55,7 +55,8 @@
             </tr>
             </tbody>
         </table>
-    </div>
-</div>
+    </div></main>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

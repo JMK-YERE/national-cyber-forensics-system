@@ -2,44 +2,22 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyber Pro Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
 <main class="app-main">
     <div class="app-container">
-        <h1 class="page-title">👨‍💼 Cyber Pro Dashboard</h1>
-
-        <div class="app-stats-grid">
-            <div class="app-stat-box">
-                <div class="value" th:text="${totalReports != null ? totalReports : 0}">0</div>
-                <div class="label">Total Reports</div>
-            </div>
-            <div class="app-stat-box">
-                <div class="value" style="color:#DC2626;" th:text="${newReports != null ? newReports : 0}">0</div>
-                <div class="label">New</div>
-            </div>
-            <div class="app-stat-box">
-                <div class="value" style="color:#06B6D4;" th:text="${totalWb != null ? totalWb : 0}">0</div>
-                <div class="label">Whistleblower</div>
-            </div>
+        <div style="background:linear-gradient(135deg, #064E3B, #16A34A); color:white; padding:30px; border-radius:16px; margin-bottom:20px;">
+            <h1 style="color:white; margin:0;">👨‍💼 Cyber Pro Dashboard</h1>
+            <p style="color:rgba(255,255,255,0.9); margin-top:8px;">Karibu, <strong th:text="${username}"></strong></p>
         </div>
-
-        <div class="app-card" th:if="${recentReports != null && !recentReports.isEmpty()}">
-            <h2>📋 Assigned to You</h2>
-            <div th:each="r : ${recentReports}" class="app-list-item">
-                <div>
-                    <strong style="color:#0A1628; font-family:monospace;" th:text="${r.reportId}"></strong>
-                    <span th:text="${r.title}" style="margin-left:10px;"></span>
-                    <br>
-                    <small style="color:#64748B;" th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
-                </div>
-                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="app-btn app-btn-primary">View</a>
-            </div>
+        <div class="app-stats-grid">
+            <div class="app-stat-box"><div class="value" style="color:#16A34A;" th:text="${totalReports != null ? totalReports : 0}">0</div><div class="label">Total Reports</div></div>
+            <div class="app-stat-box"><div class="value" style="color:#DC2626;" th:text="${newReports != null ? newReports : 0}">0</div><div class="label">New</div></div>
+            <div class="app-stat-box"><div class="value" style="color:#06B6D4;" th:text="${totalWb != null ? totalWb : 0}">0</div><div class="label">Whistleblower</div></div>
         </div>
     </div>
 </main>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Dashboard</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
@@ -12,23 +12,26 @@
 
 <main class="app-main">
     <div class="app-container">
-        <h1 class="page-title">👤 Karibu, <span th:text="${username}">User</span>!</h1>
+        <div style="background:linear-gradient(135deg, #064E3B, #16A34A); color:white; padding:30px; border-radius:16px; margin-bottom:20px; box-shadow:0 10px 30px rgba(6,78,59,0.3);">
+            <h1 style="color:white; margin:0; font-size:28px;">👤 Karibu, <span th:text="${username}">User</span>!</h1>
+            <p style="color:rgba(255,255,255,0.9); margin-top:8px;">Dashibodi yako ya usalama wa mtandao</p>
+        </div>
 
         <div class="app-stats-grid">
-            <div class="app-stat-box">
-                <div class="value" th:text="${user != null && user.securityScore != null ? user.securityScore : 0}">0</div>
+            <div class="app-stat-box" style="border-top-color:#16A34A;">
+                <div class="value" style="color:#16A34A;" th:text="${user != null && user.securityScore != null ? user.securityScore : 0}">0</div>
                 <div class="label">Security Score</div>
             </div>
-            <div class="app-stat-box">
-                <div class="value" th:text="${user != null ? user.countSocialAccounts() : 0}">0</div>
+            <div class="app-stat-box" style="border-top-color:#06B6D4;">
+                <div class="value" style="color:#06B6D4;" th:text="${user != null ? user.countSocialAccounts() : 0}">0</div>
                 <div class="label">Social Accounts</div>
             </div>
-            <div class="app-stat-box">
-                <div class="value" th:text="${user != null && user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
+            <div class="app-stat-box" style="border-top-color:#EAB308;">
+                <div class="value" style="color:#EAB308;" th:text="${user != null && user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
                 <div class="label">2FA</div>
             </div>
-            <div class="app-stat-box">
-                <div class="value" th:text="${user != null && user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
+            <div class="app-stat-box" style="border-top-color:#16A34A;">
+                <div class="value" style="color:#16A34A;" th:text="${user != null && user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
                 <div class="label">Breach</div>
             </div>
         </div>
@@ -41,8 +44,8 @@
             </div>
             <div th:each="r : ${myReports}" class="app-list-item">
                 <div>
-                    <strong style="color:#0A1628; font-family:monospace;" th:text="${r.reportId}"></strong>
-                    <span style="margin-left:10px; color:#1A3A5C; font-weight:600;" th:text="${r.attackTypeLabel}"></span>
+                    <strong style="color:#064E3B; font-family:monospace;" th:text="${r.reportId}"></strong>
+                    <span style="margin-left:10px; color:#16A34A; font-weight:600;" th:text="${r.attackTypeLabel}"></span>
                     <br>
                     <small style="color:#64748B;">
                         <span th:text="${r.title}"></span> |

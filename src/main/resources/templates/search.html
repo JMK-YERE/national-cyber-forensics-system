@@ -4,31 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search - Cyber Forensics</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
 <div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ</div>
+    <div class="logo"> CYBER FORENSICS TZ</div></main>
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/incidents}">📋 Incidents</a>
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
-    </div>
-</div>
+    </div></main>
+</div></main>
 
-<div class="container">
-    <div class="card">
+<main class="app-main"><div class="app-container">
+    <div class="app-card">
         <h1>🔍 Search Incident</h1>
         <form th:action="@{/incidents/search}" method="get" style="margin-top:15px;">
             <label>INCIDENT ID</label>
             <input type="text" name="incidentId" placeholder="mfano: SEC-20250101-123" th:value="${searchId}">
-            <button type="submit" class="btn btn-primary">🔍 Search</button>
+            <button type="submit" class="app-btn app-btn-primary">🔍 Search</button>
         </form>
-    </div>
+    </div></main>
 
-    <div class="card" th:if="${results != null}">
+    <div class="app-card" th:if="${results != null}">
         <h2>Results</h2>
         <table th:if="${!results.isEmpty()}" style="margin-top:15px;">
             <thead>
@@ -53,7 +53,8 @@
         <p th:if="${results.isEmpty()}" class="alert alert-error">
             Hakuna tukio lililopatikana: <span th:text="${searchId}"></span>
         </p>
-    </div>
-</div>
+    </div></main>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>
