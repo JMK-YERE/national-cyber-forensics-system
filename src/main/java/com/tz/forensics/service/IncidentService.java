@@ -2,9 +2,10 @@ package com.tz.forensics.service;
 
 import com.tz.forensics.dto.IncidentDto;
 import com.tz.forensics.entity.Incident;
+import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.IncidentRepository;
+import com.tz.forensics.repository.UserRepository;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,21 +14,25 @@ import java.util.Random;
 
 @Service
 public class IncidentService {
-
     private final IncidentRepository incidentRepository;
+    private final UserRepository userRepository;
 
-    public IncidentService(IncidentRepository incidentRepository) {
+    public IncidentService(IncidentRepository incidentRepository, UserRepository userRepository) {
         this.incidentRepository = incidentRepository;
+        this.userRepository = userRepository;
     }
 
     public Incident createIncident(IncidentDto dto, String username) {
+        User reporterUser = userRepository.findByUsername(username).orElse(null);
         Incident incident = new Incident();
+
         String incidentId = "SEC-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 + "-" + (100 + new Random().nextInt(900));
         incident.setIncidentId(incidentId);
         incident.setTitle(dto.getTitle());
         incident.setDescription(dto.getDescription());
-        incident.setReporter(dto.getReporter());
+        incident.setReporter(dto.getReporter() != null && !dto.getReporter().isBlank() ? dto.getReporter() : username);
+        incident.setReporterUserId(reporterUser != null ? reporterUser.getId() : null);
         incident.setDateReported(LocalDateTime.now());
         incident.setStatus("Under Investigation");
         incident.setSeverity(dto.getSeverity() != null ? dto.getSeverity() : "MEDIUM");
@@ -53,28 +58,20 @@ public class IncidentService {
         return incidentRepository.save(incident);
     }
 
-    public List<Incident> getAllIncidents() {
-        return incidentRepository.findAllByOrderByDateReportedDesc();
-    }
-
-    public Incident getById(Long id) {
-        return incidentRepository.findById(id).orElse(null);
-    }
-
+    public List<Incident> getAllIncidents() { return incidentRepository.findAllByOrderByDateReportedDesc(); }
+    public Incident getById(Long id) { return incidentRepository.findById(id).orElse(null); }
     public List<Incident> searchByIncidentId(String incidentId) {
         return incidentRepository.findByIncidentIdContainingIgnoreCase(incidentId);
     }
-
     public List<Incident> getMyIncidents(Long userId) {
         return incidentRepository.findByAssignedToOrderByDateReportedDesc(userId);
     }
-
     public List<Incident> getMyActiveIncidents(Long userId) {
         return incidentRepository.findByAssignedToAndWorkflowStatusNotOrderByDateReportedDesc(userId, "COMPLETED");
     }
 
     public void assignIncident(Long incidentId, Long assignedTo, String assignedToName,
-                                Long assignedBy, String priority, LocalDateTime dueDate) {
+                               Long assignedBy, String priority, LocalDateTime dueDate) {
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (incident != null) {
             incident.setAssignedTo(assignedTo);
