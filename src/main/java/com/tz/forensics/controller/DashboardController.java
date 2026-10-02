@@ -31,10 +31,6 @@ public class DashboardController {
         this.wbRepo = wbRepo;
     }
 
-    @GetMapping("/")
-    public String home() {
-        return "redirect:/dashboard";
-    }
 
     @GetMapping("/dashboard")
     public String dashboard(Authentication auth, Model model) {

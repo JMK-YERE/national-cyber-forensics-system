@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${editMode} ? 'Edit Announcement' : 'New Announcement'">Announcement</title>
+    <link rel="stylesheet" th:href="@{/css/cyber.css}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <div class="card" style="background: linear-gradient(135deg, #0A1F44, #1E3A8A); color: white; padding: 30px;">
+        <h1 style="color: white; margin: 0;" th:text="${editMode} ? '✏️ Edit Announcement' : '➕ New Announcement'">Announcement</h1>
+    </div>
+
+    <form th:action="@{/admin/announcements/save}" method="post" class="card">
+        <input type="hidden" name="id" th:value="${announcement.id}">
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">Title *</label>
+            <input type="text" name="title" required th:value="${announcement.title}" style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">Content *</label>
+            <textarea name="content" rows="5" required th:text="${announcement.content}" style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;"></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="font-weight: bold;">Organization</label>
+                <input type="text" name="organization" th:value="${announcement.organization}" placeholder="TCRA, Police, BoT..." style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
+            </div>
+            <div>
+                <label style="font-weight: bold;">Priority</label>
+                <select name="priority" style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
+                    <option value="LOW" th:selected="${announcement.priority == 'LOW'}">🟢 LOW</option>
+                    <option value="MEDIUM" th:selected="${announcement.priority == 'MEDIUM' || announcement.priority == null}">🟡 MEDIUM</option>
+                    <option value="HIGH" th:selected="${announcement.priority == 'HIGH'}">🔴 HIGH</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">Image URL (optional)</label>
+            <input type="text" name="imageUrl" th:value="${announcement.imageUrl}" placeholder="https://..." style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">Display Order</label>
+            <input type="number" name="displayOrder" th:value="${announcement.displayOrder != null ? announcement.displayOrder : 0}" style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">
+                <input type="checkbox" name="active" th:checked="${announcement.active == null || announcement.active}">
+                Active (inaonekana kwenye landing page)
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="padding: 14px 30px; font-size: 16px;">
+            💾 Save Announcement
+        </button>
+        <a th:href="@{/admin/announcements}" class="btn" style="text-decoration: none; padding: 14px 30px; margin-left: 10px;">Cancel</a>
+    </form>
+</div>
+</body>
+</html>

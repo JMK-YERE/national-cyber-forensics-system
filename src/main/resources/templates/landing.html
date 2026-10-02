@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Forensics Tanzania — Ulinzi wa Kidijitali</title>
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="nav-public">
+    <div class="nav-container">
+        <div class="nav-logo">🛡️ Cyber Forensics Tanzania</div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how">How It Works</a>
+            <a href="#announcements">Announcements</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <div class="nav-actions">
+            <div class="lang-switch">
+                <a th:href="@{/?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'">SW</a>
+                <a th:href="@{/?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'">EN</a>
+                <a th:href="@{/?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'">FR</a>
+                <a th:href="@{/?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'">AR</a>
+            </div>
+            <a th:href="@{/login}" class="btn-outline">Login</a>
+            <a th:href="@{/register}" class="btn-primary">Register Free</a>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO SLIDESHOW -->
+<section class="hero">
+    <div class="slideshow" id="slideshow">
+        <div class="slide active" th:each="s, i : ${slides != null && !slides.isEmpty() ? slides : null}"
+             th:if="${slides != null && !slides.isEmpty()}"
+             th:style="'background-image: url(' + ${s.imageUrl} + ');'">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h1 th:text="${s.title}">Karibu</h1>
+                <p th:text="${s.subtitle}">Ulinzi wa Kidijitali</p>
+            </div>
+        </div>
+
+        <!-- Fallback kama hakuna slides -->
+        <div th:if="${slides == null || slides.isEmpty()}" class="slide active" style="background-image: linear-gradient(135deg, #0A1F44, #1E3A8A);">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h1>🇹🇿 Karibu Cyber Forensics Tanzania</h1>
+                <p>Ulinzi wa Kidijitali kwa Watanzania Wote</p>
+                <div class="hero-cta">
+                    <a th:href="@{/register}" class="btn-primary btn-large">Register Free</a>
+                    <a href="#how" class="btn-outline-light btn-large">Learn More</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dots -->
+        <div class="slide-dots" id="slideDots"></div>
+    </div>
+</section>
+
+<!-- INTRO — What is Cyber Security -->
+<section class="intro">
+    <h2>🌐 Kile Unachotakiwa Kujua</h2>
+    <div class="intro-grid">
+        <div class="intro-card">
+            <div class="intro-img" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800');"></div>
+            <h3>🛡️ Cyber Security</h3>
+            <p>Ulinzi wa mifumo, mitandao, na data dhidi ya mashambulizi ya kidijitali. Ni haki yako ya msingi katika ulimwengu wa leo.</p>
+        </div>
+        <div class="intro-card">
+            <div class="intro-img" style="background-image: url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800');"></div>
+            <h3>🔐 Digital Forensics</h3>
+            <p>Sayansi ya kuchunguza na kuchambua ushahidi wa kidijitali ili kutatua uhalifu na kuwafikisha wahalifu mbele ya sheria.</p>
+        </div>
+        <div class="intro-card">
+            <div class="intro-img" style="background-image: url('https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800');"></div>
+            <h3>🚨 Incident Response</h3>
+            <p>Mchakato wa kukabiliana na mashambulizi — kutoka kugundua, kuchunguza, hadi kurekebisha na kujifunza.</p>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+    <h2>🎯 Namna Mfumo Unavyofanya Kazi</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <h3>Jisajili</h3>
+            <p>Unda akaunti bure kwa sekunde 30</p>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <h3>Ripoti Tukio</h3>
+            <p>Toa taarifa ya uhalifu wa mtandao</p>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <h3>Pata Msaada</h3>
+            <p>AI + Timu ya wataalam inakusaidia</p>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <h3>Fuatilia</h3>
+            <p>Ona maendeleo ya kesi yako</p>
+        </div>
+    </div>
+</section>
+
+<!-- ANNOUNCEMENTS -->
+<section class="announcements" id="announcements">
+    <h2>📢 Matangazo ya Umma</h2>
+    <p class="section-sub">Taarifa kutoka taasisi mbalimbali</p>
+
+    <div class="announcements-grid">
+        <div th:each="a : ${announcements}" class="announcement-card">
+            <div class="ann-header">
+                <span class="ann-org" th:text="${a.organization}">TCRA</span>
+                <span class="ann-priority" th:text="${a.priorityLabel}">🔴 HIGH</span>
+            </div>
+            <h3 th:text="${a.title}">Title</h3>
+            <p th:text="${a.content}">Content...</p>
+            <div class="ann-date" th:text="${#temporals.format(a.createdAt, 'dd MMM yyyy')}">Date</div>
+        </div>
+        <div th:if="${announcements == null || announcements.isEmpty()}" class="empty-state">
+            <p>Hakuna matangazo bado.</p>
+        </div>
+    </div>
+</section>
+
+<!-- EDUCATION -->
+<section class="education">
+    <h2>📚 Elimu ya Usalama wa Mtandao</h2>
+    <div class="edu-grid">
+        <div class="edu-card">
+            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1633265486064-086b219458ec?w=600');"></div>
+            <h3>🔐 Neno la Siri ni Funguo Yako</h3>
+            <p>Neno la siri ni kama funguo ya nyumbani yako. Usimpe mtu yeyote. Tumia herufi 12+, namba, na alama.</p>
+        </div>
+        <div class="edu-card">
+            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600');"></div>
+            <h3>🎣 Jihadharini na Phishing</h3>
+            <p>Ujumbe wa uongo, link za uongo. Angalia URL vizuri. Usibonyeze link usiyoijua.</p>
+        </div>
+        <div class="edu-card">
+            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=600');"></div>
+            <h3>💰 Usitoe Taarifa za Benki</h3>
+            <p>Benki HAIOMBI PIN, OTP, au namba ya siri kwa simu au barua pepe. Kama mtu anaomba — ni ulaghai!</p>
+        </div>
+        <div class="edu-card">
+            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600');"></div>
+            <h3>📱 SIM Swap ni Hatari</h3>
+            <p>Kama simu imekoma kupata mtandao ghafla — nenda kwa mtoa huduma mara moja. Ripoti mapema.</p>
+        </div>
+    </div>
+</section>
+
+<!-- EMERGENCY -->
+<section class="emergency">
+    <h2>🚨 Umepata Attack? Usiwe na Hofu!</h2>
+    <div class="emergency-content">
+        <div class="emergency-steps">
+            <div class="em-step"><span>1</span> 🛑 Simama kutumia kifaa mara moja</div>
+            <div class="em-step"><span>2</span> 📸 Hifadhi ushahidi (piga picha za screen)</div>
+            <div class="em-step"><span>3</span> 🔑 Badilisha password kutoka kifaa kingine</div>
+            <div class="em-step"><span>4</span> 📞 Ripoti: <strong>112</strong> (Police) | <strong>193</strong> (TCRA)</div>
+            <div class="em-step"><span>5</span> 📝 Tuma report kwenye mfumo</div>
+        </div>
+        <div class="emergency-cta">
+            <p>💚 <strong>Wewe si pekee yako.</strong><br>Tuko pamoja nawe.</p>
+            <a th:href="@{/register}" class="btn-primary btn-large">Register & Report</a>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+    <h2>⚡ Features za Mfumo</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600');"></div>
+            <h3>🤖 AI Assistant</h3>
+            <p>Msaada wa AI 24/7 kwa Kiswahili, Kiingereza, Kifaransa, Kiarabu</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1618060932014-4deda4932554?w=600');"></div>
+            <h3>🚨 Report Attack</h3>
+            <p>Ripoti matukio 11 tofauti ya mtandao kwa urahisi</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600');"></div>
+            <h3>🕵️ Whistleblower</h3>
+            <p>Ripoti kwa siri bila kuonyesha jina lako</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600');"></div>
+            <h3>🛡️ Security Tools 9</h3>
+            <p>Zana 9 za usalama — password checker, breach checker, n.k.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1633265486064-086b219458ec?w=600');"></div>
+            <h3>🔒 Encrypted Evidence</h3>
+            <p>Ushahidi unahifadhiwa kwa AES-256 encryption</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600');"></div>
+            <h3>🌍 Multi-Language</h3>
+            <p>Kiswahili, English, Français, العربية</p>
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+    <div class="stats-container">
+        <div class="stat">
+            <div class="stat-num">10,000+</div>
+            <div class="stat-label">Watumiaji</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">5,000+</div>
+            <div class="stat-label">Ripoti</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">100+</div>
+            <div class="stat-label">Taasisi</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">24/7</div>
+            <div class="stat-label">Msaada</div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT / FOOTER -->
+<footer class="footer" id="contact">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h3>🛡️ Cyber Forensics Tanzania</h3>
+            <p>Ulinzi wa kidijitali kwa Watanzania wote. Tunajenga taifa salama mtandaoni.</p>
+        </div>
+        <div class="footer-section">
+            <h4>📞 Wasiliana</h4>
+            <p>📧 info@cyber.go.tz</p>
+            <p>📞 +255 22 123 4567</p>
+            <p>🚨 Emergency: 112 | 193</p>
+        </div>
+        <div class="footer-section">
+            <h4>🔗 Quick Links</h4>
+            <p><a href="#features">Features</a></p>
+            <p><a href="#announcements">Announcements</a></p>
+            <p><a th:href="@{/register}">Register</a></p>
+            <p><a th:href="@{/login}">Login</a></p>
+        </div>
+        <div class="footer-section">
+            <h4>🇹🇿 Tanzania</h4>
+            <p>Dar es Salaam, Tanzania</p>
+            <p>© 2026 Cyber Forensics</p>
+            <p>Made with ❤️ in Tanzania</p>
+        </div>
+    </div>
+</footer>
+
+<script th:src="@{/js/slideshow.js}"></script>
+</body>
+</html>
