@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar">
+    <nav class="sidebar-nav">
+
+        <!-- DASHBOARD -->
+        <a th:href="@{/dashboard}" class="sidebar-item">
+            <span class="icon">🏠</span>
+            <span class="label">Dashboard</span>
+        </a>
+
+        <!-- REPORT ATTACK -->
+        <a th:href="@{/report-attack}" class="sidebar-item">
+            <span class="icon">🚨</span>
+            <span class="label">Report Attack</span>
+        </a>
+
+        <!-- MY REPORTS -->
+        <a th:href="@{/report-attack}" class="sidebar-item">
+            <span class="icon">📋</span>
+            <span class="label">My Reports</span>
+        </a>
+
+        <!-- THREAT MAP -->
+        <a th:href="@{/threat-map}" class="sidebar-item">
+            <span class="icon">🗺️</span>
+            <span class="label">Threat Map</span>
+        </a>
+
+        <!-- SECURITY TOOLS — Sub-menu -->
+        <button class="sidebar-item" onclick="toggleSubmenu('toolsMenu', this)">
+            <span class="icon">🛡️</span>
+            <span class="label">Security Tools</span>
+            <span class="arrow">▶</span>
+        </button>
+        <div class="sidebar-submenu" id="toolsMenu">
+            <a th:href="@{/tools/security-center}" class="sidebar-subitem"><span class="dot"></span> Security Center</a>
+            <a th:href="@{/tools/password-checker}" class="sidebar-subitem"><span class="dot"></span> Password Checker</a>
+            <a th:href="@{/tools/breach-checker}" class="sidebar-subitem"><span class="dot"></span> Breach Checker</a>
+            <a th:href="@{/tools/email-scanner}" class="sidebar-subitem"><span class="dot"></span> Email Scanner</a>
+            <a th:href="@{/tools/url-checker}" class="sidebar-subitem"><span class="dot"></span> URL Checker</a>
+            <a th:href="@{/tools/dns-lookup}" class="sidebar-subitem"><span class="dot"></span> DNS Lookup</a>
+            <a th:href="@{/tools/ip-lookup}" class="sidebar-subitem"><span class="dot"></span> IP Lookup</a>
+            <a th:href="@{/tools/file-hash}" class="sidebar-subitem"><span class="dot"></span> File Hash</a>
+            <a th:href="@{/tools/encryption}" class="sidebar-subitem"><span class="dot"></span> Encryption</a>
+        </div>
+
+        <!-- WHISTLEBLOWER -->
+        <a th:href="@{/whistleblower}" class="sidebar-item">
+            <span class="icon">🕵️</span>
+            <span class="label">Whistleblower</span>
+        </a>
+
+        <!-- NOTIFICATIONS -->
+        <a th:href="@{/notifications}" class="sidebar-item">
+            <span class="icon">🔔</span>
+            <span class="label">Notifications</span>
+        </a>
+
+        <!-- ADMIN PANEL — admin only -->
+        <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')">
+            <button class="sidebar-item" onclick="toggleSubmenu('adminMenu', this)">
+                <span class="icon">👑</span>
+                <span class="label">Admin Panel</span>
+                <span class="arrow">▶</span>
+            </button>
+            <div class="sidebar-submenu" id="adminMenu">
+                <a th:href="@{/report-attack/admin}" class="sidebar-subitem"><span class="dot"></span> All Reports</a>
+                <a th:href="@{/whistleblower/admin}" class="sidebar-subitem"><span class="dot"></span> Whistleblower</a>
+                <a th:href="@{/admin/users}" class="sidebar-subitem"><span class="dot"></span> Users</a>
+                <a th:href="@{/admin/audit}" class="sidebar-subitem"><span class="dot"></span> Audit Log</a>
+                <a th:href="@{/admin/announcements}" class="sidebar-subitem"><span class="dot"></span> Announcements</a>
+                <a th:href="@{/admin/compliance}" class="sidebar-subitem"><span class="dot"></span> Compliance</a>
+                <a th:href="@{/admin/settings}" class="sidebar-subitem"><span class="dot"></span> Settings</a>
+            </div>
+        </div>
+
+    </nav>
+
+    <!-- AI STATUE — Bottom -->
+    <div class="sidebar-ai">
+        <a th:href="@{/ai/assistant}" class="ai-card">
+            <svg class="ai-statue" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- AI Statue SVG -->
+                <defs>
+                    <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4ADE80;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#22D3EE;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <!-- Head (Geometric) -->
+                <circle cx="50" cy="28" r="14" fill="url(#aiGrad)" opacity="0.95"/>
+                <!-- Eyes -->
+                <circle cx="44" cy="26" r="2" fill="#052E1F"/>
+                <circle cx="56" cy="26" r="2" fill="#052E1F"/>
+                <!-- Smile / mouth -->
+                <path d="M 44 33 Q 50 37 56 33" stroke="#052E1F" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <!-- Body (shoulders) -->
+                <path d="M 30 55 Q 30 42 50 42 Q 70 42 70 55 L 70 70 L 30 70 Z" fill="url(#aiGrad)" opacity="0.9"/>
+                <!-- Neck -->
+                <rect x="46" y="40" width="8" height="5" fill="url(#aiGrad)" opacity="0.8"/>
+                <!-- Chest symbol (AI) -->
+                <text x="50" y="62" text-anchor="middle" font-size="11" font-weight="bold" fill="#052E1F" font-family="Arial">AI</text>
+                <!-- Base -->
+                <rect x="28" y="72" width="44" height="6" rx="3" fill="url(#aiGrad)" opacity="0.7"/>
+                <!-- Glow ring -->
+                <circle cx="50" cy="28" r="17" fill="none" stroke="#4ADE80" stroke-width="0.7" opacity="0.5"/>
+                <circle cx="50" cy="28" r="20" fill="none" stroke="#22D3EE" stroke-width="0.5" opacity="0.3"/>
+            </svg>
+            <div class="ai-title">Msaidizi wa AI</div>
+            <div class="ai-subtitle">Uliza kitu chochote →</div>
+        </a>
+    </div>
+</aside>
+</body>
+</html>

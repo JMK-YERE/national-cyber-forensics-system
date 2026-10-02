@@ -2,100 +2,60 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
-    <style>
-        body { background: linear-gradient(135deg, #F0F9FF, #E0F2FE); min-height: 100vh; }
-        .user-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-        .user-btn {
-            display: flex; align-items: center; gap: 12px;
-            padding: 20px; background: white;
-            border: 2px solid #E0F2FE; border-radius: 12px;
-            text-decoration: none; color: #0A1F44;
-            font-weight: 600; transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(10,31,68,0.05);
-        }
-        .user-btn:hover {
-            background: linear-gradient(135deg, #0A1F44, #1E3A8A);
-            color: white; transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(10,31,68,0.25);
-            border-color: #0A1F44;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Cyber Forensics</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-<div class="container">
-    <div class="card" style="background: linear-gradient(135deg, #0A1F44, #1E3A8A); color: white; padding: 35px; border-radius: 16px;">
-        <h1 style="color: white; margin: 0; font-size: 32px;">👤 Karibu, <span th:text="${username}">User</span>!</h1>
-        <p style="color: rgba(255,255,255,0.9); margin-top: 10px; font-size: 15px;">Hii ni dashibodi yako binafsi ya usalama wa mtandao.</p>
-    </div>
+<main class="app-main">
+    <div class="app-container">
+        <h1 class="page-title">👤 Karibu, <span th:text="${username}">User</span>!</h1>
 
-    <div class="stats-grid">
-        <div class="stat-box">
-            <div class="stat-value" th:text="${user != null && user.securityScore != null ? user.securityScore : 0}">0</div>
-            <div class="stat-label">Security Score</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${user != null ? user.countSocialAccounts() : 0}">0</div>
-            <div class="stat-label">Social Accounts</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${user != null && user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
-            <div class="stat-label">2FA</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" th:text="${user != null && user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
-            <div class="stat-label">Breach Checked</div>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2 style="color: #0A1F44;">⚡ Vitendo vya Haraka</h2>
-        <div class="user-grid">
-            <a th:href="@{/report-attack}" class="user-btn">
-                <span style="font-size: 28px;">🚨</span>
-                <span>Ripoti Tukio</span>
-            </a>
-            <a th:href="@{/ai/assistant}" class="user-btn">
-                <span style="font-size: 28px;">🤖</span>
-                <span>Msaidizi wa AI</span>
-            </a>
-            <a th:href="@{/notifications}" class="user-btn">
-                <span style="font-size: 28px;">🔔</span>
-                <span>Taarifa</span>
-            </a>
-            <a th:href="@{/tools/security-center}" class="user-btn">
-                <span style="font-size: 28px;">🛡️</span>
-                <span>Zana za Usalama</span>
-            </a>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2 style="color: #0A1F44;">📋 Ripoti Zangu</h2>
-        <div th:if="${myReports == null || myReports.isEmpty()}" style="text-align:center; padding:30px; color:#888;">
-            <p>Hakuna ripoti bado. <a th:href="@{/report-attack}" style="color: #1E3A8A; font-weight: 600;">Anza kuunda ripoti</a></p>
-        </div>
-        <div th:each="r : ${myReports}"
-             style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; margin:10px 0; background:linear-gradient(135deg, #F0F9FF, #E0F2FE); border-left:4px solid #1E3A8A; border-radius:10px; flex-wrap:wrap; gap:10px;">
-            <div>
-                <strong style="color:#0A1F44; font-family:monospace;" th:text="${r.reportId}"></strong>
-                <span style="margin-left:10px; color: #1E3A8A; font-weight: 600;" th:text="${r.attackTypeLabel}"></span>
-                <br>
-                <small style="color:#888;">
-                    <span th:text="${r.title}"></span> |
-                    <strong th:text="${r.status}"></strong> |
-                    <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-                </small>
+        <div class="app-stats-grid">
+            <div class="app-stat-box">
+                <div class="value" th:text="${user != null && user.securityScore != null ? user.securityScore : 0}">0</div>
+                <div class="label">Security Score</div>
             </div>
-            <a th:href="@{'/report-attack/view/' + ${r.id}}"
-               style="background:#1E3A8A; color:white; padding:8px 18px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;">
-               👁️ View
-            </a>
+            <div class="app-stat-box">
+                <div class="value" th:text="${user != null ? user.countSocialAccounts() : 0}">0</div>
+                <div class="label">Social Accounts</div>
+            </div>
+            <div class="app-stat-box">
+                <div class="value" th:text="${user != null && user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
+                <div class="label">2FA</div>
+            </div>
+            <div class="app-stat-box">
+                <div class="value" th:text="${user != null && user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
+                <div class="label">Breach Checked</div>
+            </div>
+        </div>
+
+        <div class="app-card">
+            <h2>📋 Ripoti Zangu</h2>
+            <div th:if="${myReports == null || myReports.isEmpty()}" style="text-align:center; padding:30px; color:#888;">
+                <p>Hakuna ripoti bado.</p>
+                <a th:href="@{/report-attack}" class="app-btn app-btn-primary" style="margin-top:15px;">🚨 Anza Ripoti</a>
+            </div>
+            <div th:each="r : ${myReports}" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin:10px 0; background:linear-gradient(135deg, #F0FDF4, #DCFCE7); border-left:4px solid #14532D; border-radius:10px; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <strong style="color:#0B3D2E; font-family:monospace;" th:text="${r.reportId}"></strong>
+                    <span style="margin-left:10px; color:#166534; font-weight: 600;" th:text="${r.attackTypeLabel}"></span>
+                    <br>
+                    <small style="color:#888;">
+                        <span th:text="${r.title}"></span> |
+                        <strong th:text="${r.status}"></strong> |
+                        <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                    </small>
+                </div>
+                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="app-btn app-btn-primary">👁️ View</a>
+            </div>
         </div>
     </div>
-</div>
+</main>
+
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

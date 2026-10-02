@@ -2,38 +2,150 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{nav.threatMap} + ' - ' + #{app.title}">Threat Map</title>
-    <link rel="stylesheet" th:href="@{/css/cyber.css}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat Map — Tanzania</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        #map { height: 600px; border-radius: 8px; border: 2px solid var(--dark-blue); box-shadow: 0 10px 30px rgba(15,37,87,0.2); }
+        #threatMap {
+            height: 600px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(5,46,31,0.15);
+            overflow: hidden;
+        }
+        .map-legend {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(5,46,31,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .legend-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+        }
+        .legend-dot.high { background: #DC2626; }
+        .legend-dot.medium { background: #EAB308; }
+        .legend-dot.low { background: #22C55E; }
     </style>
 </head>
 <body>
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-<div class="container">
-    <div class="card">
-        <h1 th:text="#{nav.threatMap}">Threat Map</h1>
-    </div>
-    <div class="card">
-        <div id="map"></div>
-    </div>
-</div>
+<main class="app-main">
+    <div class="app-container">
+        <h1 class="page-title">🗺️ Ramani ya Matukio ya Cyber Tanzania</h1>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script th:inline="javascript">
-    const regionCounts = /*[[${regionCounts}]]*/ {};
-    const regionCoords = /*[[${regionCoords}]]*/ {};
-    const map = L.map('map').setView([-6.3690, 34.8888], 6);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    for (const [region, count] of Object.entries(regionCounts)) {
-        const coords = regionCoords[region];
-        if (!coords) continue;
-        let color = count === 0 ? '#1b7a4a' : count <= 5 ? '#d97706' : count <= 15 ? '#c73030' : '#8b1a1a';
-        L.circleMarker([coords[0], coords[1]], { radius: 10, fillColor: color, color: '#0f2557', weight: 2, fillOpacity: 0.7 })
-            .bindPopup('<b>' + region + '</b><br>' + count + ' incidents').addTo(map);
-    }
+        <div class="app-stats-grid">
+            <div class="app-stat-box">
+                <div class="value" style="color: #DC2626;" id="highCount">0</div>
+                <div class="label">High Priority</div>
+            </div>
+            <div class="app-stat-box">
+                <div class="value" style="color: #EAB308;" id="medCount">0</div>
+                <div class="label">Medium</div>
+            </div>
+            <div class="app-stat-box">
+                <div class="value" style="color: #22C55E;" id="lowCount">0</div>
+                <div class="label">Low</div>
+            </div>
+            <div class="app-stat-box">
+                <div class="value" id="totalCount">0</div>
+                <div class="label">Total</div>
+            </div>
+        </div>
+
+        <div class="app-card">
+            <h2>🌍 Matukio Yanayorepotiwa</h2>
+            <p style="color: #64748B; margin-bottom: 20px;">
+                Ramani inaonyesha matukio ya cyber yanayorepotiwa kote Tanzania
+            </p>
+
+            <div class="map-legend">
+                <div class="legend-item"><span class="legend-dot high"></span> High Priority</div>
+                <div class="legend-item"><span class="legend-dot medium"></span> Medium Priority</div>
+                <div class="legend-item"><span class="legend-dot low"></span> Low Priority</div>
+            </div>
+
+            <div id="threatMap"></div>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/app.js}"></script>
+<script>
+    // ===== INIT MAP =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const map = L.map('threatMap').setView([-6.3690, 34.8888], 6); // Tanzania center
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap',
+            maxZoom: 18
+        }).addTo(map);
+
+        // ===== SAMPLE INCIDENTS (kutoka database baadaye) =====
+        const incidents = [
+            { lat: -6.7924, lng: 39.2083, city: 'Dar es Salaam', type: 'Phishing', priority: 'HIGH', count: 45 },
+            { lat: -3.3869, lng: 36.6830, city: 'Arusha', type: 'Hacking', priority: 'MEDIUM', count: 12 },
+            { lat: -6.8235, lng: 39.2695, city: 'Dar es Salaam', type: 'Fraud', priority: 'HIGH', count: 30 },
+            { lat: -2.5164, lng: 32.9175, city: 'Mwanza', type: 'Ransomware', priority: 'HIGH', count: 8 },
+            { lat: -6.1659, lng: 39.2026, city: 'Zanzibar', type: 'SIM Swap', priority: 'MEDIUM', count: 15 },
+            { lat: -7.9464, lng: 31.8394, city: 'Mbeya', type: 'Phishing', priority: 'MEDIUM', count: 6 },
+            { lat: -10.2790, lng: 40.1760, city: 'Mtwara', type: 'Online Scam', priority: 'LOW', count: 4 },
+            { lat: -4.0383, lng: 39.6694, city: 'Mombasa Rd', type: 'Hacking', priority: 'LOW', count: 3 },
+            { lat: -5.0316, lng: 32.8021, city: 'Tabora', type: 'Fraud', priority: 'MEDIUM', count: 7 },
+            { lat: -8.9000, lng: 33.4600, city: 'Songwe', type: 'Cyberbullying', priority: 'LOW', count: 5 },
+            { lat: -6.0000, lng: 35.7500, city: 'Dodoma', type: 'Data Breach', priority: 'HIGH', count: 11 },
+            { lat: -4.8833, lng: 38.7167, city: 'Tanga', type: 'Phishing', priority: 'MEDIUM', count: 9 }
+        ];
+
+        let highCount = 0, medCount = 0, lowCount = 0;
+
+        incidents.forEach(function(inc) {
+            let color = '#22C55E';
+            if (inc.priority === 'HIGH') { color = '#DC2626'; highCount++; }
+            else if (inc.priority === 'MEDIUM') { color = '#EAB308'; medCount++; }
+            else { lowCount++; }
+
+            const radius = Math.max(8, inc.count * 0.7);
+
+            const circle = L.circleMarker([inc.lat, inc.lng], {
+                radius: radius,
+                fillColor: color,
+                color: color,
+                weight: 2,
+                opacity: 0.9,
+                fillOpacity: 0.55
+            }).addTo(map);
+
+            circle.bindPopup(`
+                <div style="font-family: 'Segoe UI', sans-serif;">
+                    <h3 style="margin: 0 0 8px; color: #0B3D2E;">${inc.city}</h3>
+                    <p style="margin: 4px 0;"><strong>Type:</strong> ${inc.type}</p>
+                    <p style="margin: 4px 0;"><strong>Priority:</strong> <span style="color: ${color}; font-weight: bold;">${inc.priority}</span></p>
+                    <p style="margin: 4px 0;"><strong>Reports:</strong> ${inc.count}</p>
+                </div>
+            `);
+        });
+
+        document.getElementById('highCount').textContent = highCount;
+        document.getElementById('medCount').textContent = medCount;
+        document.getElementById('lowCount').textContent = lowCount;
+        document.getElementById('totalCount').textContent = incidents.length;
+    });
 </script>
 </body>
 </html>

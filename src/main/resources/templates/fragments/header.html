@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header class="app-header" th:fragment="header">
+    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="header-logo">
+        <span class="logo-icon">🛡️</span>
+        <span>Cyber Forensics TZ</span>
+    </div>
+    <div class="header-clock">
+        <span>📅</span>
+        <span class="clock-date" id="clockDate">—</span>
+        <span>⏰</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+    </div>
+    <div class="header-profile">
+        <button class="profile-btn" onclick="toggleProfileMenu()">
+            <div class="profile-avatar" id="profileAvatar"
+                 th:text="${#authentication.name != null ? #strings.substring(#authentication.name, 0, 1) : 'U'}">U</div>
+            <span id="profileName" th:text="${#authentication.name != null ? #authentication.name : 'User'}">User</span>
+            <span style="font-size: 10px;">▼</span>
+        </button>
+        <div class="profile-dropdown" id="profileDropdown">
+            <a th:href="@{/dashboard}" class="dropdown-item">
+                <span>🏠</span> <span>Dashboard</span>
+            </a>
+            <a th:href="@{/change-password}" class="dropdown-item">
+                <span>🔐</span> <span>Change Password</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="dropdown-item danger">
+                    <span>🚪</span> <span>Logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</header>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+</body>
+</html>
