@@ -1,26 +1,17 @@
 package com.tz.forensics.config;
 
-import com.tz.forensics.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    private final CustomUserDetailsService userDetailsService;
-
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -28,78 +19,53 @@ public class SecurityConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-        auth.setUserDetailsService(userDetailsService);
-        auth.setPasswordEncoder(passwordEncoder());
-        return auth;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authenticationProvider(authenticationProvider())
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // ===== PUBLIC — bila login =====
+                // ===== PUBLIC ROUTES — hazihitaji login =====
                 .requestMatchers(
-                    "/login", "/register", "/lang",
-                    "/css/**", "/js/**", "/images/**",
-                    "/error", "/access-denied",
-                    "/google*.html", "/*.html",
-                    "/sitemap.xml", "/robots.txt",
-                    // Whistleblower — PUBLIC kabisa
+                    "/",
+                    "/features",
+                    "/about",
+                    "/contact",
+                    "/login",
+                    "/register",
+                    "/access-denied",
+                    "/error",
                     "/whistleblower",
-                    "/whistleblower/report",
-                    "/whistleblower/submit",
-                    "/whistleblower/success",
-                    "/whistleblower/track",
-                    "/whistleblower/track/**"
+                    "/whistleblower/**",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/static/**",
+                    "/favicon.ico",
+                    "/webjars/**",
+                    "/announcements",
+                    "/announcements/**"
                 ).permitAll()
 
-                // ===== ADMIN ONLY =====
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                // ===== ADMIN — ADMIN pekee =====
+                .requestMatchers(
+                    "/admin/**",
+                    "/report-attack/admin/**"
+                ).hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
-                // ===== ADMIN/PRO/FORENSICS =====
-                .requestMatchers("/audit/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
-                .requestMatchers("/cases/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
-                .requestMatchers("/incidents/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
-                .requestMatchers("/threat-map").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
-                .requestMatchers("/compliance/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS")
-                .requestMatchers("/report-attack/admin/**").hasAnyRole("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
-                .requestMatchers("/whistleblower/admin/**").hasAnyRole("ADMIN", "CYBER_PRO")
-
-                // ===== EVERYONE LOGGED IN =====
-                .requestMatchers("/report-attack/**").authenticated()
-                .requestMatchers("/dashboard/**").authenticated()
-                .requestMatchers("/notifications/**").authenticated()
-                .requestMatchers("/tools/**").authenticated()
-                .requestMatchers("/my-accounts/**").authenticated()
-                .requestMatchers("/ai/**").authenticated()
-                .requestMatchers("/evidence/**").authenticated()
-                .requestMatchers("/reports/**").authenticated()
+                // ===== KILA KITU KINGINE — inahitaji login =====
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/dashboard", true)
-                .failureUrl("/login?error=true")
+                .failureUrl("/login?error")
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout=true")
+                .logoutSuccessUrl("/login?logout")
                 .permitAll()
-            )
-            .exceptionHandling(ex -> ex
-                .accessDeniedPage("/access-denied")
-            )
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
+            );
+
         return http.build();
     }
 }

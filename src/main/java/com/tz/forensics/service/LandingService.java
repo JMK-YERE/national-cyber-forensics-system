@@ -4,12 +4,16 @@ import com.tz.forensics.entity.Announcement;
 import com.tz.forensics.entity.SlideshowImage;
 import com.tz.forensics.repository.AnnouncementRepository;
 import com.tz.forensics.repository.SlideshowImageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class LandingService {
+
+    private static final Logger log = LoggerFactory.getLogger(LandingService.class);
 
     private final AnnouncementRepository announcementRepo;
     private final SlideshowImageRepository slideshowRepo;
@@ -21,7 +25,9 @@ public class LandingService {
     }
 
     public List<Announcement> getActiveAnnouncements() {
-        return announcementRepo.findByActiveTrueOrderByDisplayOrderAscCreatedAtDesc();
+        List<Announcement> list = announcementRepo.findByActiveTrueOrderByDisplayOrderAscCreatedAtDesc();
+        log.info("Announcements: {}", list.size());
+        return list;
     }
 
     public List<Announcement> getAllAnnouncements() {
@@ -41,7 +47,9 @@ public class LandingService {
     }
 
     public List<SlideshowImage> getActiveSlides() {
-        return slideshowRepo.findByActiveTrueOrderByDisplayOrderAsc();
+        List<SlideshowImage> list = slideshowRepo.findByActiveTrueOrderByDisplayOrderAsc();
+        log.info("Slides: {}", list.size());
+        return list;
     }
 
     public List<SlideshowImage> getAllSlides() {
