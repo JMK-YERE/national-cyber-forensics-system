@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -23,35 +22,20 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // ===== PUBLIC ROUTES — hazihitaji login =====
+                // PUBLIC
                 .requestMatchers(
-                    "/",
-                    "/features",
-                    "/about",
-                    "/contact",
-                    "/login",
-                    "/register",
-                    "/access-denied",
-                    "/error",
-                    "/whistleblower",
-                    "/whistleblower/**",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**",
-                    "/static/**",
-                    "/favicon.ico",
-                    "/webjars/**",
-                    "/announcements",
-                    "/announcements/**"
+                    "/", "/features", "/about", "/contact",
+                    "/login", "/register", "/access-denied", "/error",
+                    "/forgot-password", "/reset-password",
+                    "/whistleblower", "/whistleblower/**",
+                    "/css/**", "/js/**", "/images/**", "/static/**",
+                    "/favicon.ico", "/webjars/**",
+                    "/announcements", "/announcements/**"
                 ).permitAll()
-
-                // ===== ADMIN — ADMIN pekee =====
-                .requestMatchers(
-                    "/admin/**",
-                    "/report-attack/admin/**"
-                ).hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
-
-                // ===== KILA KITU KINGINE — inahitaji login =====
+                // ADMIN
+                .requestMatchers("/admin/**", "/report-attack/admin/**")
+                .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
+                // EVERYTHING ELSE
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -65,7 +49,6 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
             );
-
         return http.build();
     }
 }

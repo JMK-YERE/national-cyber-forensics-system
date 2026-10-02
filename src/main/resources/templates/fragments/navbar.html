@@ -15,7 +15,7 @@
            th:href="@{/report-attack/admin}"
            style="color:#C9A227; font-weight:bold;">👑 <span th:text="#{nav.admin}">Admin</span></a>
 
-        <!-- HAKUNA LANGUAGE SWITCH KWA INTERNAL PAGES -->
+        <a th:href="@{/change-password}" style="color: #34D399;">🔐 <span th:text="#{password.change}">Password</span></a>
 
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn" th:text="#{nav.logout}">Logout</button>
