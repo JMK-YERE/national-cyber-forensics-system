@@ -99,10 +99,10 @@ public class EvidenceController {
                 "Downloaded | SHA-256: " + evidence.getSha256Hash());
 
         String filename = evidence.getOriginalFilename() == null ? "evidence.bin"
-                : evidence.getOriginalFilename().replace(""", "_");
+                : evidence.getOriginalFilename().replace("\"", "_");
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="" + filename + """)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(data);
     }
