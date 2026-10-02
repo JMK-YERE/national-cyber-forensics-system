@@ -8,7 +8,6 @@ import com.tz.forensics.repository.EvidenceRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,13 +18,12 @@ import java.util.UUID;
 
 @Service
 public class EvidenceService {
-
     private final EvidenceRepository evidenceRepository;
     private final ChainOfCustodyRepository custodyRepository;
     private final HashService hashService;
     private final EncryptionService encryptionService;
 
-    @Value("${app.upload.dir}")
+    @Value("$" + "{app.upload.dir}")
     private String uploadDir;
 
     public EvidenceService(EvidenceRepository evidenceRepository,
@@ -39,26 +37,23 @@ public class EvidenceService {
     }
 
     public Evidence uploadEvidence(Long incidentId, MultipartFile file,
-                                   EvidenceDto dto, String username) throws IOException {
+                                   EvidenceDto dto, String username, Long uploadedBy) throws IOException {
+        if (file == null || file.isEmpty()) throw new IllegalArgumentException("Evidence file is empty.");
 
         byte[] fileBytes = file.getBytes();
         String sha256 = hashService.sha256(fileBytes);
         String md5 = hashService.md5(fileBytes);
-
         byte[] encrypted = encryptionService.encrypt(fileBytes);
 
         Path uploadPath = Paths.get(uploadDir);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
+        if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
 
         String storedFilename = UUID.randomUUID() + ".enc";
-        Path targetPath = uploadPath.resolve(storedFilename);
-        Files.write(targetPath, encrypted);
+        Files.write(uploadPath.resolve(storedFilename), encrypted);
 
         Evidence evidence = new Evidence();
         evidence.setIncidentId(incidentId);
-        evidence.setOriginalFilename(file.getOriginalFilename());
+        evidence.setOriginalFilename(file.getOriginalFilename() == null ? "evidence.bin" : file.getOriginalFilename());
         evidence.setStoredFilename(storedFilename);
         evidence.setFileType(file.getContentType());
         evidence.setFileSize(file.getSize());
@@ -69,16 +64,15 @@ public class EvidenceService {
         evidence.setSourceDevice(dto.getSourceDevice());
         evidence.setAcquisitionMethod(dto.getAcquisitionMethod());
         evidence.setVerified(false);
+        evidence.setUploadedBy(uploadedBy);
         evidence.setUploadedAt(LocalDateTime.now());
 
         Evidence saved = evidenceRepository.save(evidence);
 
-        ChainOfCustody custody = new ChainOfCustody(
+        custodyRepository.save(new ChainOfCustody(
                 saved.getId(), "UPLOADED", null, username, "system",
                 "Initial evidence upload: " + dto.getDescription()
-        );
-        custodyRepository.save(custody);
-
+        ));
         return saved;
     }
 
@@ -86,31 +80,33 @@ public class EvidenceService {
         return evidenceRepository.findByIncidentIdOrderByUploadedAtDesc(incidentId);
     }
 
+    public Evidence getById(Long evidenceId) {
+        return evidenceRepository.findById(evidenceId).orElse(null);
+    }
+
     public byte[] downloadEvidence(Long evidenceId) throws IOException {
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
-
         Path filePath = Paths.get(uploadDir, evidence.getStoredFilename());
-        byte[] encrypted = Files.readAllBytes(filePath);
-        return encryptionService.decrypt(encrypted);
+        if (!Files.exists(filePath)) throw new IOException("Stored evidence file not found.");
+        return encryptionService.decrypt(Files.readAllBytes(filePath));
     }
 
     public List<ChainOfCustody> getChainOfCustody(Long evidenceId) {
         return custodyRepository.findByEvidenceIdOrderByTimestampDesc(evidenceId);
     }
 
-    public void verifyEvidence(Long evidenceId, String username) {
-        Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
-        if (evidence != null) {
-            evidence.setVerified(true);
-            evidence.setVerifiedAt(LocalDateTime.now());
-            evidenceRepository.save(evidence);
+    public void verifyEvidence(Long evidenceId, String username, Long verifiedBy) {
+        Evidence evidence = evidenceRepository.findById(evidenceId)
+                .orElseThrow(() -> new RuntimeException("Evidence not found"));
+        evidence.setVerified(true);
+        evidence.setVerifiedBy(verifiedBy);
+        evidence.setVerifiedAt(LocalDateTime.now());
+        evidenceRepository.save(evidence);
 
-            ChainOfCustody custody = new ChainOfCustody(
-                    evidenceId, "VERIFIED", null, username, "system",
-                    "Evidence verified by " + username
-            );
-            custodyRepository.save(custody);
-        }
+        custodyRepository.save(new ChainOfCustody(
+                evidenceId, "VERIFIED", null, username, "system",
+                "Evidence verified by " + username + " | SHA-256: " + evidence.getSha256Hash()
+        ));
     }
 }
