@@ -31,12 +31,9 @@ public class DashboardController {
         this.wbRepo = wbRepo;
     }
 
-
     @GetMapping("/dashboard")
     public String dashboard(Authentication auth, Model model) {
-        if (auth == null || auth.getName() == null) {
-            return "redirect:/login";
-        }
+        if (auth == null || auth.getName() == null) return "redirect:/login";
 
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
@@ -46,61 +43,44 @@ public class DashboardController {
         model.addAttribute("role", user.getRole());
 
         String role = user.getRole() != null ? user.getRole() : "INDIVIDUAL";
-        log.info("Dashboard access: user={}, role={}", user.getUsername(), role);
+        boolean isAdmin = "ADMIN".equalsIgnoreCase(role);
+        boolean isPro = "CYBER_PRO".equalsIgnoreCase(role);
+        boolean isForensics = "FORENSICS".equalsIgnoreCase(role);
+        boolean isAnalyst = "ANALYST".equalsIgnoreCase(role);
+        boolean isStaff = isAdmin || isPro || isForensics || isAnalyst;
 
-        boolean isAdmin = user.isAdmin() || user.isProfessional()
-                || user.isForensics() || "ANALYST".equalsIgnoreCase(role);
-
-        if (isAdmin) {
-            // ===== ADMIN DASHBOARD — stats zote =====
-            try {
+        try {
+            if (isStaff) {
                 long totalReports = reportRepo.count();
                 long newReports = reportRepo.countByStatus("NEW");
                 long totalWb = wbRepo.count();
-                long newWb = wbRepo.countByStatus("NEW");
                 long totalUsers = userRepository.count();
 
                 model.addAttribute("totalReports", totalReports);
                 model.addAttribute("newReports", newReports);
                 model.addAttribute("totalWb", totalWb);
-                model.addAttribute("newWb", newWb);
                 model.addAttribute("totalUsers", totalUsers);
 
-                // Recent reports (5 za mwisho)
                 List<ReportAttack> recent = reportRepo.findAllByOrderByCreatedAtDesc();
                 if (recent.size() > 5) recent = recent.subList(0, 5);
                 model.addAttribute("recentReports", recent);
-            } catch (Exception e) {
-                log.error("Admin dashboard stats failed: {}", e.getMessage());
-                model.addAttribute("totalReports", 0L);
-                model.addAttribute("newReports", 0L);
-                model.addAttribute("totalWb", 0L);
-                model.addAttribute("newWb", 0L);
-                model.addAttribute("totalUsers", 0L);
-                model.addAttribute("recentReports", List.of());
+            } else {
+                List<ReportAttack> my = reportRepo.findByUserIdOrderByCreatedAtDesc(user.getId());
+                model.addAttribute("myReports", my);
             }
-
-            return switch (role) {
-                case "ADMIN" -> "dashboard-admin";
-                case "CYBER_PRO" -> "dashboard-professional";
-                case "FORENSICS" -> "dashboard-forensics";
-                default -> "dashboard-admin";
-            };
-        } else {
-            // ===== USER DASHBOARD — simple =====
-            try {
-                List<ReportAttack> myReports = reportRepo.findByUserIdOrderByCreatedAtDesc(user.getId());
-                model.addAttribute("myReports", myReports);
-            } catch (Exception e) {
-                log.error("User reports: {}", e.getMessage());
-                model.addAttribute("myReports", List.of());
-            }
-            return "dashboard-individual";
+        } catch (Exception e) {
+            log.error("Dashboard error: {}", e.getMessage());
+            model.addAttribute("recentReports", List.of());
+            model.addAttribute("myReports", List.of());
         }
+
+        if (isAdmin) return "dashboard-admin";
+        if (isPro) return "dashboard-professional";
+        if (isForensics) return "dashboard-forensics";
+        if (isAnalyst) return "dashboard-admin";
+        return "dashboard-individual";
     }
 
     @GetMapping("/access-denied")
-    public String accessDenied() {
-        return "access-denied";
-    }
+    public String accessDenied() { return "access-denied"; }
 }

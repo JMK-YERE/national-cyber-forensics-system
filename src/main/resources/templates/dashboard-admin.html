@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard — Cyber Forensics</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
@@ -20,29 +20,29 @@
                 <div class="label">Total Reports</div>
             </div>
             <div class="app-stat-box">
-                <div class="value" style="color: #DC2626;" th:text="${newReports != null ? newReports : 0}">0</div>
+                <div class="value" style="color:#DC2626;" th:text="${newReports != null ? newReports : 0}">0</div>
                 <div class="label">New Reports</div>
             </div>
             <div class="app-stat-box">
-                <div class="value" style="color: #06B6D4;" th:text="${totalWb != null ? totalWb : 0}">0</div>
+                <div class="value" style="color:#06B6D4;" th:text="${totalWb != null ? totalWb : 0}">0</div>
                 <div class="label">Whistleblower</div>
             </div>
             <div class="app-stat-box">
-                <div class="value" style="color: #16A34A;" th:text="${totalUsers != null ? totalUsers : 0}">0</div>
+                <div class="value" style="color:#16A34A;" th:text="${totalUsers != null ? totalUsers : 0}">0</div>
                 <div class="label">Total Users</div>
             </div>
         </div>
 
         <div class="app-card" th:if="${recentReports != null && !recentReports.isEmpty()}">
             <h2>📋 Recent Reports</h2>
-            <div th:each="r : ${recentReports}" style="display:flex; justify-content:space-between; align-items:center; padding:14px; margin:8px 0; background:rgba(240,253,244,0.7); border-left:4px solid #14532D; border-radius:10px; flex-wrap:wrap; gap:10px;">
+            <div th:each="r : ${recentReports}" class="app-list-item">
                 <div>
-                    <strong style="color:#0B3D2E; font-family:monospace;" th:text="${r.reportId}"></strong>
-                    <span style="margin-left:10px; color: #166534;" th:text="${r.attackTypeLabel}"></span>
+                    <strong style="color:#0A1628; font-family:monospace;" th:text="${r.reportId}"></strong>
+                    <span style="margin-left:10px; color:#1A3A5C; font-weight:600;" th:text="${r.attackTypeLabel}"></span>
                     <br>
                     <span style="font-size:13px;" th:text="${r.title}"></span>
                     <br>
-                    <small style="color:#888;">
+                    <small style="color:#64748B;">
                         <span th:text="${r.reporterName}"></span> |
                         <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
                     </small>
@@ -52,7 +52,6 @@
         </div>
     </div>
 </main>
-
 <script th:src="@{/js/app.js}"></script>
 </body>
 </html>

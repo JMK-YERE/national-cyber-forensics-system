@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
 <header class="app-header" th:fragment="header">
     <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
@@ -16,9 +15,9 @@
     </div>
     <div class="header-profile">
         <button class="profile-btn" onclick="toggleProfileMenu()">
-            <div class="profile-avatar" id="profileAvatar"
-                 th:text="${#authentication.name != null ? #strings.substring(#authentication.name, 0, 1) : 'U'}">U</div>
-            <span id="profileName" th:text="${#authentication.name != null ? #authentication.name : 'User'}">User</span>
+            <div class="profile-avatar"
+                 th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1) : 'U'}">U</div>
+            <span th:text="${#authentication != null and #authentication.name != null ? #authentication.name : 'User'}">User</span>
             <span style="font-size: 10px;">▼</span>
         </button>
         <div class="profile-dropdown" id="profileDropdown">
