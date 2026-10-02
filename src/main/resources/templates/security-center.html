@@ -2,341 +2,202 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Security Center - Cyber Forensics System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Tools</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <style>
-        .tool-card { background: white; border: 2px solid rgba(15,37,87,0.1); border-radius: 12px; padding: 25px; margin-bottom: 20px; transition: all 0.3s; }
-        .tool-card:hover { border-color: #0f2557; box-shadow: 0 8px 25px rgba(15,37,87,0.1); }
-        .tool-card h3 { color: #0f2557; margin-top: 0; font-size: 20px; margin-bottom: 10px; }
-        .tool-card p { color: #666; font-size: 13px; margin-bottom: 15px; }
-        .tool-form { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tool-form input { flex: 1; margin: 0; padding: 12px 15px; font-size: 14px; border: 2px solid rgba(15,37,87,0.2); border-radius: 8px; }
-        .tool-form button { padding: 12px 25px; background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; white-space: nowrap; }
-        .tool-form button:hover { background: linear-gradient(135deg, #1a3a70, #234b8a); }
-        .result-box { padding: 20px; border-radius: 10px; margin-top: 15px; font-size: 14px; line-height: 1.7; }
-        .result-success { background: rgba(27,122,74,0.1); border-left: 4px solid #1b7a4a; }
-        .result-danger { background: rgba(139,26,26,0.1); border-left: 4px solid #8b1a1a; }
-        .result-warning { background: rgba(217,119,6,0.1); border-left: 4px solid #d97706; }
-        .result-info { background: rgba(15,37,87,0.08); border-left: 4px solid #0f2557; }
-        .hash-display { font-family: monospace; font-size: 12px; word-break: break-all; background: rgba(0,0,0,0.05); padding: 8px 10px; border-radius: 4px; margin-top: 5px; }
-        .tool-icon { font-size: 32px; margin-right: 15px; display: inline-block; vertical-align: middle; }
-        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
-        .score-display { font-size: 48px; font-weight: bold; color: #0f2557; text-align: center; margin: 10px 0; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin: 3px; }
+        .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+        .tool-card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 12px rgba(10,22,40,0.06); border: 2px solid #E2E8F0; transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
+        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(10,22,40,0.15); border-color: #16A34A; }
+        .tool-icon { font-size: 38px; margin-bottom: 12px; }
+        .tool-title { font-size: 17px; font-weight: 700; color: #0A1628; margin-bottom: 6px; }
+        .tool-desc { font-size: 13px; color: #64748B; line-height: 1.5; }
+        .tool-form { display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid #EFF6FF; }
+        .tool-form.show { display: block; }
+        .tool-input { width: 100%; padding: 11px; border: 2px solid #E2E8F0; border-radius: 9px; font-size: 14px; font-family: inherit; }
+        .tool-input:focus { outline: none; border-color: #16A34A; box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+        .tool-result { margin-top: 15px; padding: 15px; border-radius: 10px; background: #F0FDF4; border-left: 4px solid #16A34A; display: none; }
+        .tool-result.error { background: #FEF2F2; border-left-color: #DC2626; }
+        .tool-result.show { display: block; }
     </style>
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🛡️ Cyber Forensics System</div></main>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}">Report</a>
-        <a th:href="@{/ai/assistant}">AI</a>
-        <a th:href="@{/tools/security-center}">🛡️ Security Tools</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
-    </div></main>
-</div></main>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-<main class="app-main"><div class="app-container">
-    <div class="app-card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; text-align: center; padding: 30px;">
-        <h1 style="color: white; margin: 0;">🛡️ Security Center</h1>
-        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Professional security tools — bure kabisa</p>
-    </div></main>
+<main class="app-main">
+    <div class="app-container">
+        <div style="background:linear-gradient(135deg, #064E3B, #16A34A); color:white; padding:30px; border-radius:16px; margin-bottom:20px; box-shadow:0 10px 30px rgba(6,78,59,0.3);">
+            <h1 style="color:white; margin:0; font-size:28px;">🛡️ Security Tools</h1>
+            <p style="color:rgba(255,255,255,0.9); margin-top:8px;">Zana za kisasa za usalama wa mtandao — bure kabisa</p>
+        </div>
 
-    <div class="grid-2">
-        <!-- VIRUSTOTAL SECTION -->
-        <div class="tool-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, #0f2557 0%, #1a3a70 100%); color: white;">
-            <h3 style="color: white;"><span class="tool-icon">🔬</span>VirusTotal Deep Analysis (70+ Antivirus Engines)</h3>
-            <p style="color: rgba(255,255,255,0.9);">Angalia URL, File Hash, IP, au Domain kwa 70+ antivirus engines. BURE kabisa.</p>
-        </div></main>
+        <div class="tools-grid">
+            <!-- 1. Password Strength -->
+            <div class="tool-card" onclick="toggleTool('tool1', event)">
+                <div class="tool-icon">🔐</div>
+                <div class="tool-title">Password Strength</div>
+                <div class="tool-desc">Angalia nguvu ya neno lako la siri</div>
+                <div class="tool-form" id="tool1">
+                    <input type="password" id="pwdInput" class="tool-input" placeholder="Weka neno la siri..." oninput="checkPassword(this.value)">
+                    <div class="tool-result" id="pwdResult"></div>
+                </div>
+            </div>
 
-        <!-- VT URL -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">🌐</span>VirusTotal — URL Scan</h3>
-            <p>Angalia URL kwa antivirus engines 70+.</p>
-            <form class="tool-form" th:action="@{/tools/vt-url}" method="post">
-                <input type="text" name="url" placeholder="https://example.com" required>
-                <button type="submit">🔍 Scan URL</button>
-            </form>
-            <div th:if="${vtUrlResult != null}" class="result-box"
-                 th:classappend="${vtUrlResult.malicious > 0} ? 'result-danger' : (${vtUrlResult.success} ? 'result-success' : 'result-warning')">
-                <p th:if="${vtUrlResult.success}">
-                    <strong th:text="${vtUrlResult.emoji} + ' ' + ${vtUrlResult.verdict}"></strong>
-                    <span th:if="${vtUrlResult.totalEngines > 0}">
-                        (Malicious: <span th:text="${vtUrlResult.malicious}"></span>
-                        / Total: <span th:text="${vtUrlResult.totalEngines}"></span>)
-                    </span>
-                </p>
-                <p th:if="${!vtUrlResult.success}" th:text="${vtUrlResult.error}"></p>
-            </div></main>
-        </div></main>
+            <!-- 2. Password Breach -->
+            <div class="tool-card" onclick="toggleTool('tool2', event)">
+                <div class="tool-icon">🔓</div>
+                <div class="tool-title">Password Breach Check</div>
+                <div class="tool-desc">Angalia kama password yako imevuja</div>
+                <div class="tool-form" id="tool2">
+                    <form th:action="@{/tools/password-breach}" method="post" onsubmit="return submitForm(event, this, 'breachResult')">
+                        <input type="password" name="password" class="tool-input" placeholder="Weka password..." required>
+                        <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check</button>
+                    </form>
+                    <div class="tool-result" id="breachResult"></div>
+                </div>
+            </div>
 
-        <!-- VT FILE HASH -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">#️⃣</span>VirusTotal — File Hash</h3>
-            <p>Angalia file hash (MD5, SHA-1, SHA-256).</p>
-            <form class="tool-form" th:action="@{/tools/vt-hash}" method="post">
-                <input type="text" name="hash" placeholder="Weka hash" required>
-                <button type="submit">🔍 Check Hash</button>
-            </form>
-            <div th:if="${vtHashResult != null}" class="result-box"
-                 th:classappend="${vtHashResult.malicious > 0} ? 'result-danger' : (${vtHashResult.success} ? 'result-success' : 'result-warning')">
-                <p th:if="${vtHashResult.success}">
-                    <strong th:text="${vtHashResult.emoji} + ' ' + ${vtHashResult.verdict}"></strong>
-                    <span th:if="${vtHashResult.totalEngines > 0}">
-                        (<span th:text="${vtHashResult.malicious}"></span>
-                        / <span th:text="${vtHashResult.totalEngines}"></span>)
-                    </span>
-                </p>
-                <p th:if="${!vtHashResult.success}" th:text="${vtHashResult.error}"></p>
-            </div></main>
-        </div></main>
+            <!-- 3. URL Checker -->
+            <div class="tool-card" onclick="toggleTool('tool3', event)">
+                <div class="tool-icon">🌐</div>
+                <div class="tool-title">URL Checker</div>
+                <div class="tool-desc">Angalia URL salama au hatari</div>
+                <div class="tool-form" id="tool3">
+                    <form th:action="@{/tools/url-check}" method="post" onsubmit="return submitForm(event, this, 'urlResult')">
+                        <input type="url" name="url" class="tool-input" placeholder="https://example.com" required>
+                        <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check URL</button>
+                    </form>
+                    <div class="tool-result" id="urlResult"></div>
+                </div>
+            </div>
 
-        <!-- VT IP -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">📡</span>VirusTotal — IP Scan</h3>
-            <p>Angalia IP kwa antivirus engines.</p>
-            <form class="tool-form" th:action="@{/tools/vt-ip}" method="post">
-                <input type="text" name="ip" placeholder="8.8.8.8" required>
-                <button type="submit">🔍 Check IP</button>
-            </form>
-            <div th:if="${vtIpResult != null}" class="result-box"
-                 th:classappend="${vtIpResult.malicious > 0} ? 'result-danger' : (${vtIpResult.success} ? 'result-success' : 'result-warning')">
-                <p th:if="${vtIpResult.success}">
-                    <strong th:text="${vtIpResult.emoji} + ' ' + ${vtIpResult.verdict}"></strong>
-                    <span th:if="${vtIpResult.country != null}"> | Country: <span th:text="${vtIpResult.country}"></span></span>
-                </p>
-                <p th:if="${!vtIpResult.success}" th:text="${vtIpResult.error}"></p>
-            </div></main>
-        </div></main>
+            <!-- 4. IP Lookup -->
+            <div class="tool-card" onclick="toggleTool('tool4', event)">
+                <div class="tool-icon">🌍</div>
+                <div class="tool-title">IP Lookup</div>
+                <div class="tool-desc">Tafuta taarifa za IP address</div>
+                <div class="tool-form" id="tool4">
+                    <form th:action="@{/tools/ip-check}" method="post" onsubmit="return submitForm(event, this, 'ipResult')">
+                        <input type="text" name="ip" class="tool-input" placeholder="192.168.1.1" required>
+                        <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Lookup</button>
+                    </form>
+                    <div class="tool-result" id="ipResult"></div>
+                </div>
+            </div>
 
-        <!-- VT DOMAIN -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">🌍</span>VirusTotal — Domain Scan</h3>
-            <p>Angalia domain kwa antivirus engines.</p>
-            <form class="tool-form" th:action="@{/tools/vt-domain}" method="post">
-                <input type="text" name="domain" placeholder="example.com" required>
-                <button type="submit">🔍 Check Domain</button>
-            </form>
-            <div th:if="${vtDomainResult != null}" class="result-box"
-                 th:classappend="${vtDomainResult.malicious > 0} ? 'result-danger' : (${vtDomainResult.success} ? 'result-success' : 'result-warning')">
-                <p th:if="${vtDomainResult.success}">
-                    <strong th:text="${vtDomainResult.emoji} + ' ' + ${vtDomainResult.verdict}"></strong>
-                    <span th:if="${vtDomainResult.registrar != null}"> | Registrar: <span th:text="${vtDomainResult.registrar}"></span></span>
-                </p>
-                <p th:if="${!vtDomainResult.success}" th:text="${vtDomainResult.error}"></p>
-            </div></main>
-        </div></main>
+            <!-- 5. DNS Lookup -->
+            <div class="tool-card" onclick="toggleTool('tool5', event)">
+                <div class="tool-icon">🔎</div>
+                <div class="tool-title">DNS Lookup</div>
+                <div class="tool-desc">Tafuta DNS records za domain</div>
+                <div class="tool-form" id="tool5">
+                    <form th:action="@{/tools/dns-lookup}" method="post" onsubmit="return submitForm(event, this, 'dnsResult')">
+                        <input type="text" name="domain" class="tool-input" placeholder="example.com" required>
+                        <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Lookup</button>
+                    </form>
+                    <div class="tool-result" id="dnsResult"></div>
+                </div>
+            </div>
 
+            <!-- 6. SSL Check -->
+            <div class="tool-card" onclick="toggleTool('tool6', event)">
+                <div class="tool-icon">🔒</div>
+                <div class="tool-title">SSL Certificate</div>
+                <div class="tool-desc">Angalia SSL ya website</div>
+                <div class="tool-form" id="tool6">
+                    <form th:action="@{/tools/ssl-check}" method="post" onsubmit="return submitForm(event, this, 'sslResult')">
+                        <input type="text" name="domain" class="tool-input" placeholder="example.com" required>
+                        <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check SSL</button>
+                    </form>
+                    <div class="tool-result" id="sslResult"></div>
+                </div>
+            </div>
 
-        <!-- 1. SSL CERTIFICATE -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">🔒</span>SSL Certificate Checker</h3>
-            <p>Angalia SSL certificate ya website ni sahihi na haijaisha.</p>
-            <form class="tool-form" th:action="@{/tools/ssl-check}" method="post">
-                <input type="text" name="url" placeholder="https://example.com" required>
-                <button type="submit">🔍 Check</button>
-            </form>
-            <div th:if="${sslResult != null}" class="result-box"
-                 th:classappend="${sslResult.valid} ? 'result-success' : 'result-danger'">
-                <p><strong th:text="${sslResult.message}"></strong></p>
-                <p th:if="${sslResult.subject}"><strong>Subject:</strong> <span th:text="${sslResult.subject}"></span></p>
-                <p th:if="${sslResult.issuer}"><strong>Issuer:</strong> <span th:text="${sslResult.issuer}"></span></p>
-                <p th:if="${sslResult.notAfter}"><strong>Expires:</strong> <span th:text="${sslResult.notAfter}"></span></p>
-            </div></main>
-        </div></main>
+            <!-- 7. Headers Check -->
+            <div class="tool-card" onclick="toggleTool('tool7', event)">
+                <div class="tool-icon">📊</div>
+                <div class="tool-title">HTTP Headers</div>
+                <div class="tool-desc">Angalia security headers</div>
+                <div class="tool-form" id="tool7">
+                    <form th:action="@{/tools/headers-check}" method="post" onsubmit="return submitForm(event, this, 'headersResult')">
+                        <input type="url" name="url" class="tool-input" placeholder="https://example.com" required>
+                        <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check</button>
+                    </form>
+                    <div class="tool-result" id="headersResult"></div>
+                </div>
+            </div>
 
-        <!-- 2. DNS LOOKUP -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">🌐</span>DNS Lookup</h3>
-            <p>Angalia DNS records na IPs za domain.</p>
-            <form class="tool-form" th:action="@{/tools/dns-lookup}" method="post">
-                <input type="text" name="domain" placeholder="example.com" required>
-                <button type="submit">🔍 Lookup</button>
-            </form>
-            <div th:if="${dnsResult != null}" class="result-box"
-                 th:classappend="${dnsResult.success} ? 'result-success' : 'result-danger'">
-                <p th:if="${dnsResult.success}">
-                    <strong>Domain:</strong> <span th:text="${dnsResult.domain}"></span><br>
-                    <strong>IPs:</strong> <span th:text="${dnsResult.ips}"></span><br>
-                    <strong>Reachable:</strong> <span th:text="${dnsResult.reachable}"></span>
-                </p>
-                <p th:if="${!dnsResult.success}" th:text="${dnsResult.error}"></p>
-            </div></main>
-        </div></main>
+            <!-- 8. File Hash -->
+            <div class="tool-card" onclick="toggleTool('tool8', event)">
+                <div class="tool-icon">🗂️</div>
+                <div class="tool-title">File Hash Check</div>
+                <div class="tool-desc">Angalia SHA-256 hash ya file</div>
+                <div class="tool-form" id="tool8">
+                    <form th:action="@{/tools/hash-check}" method="post" onsubmit="return submitForm(event, this, 'hashResult')">
+                        <input type="text" name="hash" class="tool-input" placeholder="SHA-256 hash..." required>
+                        <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check</button>
+                    </form>
+                    <div class="tool-result" id="hashResult"></div>
+                </div>
+            </div>
 
-        <!-- 3. IP REPUTATION -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">📡</span>IP Reputation</h3>
-            <p>Angalia IP kama ni malicious, TOR, au salama.</p>
-            <form class="tool-form" th:action="@{/tools/ip-check}" method="post">
-                <input type="text" name="ip" placeholder="8.8.8.8" required>
-                <button type="submit">🔍 Check IP</button>
-            </form>
-            <div th:if="${ipResult != null}" class="result-box"
-                 th:classappend="${ipResult.suspicious} ? 'result-danger' : 'result-success'">
-                <p><strong>IP:</strong> <span th:text="${ipResult.ip}"></span></p>
-                <p th:if="${ipResult.reverseDns}"><strong>Reverse DNS:</strong> <span th:text="${ipResult.reverseDns}"></span></p>
-                <p th:text="${ipResult.message}"></p>
-            </div></main>
-        </div></main>
-
-        <!-- 4. HTTP HEADERS -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">📋</span>HTTP Security Headers</h3>
-            <p>Angalia security headers za website.</p>
-            <form class="tool-form" th:action="@{/tools/headers-check}" method="post">
-                <input type="text" name="url" placeholder="https://example.com" required>
-                <button type="submit">🔍 Analyze</button>
-            </form>
-            <div th:if="${headersResult != null && headersResult.success}" class="result-box result-info">
-                <p><strong>Status Code:</strong> <span th:text="${headersResult.statusCode}"></span></p>
-                <p><strong>Security Score:</strong>
-                    <span class="badge"
-                          th:classappend="${headersResult.score >= 70} ? 'badge-low' : 'badge-medium'"
-                          th:text="${headersResult.score} + '%'"></span>
-                </p>
-                <ul style="margin-left:20px; margin-top:10px;">
-                    <li th:each="g : ${headersResult.good}" th:text="${g}" style="color:#1b7a4a;"></li>
-                    <li th:each="w : ${headersResult.warnings}" th:text="${w}" style="color:#d97706;"></li>
-                </ul>
-            </div></main>
-        </div></main>
-
-        <!-- 5. HASH ANALYZER -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">#️⃣</span>Hash Analyzer</h3>
-            <p>Angalia aina ya hash (MD5, SHA-1, SHA-256, SHA-512).</p>
-            <form class="tool-form" th:action="@{/tools/hash-check}" method="post">
-                <input type="text" name="hash" placeholder="Weka hash hapa" required>
-                <button type="submit">🔍 Analyze</button>
-            </form>
-            <div th:if="${hashResult != null}" class="result-box"
-                 th:classappend="${hashResult.valid} ? 'result-success' : 'result-danger'">
-                <p><strong>Type:</strong> <span th:text="${hashResult.type}"></span></p>
-                <p><strong>Length:</strong> <span th:text="${hashResult.length}"></span></p>
-                <p th:text="${hashResult.message}"></p>
-                <a th:if="${hashResult.virustotal != null}" th:href="${hashResult.virustotal}" target="_blank"
-                   class="app-btn app-btn-outline" style="font-size:12px; margin-top:10px; display:inline-block;">🔬 Check VirusTotal</a>
-            </div></main>
-        </div></main>
-
-        <!-- 6. PASSWORD BREACH -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">🔐</span>Password Breach Checker</h3>
-            <p>Angalia kama password yako imevuja (HaveIBeenPwned).</p>
-            <form class="tool-form" th:action="@{/tools/password-breach}" method="post">
-                <input type="text" name="password" placeholder="Weka password" required>
-                <button type="submit">🔍 Check</button>
-            </form>
-            <div th:if="${pwBreachResult != null}" class="result-box"
-                 th:classappend="${pwBreachResult.breached} ? 'result-danger' : 'result-success'">
-                <p th:text="${pwBreachResult.message}"></p>
-                <p th:if="${pwBreachResult.breached}">
-                    <strong>Imevuja mara:</strong> <span th:text="${pwBreachResult.count}"></span>
-                </p>
-            </div></main>
-        </div></main>
-
-        <!-- 7. PASSWORD STRENGTH -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">💪</span>Password Strength Analyzer</h3>
-            <p>Pima nguvu ya password yako (0-100).</p>
-            <form class="tool-form" th:action="@{/tools/password-check}" method="post">
-                <input type="text" name="password" placeholder="Weka password" required>
-                <button type="submit">🔍 Analyze</button>
-            </form>
-            <div th:if="${pwResult != null}" class="result-box result-info">
-                <div class="score-display" th:text="${pwResult.score} + '/100'"></div></main>
-                <p style="text-align:center; font-size:18px;" th:text="${pwResult.emoji} + ' ' + ${pwResult.rating}"></p>
-                <ul style="margin-left:20px; margin-top:10px;">
-                    <li th:each="f : ${pwResult.feedback}" th:text="${f}"></li>
-                </ul>
-            </div></main>
-        </div></main>
-
-        <!-- 8. URL REPUTATION -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">🔗</span>URL Reputation Checker</h3>
-            <p>Angalia URL kama ni phishing, malware, au salama.</p>
-            <form class="tool-form" th:action="@{/tools/url-check}" method="post">
-                <input type="text" name="url" placeholder="https://example.com" required>
-                <button type="submit">🔍 Check</button>
-            </form>
-            <div th:if="${urlResult != null}" class="result-box"
-                 th:classappend="${urlResult.riskScore >= 60} ? 'result-danger' : (${urlResult.riskScore >= 30} ? 'result-warning' : 'result-success')">
-                <p><strong th:text="${urlResult.emoji} + ' ' + ${urlResult.verdict}"></strong>
-                    (Risk: <span th:text="${urlResult.riskScore}"></span>/100)</p>
-                <ul style="margin-left:20px; margin-top:10px;">
-                    <li th:each="w : ${urlResult.warnings}" th:text="${w}"></li>
-                    <li th:each="s : ${urlResult.safe}" th:text="${s}"></li>
-                </ul>
-            </div></main>
-        </div></main>
-
-        <!-- 9. DOMAIN AGE -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">📅</span>Domain Age Checker</h3>
-            <p>Angalia kama domain inaonekana kutiliwa shaka.</p>
-            <form class="tool-form" th:action="@{/tools/domain-age}" method="post">
-                <input type="text" name="domain" placeholder="example.com" required>
-                <button type="submit">🔍 Check</button>
-            </form>
-            <div th:if="${domainResult != null}" class="result-box"
-                 th:classappend="${domainResult.riskyTld} ? 'result-warning' : 'result-success'">
-                <p><strong>Domain:</strong> <span th:text="${domainResult.domain}"></span></p>
-                <p th:if="${domainResult.ip}"><strong>IP:</strong> <span th:text="${domainResult.ip}"></span></p>
-                <p th:text="${domainResult.message}"></p>
-            </div></main>
-                <!-- 10. URLSCAN.IO -->
-        <div class="tool-card">
-            <h3><span class="tool-icon">🔬</span>URLScan.io Deep Scan</h3>
-            <p>Deep scan ya URL — screenshot, DNS, IP, headers, n.k. (BURE)</p>
-
-            <div th:if="${urlscanConfigured}">
-                <form class="tool-form" th:action="@{/tools/urlscan-scan}" method="post">
-                    <input type="text" name="url" placeholder="https://example.com" required>
-                    <button type="submit">🔬 Deep Scan</button>
-                </form>
-            </div></main>
-            <div th:if="${!urlscanConfigured}" class="result-box result-warning">
-                <p>⚠️ URLScan API haijawekwa. Weka <code>URLSCAN_API_KEY</code> kwenye Render.</p>
-            </div></main>
-
-            <div th:if="${urlscanResult != null}" class="result-box"
-                 th:classappend="${urlscanResult.success} ? 'result-success' : 'result-danger'">
-                <p th:text="${urlscanResult.message}"></p>
-                <p th:if="${urlscanResult.error}" th:text="${urlscanResult.error}"></p>
-                <p th:if="${urlscanResult.resultUrl}">
-                    <a th:href="${urlscanResult.resultUrl}" target="_blank" class="app-btn app-btn-outline" style="margin-top:10px; display:inline-block;">
-                        👁️ View Full Scan Result
-                    </a>
-                </p>
-            </div></main>
-
-            <hr style="margin: 15px 0;">
-            <p style="font-size:12px; color:#666;">Au search kwa domain:</p>
-            <form class="tool-form" th:action="@{/tools/urlscan-search}" method="post">
-                <input type="text" name="domain" placeholder="example.com" required>
-                <button type="submit">🔍 Search</button>
-            </form>
-
-            <div th:if="${urlscanSearch != null}" class="result-box"
-                 th:classappend="${urlscanSearch.success} ? 'result-info' : 'result-danger'">
-                <p th:if="${urlscanSearch.success}">
-                    <strong>Domain:</strong> <span th:text="${urlscanSearch.domain}"></span><br>
-                    <strong>Results:</strong> <span th:text="${urlscanSearch.count}"></span>
-                </p>
-                <p th:if="${urlscanSearch.error}" th:text="${urlscanSearch.error}"></p>
-            </div></main>
-        </div></main>
-
-</div></main>
-
-    </div></main>
-</div></main>
+            <!-- 9. Domain Age -->
+            <div class="tool-card" onclick="toggleTool('tool9', event)">
+                <div class="tool-icon">📅</div>
+                <div class="tool-title">Domain Age</div>
+                <div class="tool-desc">Angalia umri wa domain</div>
+                <div class="tool-form" id="tool9">
+                    <form th:action="@{/tools/domain-age}" method="post" onsubmit="return submitForm(event, this, 'ageResult')">
+                        <input type="text" name="domain" class="tool-input" placeholder="example.com" required>
+                        <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check</button>
+                    </form>
+                    <div class="tool-result" id="ageResult"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
 <script th:src="@{/js/app.js}"></script>
+<script>
+    function toggleTool(id, e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('form')) return;
+        const el = document.getElementById(id);
+        document.querySelectorAll('.tool-form').forEach(t => { if (t.id !== id) t.classList.remove('show'); });
+        el.classList.toggle('show');
+    }
+    function checkPassword(pwd) {
+        const result = document.getElementById('pwdResult');
+        result.classList.add('show');
+        let score = 0;
+        if (pwd.length >= 8) score++;
+        if (pwd.length >= 12) score++;
+        if (/[A-Z]/.test(pwd)) score++;
+        if (/[a-z]/.test(pwd)) score++;
+        if (/[0-9]/.test(pwd)) score++;
+        if (/[^A-Za-z0-9]/.test(pwd)) score++;
+        const labels = ['❌ Very Weak', '❌ Weak', '⚠️ Fair', '⚠️ Good', '✅ Strong', '✅ Very Strong', '✅ Excellent'];
+        const colors = ['#DC2626', '#DC2626', '#EAB308', '#EAB308', '#16A34A', '#16A34A', '#064E3B'];
+        result.classList.remove('error');
+        result.innerHTML = '<strong style="color:' + colors[score] + ';">' + labels[score] + '</strong><br><small>Score: ' + score + '/6</small>';
+    }
+    function submitForm(e, form, resultId) {
+        e.preventDefault();
+        const result = document.getElementById(resultId);
+        result.classList.add('show');
+        result.innerHTML = '⏳ Inachunguza...';
+        fetch(form.action, { method: 'POST', body: new FormData(form) })
+            .then(r => r.text())
+            .then(data => {
+                result.classList.remove('error');
+                result.innerHTML = '<strong>✅ Matokeo:</strong><br><pre style="white-space:pre-wrap; font-size:12px; margin-top:8px;">' + data.substring(0, 500) + '</pre>';
+            })
+            .catch(err => {
+                result.classList.add('error');
+                result.innerHTML = '<strong>❌ Error:</strong> ' + err.message;
+            });
+        return false;
+    }
+</script>
 </body>
 </html>
