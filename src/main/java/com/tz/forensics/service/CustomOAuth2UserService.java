@@ -38,13 +38,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             email = (sub != null ? sub : "oauth") + "@" + provider + ".local";
         }
 
-        User user = userRepository.findByEmail(email).orElse(null);
+        final String finalEmail = email;
+        User user = userRepository.findByEmail(finalEmail).orElse(null);
         if (user == null) {
             user = new User();
-            user.setUsername(email.split("@")[0] + "_" + provider);
-            user.setEmail(email);
-            user.setFullName(name != null ? name : user.getUsername());
-            user.setPassword("OAUTH2_USER_NO_PASSWORD");
+            String username = finalEmail.split("@")[0];
+            // Hakikisha username haipo
+            if (userRepository.existsByUsername(username)) {
+                username = username + "_" + System.currentTimeMillis() % 10000;
+            }
+            user.setUsername(username);
+            user.setEmail(finalEmail);
+            user.setFullName(name != null ? name : username);
+            user.setPassword("$2a$10$OAUTH2USERPLACEHOLDERxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
             user.setRole("INDIVIDUAL");
             user.setEnabled(true);
             user.setOauthProvider(provider);

@@ -26,14 +26,18 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request,
                                          HttpServletResponse response,
                                          Authentication authentication) throws IOException, ServletException {
-        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oauth2User.getAttribute("email");
-        if (email != null) {
-            User user = userRepository.findByEmail(email).orElse(null);
-            if (user != null) {
-                user.setLastLogin(LocalDateTime.now());
-                userRepository.save(user);
+        try {
+            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+            String email = oauth2User.getAttribute("email");
+            if (email != null) {
+                User user = userRepository.findByEmail(email).orElse(null);
+                if (user != null) {
+                    user.setLastLogin(LocalDateTime.now());
+                    userRepository.save(user);
+                }
             }
+        } catch (Exception e) {
+            // Ignore
         }
         setDefaultTargetUrl("/dashboard");
         super.onAuthenticationSuccess(request, response, authentication);

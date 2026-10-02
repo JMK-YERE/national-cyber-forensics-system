@@ -8,7 +8,6 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="nav-public">
     <div class="nav-container">
         <div class="nav-logo">🛡️ <span th:text="#{app.title}">Cyber Forensics Tanzania</span></div>
@@ -26,12 +25,11 @@
                 <a th:href="@{/(lang='ar')}" th:classappend="${#locale.language == 'ar'} ? 'active'">AR</a>
             </div>
             <a th:href="@{/login}" class="btn-outline" th:text="#{landing.nav.login}">Login</a>
-            <a th:href="@{/register}" class="btn-primary" th:text="#{landing.nav.register}">Register Free</a>
+            <a th:href="@{/register}" class="btn-primary" th:text="#{landing.nav.register}">Register</a>
         </div>
     </div>
 </nav>
 
-<!-- HERO SLIDESHOW -->
 <section class="hero">
     <div class="slideshow" id="slideshow">
         <div th:if="${slides != null && !slides.isEmpty()}" th:each="s, i : ${slides}"
@@ -42,19 +40,19 @@
                 <h1 th:text="${s.title}">Karibu</h1>
                 <p th:text="${s.subtitle}">Ulinzi wa Kidijitali</p>
                 <div class="hero-cta">
-                    <a th:href="@{/register}" class="btn-primary btn-large" th:text="#{landing.hero.cta.register}">Register Free</a>
+                    <a th:href="@{/register}" class="btn-primary btn-large" th:text="#{landing.hero.cta.register}">Register</a>
                     <a href="#how" class="btn-outline-light btn-large" th:text="#{landing.hero.cta.learn}">Learn More</a>
                 </div>
             </div>
         </div>
 
-        <div th:if="${slides == null || slides.isEmpty()}" class="slide active" style="background: linear-gradient(135deg, #0F4C3A, #1B7A4A);">
+        <div th:if="${slides == null || slides.isEmpty()}" class="slide active" style="background: linear-gradient(135deg, #0A1F44, #1E3A8A);">
             <div class="slide-overlay"></div>
             <div class="slide-content">
                 <h1 th:text="#{landing.hero.title}">Karibu Cyber Forensics Tanzania</h1>
                 <p th:text="#{landing.hero.subtitle}">Ulinzi wa Kidijitali kwa Watanzania Wote</p>
                 <div class="hero-cta">
-                    <a th:href="@{/register}" class="btn-primary btn-large" th:text="#{landing.hero.cta.register}">Register Free</a>
+                    <a th:href="@{/register}" class="btn-primary btn-large" th:text="#{landing.hero.cta.register}">Register</a>
                     <a href="#how" class="btn-outline-light btn-large" th:text="#{landing.hero.cta.learn}">Learn More</a>
                 </div>
             </div>
@@ -64,29 +62,27 @@
     </div>
 </section>
 
-<!-- INTRO -->
 <section class="intro">
     <h2 th:text="#{landing.intro.title}">Kile Unachotakiwa Kujua</h2>
     <div class="intro-grid">
         <div class="intro-card">
-            <div class="intro-img" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800');"></div>
+            <div class="intro-img" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80');"></div>
             <h3 th:text="#{landing.intro.cyber.title}">🛡️ Cyber Security</h3>
             <p th:text="#{landing.intro.cyber.text}">Ulinzi wa mifumo, mitandao, na data.</p>
         </div>
         <div class="intro-card">
-            <div class="intro-img" style="background-image: url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800');"></div>
+            <div class="intro-img" style="background-image: url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&q=80');"></div>
             <h3 th:text="#{landing.intro.forensics.title}">🔐 Digital Forensics</h3>
             <p th:text="#{landing.intro.forensics.text}">Sayansi ya kuchunguza ushahidi.</p>
         </div>
         <div class="intro-card">
-            <div class="intro-img" style="background-image: url('https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800');"></div>
+            <div class="intro-img" style="background-image: url('https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80');"></div>
             <h3 th:text="#{landing.intro.incident.title}">🚨 Incident Response</h3>
             <p th:text="#{landing.intro.incident.text}">Mchakato wa kukabiliana na mashambulizi.</p>
         </div>
     </div>
 </section>
 
-<!-- HOW IT WORKS -->
 <section class="how" id="how">
     <h2 th:text="#{landing.how.title}">Namna Mfumo Unavyofanya Kazi</h2>
     <div class="steps">
@@ -97,7 +93,6 @@
     </div>
 </section>
 
-<!-- ANNOUNCEMENTS — FIXED OVERLAP -->
 <section class="announcements" id="announcements">
     <h2 th:text="#{landing.ann.title}">Matangazo ya Umma</h2>
     <p class="section-sub" th:text="#{landing.ann.subtitle}">Taarifa kutoka taasisi mbalimbali</p>
@@ -118,34 +113,32 @@
     </div>
 </section>
 
-<!-- EDUCATION -->
 <section class="education">
     <h2 th:text="#{landing.edu.title}">Elimu ya Usalama wa Mtandao</h2>
     <div class="edu-grid">
         <div class="edu-card">
-            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1633265486064-086b219458ec?w=600');"></div>
+            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1633265486064-086b219458ec?w=600&q=80');"></div>
             <h3 th:text="#{landing.edu.password}">🔐 Neno la Siri</h3>
             <p th:text="#{landing.edu.password.text}">Tumia herufi 12+.</p>
         </div>
         <div class="edu-card">
-            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600');"></div>
+            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=80');"></div>
             <h3 th:text="#{landing.edu.phishing}">🎣 Phishing</h3>
             <p th:text="#{landing.edu.phishing.text}">Angalia URL vizuri.</p>
         </div>
         <div class="edu-card">
-            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=600');"></div>
+            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=600&q=80');"></div>
             <h3 th:text="#{landing.edu.bank}">💰 Benki</h3>
             <p th:text="#{landing.edu.bank.text}">Benki HAIOMBI PIN.</p>
         </div>
         <div class="edu-card">
-            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600');"></div>
+            <div class="edu-img" style="background-image: url('https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80');"></div>
             <h3 th:text="#{landing.edu.simswap}">📱 SIM Swap</h3>
             <p th:text="#{landing.edu.simswap.text}">Nenda kwa mtoa huduma.</p>
         </div>
     </div>
 </section>
 
-<!-- EMERGENCY -->
 <section class="emergency">
     <h2 th:text="#{landing.emg.title}">Umepata Attack? Usiwe na Hofu!</h2>
     <div class="emergency-content">
@@ -158,43 +151,41 @@
         </div>
         <div class="emergency-cta">
             <p th:text="#{landing.emg.notAlone}">Wewe si pekee yako. Tuko pamoja nawe.</p>
-            <a th:href="@{/register}" class="btn-primary btn-large" th:text="#{landing.hero.cta.register}">Register Free</a>
+            <a th:href="@{/register}" class="btn-primary btn-large" th:text="#{landing.hero.cta.register}">Register</a>
         </div>
     </div>
 </section>
 
-<!-- FEATURES -->
 <section class="features" id="features">
     <h2 th:text="#{landing.feat.title}">Features za Mfumo</h2>
     <div class="features-grid">
         <div class="feature-card">
-            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600');"></div>
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&q=80');"></div>
             <h3 th:text="#{landing.feat.ai}">🤖 AI Assistant</h3>
         </div>
         <div class="feature-card">
-            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1618060932014-4deda4932554?w=600');"></div>
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1618060932014-4deda4932554?w=600&q=80');"></div>
             <h3 th:text="#{landing.feat.report}">🚨 Report Attack</h3>
         </div>
         <div class="feature-card">
-            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600');"></div>
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=80');"></div>
             <h3 th:text="#{landing.feat.whistle}">🕵️ Whistleblower</h3>
         </div>
         <div class="feature-card">
-            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600');"></div>
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&q=80');"></div>
             <h3 th:text="#{landing.feat.tools}">🛡️ Security Tools</h3>
         </div>
         <div class="feature-card">
-            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1633265486064-086b219458ec?w=600');"></div>
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1633265486064-086b219458ec?w=600&q=80');"></div>
             <h3 th:text="#{landing.feat.evidence}">🔒 Encrypted Evidence</h3>
         </div>
         <div class="feature-card">
-            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600');"></div>
+            <div class="feature-img" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80');"></div>
             <h3 th:text="#{landing.feat.language}">🌍 Multi-Language</h3>
         </div>
     </div>
 </section>
 
-<!-- STATS -->
 <section class="stats">
     <div class="stats-container">
         <div class="stat"><div class="stat-num">10,000+</div><div class="stat-label">Watumiaji</div></div>
@@ -204,7 +195,6 @@
     </div>
 </section>
 
-<!-- FOOTER -->
 <footer class="footer" id="contact">
     <div class="footer-content">
         <div class="footer-section">
