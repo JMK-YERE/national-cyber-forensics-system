@@ -55,6 +55,8 @@ public class OAuth2VerificationController {
         }
         model.addAttribute("emailMasked", maskEmail((String) session.getAttribute(EMAIL)));
         model.addAttribute("name", session.getAttribute(NAME));
+        model.addAttribute("sent", false);
+        model.addAttribute("expired", false);
         return "oauth2-verify";
     }
 
