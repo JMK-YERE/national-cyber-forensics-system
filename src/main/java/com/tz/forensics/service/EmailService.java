@@ -18,10 +18,10 @@ public class EmailService {
     @Value("${app.admin.email:}")
     private String adminEmail;
 
-    @Value("${app.name:National Cyber Forensics System}")
+    @Value("${app.name:Cyber Forensics TZ}")
     private String appName;
 
-    @Value("${app.url:https://national-cyber-forensics-system-1.onrender.com}")
+    @Value("${app.url:https://cyber-forensics-tz.onrender.com}")
     private String appUrl;
 
     private boolean isConfigured() {
@@ -44,6 +44,18 @@ public class EmailService {
         } catch (Exception e) {
             System.err.println("❌ Email failed to " + to + ": " + e.getMessage());
         }
+    }
+
+    public void sendPasswordSetupEmail(String to, String username, String token) {
+        String subject = "🔐 Tengeneza password yako - " + appName;
+        String body = "Habari " + username + ",\n\n"
+                + "Akaunti yako ya " + appName + " imepokelewa.\n\n"
+                + "Bonyeza link hii kutengeneza password yako:\n"
+                + appUrl + "/set-password?token=" + token + "\n\n"
+                + "Link hii ita-expire ndani ya saa 24.\n\n"
+                + "Kama hukuomba akaunti hii, puuza ujumbe huu.\n\n"
+                + appName + " - Tanzania 🇹🇿";
+        sendEmail(to, subject, body);
     }
 
     public void sendVerificationEmail(String to, String username, String token) {
