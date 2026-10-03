@@ -80,6 +80,18 @@ public class EmailService {
         sendEmail(to, subject, body);
     }
 
+    public void sendOAuthLoginOtp(String to, String username, String otp) {
+        String subject = "🔐 Msimbo wa usalama wa kuingia - " + appName;
+        String body = "Habari " + username + ",\n\n"
+                + "Tumepokea ombi la kuingia kwenye " + appName + " kupitia Google.\n\n"
+                + "Msimbo wako wa uthibitisho ni:\n\n"
+                + "        " + otp + "\n\n"
+                + "Msimbo huu una muda wa sekunde 60 tu na unaweza kutumika mara moja.\n"
+                + "Usimpe mtu mwingine msimbo huu. Kama hukuomba kuingia, puuza email hii na badilisha usalama wa akaunti yako.\n\n"
+                + appName + " - Tanzania 🇹🇿";
+        sendEmail(to, subject, body);
+    }
+
     // ===== KWA MTU MWENYEWE (Welcome) =====
     public void sendWelcomeEmail(String to, String username) {
         String subject = "🇹🇿 Karibu " + appName + ", " + username + "!";
