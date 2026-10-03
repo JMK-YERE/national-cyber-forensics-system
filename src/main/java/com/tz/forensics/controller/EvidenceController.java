@@ -11,6 +11,7 @@ import com.tz.forensics.service.EvidenceService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -94,7 +95,10 @@ public class EvidenceController {
         Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
         if (!canAccessIncident(incident, user)) return ResponseEntity.status(403).build();
 
-        byte[] data = evidenceService.downloadEvidence(id);
+        byte[] data;
+        try { data = evidenceService.downloadEvidence(id); }
+        catch (IOException e) { return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); }
+        catch (RuntimeException e) { return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); }
         auditService.log("DOWNLOAD_EVIDENCE", "Evidence", String.valueOf(id),
                 "Downloaded | SHA-256: " + evidence.getSha256Hash());
 
