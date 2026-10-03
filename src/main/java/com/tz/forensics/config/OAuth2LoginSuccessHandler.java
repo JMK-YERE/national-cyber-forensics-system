@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+/**
+ * Google login is deliberately not considered a completed application login yet.
+ * The Google identity is placed in a short-lived session challenge and the user
+ * must explicitly accept the security check before an email OTP is issued.
+ */
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
@@ -26,20 +32,35 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request,
                                          HttpServletResponse response,
                                          Authentication authentication) throws IOException, ServletException {
-        try {
-            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-            String email = oauth2User.getAttribute("email");
-            if (email != null) {
-                User user = userRepository.findByEmail(email).orElse(null);
-                if (user != null) {
-                    user.setLastLogin(LocalDateTime.now());
-                    userRepository.save(user);
-                }
-            }
-        } catch (Exception e) {
-            // Ignore
+        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oauth2User.getAttribute("email");
+
+        if (email == null || email.isBlank()) {
+            response.sendRedirect("/login?error=oauth_email_missing");
+            SecurityContextHolder.clearContext();
+            return;
         }
-        setDefaultTargetUrl("/dashboard");
-        super.onAuthenticationSuccess(request, response, authentication);
+
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
+            response.sendRedirect("/login?error=oauth_account_unavailable");
+            SecurityContextHolder.clearContext();
+            return;
+        }
+
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
+
+        var session = request.getSession(true);
+        session.setAttribute("OAUTH_VERIFY_USER_ID", user.getId());
+        session.setAttribute("OAUTH_VERIFY_EMAIL", user.getEmail());
+        session.setAttribute("OAUTH_VERIFY_NAME", user.getFullName() != null ? user.getFullName() : user.getUsername());
+        session.setAttribute("OAUTH_VERIFY_PICTURE", user.getProfilePicture());
+        session.setAttribute("OAUTH_VERIFY_EXPIRES", System.currentTimeMillis() + 5 * 60_000L);
+
+        // Do not allow the OAuth authentication to reach /dashboard before OTP verification.
+        SecurityContextHolder.clearContext();
+
+        response.sendRedirect("/oauth2/verify");
     }
 }
