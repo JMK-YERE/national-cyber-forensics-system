@@ -89,7 +89,8 @@
             </div>
 
             <!-- Reply Form -->
-            <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post" style="margin-top:25px;">
+            <form th:action="@{/report-attack/{value}/reply(value=${report.id})}" method="post" style="margin-top:25px;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <textarea name="message" rows="3" required placeholder="Andika ujumbe wako..." style="width:100%; padding:10px;"></textarea>
                 <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px;">📤 Send Message</button>
             </form>
@@ -112,7 +113,8 @@
         <div class="ai-panel">
             <h2 style="color:#8b5cf6; margin-top:0;">🤖 AI Assistant</h2>
             <p>Unaweza kuomba AI ijibu sasa:</p>
-            <form th:action="@{'/report-attack/' + ${report.id} + '/ai-reply'}" method="post" style="display:inline;">
+            <form th:action="@{/report-attack/{value}/ai-reply(value=${report.id})}" method="post" style="display:inline;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <button type="submit" class="ai-button">🤖 Omba AI Ijibu Sasa</button>
             </form>
             <p style="font-size:13px; color:#666; margin-top:10px;">
@@ -190,7 +192,8 @@
             </div>
 
             <!-- Admin Reply Form -->
-            <form th:action="@{'/report-attack/' + ${report.id} + '/reply'}" method="post" style="margin-top:25px;">
+            <form th:action="@{/report-attack/{value}/reply(value=${report.id})}" method="post" style="margin-top:25px;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <textarea name="message" rows="3" required placeholder="Jibu user..." style="width:100%; padding:10px;"></textarea>
                 <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px;">📤 Send Reply to User</button>
             </form>
