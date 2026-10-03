@@ -13,6 +13,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,7 +75,7 @@ public class EvidenceService {
         Evidence saved = evidenceRepository.save(evidence);
 
         custodyRepository.save(new ChainOfCustody(
-                saved.getId(), "UPLOADED", null, username, "system",
+                saved.getId(), "UPLOADED", uploadedBy, username, getClientIp(),
                 "Initial evidence upload: " + dto.getDescription()
         ));
         return saved;
@@ -91,6 +96,18 @@ public class EvidenceService {
         if (!Files.exists(filePath)) throw new IOException("Stored evidence file not found.");
         return encryptionService.decrypt(Files.readAllBytes(filePath));
     }
+ 
+    private String getClientIp() {
+        try {
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attrs == null) return "unknown";
+            HttpServletRequest request = attrs.getRequest();
+            String xff = request.getHeader("X-Forwarded-For");
+            return xff != null && !xff.isBlank() ? xff.split(",")[0].trim() : request.getRemoteAddr();
+        } catch (Exception e) {
+            return "unknown";
+        }
+    }
 
     public List<ChainOfCustody> getChainOfCustody(Long evidenceId) {
         return custodyRepository.findByEvidenceIdOrderByTimestampDesc(evidenceId);
@@ -105,7 +122,7 @@ public class EvidenceService {
         evidenceRepository.save(evidence);
 
         custodyRepository.save(new ChainOfCustody(
-                evidenceId, "VERIFIED", null, username, "system",
+                evidenceId, "VERIFIED", verifiedBy, username, getClientIp(),
                 "Evidence verified by " + username + " | SHA-256: " + evidence.getSha256Hash()
         ));
     }
