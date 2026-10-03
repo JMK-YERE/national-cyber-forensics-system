@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.Map;
 
 @Service
@@ -38,7 +37,7 @@ public class ComplianceService {
     public ComplianceReport generateReport(String type, Long userId, String userName) {
         ComplianceReport report = new ComplianceReport();
         String reportId = "CMP-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-                + "-" + (100 + new Random().nextInt(900));
+                + "-" + String.format("%03d", reportRepo.count() + 1);
         report.setReportId(reportId);
         report.setReportType(type);
         report.setGeneratedBy(userId);
