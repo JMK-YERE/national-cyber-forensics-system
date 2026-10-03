@@ -86,6 +86,9 @@ public class User {
     @Column(name = "email_verified")
     private Boolean emailVerified = false;
 
+    @Column(name = "approval_status", length = 20)
+    private String approvalStatus = "APPROVED";
+
     @Column(name = "verification_token", length = 120)
     private String verificationToken;
 
@@ -185,6 +188,9 @@ public class User {
     public void setNotifySms(Boolean notifySms) { this.notifySms = notifySms; }
     public Boolean getEnabled() { return enabled; }
     public void setEnabled(Boolean enabled) { this.enabled = enabled; }
+    public String getApprovalStatus() { return approvalStatus == null ? "APPROVED" : approvalStatus; }
+    public void setApprovalStatus(String approvalStatus) { this.approvalStatus = approvalStatus; }
+    public boolean isApproved() { return "APPROVED".equalsIgnoreCase(getApprovalStatus()); }
     public Boolean getEmailVerified() { return emailVerified; }
     public void setEmailVerified(Boolean emailVerified) { this.emailVerified = emailVerified; }
     public String getVerificationToken() { return verificationToken; }
