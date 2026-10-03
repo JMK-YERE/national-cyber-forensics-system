@@ -43,7 +43,7 @@ public class UserService {
         user.setOrganization(dto.getOrganization());
         user.setPhone(dto.getPhone());
         user.setWhatsappNumber(dto.getWhatsappNumber());
-        user.setRole("REPORTER");
+        user.setRole("INDIVIDUAL");
         user.setEnabled(true);
 
         userRepository.save(user);
