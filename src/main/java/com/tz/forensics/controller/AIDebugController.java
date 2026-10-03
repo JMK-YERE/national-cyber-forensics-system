@@ -37,8 +37,6 @@ public class AIDebugController {
     public Map<String, Object> debug() {
         Map<String, Object> result = new HashMap<>();
         result.put("apiKeyExists", apiKey != null && !apiKey.isEmpty());
-        result.put("apiKeyLength", apiKey != null ? apiKey.length() : 0);
-        result.put("apiKeyPrefix", apiKey != null && apiKey.length() > 12 ? apiKey.substring(0, 12) + "..." : "N/A");
         result.put("configuredModel", model);
         result.put("isConfigured", aiChatService.isConfigured());
 
