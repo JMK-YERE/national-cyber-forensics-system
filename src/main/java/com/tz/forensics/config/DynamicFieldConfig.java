@@ -30,6 +30,9 @@ public class DynamicFieldConfig {
         // ===== PHISHING =====
         FIELDS.put(IncidentType.PHISHING, List.of(
             new Field("phishing_url", "URL ya Uongo", "text", true),
+            new Field("platform", "Jukwaa / Social Media", "select", false,
+                List.of("Facebook", "Instagram", "TikTok", "WhatsApp", "X (Twitter)", "Gmail", "Other")),
+            new Field("account_username", "Username / Handle ya Akaunti", "text", false),
             new Field("sender_email", "Barua Pepe ya Mtumaji", "text", true),
             new Field("message_content", "Ujumbe Uliosema", "textarea", true),
             new Field("user_replied", "Umejibu?", "boolean", false),
