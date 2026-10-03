@@ -83,6 +83,15 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
+    @Column(name = "email_verified")
+    private Boolean emailVerified = false;
+
+    @Column(name = "verification_token", length = 120)
+    private String verificationToken;
+
+    @Column(name = "verification_token_expires_at")
+    private LocalDateTime verificationTokenExpiresAt;
+
     @Column(name = "oauth_provider", length = 20)
     private String oauthProvider;
 
@@ -176,6 +185,13 @@ public class User {
     public void setNotifySms(Boolean notifySms) { this.notifySms = notifySms; }
     public Boolean getEnabled() { return enabled; }
     public void setEnabled(Boolean enabled) { this.enabled = enabled; }
+    public Boolean getEmailVerified() { return emailVerified; }
+    public void setEmailVerified(Boolean emailVerified) { this.emailVerified = emailVerified; }
+    public String getVerificationToken() { return verificationToken; }
+    public void setVerificationToken(String verificationToken) { this.verificationToken = verificationToken; }
+    public LocalDateTime getVerificationTokenExpiresAt() { return verificationTokenExpiresAt; }
+    public void setVerificationTokenExpiresAt(LocalDateTime verificationTokenExpiresAt) { this.verificationTokenExpiresAt = verificationTokenExpiresAt; }
+    public boolean isEmailVerified() { return emailVerified == null || Boolean.TRUE.equals(emailVerified); }
     public Boolean getAccountLocked() { return accountLocked; }
     public void setAccountLocked(Boolean accountLocked) { this.accountLocked = accountLocked; }
     public Integer getFailedAttempts() { return failedAttempts; }
