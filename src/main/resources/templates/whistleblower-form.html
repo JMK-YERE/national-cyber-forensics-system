@@ -1,105 +1,26 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Anonymously</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-</head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Submit Anonymous Report | Cyber Forensics TZ</title><link rel="stylesheet" th:href="@{/css/theme.css}">
+<style>
+.wb-form-page{max-width:850px;margin:28px auto;padding:0 18px}.wb-head{background:linear-gradient(120deg,#063b2c,#087d68);color:#fff;border-radius:16px;padding:24px}.wb-head h1{color:#fff;margin:0 0 7px}.wb-head p{color:#e5fff7;font-size:12px}.wb-form{margin-top:14px}.field{margin-bottom:13px}.field label{display:block;font-size:11px;font-weight:850;color:#07543e;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;box-sizing:border-box;border:1px solid #cfe0da;border-radius:9px;padding:10px;font:inherit;font-size:11px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.note{padding:12px;border-radius:9px;background:#f0faf6;border-left:4px solid #087d68;font-size:10px;line-height:1.6;color:#42645a}.submit{width:100%;border:0;border-radius:9px;padding:12px;background:#e11d48;color:#fff;font-weight:900;cursor:pointer}.top{display:flex;justify-content:flex-end;gap:12px;padding:12px 18px;border-bottom:1px solid #e4eee9}.top a{font-size:11px;color:#07543e;text-decoration:none;font-weight:800}@media(max-width:650px){.grid2{grid-template-columns:1fr}}
+</style></head>
 <body>
-<header style="height:58px;background:linear-gradient(100deg,#03261d,#08785a);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-family:Inter,Segoe UI,sans-serif"><strong>🛡 Cyber Forensics TZ</strong><a href="/login" style="color:#fff;text-decoration:none;font-size:12px">Login →</a></header></main>
-    <div class="nav-links">
-        <a th:href="@{/whistleblower}">Home</a>
-        <a th:href="@{/whistleblower/track}">Track Report</a>
-        <a th:href="@{/login}">Login</a>
-    </div></main>
-</div></main>
-
-<div class="app-container" style="max-width: 800px; margin: 30px auto;">
-    <div class="app-card" style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; padding: 30px;">
-        <h1 style="color: white; margin: 0;">🚨 Report Anonymously</h1>
-        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">
-            🔒 Your identity will remain anonymous. Hakuna jina lako litakaloonekana.
-        </p>
-    </div></main>
-
-    <form th:action="@{/whistleblower/submit}" method="post" enctype="multipart/form-data" class="app-card" style="margin-top: 20px;">
-        <h2>📝 Report Details</h2>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Aina ya Tukio *</label>
-            <select name="category" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-                <option value="">-- Chagua Aina --</option>
-                <option th:value="'CORRUPTION'" th:selected="${report.category == 'CORRUPTION'}">💰 Corruption / Bribery</option>
-                <option th:value="'FRAUD'" th:selected="${report.category == 'FRAUD'}">🎭 Fraud</option>
-                <option th:value="'CYBER_ATTACK'" th:selected="${report.category == 'CYBER_ATTACK'}">💻 Cyber Attack</option>
-                <option th:value="'HARASSMENT'" th:selected="${report.category == 'HARASSMENT'}">😢 Harassment</option>
-                <option th:value="'DRUG_TRAFFICKING'">💊 Drug Trafficking</option>
-                <option th:value="'HUMAN_TRAFFICKING'">🚫 Human Trafficking</option>
-                <option th:value="'TAX_EVASION'">📊 Tax Evasion</option>
-                <option th:value="'ENVIRONMENTAL'">🌍 Environmental Crime</option>
-                <option th:value="'OTHER'">❓ Other</option>
-            </select>
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Kiwango cha Dharura *</label>
-            <select name="urgency" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-                <option value="LOW">🟢 Low - Kawaida</option>
-                <option value="MEDIUM" selected>🟡 Medium - Muhimu</option>
-                <option value="HIGH">🟠 High - Haraka</option>
-                <option value="CRITICAL">🔴 Critical - Hatari sana</option>
-            </select>
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Kichwa cha Habari *</label>
-            <input type="text" name="title" required maxlength="200" placeholder="Mfano: Rushwa katika ofisi ya..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Maelezo Kamili *</label>
-            <textarea name="description" rows="6" required placeholder="Eleza kwa undani kile kilichotokea..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);"></textarea>
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Watu/Waathirika Wanaohusika</label>
-            <textarea name="involvedParties" rows="3" placeholder="Majina, vyeo..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);"></textarea>
-        </div></main>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label style="display:block; font-weight: 600; margin-bottom: 5px;">Mahali</label>
-                <input type="text" name="location" placeholder="Mji, eneo" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-            </div></main>
-            <div>
-                <label style="display:block; font-weight: 600; margin-bottom: 5px;">Mkoa</label>
-                <input type="text" name="region" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-            </div></main>
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-weight: 600; margin-bottom: 5px;">Tarehe ya Tukio</label>
-            <input type="datetime-local" name="dateOccurred" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-weight: 600; margin-bottom: 5px;">📎 Ushahidi (Picha/Video/Document)</label>
-            <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(15,37,87,0.2);">
-        </div></main>
-
-        <div class="app-card" style="background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a; margin: 20px 0;">
-            <p style="margin: 0; font-size: 13px; color: #333;">
-                🔒 <strong>100% Anonymous:</strong> Hatuombi jina lako, barua pepe, au namba ya simu. 
-                Utapata <strong>tracking code</strong> baada ya kutuma ili kufuatilia ripoti yako.
-            </p>
-        </div></main>
-
-        <button type="submit" class="app-btn app-btn-primary" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold;">
-            🔒 TUMA RIPOTI KWA SIRI
-        </button>
-    </form>
-</div></main>
-<script th:src="@{/js/app.js}"></script>
-</body>
-</html>
+<nav class="top"><a th:href="@{/whistleblower}">← Back</a><a th:href="@{/whistleblower/track}">Track Report</a></nav>
+<main class="wb-form-page">
+<section class="wb-head"><h1>🚨 Submit Anonymous Report</h1><p>Huhitaji account, username au password. Toa taarifa kwa uangalifu na usiweke taarifa binafsi zisizo muhimu.</p></section>
+<form class="app-card wb-form" th:action="@{/whistleblower/submit}" method="post" enctype="multipart/form-data">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<div class="grid2">
+<div class="field"><label>Aina ya Tukio *</label><select name="category" required><option value="">-- Chagua --</option><option value="CORRUPTION" th:selected="${report.category == 'CORRUPTION'}">Corruption / Bribery</option><option value="FRAUD" th:selected="${report.category == 'FRAUD'}">Fraud</option><option value="CYBER_ATTACK" th:selected="${report.category == 'CYBER_ATTACK'}">Cyber Attack</option><option value="HARASSMENT" th:selected="${report.category == 'HARASSMENT'}">Harassment</option><option value="DRUG_TRAFFICKING">Drug Trafficking</option><option value="HUMAN_TRAFFICKING">Human Trafficking</option><option value="TAX_EVASION">Tax Evasion</option><option value="ENVIRONMENTAL">Environmental</option><option value="OTHER">Other</option></select></div>
+<div class="field"><label>Urgency *</label><select name="urgency" required><option value="LOW">Low</option><option value="NORMAL" selected>Normal</option><option value="MEDIUM">Medium</option><option value="HIGH">High</option><option value="CRITICAL">Critical</option></select></div>
+</div>
+<div class="field"><label>Kichwa cha Taarifa *</label><input name="title" required maxlength="200" placeholder="Mfano: Suspicious cyber activity"></div>
+<div class="field"><label>Maelezo Kamili *</label><textarea name="description" rows="7" required placeholder="Eleza kilichotokea, lini, wapi, na hatua ulizochukua..."></textarea></div>
+<div class="field"><label>Wahusika/Waathirika</label><textarea name="involvedParties" rows="3" placeholder="Taarifa muhimu tu"></textarea></div>
+<div class="grid2"><div class="field"><label>Mahali</label><input name="location" placeholder="Mji / eneo"></div><div class="field"><label>Mkoa</label><input name="region" placeholder="Mkoa"></div></div>
+<div class="grid2"><div class="field"><label>Nchi</label><select name="country"><option th:each="c : ${countries}" th:value="${c.code}" th:text="${c.name}" th:selected="${c.code == defaultCountry.code}">Tanzania</option></select></div><div class="field"><label>Tarehe ya Tukio</label><input type="datetime-local" name="dateOccurred"></div></div>
+<div class="field"><label>📎 Ushahidi</label><input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx"></div>
+<div class="note">🔒 Anonymous reporting: mfumo hauombi jina, email au simu hapa. Baada ya submission utapokea tracking code. Ihifadhi; ndiyo itakayotumika kufuatilia report yako.</div>
+<button class="submit" type="submit">🚨 TUMA RIPOTI KWA SIRI</button>
+</form></main>
+<script th:src="@{/js/app.js}"></script></body></html>
