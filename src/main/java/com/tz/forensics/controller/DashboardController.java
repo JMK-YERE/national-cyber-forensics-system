@@ -104,7 +104,11 @@ public class DashboardController {
         model.addAttribute("isForensics", isForensics);
         model.addAttribute("isAnalyst", isAnalyst);
         model.addAttribute("isStaff", isStaff);
-        return "dashboard";
+        if (isAdmin) return "dashboard-admin";
+         if (isPro) return "dashboard-professional";
+         if (isForensics) return "dashboard-forensics";
+         if (isAnalyst) return "dashboard-analyst";
+         return "dashboard-individual";
     }
 
     @GetMapping("/access-denied")
