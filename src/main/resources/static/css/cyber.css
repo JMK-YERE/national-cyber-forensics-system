@@ -6,3 +6,6 @@
 h1,h2,h3,h4{color:#063b2c}.btn{border:1px solid #9bcdbd;color:#07543e;background:#fff;border-radius:9px;padding:9px 14px}.btn:hover{background:#063b2c;color:#fff}.btn-primary{background:#08785a;color:#fff;border-color:#08785a}.btn-success{background:#0aa879;color:#fff;border-color:#0aa879}
 .auth-container{max-width:380px;margin:40px auto;padding:24px;border-radius:14px;border-top:4px solid #08a879;background:#fff;box-shadow:0 18px 45px rgba(3,38,29,.12)}
 table{border:1px solid #dce9e4}th{background:#063b2c}tr:hover td{background:#effaf6}
+
+/* Legacy pages use the same workspace geometry as the unified dashboard. */
+.legacy-nav-shell .app-header{position:fixed!important;top:0;left:0;right:0}.legacy-nav-shell .app-sidebar{position:fixed!important;top:64px;left:0;bottom:0}.legacy-nav-shell + .container,.legacy-nav-shell ~ .container,.container{max-width:1450px;margin:86px 0 30px 232px!important;padding:0 22px!important}.legacy-nav-shell ~ .app-main{margin-left:232px!important}@media(max-width:900px){.legacy-nav-shell ~ .container,.legacy-nav-shell + .container,.container{margin:82px 0 20px 0!important;padding:0 15px!important}.legacy-nav-shell .app-sidebar{transform:translateX(-100%)}.legacy-nav-shell .app-sidebar.show{transform:translateX(0)}}
