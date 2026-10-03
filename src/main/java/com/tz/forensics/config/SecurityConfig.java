@@ -39,14 +39,14 @@ public class SecurityConfig {
                     "/oauth2/**", "/login/oauth2/**"
                 ).permitAll()
 
+                .requestMatchers("/admin/audit", "/admin/audit/**")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
+
                 .requestMatchers("/admin/**", "/whistleblower/admin/**")
                     .hasAuthority("ROLE_ADMIN")
 
                 .requestMatchers("/compliance", "/compliance/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS")
-
-                .requestMatchers("/admin/audit", "/admin/audit/**")
-                    .hasAuthority("ROLE_ADMIN")
 
                 .requestMatchers("/report-attack/admin", "/report-attack/admin/**", "/incidents/**", "/evidence/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
