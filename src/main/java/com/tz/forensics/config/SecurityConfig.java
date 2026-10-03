@@ -30,7 +30,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/", "/features", "/about", "/contact",
-                    "/login", "/register", "/access-denied", "/error",
+                    "/login", "/register", "/access-denied", "/error", "/health",
                     "/forgot-password", "/forgot-password/sms", "/reset-password", "/set-password", "/verify-email",
                     "/whistleblower", "/whistleblower/report", "/whistleblower/submit",
                     "/whistleblower/success", "/whistleblower/track", "/whistleblower/track/**",
