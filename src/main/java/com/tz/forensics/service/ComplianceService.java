@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 @Service
 public class ComplianceService {
@@ -120,7 +119,7 @@ public class ComplianceService {
             case "ANNUAL" -> 40;
             default -> 25;
         };
-        return base + new Random().nextInt(5);
+        return base;
     }
 
     private String getReportTitle(String type) {
@@ -134,19 +133,19 @@ public class ComplianceService {
     }
 
     private String generateSummary(String type, int passed, int total) {
-        return "Ripoti hii inaonyesha hali ya compliance ya mfumo. " +
-               "Tumepitia controls " + total + ", ambapo " + passed + " zimekubaliwa. " +
-               "Compliance score ni " + ((passed * 100) / total) + "%. " +
-               "Ripoti hii inakidhi mahitaji ya " + type + " ya Tanzania.";
+        return "Ripoti hii ni internal readiness assessment ya mfumo, si cheti cha compliance wala legal opinion. " +
+               "Imefanya tathmini ya controls " + total + ", ambapo " + passed + " zime-markiwa kama baseline controls. " +
+               "Internal readiness score ni " + ((passed * 100) / total) + "%. " +
+               "Kwa " + type + ", matokeo lazima yathibitishwe dhidi ya mahitaji rasmi, scope ya organization, risk assessment na ushahidi wa utekelezaji.";
     }
 
     private String generateFindings(String type) {
         StringBuilder sb = new StringBuilder();
         sb.append("1. Access Control: 2FA inafanya kazi kwa admin. ✅\n");
         sb.append("2. Audit Logging: Kila kitendo kinarekodiwa. ✅\n");
-        sb.append("3. Data Encryption: AES-256 inatumika kwa evidence. ✅\n");
+        sb.append("3. Evidence Protection: Evidence encryption mechanism ipo; configuration na key management vinahitaji verification. ⚠️\n");
         sb.append("4. Incident Response: Mfumo wa kuripoti upo. ✅\n");
-        sb.append("5. Data Backup: Backup ya database inafanyika. ⚠️\n");
+        sb.append("5. Data Backup: Backup/restore evidence inahitaji kuthibitishwa kwa mazingira ya production. ⚠️\n");
         sb.append("6. User Training: Training ya watumiaji inahitajika. ⚠️\n");
         return sb.toString();
     }
