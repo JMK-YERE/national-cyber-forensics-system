@@ -158,9 +158,32 @@ public class OAuth2VerificationController {
     }
 
     @PostMapping("/resend")
-    public String resend(HttpSession session) {
+    public String resend(HttpSession session, Model model) {
         if (!challengeExists(session)) return "redirect:/login";
-        return "redirect:/oauth2/verify";
+
+        User user = userRepository.findById((Long) session.getAttribute(USER_ID)).orElse(null);
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
+            clearChallenge(session);
+            return "redirect:/login?error=oauth_account_unavailable";
+        }
+
+        String otp = String.format("%06d", RANDOM.nextInt(1_000_000));
+        user.setOauthOtpHash(passwordEncoder.encode(otp));
+        user.setOauthOtpExpiresAt(LocalDateTime.now().plusSeconds(60));
+        user.setOauthOtpAttempts(0);
+        userRepository.save(user);
+
+        if (!emailService.sendOAuthLoginOtp(user.getEmail(), user.getUsername(), otp)) {
+            clearOtp(user);
+            model.addAttribute("error", "Email ya uthibitisho haikutumwa. Tafadhali jaribu tena.");
+        } else {
+            session.setAttribute("OAUTH_OTP_SENT_AT", System.currentTimeMillis());
+            model.addAttribute("sent", true);
+        }
+
+        model.addAttribute("emailMasked", maskEmail(user.getEmail()));
+        model.addAttribute("name", user.getFullName());
+        return "oauth2-verify";
     }
 
     @PostMapping("/decline")
