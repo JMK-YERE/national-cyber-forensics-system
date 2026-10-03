@@ -1,23 +1,64 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>National Cyber Security & Digital Forensics</title><link rel="stylesheet" th:href="@{/css/landing.css}"></head>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cyber Forensics TZ | National Cyber Security &amp; Digital Forensics</title>
+<link rel="stylesheet" th:href="@{/css/landing.css}">
+</head>
 <body>
-<nav class="public-nav"><a th:href="@{/}" class="brand"><span>🛡</span><span>National Cyber Security & Digital Forensics</span></a>
-<div class="public-links"><a href="#features">Features</a><a href="#workflow">How it works</a><a href="#map">Incident Map</a></div>
-<div class="public-actions"><a th:href="@{/lang(lang=sw,redirect=/)}" class="btn-ghost">SW</a><a th:href="@{/lang(lang=en,redirect=/)}" class="btn-ghost">EN</a><a th:href="@{/login}" class="btn-ghost">Login</a><a th:href="@{/register}" class="btn-main">Create Account</a></div></nav>
+<nav class="public-nav">
+<a th:href="@{/}" class="brand"><span>🛡</span><span>Cyber Forensics TZ</span></a>
+<div class="public-links"><a href="#what">Cyber Security</a><a href="#workflow">How It Works</a><a href="#announcements">Announcements</a><a href="#contact">Contact</a></div>
+<div class="public-actions">
+<a th:href="@{/lang(lang='sw',redirect='/')}" class="btn-ghost">SW</a>
+<a th:href="@{/lang(lang='en',redirect='/')}" class="btn-ghost">EN</a>
+<a th:href="@{/lang(lang='fr',redirect='/')}" class="btn-ghost">FR</a>
+<a th:href="@{/lang(lang='ar',redirect='/')}" class="btn-ghost">AR</a>
+<a th:href="@{/login}" class="btn-ghost">Login</a><a th:href="@{/register}" class="btn-main">Create Account</a>
+</div>
+</nav>
+
 <section class="hero-slider" id="heroSlider">
- <div class="hero-slide active" style="background-image:url('/images/cyber-forensics-hero.svg')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">NATIONAL DIGITAL SECURITY</span><h1>Detect. Investigate.<br><strong>Protect Digital Evidence.</strong></h1><p>Secure reporting, cyber incident investigation and digital forensics in one connected platform.</p><div><a th:href="@{/register}" class="btn-main btn-large">Report Incident</a><a th:href="@{/login}" class="btn-light btn-large">Sign In</a></div></div></div>
- <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1800&q=85')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">CONNECTED INVESTIGATIONS</span><h1>From Report to<br><strong>Forensic Casework.</strong></h1><p>Turn reported incidents into controlled investigations with role-based access and evidence workflows.</p><div><a th:href="@{/register}" class="btn-main btn-large">Get Started</a></div></div></div>
- <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1800&q=85')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">EVIDENCE INTEGRITY</span><h1>Protect Every<br><strong>Digital Artifact.</strong></h1><p>Hashing, encrypted storage and chain-of-custody controls keep forensic evidence accountable.</p><div><a th:href="@{/login}" class="btn-light btn-large">Access Workspace</a></div></div></div>
- <div class="slider-dots"><button data-slide="0" class="active"></button><button data-slide="1"></button><button data-slide="2"></button></div>
+<div class="hero-slide active" style="background-image:url('/images/cyber-forensics-hero.svg')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">NATIONAL DIGITAL SECURITY</span><h1>Detect. Investigate.<br><strong>Protect Digital Evidence.</strong></h1><p>Secure reporting, cyber incident investigation and digital forensics in one connected platform.</p><div><a th:href="@{/register}" class="btn-main btn-large">Report Incident</a><a th:href="@{/login}" class="btn-light btn-large">Sign In</a></div></div></div>
+<div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&amp;fit=crop&amp;w=1800&amp;q=85')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">CONNECTED INVESTIGATIONS</span><h1>From Report to<br><strong>Forensic Casework.</strong></h1><p>Turn reported incidents into controlled investigations with role-based access and evidence workflows.</p></div></div>
+<div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&amp;fit=crop&amp;w=1800&amp;q=85')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">EVIDENCE INTEGRITY</span><h1>Protect Every<br><strong>Digital Artifact.</strong></h1><p>Hashing, encrypted storage and chain-of-custody controls keep forensic evidence accountable.</p></div></div>
+<div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&amp;fit=crop&amp;w=1800&amp;q=85')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">CYBER AWARENESS</span><h1>Learn. Report.<br><strong>Stay Secure.</strong></h1><p>Practical security tools and guidance for individuals, teams and organizations.</p></div></div>
+<div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&amp;fit=crop&amp;w=1800&amp;q=85')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">TRUSTED OPERATIONS</span><h1>One Workspace for<br><strong>Cyber Response.</strong></h1><p>Role-aware access, audit trails, notifications and compliance workflows.</p></div></div>
+<div class="slider-dots"><button data-slide="0" class="active"></button><button data-slide="1"></button><button data-slide="2"></button><button data-slide="3"></button><button data-slide="4"></button></div>
 </section>
-<section class="intro"><div><span class="eyebrow green">ONE PLATFORM</span><h2>Cyber security that connects people, reports and evidence.</h2></div><p>Individuals get simple safety tools. Cyber professionals get investigation workspaces. Administrators control users, permissions, audit and compliance.</p></section>
-<section class="feature-grid" id="features">
- <article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80')"></div><div class="feature-body"><span>01</span><h3>Report Incidents</h3><p>Submit a cyber incident and track its status from your account.</p></div></article>
- <article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=900&q=80')"></div><div class="feature-body"><span>02</span><h3>Digital Forensics</h3><p>Investigators work with controlled evidence and case workflows.</p></div></article>
- <article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1633265486064-086b219458ec?auto=format&fit=crop&w=900&q=80')"></div><div class="feature-body"><span>03</span><h3>Secure Access</h3><p>Menus and protected pages follow the signed-in user's role.</p></div></article>
+
+<section class="intro" id="what"><div><span class="eyebrow green">WHAT IS CYBER SECURITY?</span><h2>Technology, people and processes working together.</h2></div><p>Cyber security protects systems, accounts, networks and digital evidence against unauthorized access, abuse, disruption and loss.</p></section>
+<section class="feature-grid three">
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>01</span><h3>Prevent</h3><p>Use strong authentication, safe passwords, updates and secure configurations.</p></div></article>
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>02</span><h3>Detect &amp; Report</h3><p>Recognize suspicious activity and submit a structured cyber incident report.</p></div></article>
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>03</span><h3>Investigate</h3><p>Authorized professionals can triage cases, preserve evidence and document findings.</p></div></article>
 </section>
-<section class="workflow" id="workflow"><div><span class="eyebrow green">WORKFLOW</span><h2>Report → Triage → Investigate → Evidence → Report</h2></div><div class="steps"><div><b>01</b><span>Report</span></div><div><b>02</b><span>Review</span></div><div><b>03</b><span>Investigate</span></div><div><b>04</b><span>Forensics</span></div><div><b>05</b><span>Close</span></div></div></section>
-<section class="map-cta" id="map"><div><span class="eyebrow green">LIVE VIEW</span><h2>See reported cyber incidents on the map.</h2><p>Open the incident map to inspect reported locations and priority levels.</p></div><a th:href="@{/login}" class="btn-main">Authorized Staff Access →</a></section>
-<footer><div>🛡 National Cyber Security & Digital Forensics System · Tanzania</div><div>Cyber security visuals · 2026</div></footer>
-<script th:src="@{/js/slideshow.js}"></script></body></html>
+
+<section class="workflow" id="workflow"><div><span class="eyebrow green">HOW IT WORKS</span><h2>Report → Review → Investigate → Resolve</h2></div><div class="steps"><div><b>01</b><span>Report</span></div><div><b>02</b><span>Triage</span></div><div><b>03</b><span>Investigate</span></div><div><b>04</b><span>Evidence</span></div><div><b>05</b><span>Report &amp; Close</span></div></div></section>
+
+<section class="stats-strip"><div><strong>10,000+</strong><span>Users target</span></div><div><strong>5,000+</strong><span>Reports target</span></div><div><strong>24/7</strong><span>Digital readiness</span></div><div><strong>4</strong><span>Access languages</span></div></section>
+
+<section class="announcement-section" id="announcements"><div class="section-heading"><span class="eyebrow green">ANNOUNCEMENTS</span><h2>Latest security updates</h2></div>
+<div class="announcement-grid"><article th:each="a,stat : ${announcements}" th:if="${stat.index < 10}" class="announcement-card"><span th:text="${a.priorityLabel}">🟡 MEDIUM</span><h3 th:text="${a.title}">Security Update</h3><p th:text="${a.content}">Stay alert and follow official guidance.</p></article>
+<div th:if="${#lists.isEmpty(announcements)}" class="announcement-card"><span>🟢 READY</span><h3>Cyber Security Awareness</h3><p>Check your account security regularly and report suspicious activity.</p></div></div></section>
+
+<section class="education"><div class="section-heading"><span class="eyebrow green">EDUCATION WORDS</span><h2>Know the language of cyber security</h2></div><div class="word-grid"><span>Phishing</span><span>Malware</span><span>Ransomware</span><span>Firewall</span><span>Encryption</span><span>Digital Evidence</span><span>IOC</span><span>Two-Factor Authentication</span></div></section>
+
+<section class="emergency"><div><span class="eyebrow">EMERGENCY</span><h2>What to do when you suspect an attack</h2><p>Disconnect affected devices where appropriate, preserve evidence, avoid deleting suspicious messages/files, change compromised credentials from a trusted device and report the incident.</p></div><a th:href="@{/register}" class="btn-light btn-large">Report an Incident →</a></section>
+
+<section class="feature-grid four" id="features">
+<article><div class="feature-body"><span>01</span><h3>Secure Reporting</h3><p>Structured incident intake and status tracking.</p></div></article>
+<article><div class="feature-body"><span>02</span><h3>Forensic Evidence</h3><p>Hashing, evidence workflows and controlled access.</p></div></article>
+<article><div class="feature-body"><span>03</span><h3>Threat Map</h3><p>Authorized staff can inspect incident locations.</p></div></article>
+<article><div class="feature-body"><span>04</span><h3>AI Assistant</h3><p>Ask the AI assistant for security guidance.</p></div></article>
+<article><div class="feature-body"><span>05</span><h3>Notifications</h3><p>Keep users informed about important activity.</p></div></article>
+<article><div class="feature-body"><span>06</span><h3>Compliance</h3><p>Compliance workflows for authorized teams.</p></div></article>
+<article><div class="feature-body"><span>07</span><h3>Audit Trail</h3><p>Track important system actions.</p></div></article>
+<article><div class="feature-body"><span>08</span><h3>Downloads</h3><p>Access authorized reports and files.</p></div></article>
+</section>
+
+<section class="map-cta" id="map"><div><span class="eyebrow green">AUTHORIZED STAFF</span><h2>Cyber incident intelligence</h2><p>The incident map and professional investigation workspace are restricted to authorized staff roles.</p></div><a th:href="@{/login}" class="btn-main">Staff Login →</a></section>
+
+<section class="contact" id="contact"><div><span class="eyebrow green">CONTACT</span><h2>Cyber Forensics TZ</h2><p>For platform support, reporting guidance and authorized cyber response workflows, use the official contact channels configured by the organization.</p></div><div class="contact-box"><strong>Cyber Security &amp; Digital Forensics</strong><span>Tanzania 🇹🇿</span><a th:href="@{/whistleblower}">Whistleblower — Report Confidentially</a></div></section>
+<footer><div>🛡 Cyber Forensics TZ · Cyber Security &amp; Digital Forensics</div><div>© 2026 · Security awareness, incident reporting &amp; digital forensics</div></footer>
+<script th:src="@{/js/slideshow.js}"></script>
+</body></html>
