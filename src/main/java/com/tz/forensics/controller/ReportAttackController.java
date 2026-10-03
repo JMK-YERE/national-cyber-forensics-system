@@ -278,32 +278,46 @@ public class ReportAttackController {
     }
 
     @GetMapping("/evidence/{id}")
-    public ResponseEntity<byte[]> downloadEvidence(@PathVariable Long id, Authentication auth) throws IOException {
-        User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        ReportAttack r = service.getById(id);
-        if (user == null || r == null || r.getEvidenceFilePath() == null)
+    public ResponseEntity<byte[]> downloadEvidence(@PathVariable Long id, Authentication auth) {
+        try {
+            if (auth == null || auth.getName() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            User user = userRepository.findByUsername(auth.getName()).orElse(null);
+            ReportAttack r = service.getById(id);
+            if (user == null || r == null || r.getEvidenceFilePath() == null || r.getEvidenceFilePath().isBlank())
+                return ResponseEntity.notFound().build();
+
+            boolean staff = canSeeAllReports(user);
+            boolean owner = r.getUserId() != null && r.getUserId().equals(user.getId());
+            if (!staff && !owner) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+            Path basePath = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Path filePath = basePath.resolve(r.getEvidenceFilePath()).normalize();
+            if (!filePath.startsWith(basePath) || !Files.isRegularFile(filePath)) {
+                log.warn("Evidence file not found for report {}: {}", id, filePath);
+                return ResponseEntity.notFound().build();
+            }
+
+            byte[] encrypted = Files.readAllBytes(filePath);
+            byte[] data = encryptionService.decrypt(encrypted);
+            String fileName = Paths.get(r.getEvidenceFilePath()).getFileName().toString();
+            int separator = fileName.indexOf('_');
+            if (separator >= 0 && separator + 1 < fileName.length()) fileName = fileName.substring(separator + 1);
+            fileName = fileName.replaceAll("[^A-Za-z0-9._-]", "_");
+
+            auditService.log("DOWNLOAD_REPORT_EVIDENCE", "ReportAttack", String.valueOf(id),
+                    "Downloaded evidence | SHA-256: " + r.getEvidenceSha256());
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="" + fileName + """)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .contentLength(data.length)
+                    .body(data);
+        } catch (java.nio.file.NoSuchFileException e) {
             return ResponseEntity.notFound().build();
-
-        boolean isAdmin = canSeeAllReports(user);
-        boolean isOwner = r.getUserId() != null && r.getUserId().equals(user.getId());
-        if (!isAdmin && !isOwner) return ResponseEntity.status(403).build();
-
-        Path basePath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        Path filePath = basePath.resolve(r.getEvidenceFilePath()).normalize();
-        if (!filePath.startsWith(basePath) || !Files.isRegularFile(filePath)) {
-            log.warn("Rejected invalid report evidence path for report {}", id);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            log.error("Evidence download failed for report {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        byte[] data = encryptionService.decrypt(Files.readAllBytes(filePath));
-        auditService.log("DOWNLOAD_REPORT_EVIDENCE", "ReportAttack", String.valueOf(id),
-                "Downloaded evidence | SHA-256: " + r.getEvidenceSha256());
-        String fileName = r.getEvidenceFilePath();
-        int idx = fileName.indexOf("_");
-        if (idx > 0) fileName = fileName.substring(idx + 1);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(data);
     }
 
     @PostMapping("/{id}/reply")
