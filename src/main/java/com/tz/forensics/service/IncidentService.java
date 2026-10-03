@@ -10,12 +10,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
+import java.security.SecureRandom;
 
 @Service
 public class IncidentService {
     private final IncidentRepository incidentRepository;
     private final UserRepository userRepository;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     public IncidentService(IncidentRepository incidentRepository, UserRepository userRepository) {
         this.incidentRepository = incidentRepository;
@@ -26,12 +27,13 @@ public class IncidentService {
         User reporterUser = userRepository.findByUsername(username).orElse(null);
         Incident incident = new Incident();
 
-        String incidentId = "SEC-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-                + "-" + (100 + new Random().nextInt(900));
+        String incidentId = generateIncidentId();
         incident.setIncidentId(incidentId);
         incident.setTitle(dto.getTitle());
         incident.setDescription(dto.getDescription());
-        incident.setReporter(dto.getReporter() != null && !dto.getReporter().isBlank() ? dto.getReporter() : username);
+        String reporterName = reporterUser != null && reporterUser.getFullName() != null && !reporterUser.getFullName().isBlank()
+                ? reporterUser.getFullName() : username;
+        incident.setReporter(reporterName);
         incident.setReporterUserId(reporterUser != null ? reporterUser.getId() : null);
         incident.setDateReported(LocalDateTime.now());
         incident.setStatus("Under Investigation");
@@ -56,6 +58,16 @@ public class IncidentService {
         incident.setTotalLossTzs(total);
 
         return incidentRepository.save(incident);
+    }
+
+    private String generateIncidentId() {
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        for (int i = 0; i < 20; i++) {
+            int rand = 100 + secureRandom.nextInt(900);
+            String candidate = "SEC-" + date + "-" + rand;
+            if (!incidentRepository.existsByIncidentId(candidate)) return candidate;
+        }
+        return "SEC-" + date + "-" + secureRandom.nextInt(900000);
     }
 
     public List<Incident> getAllIncidents() { return incidentRepository.findAllByOrderByDateReportedDesc(); }

@@ -7,12 +7,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
+import java.security.SecureRandom;
 
 @Service
 public class ReportAttackService {
 
     private final ReportAttackRepository repo;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     public ReportAttackService(ReportAttackRepository repo) {
         this.repo = repo;
@@ -74,7 +75,11 @@ public class ReportAttackService {
 
     private String generateReportId() {
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        int rand = 1000 + new Random().nextInt(9000);
-        return "SEC-" + date + "-" + rand;
+        for (int i = 0; i < 20; i++) {
+            int rand = 1000 + secureRandom.nextInt(9000);
+            String candidate = "SEC-" + date + "-" + rand;
+            if (!repo.existsByReportId(candidate)) return candidate;
+        }
+        return "SEC-" + date + "-" + secureRandom.nextInt(900000);
     }
 }
