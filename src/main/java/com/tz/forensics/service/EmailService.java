@@ -82,6 +82,18 @@ public class EmailService {
         sendEmail(to, subject, body);
     }
 
+    public boolean sendPasswordResetOtp(String to, String username, String otp) {
+        String subject = "🔑 OTP ya kubadilisha password - " + appName;
+        String body = "Habari " + username + ",\n\n"
+                + "Tumepokea ombi la kubadilisha password ya akaunti yako ya " + appName + ".\n\n"
+                + "OTP yako ya uthibitisho ni:\n\n"
+                + "        " + otp + "\n\n"
+                + "OTP hii ita-expire ndani ya sekunde 60 na inaweza kutumika mara moja.\n"
+                + "Usimpe mtu mwingine OTP hii. Kama hukuomba kubadilisha password, puuza email hii.\n\n"
+                + appName + " - Tanzania 🇹🇿";
+        return sendEmail(to, subject, body);
+    }
+
     public boolean sendOAuthLoginOtp(String to, String username, String otp) {
         String subject = "🔐 Msimbo wa usalama wa kuingia - " + appName;
         String body = "Habari " + username + ",\n\n"
