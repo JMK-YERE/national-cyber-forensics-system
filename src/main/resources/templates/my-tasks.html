@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>My Tasks - <span th:text="#{app.title}">Cyber Forensics</span></title>
+    <title>My Tasks | Cyber Forensics TZ</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
-</head>
+<style>.task-table{width:100%;border-collapse:collapse}.task-table th,.task-table td{padding:11px;text-align:left;border-bottom:1px solid #dce9e4;font-size:12px}.task-table th{color:#07543e;background:#f3faf7}.task-table tr:hover{background:#f8fcfa}</style></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
@@ -16,24 +16,24 @@
     </div>
 
     <div class="app-card">
-        <table>
+        <table class="task-table">
             <thead>
             <tr>
                 <th>Incident ID</th>
-                <th th:text="#{report.title2}">Title</th>
-                <th th:text="#{general.priority}">Priority</th>
-                <th th:text="#{report.status}">Status</th>
-                <th th:text="#{general.action}">Action</th>
+                <th >Title</th>
+                <th >Priority</th>
+                <th >Status</th>
+                <th >Action</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:if="${tasks.isEmpty()}"><td colspan="5" style="text-align:center;">No tasks assigned. 🎉</td></tr>
+            <tr th:if="${tasks.isEmpty()}"><td colspan="5" style="text-align:center;padding:28px;color:#61736d;">No tasks assigned. 🎉</td></tr>
             <tr th:each="t : ${tasks}" th:class="${t.statusClass}">
                 <td th:text="${t.incidentId}"></td>
                 <td th:text="${t.title}"></td>
                 <td th:text="${t.priority}"></td>
                 <td th:text="${t.workflowStatus}"></td>
-                <td><a th:href="@{'/incidents/' + ${t.id}}" th:text="#{general.view}">View</a></td>
+                <td><a th:href="@{'/incidents/' + ${t.id}}" class="app-btn app-btn-primary">View Case →</a></td>
             </tr>
             </tbody>
         </table>
