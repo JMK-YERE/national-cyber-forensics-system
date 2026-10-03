@@ -114,6 +114,7 @@ public class ReportAttackController {
         report.setUserId(user.getId());
         report.setDateOccurred(dateOccurred);
         report.setAttackType(attackType);
+        if (report.getSeverity() != null && !report.getSeverity().isBlank()) report.setPriority(report.getSeverity());
 
         if (country == null || country.isEmpty()) country = "TZ";
         report.setCountry(country);
