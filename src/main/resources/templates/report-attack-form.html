@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Attack</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <style>
+    <style>.incident-hero{background:linear-gradient(135deg,#03261d,#08785a 58%,#087d93);color:#fff;border-radius:18px;padding:24px 26px;margin-bottom:16px;box-shadow:0 14px 34px rgba(3,38,29,.15)}.incident-hero h1{margin:0 0 6px;font-size:26px;color:#fff}.incident-hero p{margin:0;color:#dff8ee;font-size:13px}.form-section{border:1px solid #dce9e4;border-radius:14px;padding:18px;background:#fff;margin-bottom:15px}.form-section h2{font-size:15px;color:#063b2c;margin:0 0 13px}.section-note{font-size:11px;color:#61736d;margin:-7px 0 14px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.form-group{margin-bottom:0}.form-group.full{grid-column:1/-1}.form-group label{display:block;font-weight:800;margin-bottom:6px;color:#07543e;font-size:12px}.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 12px;border:1px solid #cfe0da;border-radius:9px;font-size:13px;font-family:inherit;background:#fbfefd;color:#10251f}.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#0aa879;box-shadow:0 0 0 3px rgba(10,168,121,.11)}.reporter-box{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid #cfe0da;background:#f3faf7;border-radius:10px}.reporter-avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#0aa879,#08c7d8);color:#fff;font-weight:900}.reporter-box strong{display:block;font-size:12px;color:#063b2c}.reporter-box span{font-size:10px;color:#61736d}.required{color:#dc2626}.loss-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.submit-row{display:flex;justify-content:flex-end;gap:10px;align-items:center}.report-row{padding:14px;margin:8px 0;border-radius:10px;background:#f8fcfa;border:1px solid #e0ece7;border-left:4px solid #0aa879;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}@media(max-width:900px){.loss-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.form-grid{grid-template-columns:1fr}.loss-grid{grid-template-columns:1fr}.incident-hero{padding:20px}.incident-hero h1{font-size:22px}}</style><style>
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #07543e; font-size: 14px; }
         .form-group input, .form-group select, .form-group textarea {
@@ -39,15 +39,17 @@
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main"><div class="app-container">
-    <div class="app-card" style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; padding: 30px;">
-        <h1 style="color: white; margin: 0;">🚨 Report Cyber Attack</h1>
-        <p style="color: rgba(255,255,255,0.9);">Toa taarifa ya tukio la kimtandao</p>
+    <div class="incident-hero">
+        <h1>🚨 Report Security Incident</h1>
+        <p>Toa taarifa ya tukio la kimtandao kwa incident workflow.</p>
     </div>
 
     <!-- NEW REPORT FORM -->
-    <div class="app-card">
-        <h2>📝 New Report</h2>
-        <form th:action="@{/report-attack/new}" method="post" enctype="multipart/form-data" id="reportForm">
+    <div class="form-section">
+        <h2>🛡️ Incident Intake</h2>
+        <form th:action="@{/report-attack/new}" method="post" enctype="multipart/form-data" id="reportForm"><div class="form-grid">
+
+            <div class="form-group"><label>Severity <span class="required">*</span></label><select name="severity" required><option value="">-- Chagua --</option><option value="LOW">LOW</option><option value="MEDIUM">MEDIUM</option><option value="HIGH">HIGH</option><option value="CRITICAL">CRITICAL</option></select></div>
 
             <!-- STEP 1: AINA YA TUKIO -->
             <div class="form-group">
@@ -72,6 +74,8 @@
                 <textarea name="description" rows="4" required placeholder="Eleza kwa ufupi kile kilichotokea..."></textarea>
             </div>
 
+            <div class="form-group"><label>Reporter Name</label><div class="reporter-box"><div class="reporter-avatar" th:text="${#authentication.name.substring(0,1).toUpperCase()}">U</div><div><strong th:text="${#authentication.name}">User</strong><span>Authenticated account / audit trail</span></div></div><input type="hidden" name="reporterName" th:value="${#authentication.name}"></div>
+
             <div class="form-group">
                 <label>4. Mkoa</label>
                 <input type="text" name="region" placeholder="Mfano: Dar es Salaam">
@@ -90,6 +94,10 @@
                 </select>
             </div>
 
+            <div class="form-group"><label>Organization</label><input type="text" name="organization" placeholder="Organization / institution affected"></div>
+
+            <div class="form-group"><label>Direct Loss (TZS)</label><input type="number" name="directLoss" min="0" step="0.01"></div><div class="form-group"><label>Recovery Cost (TZS)</label><input type="number" name="recoveryCost" min="0" step="0.01"></div><div class="form-group"><label>Downtime Cost (TZS)</label><input type="number" name="downtimeCost" min="0" step="0.01"></div><div class="form-group"><label>Legal Fees (TZS)</label><input type="number" name="legalFees" min="0" step="0.01"></div><div class="form-group"><label>Reputation Damage (TZS)</label><input type="number" name="reputationDamage" min="0" step="0.01"></div>
+            </div>
             <!-- STEP 3: DYNAMIC FIELDS -->
             <div class="dynamic-section" id="dynamicSection" style="display:none;">
                 <div id="typeBadge" class="type-badge"></div>
@@ -103,7 +111,7 @@
                 <input type="file" name="evidenceFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx">
             </div>
 
-            <button type="submit" class="app-btn app-btn-primary" style="padding:15px 30px; font-size:16px; margin-top:15px;">
+            <button type="submit" class="app-btn app-btn-primary" style="padding:12px 24px; font-size:13px; margin-top:15px;">
                 🚨 SUBMIT REPORT
             </button>
         </form>
