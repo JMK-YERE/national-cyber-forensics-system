@@ -8,23 +8,22 @@
     <style>
         .chat-container { background: #f5f0e8; border: 1px solid rgba(15,37,87,0.15); border-radius: 8px; padding: 20px; min-height: 400px; max-height: 550px; overflow-y: auto; }
         .chat-msg { margin-bottom: 15px; padding: 12px 16px; border-radius: 10px; max-width: 82%; word-wrap: break-word; font-size: 14px; line-height: 1.6; }
-        .chat-user { background: #0f2557; color: white; margin-left: auto; border-bottom-right-radius: 3px; }
+        .chat-user { background: #07543e; color: white; margin-left: auto; border-bottom-right-radius: 3px; }
         .chat-ai { background: white; color: #1a1a1a; border: 1px solid rgba(15,37,87,0.15); border-bottom-left-radius: 3px; }
         .chat-time { font-size: 10px; opacity: 0.7; margin-top: 5px; }
         .chat-label { font-size: 11px; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
         .chat-user .chat-label { color: #ffd700; }
-        .chat-ai .chat-label { color: #0f2557; }
+        .chat-ai .chat-label { color: #07543e; }
         .quick-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
-        .quick-btn { background: white; border: 1px solid #0f2557; color: #0f2557; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; }
-        .quick-btn:hover { background: #0f2557; color: white; }
+        .quick-btn { background: white; border: 1px solid #07543e; color: #07543e; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; }
+        .quick-btn:hover { background: #07543e; color: white; }
         .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; }
-        .lang-bar a { padding: 6px 14px; background: white; border: 2px solid rgba(15,37,87,0.2); border-radius: 20px; color: #0f2557; font-size: 12px; font-weight: 600; text-decoration: none; }
-        .lang-bar a.active { background: #0f2557; color: white; border-color: #0f2557; }
+        .lang-bar a { padding: 6px 14px; background: white; border: 2px solid rgba(15,37,87,0.2); border-radius: 20px; color: #07543e; font-size: 12px; font-weight: 600; text-decoration: none; }
+        .lang-bar a.active { background: #07543e; color: white; border-color: #07543e; }
     </style>
 </head>
-<body>
-<div class="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div></main>
+<body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
     <div class="nav-links">
         <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
         <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
@@ -36,8 +35,8 @@
             <a th:href="@{/lang?lang=fr}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'fr'} ? 'active-lang'">FR</a>
             <a th:href="@{/lang?lang=ar}" style="color:white; padding:4px 8px;" th:classappend="${#locale.language == 'ar'} ? 'active-lang'">AR</a>
         </span>
-    </div></main>
-</div></main>
+    </div>
+</div>
 
 <main class="app-main"><div class="app-container">
     <div class="app-card">
@@ -45,22 +44,22 @@
         <p>Ask anything — AI will respond in your selected language.</p>
         <p th:if="${isConfigured}" style="color:var(--emerald); font-weight:600;">✅ AI Connected (Groq)</p>
         <p th:if="${!isConfigured}" style="color:var(--amber); font-weight:600;">⚠️ AI not configured</p>
-    </div></main>
+    </div>
 
     <div class="app-card">
         <div class="chat-container" id="chatContainer">
             <div th:if="${history.isEmpty()}" style="text-align:center; color:#888; padding:40px;">
                 💬 Start a conversation — ask anything!
-            </div></main>
+            </div>
 
             <div th:each="msg : ${history}"
                  class="chat-msg"
                  th:classappend="${msg.type == 'user'} ? 'chat-user' : 'chat-ai'">
-                <div class="chat-label" th:text="${msg.type == 'user'} ? '👤 You' : '🤖 AI Assistant'"></div></main>
-                <div th:text="${msg.text}" style="white-space:pre-wrap;"></div></main>
-                <div class="chat-time" th:text="${msg.time}"></div></main>
-            </div></main>
-        </div></main>
+                <div class="chat-label" th:text="${msg.type == 'user'} ? '👤 You' : '🤖 AI Assistant'"></div>
+                <div th:text="${msg.text}" style="white-space:pre-wrap;"></div>
+                <div class="chat-time" th:text="${msg.time}"></div>
+            </div>
+        </div>
 
         <!-- QUICK BUTTONS — Kwa lugha -->
         <div class="quick-btns" th:if="${#locale.language == 'sw'}">
@@ -69,7 +68,7 @@
             <button type="button" class="quick-btn" onclick="setMsg('Nifanye nini kama simu yangu iliibiwa?')">📱 Simu Iliibiwa</button>
             <button type="button" class="quick-btn" onclick="setMsg('Nisaidie kuandika CV nzuri')">💼 CV</button>
             <button type="button" class="quick-btn" onclick="setMsg('Nipe stori fupi ya kusisimua')">📖 Stori</button>
-        </div></main>
+        </div>
 
         <div class="quick-btns" th:if="${#locale.language == 'en'}">
             <button type="button" class="quick-btn" onclick="setMsg('What is a good password?')">🔐 Password</button>
@@ -77,20 +76,20 @@
             <button type="button" class="quick-btn" onclick="setMsg('What should I do if my phone is stolen?')">📱 Phone Stolen</button>
             <button type="button" class="quick-btn" onclick="setMsg('Help me write a good CV')">💼 CV</button>
             <button type="button" class="quick-btn" onclick="setMsg('Tell me a short story')">📖 Story</button>
-        </div></main>
+        </div>
 
         <div class="quick-btns" th:if="${#locale.language == 'fr'}">
             <button type="button" class="quick-btn" onclick="setMsg('Quel est un bon mot de passe?')">🔐 Mot de passe</button>
             <button type="button" class="quick-btn" onclick="setMsg('Comment me protéger du phishing?')">🎣 Phishing</button>
             <button type="button" class="quick-btn" onclick="setMsg('Que faire si mon téléphone est volé?')">📱 Vol</button>
             <button type="button" class="quick-btn" onclick="setMsg('Aidez-moi à écrire un bon CV')">💼 CV</button>
-        </div></main>
+        </div>
 
         <div class="quick-btns" th:if="${#locale.language == 'ar'}">
             <button type="button" class="quick-btn" onclick="setMsg('ما هي كلمة المرور الجيدة؟')">🔐 كلمة المرور</button>
             <button type="button" class="quick-btn" onclick="setMsg('كيف أحمي نفسي من التصيد؟')">🎣 التصيد</button>
             <button type="button" class="quick-btn" onclick="setMsg('ماذا أفعل إذا سُرق هاتفي؟')">📱 الهاتف</button>
-        </div></main>
+        </div>
 
         <form th:action="@{/ai/assistant}" method="post" style="margin-top:20px; display:flex; gap:10px;">
             <input type="text" name="message" required placeholder="Ask anything..." style="flex:1; margin:0;" id="messageInput">
@@ -100,8 +99,8 @@
         <form th:action="@{/ai/clear}" method="post" style="margin-top:10px; text-align:right;">
             <button type="submit" class="app-btn app-btn-outline" style="font-size:11px; padding:6px 12px;">🗑️ Clear Chat</button>
         </form>
-    </div></main>
-</div></main>
+    </div>
+</div>
 
 <script>
 function setMsg(text) {
@@ -114,5 +113,5 @@ window.addEventListener('load', function() {
 });
 </script>
 <script th:src="@{/js/app.js}"></script>
-</body>
+</main></body>
 </html>
