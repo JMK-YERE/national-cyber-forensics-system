@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -72,10 +73,15 @@ public class ReportAttackController {
                 || "FORENSICS".equalsIgnoreCase(role) || "ANALYST".equalsIgnoreCase(role);
     }
 
+    private boolean canInteractWithReport(User user, ReportAttack report) {
+        if (user == null || report == null) return false;
+        return canSeeAllReports(user) || (report.getUserId() != null && report.getUserId().equals(user.getId()));
+    }
+
     private void notifyAdmins(String title, String message, String type, String linkUrl) {
         try {
             List<User> admins = userRepository.findAll().stream()
-                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
+                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics() || "ANALYST".equalsIgnoreCase(u.getRole())).toList();
             for (User admin : admins) {
                 notificationService.createNotification(admin.getId(), title, message, type, linkUrl);
             }
@@ -170,13 +176,20 @@ public class ReportAttackController {
             try {
                 Path uploadPath = Paths.get(uploadDir);
                 if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
-                String storedName = UUID.randomUUID() + "_" + evidenceFile.getOriginalFilename();
-                Path targetPath = uploadPath.resolve(storedName);
-                Files.write(targetPath, evidenceFile.getBytes());
+                if (evidenceFile.getSize() > 50L * 1024L * 1024L) throw new IllegalArgumentException("Evidence file exceeds 50 MB.");
+                byte[] evidenceBytes = evidenceFile.getBytes();
+                String originalName = evidenceFile.getOriginalFilename() == null ? "evidence.bin" : Paths.get(evidenceFile.getOriginalFilename()).getFileName().toString();
+                originalName = originalName.replaceAll("[^A-Za-z0-9._-]", "_");
+                if (originalName.length() > 120) originalName = originalName.substring(originalName.length() - 120);
+                String storedName = UUID.randomUUID() + "_" + originalName;
+                Path targetPath = uploadPath.resolve(storedName).normalize();
+                if (!targetPath.getParent().equals(uploadPath.toAbsolutePath().normalize())) throw new IllegalArgumentException("Invalid evidence filename.");
+                Files.write(targetPath, evidenceBytes);
 
                 report.setEvidenceFilePath(storedName);
                 report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
                 report.setEvidenceFileSize(evidenceFile.getSize());
+                report.setEvidenceSha256(sha256(evidenceBytes));
                 report.setHasEvidence(true);
             } catch (IOException e) { log.error("File: {}", e.getMessage()); }
         }
@@ -270,7 +283,8 @@ public class ReportAttackController {
     public String reply(@PathVariable Long id, @RequestParam String message, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
-        if (user == null || r == null) return "redirect:/report-attack";
+        if (!canInteractWithReport(user, r)) return "redirect:/access-denied";
+        if (message == null || message.isBlank() || message.length() > 4000) return "redirect:/report-attack/view/" + id;
 
         String senderType = canSeeAllReports(user) ? "ADMIN" : "USER";
         messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
@@ -298,7 +312,7 @@ public class ReportAttackController {
     public String triggerAiReply(@PathVariable Long id, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
-        if (user == null || r == null) return "redirect:/report-attack";
+        if (!canInteractWithReport(user, r)) return "redirect:/access-denied";
 
         try {
             String prompt = "Report Type: " + r.getAttackTypeLabel() + "\n"
@@ -382,6 +396,13 @@ public class ReportAttackController {
         }
 
         return "redirect:/report-attack/admin";
+    }
+
+    private String sha256(byte[] data) throws Exception {
+        byte[] digest = MessageDigest.getInstance("SHA-256").digest(data);
+        StringBuilder sb = new StringBuilder(64);
+        for (byte b : digest) sb.append(String.format("%02x", b));
+        return sb.toString();
     }
 
     private String detectFileType(String contentType) {
