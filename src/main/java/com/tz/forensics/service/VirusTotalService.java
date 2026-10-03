@@ -61,7 +61,7 @@ public class VirusTotalService {
                 // URL haipo — submit kwa scan
                 log.info("URL haipo VT, submitting for scan");
                 HttpResponse<String> submitResponse = submitUrl(url);
-                result.put("success", submitResponse.statusCode() == 200);
+                result.put("success", submitResponse.statusCode() >= 200 && submitResponse.statusCode() < 300);
                 result.put("message", "URL imetumwa kwa scanning. Inachukua sekunde 30-60. Jaribu tena baadaye.");
             } else if (response.statusCode() == 401) {
                 result.put("success", false);
