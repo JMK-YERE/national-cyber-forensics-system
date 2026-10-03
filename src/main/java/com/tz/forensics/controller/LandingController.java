@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 @Controller
 public class LandingController {
@@ -32,6 +34,12 @@ public class LandingController {
             model.addAttribute("slides", java.util.List.of());
         }
         return "landing";
+    }
+
+    @GetMapping(value = "/favicon.ico", produces = MediaType.IMAGE_SVG_XML_VALUE)
+    public ResponseEntity<String> favicon() {
+        String svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><rect width=\"64\" height=\"64\" rx=\"14\" fill=\"#063b2c\"/><path d=\"M32 8l20 8v15c0 13-8 22-20 25C20 53 12 44 12 31V16l20-8z\" fill=\"#087d68\"/><path d=\"M32 18l10 4v9c0 7-4 12-10 15-6-3-10-8-10-15v-9l10-4z\" fill=\"white\"/></svg>";
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_SVG_XML).body(svg);
     }
 
     @GetMapping("/features")
