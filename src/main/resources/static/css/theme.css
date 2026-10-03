@@ -34,3 +34,27 @@ input,select,textarea{max-width:100%}
   .profile-avatar{width:29px;height:29px}
   .mobile-toggle{font-size:21px}
 }
+
+/* Mobile readability and full-viewport page treatment */
+@media(max-width:900px){
+  .app-main{font-size:14px}
+  .app-main h1{font-size:clamp(23px,5.8vw,31px);line-height:1.2}
+  .app-main h2{font-size:clamp(19px,4.8vw,25px);line-height:1.3}
+  .app-main h3{font-size:clamp(16px,4.1vw,21px);line-height:1.35}
+  .app-main p,.app-main li{font-size:14px;line-height:1.6}
+  .app-main label{font-size:12px}
+  .app-main .app-btn,.app-main button,.app-main input,.app-main select,.app-main textarea{font-size:14px}
+  .app-main .sidebar-item{font-size:14px}
+  .app-sidebar{width:min(310px,88vw);box-shadow:12px 0 35px rgba(0,0,0,.24)}
+  .app-sidebar .sidebar-item{min-height:46px;padding:11px 12px}
+  .app-sidebar .sidebar-section{font-size:11px;padding-top:16px}
+}
+@media(max-width:560px){
+  .app-main{padding:12px 9px}
+  .app-card{padding:14px 12px}
+  .app-main .app-btn{min-height:44px;padding:10px 14px}
+  .app-main table{font-size:13px}
+  .app-main .app-stat-box .value{font-size:22px}
+  .app-main .app-stat-box .label{font-size:11px}
+  .header-profile .profile-btn{min-height:40px}
+}
