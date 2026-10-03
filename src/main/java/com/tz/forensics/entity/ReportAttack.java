@@ -93,6 +93,9 @@ public class ReportAttack {
     @Column(name = "evidence_file_size")
     private Long evidenceFileSize;
 
+    @Column(name = "evidence_sha256", length = 64)
+    private String evidenceSha256;
+
     @Column(name = "has_evidence")
     private Boolean hasEvidence = false;
 
@@ -202,6 +205,8 @@ public class ReportAttack {
     public void setEvidenceFileType(String evidenceFileType) { this.evidenceFileType = evidenceFileType; }
     public Long getEvidenceFileSize() { return evidenceFileSize; }
     public void setEvidenceFileSize(Long evidenceFileSize) { this.evidenceFileSize = evidenceFileSize; }
+    public String getEvidenceSha256() { return evidenceSha256; }
+    public void setEvidenceSha256(String evidenceSha256) { this.evidenceSha256 = evidenceSha256; }
     public Boolean getHasEvidence() { return hasEvidence; }
     public void setHasEvidence(Boolean hasEvidence) { this.hasEvidence = hasEvidence; }
     public String getAiRecommendation() { return aiRecommendation; }
