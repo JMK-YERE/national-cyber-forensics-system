@@ -1,119 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <style>
-        body { margin: 0; min-height: 100vh; display: flex; background: #F0FDF4; }
-        .reg-wrap { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; width: 100%; }
-        .reg-img { background: linear-gradient(135deg, rgba(10,22,40,0.88), rgba(6,78,59,0.7)), url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=1200') center/cover; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; color: white; }
-        .reg-img .brand { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 700; }
-        .reg-img h2 { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
-        .reg-img p { font-size: 13px; color: rgba(255,255,255,0.9); }
-        .reg-form-side { display: flex; align-items: center; justify-content: center; padding: 25px 20px; background: white; overflow-y: auto; }
-        .reg-box { width: 100%; max-width: 370px; }
-        .back-home { display: inline-flex; align-items: center; gap: 6px; color: #0A1628; text-decoration: none; font-size: 11px; font-weight: 600; margin-bottom: 14px; padding: 6px 12px; background: #F0FDF4; border-radius: 16px; }
-        h1.form-title { font-size: 20px; color: #0A1628; margin-bottom: 4px; font-weight: 800; }
-        p.form-sub { color: #64748B; font-size: 12px; margin-bottom: 14px; }
-        .social-buttons { display: flex; gap: 8px; margin-bottom: 10px; }
-        .social-btn { flex: 1; padding: 9px; border-radius: 8px; border: 2px solid #E2E8F0; background: white; cursor: pointer; font-weight: 600; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; color: #1E293B; }
-        .social-btn:hover { border-color: #16A34A; background: #F0FDF4; }
-        .social-btn.apple { background: #000; color: white; border-color: #000; }
-        .divider { display: flex; align-items: center; gap: 10px; margin: 12px 0; color: #94A3B8; font-size: 11px; }
-        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #E2E8F0; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; font-weight: 600; color: #0A1628; margin-bottom: 4px; font-size: 11px; }
-        .form-group input { width: 100%; padding: 9px 11px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 12px; font-family: inherit; }
-        .form-group input:focus { outline: none; border-color: #16A34A; box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .terms { display: flex; align-items: center; gap: 6px; font-size: 10px; margin: 9px 0; }
-        .btn-register { width: 100%; padding: 11px; background: linear-gradient(135deg, #166534, #16A34A); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
-        .btn-register:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(22,163,74,0.4); }
-        .form-footer { text-align: center; margin-top: 12px; font-size: 11px; color: #64748B; }
-        .form-footer a { color: #16A34A; text-decoration: none; font-weight: 700; }
-        @media (max-width: 800px) {
-            .reg-wrap { grid-template-columns: 1fr; }
-            .reg-img { min-height: 160px; padding: 20px; }
-            .reg-img h2 { font-size: 18px; }
-            .form-row { grid-template-columns: 1fr; }
-        }
-    
-/* Final compact auth layout */
-body{background:#f4faf7!important;min-height:100vh!important}
-.login-wrap,.reg-wrap{min-height:100vh!important;grid-template-columns:42% 58%!important;max-width:1280px;margin:0 auto;box-shadow:0 0 50px rgba(3,38,29,.08)}
-.login-img,.reg-img{padding:24px!important;background-position:center!important}
-.login-img h2,.reg-img h2{font-size:25px!important}.login-form-side,.reg-form-side{padding:18px 24px!important}
-.login-box,.reg-box{max-width:340px!important}.form-group{margin-bottom:9px!important}.form-group input{padding:8px 10px!important}.social-btn{padding:8px!important}.btn-login,.btn-register{padding:10px!important}
-@media(max-width:800px){.login-wrap,.reg-wrap{grid-template-columns:1fr!important}.login-img,.reg-img{min-height:220px!important}.login-form-side,.reg-form-side{padding:20px!important}.login-box,.reg-box{max-width:340px!important}}
-</style>
-</head>
-<body>
-<div class="reg-wrap">
-    <div class="reg-img">
-        <div class="brand">🛡️ Cyber Forensics TZ</div>
-        <div>
-            <h2>Jiunge Nasi Leo</h2>
-            <p>Unda akaunti bure na uanze kulinda taarifa zako mtandaoni.</p>
-        </div>
-        <div style="font-size:11px; color:rgba(255,255,255,0.6);">© 2026 Cyber Forensics Tanzania 🇹🇿</div>
-    </div>
-
-    <div class="reg-form-side">
-        <div class="reg-box">
-            <a th:href="@{/}" class="back-home">← Rudi Nyumbani</a>
-            <h1 class="form-title">Unda Akaunti</h1>
-            <p class="form-sub">Jiunge na mfumo bure</p>
-
-            <div class="social-buttons">
-                <a th:href="@{/oauth2/authorization/google}" class="social-btn">Google</a>
-                <a href="javascript:void(0)" onclick="alert('Apple - Coming soon!')" class="social-btn apple">Apple</a>
-            </div>
-
-            <div class="divider">au</div>
-
-            <form th:action="@{/register}" method="post">
-                <div class="form-group">
-                    <label>Jina la Mtumiaji</label>
-                    <input type="text" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label>Barua Pepe</label>
-                    <input type="email" name="email" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Jina Kamili</label>
-                        <input type="text" name="fullName">
-                    </div>
-                    <div class="form-group">
-                        <label>Simu</label>
-                        <input type="tel" name="phone">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Neno la Siri</label>
-                        <input type="password" name="password" required minlength="6">
-                    </div>
-                    <div class="form-group">
-                        <label>Thibitisha</label>
-                        <input type="password" name="confirmPassword" required minlength="6">
-                    </div>
-                </div>
-                <div class="terms">
-                    <input type="checkbox" id="terms" required>
-                    <label for="terms">Nakubali Masharti</label>
-                </div>
-                <button type="submit" class="btn-register">✨ UNDA AKAUNTI</button>
-            </form>
-
-            <div class="form-footer">
-                Una akaunti? <a th:href="@{/login}">Ingia</a>
-            </div>
-        </div>
-    </div>
-</div>
-</body>
-</html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jisajili | Cyber Security & Digital Forensics</title>
+<style>
+:root{--ink:#071827;--line:#d9e3ec;--muted:#66788a}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#eef8f5,#f7fbff);font-family:Inter,"Segoe UI",system-ui,sans-serif;color:var(--ink);display:grid;place-items:center;padding:22px}.auth{width:min(1040px,94vw);height:min(700px,calc(100vh - 44px));min-height:610px;display:grid;grid-template-columns:44% 56%;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 24px 70px rgba(4,28,48,.18)}.visual{color:#fff;padding:26px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(135deg,rgba(3,35,48,.84),rgba(5,74,65,.62)),url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=85') center/cover}.brand{font-weight:850;font-size:14px}.brand span{color:#7ef7e2}.visual-main{margin:auto 0}.visual h2{font-size:30px;line-height:1.12}.visual p,.feature{font-size:12px;color:#e8fffa}.feature{margin:9px 0}.copyright{font-size:10px;color:#b9d8d2}.form-side{display:flex;align-items:center;justify-content:center;padding:28px}.box{width:min(390px,100%)}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.home{font-size:11px;color:#1567d8;font-weight:800;text-decoration:none}.langs{border:1px solid var(--line);padding:3px;border-radius:10px}.langs a{font-size:10px;padding:6px 9px;text-decoration:none;color:#53677a}.langs a.active{background:#1769df;color:#fff;border-radius:7px;font-weight:800}h1{font-size:26px;margin:0 0 4px}.sub{font-size:12px;color:var(--muted);margin-bottom:16px}.social{display:grid;grid-template-columns:1fr 1fr;gap:8px}.social a{height:40px;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center;text-decoration:none;color:#17283a;font-size:11px;font-weight:750}.divider{display:flex;align-items:center;gap:10px;color:#9aa9b6;font-size:10px;margin:11px 0}.divider:before,.divider:after{content:"";height:1px;background:#e4e9ee;flex:1}.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{margin-bottom:10px}label{display:block;font-size:10px;font-weight:800;margin-bottom:4px}input{width:100%;height:39px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font-size:11px;outline:none}input:focus{border-color:#2d79df;box-shadow:0 0 0 3px rgba(45,121,223,.1)}.terms{font-size:10px;color:var(--muted);display:flex;gap:6px;align-items:center;margin:8px 0 12px}.submit{width:100%;height:42px;border:0;border-radius:9px;background:linear-gradient(135deg,#0c79d8,#092b5c);color:#fff;font-weight:850;cursor:pointer}.footer{text-align:center;font-size:11px;color:var(--muted);margin-top:13px}.footer a{color:#0c72d4;font-weight:850;text-decoration:none}@media(max-width:760px){body{padding:10px}.auth{width:100%;height:auto;min-height:0;grid-template-columns:1fr}.visual{min-height:210px;padding:22px}.visual h2{font-size:25px}.form-side{padding:22px 18px}.row{grid-template-columns:1fr}}
+</style></head><body><div class="auth">
+<section class="visual"><div class="brand">🛡 Cyber Security <span>&amp; Digital Forensics</span></div><div class="visual-main"><div style="font-size:38px">◈</div><h2>Jiunge na Ulinzi wa Kidijitali</h2><p>Unda akaunti na upate workspace yako kulingana na role uliyopewa.</p><div class="feature">🔐 Ripoti na fuatilia matukio</div><div class="feature">🤖 AI Assistant kwa kila user</div><div class="feature">🛡 Zana za msingi za usalama</div></div><div class="copyright">© 2026 Cyber Security &amp; Digital Forensics Tanzania</div></section>
+<section class="form-side"><div class="box"><div class="top"><a class="home" th:href="@{/}">← Nyumbani</a><div class="langs"><a th:href="@{/lang(lang=sw,redirect=/register)}" class="active">SW</a><a th:href="@{/lang(lang=en,redirect=/register)}">EN</a></div></div>
+<h1>Unda Akaunti</h1><p class="sub">Jaza taarifa zako ili kuendelea</p>
+<div class="social"><a th:href="@{/oauth2/authorization/google}">G Google</a><a href="#" onclick="return false"> Apple</a></div><div class="divider">au</div>
+<form th:action="@{/register}" method="post"><div class="row"><div class="field"><label>Jina la Mtumiaji</label><input name="username" required></div><div class="field"><label>Barua Pepe</label><input type="email" name="email" required></div></div><div class="row"><div class="field"><label>Jina Kamili</label><input name="fullName"></div><div class="field"><label>Simu</label><input name="phone"></div></div><div class="row"><div class="field"><label>Neno la Siri</label><input type="password" name="password" minlength="6" required></div><div class="field"><label>Thibitisha</label><input type="password" name="confirmPassword" minlength="6" required></div></div><div class="terms"><input id="terms" type="checkbox" required><label for="terms">Nakubali masharti ya matumizi.</label></div><button class="submit" type="submit">Unda Akaunti</button></form>
+<div class="footer">Una akaunti? <a th:href="@{/login}">Ingia</a></div></div></section></div></body></html>
