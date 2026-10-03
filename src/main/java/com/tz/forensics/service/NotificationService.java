@@ -38,7 +38,7 @@ public class NotificationService {
     public void createNotification(String title, String message, String type, String linkUrl) {
         try {
             List<User> admins = userRepository.findAll().stream()
-                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics())
+                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics() || "ANALYST".equalsIgnoreCase(u.getRole()))
                     .toList();
             for (User admin : admins) {
                 createNotification(admin.getId(), title, message, type, linkUrl);
@@ -98,6 +98,13 @@ public class NotificationService {
     }
 
     // ===== MARK AS READ =====
+    public void markAsReadForUser(Long id, Long userId) {
+        notificationRepository.findById(id).filter(n -> userId != null && userId.equals(n.getUserId())).ifPresent(n -> {
+            n.setIsRead(true);
+            notificationRepository.save(n);
+        });
+    }
+
     public void markAsRead(Long id) {
         notificationRepository.findById(id).ifPresent(n -> {
             n.setIsRead(true);
