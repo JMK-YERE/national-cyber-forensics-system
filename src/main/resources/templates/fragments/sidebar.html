@@ -1,18 +1,59 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"><body><aside class="app-sidebar" th:fragment="sidebar" id="appSidebar"><nav class="sidebar-nav">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar">
+<nav class="sidebar-nav">
 <a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label">Dashboard</span></a>
+
 <div class="sidebar-section">Incident Work</div>
-<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Incident</span></a><a th:href="@{/report-attack/my-reports}" class="sidebar-item"><span class="icon">📋</span><span class="label">My Reports</span></a>
+<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Incident</span></a>
+<a th:href="@{/report-attack/my-reports}" class="sidebar-item"><span class="icon">📋</span><span class="label">My Reports</span></a>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label">Cyber Incident Map</span></a>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/incidents}" class="sidebar-item"><span class="icon">◈</span><span class="label">Investigations</span></a>
+
 <div class="sidebar-section">Security Tools</div>
 <a th:href="@{/tools/security-center}" class="sidebar-item"><span class="icon">⌘</span><span class="label">Essential Security Tools</span></a>
+
+<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" class="sidebar-section">Professional Workspace</div>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
+
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_ANALYST')" th:href="@{/incidents/my-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label">Assigned Tasks</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
+
+<div sec:authorize="hasAuthority('ROLE_ADMIN')">
+<div class="sidebar-section">Administration</div>
+<button class="sidebar-item sidebar-parent" onclick="toggleSubmenu('adminMenu',this)" type="button"><span class="icon">⚙</span><span class="label">Admin Panel</span><span class="arrow">›</span></button>
+<div class="sidebar-submenu" id="adminMenu">
+<a th:href="@{/report-attack/admin}" class="sidebar-subitem">▣ All Reports</a>
+<a th:href="@{/whistleblower/admin}" class="sidebar-subitem">🕵 Whistleblower</a>
+<a th:href="@{/admin/users}" class="sidebar-subitem">♙ Users Management</a>
+<a th:href="@{/admin/audit}" class="sidebar-subitem">≡ Audit Log</a>
+<a th:href="@{/admin/analytics}" class="sidebar-subitem">📊 Analytics</a>
+<a th:href="@{/admin/announcements}" class="sidebar-subitem">✦ Announcements</a>
+<a th:href="@{/compliance}" class="sidebar-subitem">◇ Compliance</a>
+<a th:href="@{/admin/settings}" class="sidebar-subitem">⚙ Settings</a>
+</div>
+</div>
+
+<div sec:authorize="hasAuthority('ROLE_FORENSICS')">
+<div class="sidebar-section">Forensic Operations</div>
+<a th:href="@{/incidents}" class="sidebar-item"><span class="icon">🧪</span><span class="label">Forensic Cases</span></a>
+</div>
+
+<div sec:authorize="hasAuthority('ROLE_CYBER_PRO')">
+<div class="sidebar-section">Cyber Response</div>
+<a th:href="@{/incidents}" class="sidebar-item"><span class="icon">🔎</span><span class="label">Case Investigations</span></a>
+</div>
+
+<div sec:authorize="hasAuthority('ROLE_ANALYST')">
+<div class="sidebar-section">Analysis</div>
+<a th:href="@{/incidents/my-tasks}" class="sidebar-item"><span class="icon">🔬</span><span class="label">Assigned Analysis</span></a>
+<a th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit Trail</span></a>
+</div>
+
 <div class="sidebar-section">My Account</div>
 <a th:href="@{/notifications}" class="sidebar-item"><span class="icon">♢</span><span class="label">Notifications</span></a>
 <a th:href="@{/downloads}" class="sidebar-item"><span class="icon">↓</span><span class="label">Downloads</span></a>
-<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')"><div class="sidebar-section">Professional Workspace</div>
-<a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
-<a th:href="@{/incidents/my-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label">My Tasks</span></a>
-<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a></div>
-<div sec:authorize="hasAuthority('ROLE_ADMIN')"><div class="sidebar-section">Admin Panel</div><button class="sidebar-item sidebar-parent" onclick="toggleSubmenu('adminMenu',this)" type="button"><span class="icon">⚙</span><span class="label">Admin Panel</span><span class="arrow">›</span></button><div class="sidebar-submenu" id="adminMenu">
-<a th:href="@{/report-attack/admin}" class="sidebar-subitem">▣ All Reports</a><a th:href="@{/whistleblower/admin}" class="sidebar-subitem">🕵 Whistleblower</a><a th:href="@{/admin/users}" class="sidebar-subitem">♙ Users Management</a><a th:href="@{/admin/audit}" class="sidebar-subitem">≡ Audit Log</a><a th:href="@{/admin/analytics}" class="sidebar-subitem">📊 Analytics</a><a th:href="@{/admin/announcements}" class="sidebar-subitem">✦ Announcements</a><a th:href="@{/compliance}" class="sidebar-subitem">◇ Compliance</a><a th:href="@{/admin/settings}" class="sidebar-subitem">⚙ Settings</a>
-</div></div></nav></aside></body></html>
+</nav>
+</aside>
+</body></html>
