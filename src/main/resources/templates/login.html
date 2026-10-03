@@ -27,7 +27,7 @@ label{display:block;font-size:11px;font-weight:800;margin:0 0 5px}.field{margin-
 <div class="alert err" th:if="${param.error}">Jina la mtumiaji au neno la siri si sahihi.</div>
 <div class="alert ok" th:if="${param.logout}">Umetoka kwenye mfumo.</div>
 <div class="alert ok" th:if="${param.registered}">Usajili umefanikiwa. Angalia taarifa zako za akaunti.</div>
-<div class="social"><a th:href="@{/oauth2/authorization/google}">G&nbsp;&nbsp;Continue with Google</a></div>
+<div class="social"><a th:href="@{/oauth2/authorization/google}">G&nbsp;&nbsp;Continue with Google</a><span style="height:42px;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center;color:#9aa9b6;font-size:12px;font-weight:750;background:#f8fafb"> Apple — Coming Soon</span></div>
 <div class="divider">au</div>
 <form th:action="@{/login}" method="post">
 <div class="field"><label>Jina la Mtumiaji</label><input name="username" autocomplete="username" required autofocus></div>
