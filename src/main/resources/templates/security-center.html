@@ -40,7 +40,7 @@ const social={
 function getSocial(){const p=document.getElementById('socialPlatform').value,h=cleanHandle(document.getElementById('socialUsername').value),m=document.getElementById('socialMessage');if(!p||!h){m.style.display='block';m.textContent='⚠️ Chagua platform na weka username/handle.';return null}return {p,h,m};}
 function openSocialProfile(){const x=getSocial();if(!x)return;window.open(social[x.p].profile+x.h,'_blank','noopener');x.m.style.display='block';x.m.textContent='👤 Profile yako imefunguliwa. Hakikisha ni account yako halisi.';}
 function openSocialSecurity(){const x=getSocial();if(!x)return;window.open(social[x.p].security,'_blank','noopener');x.m.style.display='block';x.m.textContent='🔒 Security settings rasmi zimefunguliwa. Usimpe mtu password au OTP yako.';}
-document.getElementById('vtUrlForm').addEventListener('submit',function(){const u=document.getElementById('vtUrl').value.trim();if(u){window.open('https://www.virustotal.com/gui/home/url','_blank','noopener');}});
+document.getElementById('vtUrlForm').addEventListener('submit',function(){const u=document.getElementById('vtUrl').value.trim();if(u){const id=btoa(u).replace(/=+$/,'').replace(/\\+/g,'-').replace(/\\//g,'_');window.open('https://www.virustotal.com/gui/url/'+id,'_blank','noopener');}});
 </script>
 <script th:src="@{/js/app.js}"></script>
 </body></html>
