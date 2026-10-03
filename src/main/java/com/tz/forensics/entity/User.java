@@ -104,6 +104,12 @@ public class User {
     @Column(name = "password_setup_channel", length = 10)
     private String passwordSetupChannel;
 
+    @Column(name = "password_reset_token", length = 120)
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_expires_at")
+    private LocalDateTime passwordResetExpiresAt;
+
     @Column(name = "oauth_provider", length = 20)
     private String oauthProvider;
 
@@ -212,6 +218,10 @@ public class User {
     public void setPasswordSetupExpiresAt(LocalDateTime passwordSetupExpiresAt) { this.passwordSetupExpiresAt = passwordSetupExpiresAt; }
     public String getPasswordSetupChannel() { return passwordSetupChannel; }
     public void setPasswordSetupChannel(String passwordSetupChannel) { this.passwordSetupChannel = passwordSetupChannel; }
+    public String getPasswordResetToken() { return passwordResetToken; }
+    public void setPasswordResetToken(String passwordResetToken) { this.passwordResetToken = passwordResetToken; }
+    public LocalDateTime getPasswordResetExpiresAt() { return passwordResetExpiresAt; }
+    public void setPasswordResetExpiresAt(LocalDateTime passwordResetExpiresAt) { this.passwordResetExpiresAt = passwordResetExpiresAt; }
     public boolean isEmailVerified() { return emailVerified == null || Boolean.TRUE.equals(emailVerified); }
     public Boolean getAccountLocked() { return accountLocked; }
     public void setAccountLocked(Boolean accountLocked) { this.accountLocked = accountLocked; }
