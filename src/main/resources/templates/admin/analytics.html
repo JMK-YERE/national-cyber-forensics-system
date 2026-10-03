@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analytics | Cyber Forensics TZ</title><link rel="stylesheet" th:href="@{/css/theme.css}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main"><div class="app-container">
+<h1 class="page-title">📊 Admin Analytics</h1>
+<div class="app-stats-grid">
+<div class="app-stat-box"><div class="label">Total Reports</div><div class="value" th:text="${totalReports}">0</div></div>
+<div class="app-stat-box"><div class="label">Users</div><div class="value" th:text="${totalUsers}">0</div></div>
+<div class="app-stat-box"><div class="label">Whistleblower</div><div class="value" th:text="${totalWhistleblowers}">0</div></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+<section class="app-card"><h2>Reports by Status</h2><canvas id="statusChart"></canvas></section>
+<section class="app-card"><h2>Reports by Attack Type</h2><canvas id="categoryChart"></canvas></section>
+</div>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
+<script th:inline="javascript">
+const statusLabels=[[${statusLabels}]], statusValues=[[${statusValues}]];
+const categoryLabels=[[${categoryLabels}]], categoryValues=[[${categoryValues}]];
+new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:statusLabels,datasets:[{data:statusValues}]},options:{responsive:true}});
+new Chart(document.getElementById('categoryChart'),{type:'bar',data:{labels:categoryLabels,datasets:[{label:'Reports',data:categoryValues}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+</script>
+</body></html>
