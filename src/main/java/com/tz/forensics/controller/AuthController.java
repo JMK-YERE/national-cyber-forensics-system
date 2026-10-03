@@ -40,6 +40,13 @@ public class AuthController {
         String response = userService.registerUser(dto);
         if ("SUCCESS".equals(response)) {
             return "redirect:/login?registered=true";
+        }
+        if ("SMS_SENT".equals(response)) {
+            return "redirect:/set-password?phone=" + java.net.URLEncoder.encode(dto.getPhone(), java.nio.charset.StandardCharsets.UTF_8);
+        }
+        if ("SMS_NOT_SENT".equals(response)) {
+            model.addAttribute("error", "SMS haijatumwa. Weka namba sahihi au chagua Email.");
+            return "register";
         } else {
             model.addAttribute("error", response);
             return "register";
