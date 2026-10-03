@@ -84,6 +84,8 @@ public class OAuth2VerificationController {
             model.addAttribute("error", "Email ya uthibitisho haikutumwa. Tafadhali jaribu tena.");
             model.addAttribute("emailMasked", maskEmail(user.getEmail()));
             model.addAttribute("name", user.getFullName());
+            model.addAttribute("sent", false);
+            model.addAttribute("expired", false);
             return "oauth2-verify";
         }
 
@@ -109,6 +111,8 @@ public class OAuth2VerificationController {
             model.addAttribute("error", "Omba OTP mpya kwanza.");
             model.addAttribute("emailMasked", maskEmail(user.getEmail()));
             model.addAttribute("name", user.getFullName());
+            model.addAttribute("sent", false);
+            model.addAttribute("expired", false);
             return "oauth2-verify";
         }
 
