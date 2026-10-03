@@ -42,7 +42,7 @@ public class SecurityConfig {
                     "/announcements", "/announcements/**",
                     "/oauth2/**", "/login/oauth2/**"
                 ).permitAll()
-                .requestMatchers("/admin/**", "/report-attack/admin/**")
+                .requestMatchers("/admin/**", "/report-attack/admin/**", "/incidents/**", "/evidence/**", "/audit/**", "/case/**")
                 .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
                 .anyRequest().authenticated()
             )
