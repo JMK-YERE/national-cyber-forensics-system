@@ -6,25 +6,24 @@
     <title>Upload Evidence - Cyber Forensics</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
-<body>
-<div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ</div></main>
+<body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/incidents}">📋 Incidents</a>
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
-    </div></main>
-</div></main>
+    </div>
+</div>
 
 <main class="app-main"><div class="app-container">
     <div class="app-card">
         <h1>📤 Upload Digital Evidence</h1>
         <p>Evidence zote zinasimbwa kwa AES-256 na kupata SHA-256 hash kwa integrity verification.</p>
 
-        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div></main>
-        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div></main>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
         <form th:action="@{'/evidence/upload/' + ${incidentId}}" method="post" enctype="multipart/form-data" style="margin-top:20px;">
             <label>EVIDENCE FILE * (Picha, Video, Doc, Logs, n.k.)</label>
@@ -43,7 +42,7 @@
                 🔐 UPLOAD & ENCRYPT
             </button>
         </form>
-    </div></main>
+    </div>
 
     <div class="app-card" th:if="${!evidenceList.isEmpty()}">
         <h2>📁 Existing Evidence</h2>
@@ -68,8 +67,8 @@
             </tr>
             </tbody>
         </table>
-    </div></main>
-</div></main>
+    </div>
+</div>
 <script th:src="@{/js/app.js}"></script>
-</body>
+</main></body>
 </html>
