@@ -34,7 +34,7 @@
 
         <div class="tools-grid">
             <!-- 1. Password Strength -->
-            <div class="tool-card" onclick="toggleTool('tool1', event)">
+            <div id="password" class="tool-card" onclick="toggleTool('tool1', event)">
                 <div class="tool-icon">🔐</div>
                 <div class="tool-title">Password Strength</div>
                 <div class="tool-desc">Angalia nguvu ya neno lako la siri</div>
@@ -45,7 +45,7 @@
             </div>
 
             <!-- 2. Password Breach -->
-            <div class="tool-card" th:if="${isStaff}" onclick="toggleTool('tool2', event)">
+            <div id="breach" class="tool-card" th:if="${isStaff}" onclick="toggleTool('tool2', event)">
                 <div class="tool-icon">🔓</div>
                 <div class="tool-title">Password Breach Check</div>
                 <div class="tool-desc">Angalia kama password yako imevuja</div>
@@ -59,7 +59,7 @@
             </div>
 
             <!-- 3. URL Checker -->
-            <div class="tool-card" onclick="toggleTool('tool3', event)">
+            <div id="url" class="tool-card" onclick="toggleTool('tool3', event)">
                 <div class="tool-icon">🌐</div>
                 <div class="tool-title">URL Checker</div>
                 <div class="tool-desc">Angalia URL salama au hatari</div>
@@ -73,7 +73,7 @@
             </div>
 
             <!-- 4. IP Lookup -->
-            <div class="tool-card" onclick="toggleTool('tool4', event)">
+            <div id="ip" class="tool-card" onclick="toggleTool('tool4', event)">
                 <div class="tool-icon">🌍</div>
                 <div class="tool-title">IP Lookup</div>
                 <div class="tool-desc">Tafuta taarifa za IP address</div>
@@ -87,7 +87,7 @@
             </div>
 
             <!-- 5. DNS Lookup -->
-            <div class="tool-card" onclick="toggleTool('tool5', event)">
+            <div id="dns" class="tool-card" onclick="toggleTool('tool5', event)">
                 <div class="tool-icon">🔎</div>
                 <div class="tool-title">DNS Lookup</div>
                 <div class="tool-desc">Tafuta DNS records za domain</div>
@@ -101,7 +101,7 @@
             </div>
 
             <!-- 6. SSL Check -->
-            <div class="tool-card" onclick="toggleTool('tool6', event)">
+            <div id="ssl" class="tool-card" onclick="toggleTool('tool6', event)">
                 <div class="tool-icon">🔒</div>
                 <div class="tool-title">SSL Certificate</div>
                 <div class="tool-desc">Angalia SSL ya website</div>
@@ -115,7 +115,7 @@
             </div>
 
             <!-- 7. Headers Check -->
-            <div class="tool-card" th:if="${isStaff}" onclick="toggleTool('tool7', event)">
+            <div id="headers" class="tool-card" th:if="${isStaff}" onclick="toggleTool('tool7', event)">
                 <div class="tool-icon">📊</div>
                 <div class="tool-title">HTTP Headers</div>
                 <div class="tool-desc">Angalia security headers</div>
@@ -129,7 +129,7 @@
             </div>
 
             <!-- 8. File Hash -->
-            <div class="tool-card" onclick="toggleTool('tool8', event)">
+            <div id="hash" class="tool-card" onclick="toggleTool('tool8', event)">
                 <div class="tool-icon">🗂️</div>
                 <div class="tool-title">File Hash Check</div>
                 <div class="tool-desc">Angalia SHA-256 hash ya file</div>
@@ -143,7 +143,7 @@
             </div>
 
             <!-- 9. Domain Age -->
-            <div class="tool-card" th:if="${isStaff}" onclick="toggleTool('tool9', event)">
+            <div id="domain-age" class="tool-card" th:if="${isStaff}" onclick="toggleTool('tool9', event)">
                 <div class="tool-icon">📅</div>
                 <div class="tool-title">Domain Age</div>
                 <div class="tool-desc">Angalia umri wa domain</div>
