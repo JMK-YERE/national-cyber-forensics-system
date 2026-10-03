@@ -6,9 +6,8 @@
     <title>Report Details</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
-<body>
-<div class="navbar">
-    <div class="logo">🛡️ Whistleblower Portal</div></main>
+<body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
+</main>
     <div class="nav-links">
         <a th:href="@{/whistleblower}">Home</a>
         <a th:href="@{/whistleblower/track}">Track Report</a>
@@ -16,7 +15,7 @@
 </div></main>
 
 <div class="app-container" style="max-width: 800px; margin: 30px auto;">
-    <div class="app-card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px;">
+    <div class="app-card" style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; padding: 25px;">
         <h1 style="color: white; margin: 0;" th:text="${report.title}">Report Title</h1>
         <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">
             Tracking: <strong th:text="${report.trackingCode}"></strong> |
@@ -29,7 +28,7 @@
         <p style="color: #666; font-size: 13px;">Mawasiliano kati yako na timu yetu</p>
 
         <div th:each="m : ${messages}" style="padding: 15px; margin: 10px 0; border-radius: 8px;"
-             th:style="${m.senderType == 'ADMIN'} ? 'background: rgba(201,162,39,0.12); border-left: 4px solid #c9a227;' : (${m.senderType == 'SYSTEM'} ? 'background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a;' : 'background: rgba(15,37,87,0.08); border-left: 4px solid #0f2557;')">
+             th:style="${m.senderType == 'ADMIN'} ? 'background: rgba(201,162,39,0.12); border-left: 4px solid #c9a227;' : (${m.senderType == 'SYSTEM'} ? 'background: rgba(27,122,74,0.08); border-left: 4px solid #1b7a4a;' : 'background: rgba(15,37,87,0.08); border-left: 4px solid #07543e;')">
             <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">
                 <span th:if="${m.senderType == 'ADMIN'}">👤 Security Team</span>
                 <span th:if="${m.senderType == 'REPORTER'}">👤 You</span>
