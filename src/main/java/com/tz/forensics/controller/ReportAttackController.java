@@ -398,11 +398,15 @@ public class ReportAttackController {
         return "redirect:/report-attack/admin";
     }
 
-    private String sha256(byte[] data) throws Exception {
-        byte[] digest = MessageDigest.getInstance("SHA-256").digest(data);
-        StringBuilder sb = new StringBuilder(64);
-        for (byte b : digest) sb.append(String.format("%02x", b));
-        return sb.toString();
+    private String sha256(byte[] data) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(data);
+            StringBuilder sb = new StringBuilder(64);
+            for (byte b : digest) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 is unavailable", e);
+        }
     }
 
     private String detectFileType(String contentType) {
