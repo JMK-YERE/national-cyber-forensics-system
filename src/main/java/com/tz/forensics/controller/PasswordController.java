@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.security.SecureRandom;
 
 @Controller
 public class PasswordController {
@@ -53,7 +54,7 @@ public class PasswordController {
                 .filter(u -> phone.trim().equals(u.getPhone()))
                 .findFirst().orElse(null);
         if (user != null) {
-            String otp = String.valueOf(100000 + new java.util.Random().nextInt(900000));
+            String otp = String.valueOf(100000 + new SecureRandom().nextInt(900000));
             user.setPasswordResetToken(otp);
             user.setPasswordResetExpiresAt(LocalDateTime.now().plusMinutes(10));
             userRepository.save(user);
