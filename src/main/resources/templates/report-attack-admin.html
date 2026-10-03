@@ -24,21 +24,11 @@
     </style>
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🛡️ Cyber Forensics System</div></main>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}">Report</a>
-        <a th:href="@{/report-attack/admin}" style="color:#ffd700;">👑 Admin Reports</a>
-        <a th:href="@{/ai/assistant}">AI</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
-    </div></main>
-</div></main>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main"><div class="app-container">
-    <div class="lang-bar"><a th:href="@{/lang?lang=sw}" th:classappend="${#locale.language == 'sw'} ? 'active'">SW</a><a th:href="@{/lang?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active'">EN</a><a th:href="@{/lang?lang=fr}" th:classappend="${#locale.language == 'fr'} ? 'active'">FR</a><a th:href="@{/lang?lang=ar}" th:classappend="${#locale.language == 'ar'} ? 'active'">AR</a></div></main>
+    <div style="margin-bottom:14px;color:var(--muted);font-size:12px">Admin operational reports workspace</div>
 <div class="admin-header">
         <h1>👑 Admin Reports Panel</h1>
         <p>Simamia reports zote za watumiaji. Unaweza kuona na kusaidia.</p>
