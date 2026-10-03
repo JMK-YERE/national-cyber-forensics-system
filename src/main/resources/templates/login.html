@@ -1,115 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <style>
-        body { margin: 0; min-height: 100vh; display: flex; background: #F0FDF4; }
-        .login-wrap { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; width: 100%; }
-        .login-img { background: linear-gradient(135deg, rgba(10,22,40,0.88), rgba(6,78,59,0.7)), url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200') center/cover; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; color: white; }
-        .login-img .brand { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 700; }
-        .login-img h2 { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
-        .login-img p { font-size: 13px; color: rgba(255,255,255,0.9); }
-        .login-img .features { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-        .login-img .feature { display: flex; align-items: center; gap: 10px; font-size: 12px; color: rgba(255,255,255,0.9); }
-        .login-form-side { display: flex; align-items: center; justify-content: center; padding: 25px 20px; background: white; overflow-y: auto; }
-        .login-box { width: 100%; max-width: 350px; }
-        .back-home { display: inline-flex; align-items: center; gap: 6px; color: #0A1628; text-decoration: none; font-size: 11px; font-weight: 600; margin-bottom: 16px; padding: 6px 12px; background: #F0FDF4; border-radius: 16px; }
-        .back-home:hover { background: #DCFCE7; }
-        h1.form-title { font-size: 20px; color: #0A1628; margin-bottom: 4px; font-weight: 800; }
-        p.form-sub { color: #64748B; font-size: 12px; margin-bottom: 16px; }
-        .social-buttons { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-        .social-btn { padding: 9px 14px; border-radius: 9px; border: 2px solid #E2E8F0; background: white; cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; color: #1E293B; }
-        .social-btn:hover { border-color: #16A34A; background: #F0FDF4; }
-        .social-btn.apple { background: #000; color: white; border-color: #000; }
-        .divider { display: flex; align-items: center; gap: 10px; margin: 12px 0; color: #94A3B8; font-size: 11px; }
-        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #E2E8F0; }
-        .form-group { margin-bottom: 11px; }
-        .form-group label { display: block; font-weight: 600; color: #0A1628; margin-bottom: 4px; font-size: 11px; }
-        .form-group input { width: 100%; padding: 9px 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 12px; font-family: inherit; }
-        .form-group input:focus { outline: none; border-color: #16A34A; box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
-        .forgot-link { display: block; text-align: right; color: #16A34A; font-size: 11px; margin-top: -5px; margin-bottom: 12px; text-decoration: none; font-weight: 600; }
-        .btn-login { width: 100%; padding: 11px; background: linear-gradient(135deg, #166534, #16A34A); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
-        .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(22,163,74,0.4); }
-        .form-footer { text-align: center; margin-top: 14px; font-size: 11px; color: #64748B; }
-        .form-footer a { color: #16A34A; text-decoration: none; font-weight: 700; }
-        .alert { padding: 9px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 11px; }
-        .alert-error { background: #FEF2F2; border-left: 4px solid #DC2626; color: #DC2626; }
-        .alert-success { background: #F0FDF4; border-left: 4px solid #16A34A; color: #16A34A; }
-        @media (max-width: 800px) {
-            .login-wrap { grid-template-columns: 1fr; }
-            .login-img { min-height: 180px; padding: 20px; }
-            .login-img h2 { font-size: 20px; }
-            .login-img .features { display: none; }
-        }
-    
-/* Final compact auth layout */
-body{background:#f4faf7!important;min-height:100vh!important}
-.login-wrap,.reg-wrap{min-height:100vh!important;grid-template-columns:42% 58%!important;max-width:1280px;margin:0 auto;box-shadow:0 0 50px rgba(3,38,29,.08)}
-.login-img,.reg-img{padding:24px!important;background-position:center!important}
-.login-img h2,.reg-img h2{font-size:25px!important}.login-form-side,.reg-form-side{padding:18px 24px!important}
-.login-box,.reg-box{max-width:340px!important}.form-group{margin-bottom:9px!important}.form-group input{padding:8px 10px!important}.social-btn{padding:8px!important}.btn-login,.btn-register{padding:10px!important}
-@media(max-width:800px){.login-wrap,.reg-wrap{grid-template-columns:1fr!important}.login-img,.reg-img{min-height:220px!important}.login-form-side,.reg-form-side{padding:20px!important}.login-box,.reg-box{max-width:340px!important}}
-</style>
-</head>
-<body>
-<div class="login-wrap">
-    <div class="login-img">
-        <div class="brand">🛡️ Cyber Forensics TZ</div>
-        <div>
-            <h2>Ulinzi wa Kidijitali</h2>
-            <p>Tunajenga taifa salama mtandaoni.</p>
-            <div class="features">
-                <div class="feature">🔐 Ripoti matukio kwa usalama</div>
-                <div class="feature">🤖 Msaada wa AI 24/7</div>
-                <div class="feature">🕵️ Whistleblower kwa siri</div>
-            </div>
-        </div>
-        <div style="font-size:11px; color:rgba(255,255,255,0.6);">© 2026 Cyber Forensics Tanzania 🇹🇿</div>
-    </div>
-
-    <div class="login-form-side">
-        <div class="login-box">
-            <a th:href="@{/}" class="back-home">← Rudi Nyumbani</a>
-            <h1 class="form-title">Karibu Tena</h1>
-            <p class="form-sub">Ingia kwenye akaunti yako</p>
-
-            <div class="alert alert-error" th:if="${param.error}">Jina la mtumiaji au neno la siri si sahihi</div>
-            <div class="alert alert-success" th:if="${param.logout}">Umetoka kwenye mfumo</div>
-
-            <div class="social-buttons">
-                <a th:href="@{/oauth2/authorization/google}" class="social-btn">
-                    <svg width="14" height="14" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
-                    <span>Endelea na Google</span>
-                </a>
-                <a href="javascript:void(0)" onclick="alert('Apple - Coming soon!')" class="social-btn apple">
-                    <span>🍎 Endelea na Apple</span>
-                </a>
-            </div>
-
-            <div class="divider">au</div>
-
-            <form th:action="@{/login}" method="post">
-                <div class="form-group">
-                    <label>Jina la Mtumiaji</label>
-                    <input type="text" name="username" required autofocus>
-                </div>
-                <div class="form-group">
-                    <label>Neno la Siri</label>
-                    <input type="password" name="password" required>
-                </div>
-                <a th:href="@{/forgot-password}" class="forgot-link">Umesahau neno la siri?</a>
-                <button type="submit" class="btn-login">🔓 Ingia</button>
-            </form>
-
-            <div class="form-footer">
-                Huna akaunti? <a th:href="@{/register}">Jiandikishe</a><br><br>
-                <a th:href="@{/whistleblower}" style="color:#EAB308;">🕵️ Ripoti kwa Siri</a>
-            </div>
-        </div>
-    </div>
-</div>
-</body>
-</html>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ingia | Cyber Security & Digital Forensics</title>
+<style>
+:root{--ink:#071827;--blue:#061a38;--cyan:#11d9e6;--green:#11a879;--line:#d9e3ec;--muted:#66788a}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#eef8f5,#f7fbff);font-family:Inter,"Segoe UI",system-ui,sans-serif;color:var(--ink);display:grid;place-items:center;padding:22px}
+.auth{width:min(1040px,94vw);height:min(680px,calc(100vh - 44px));min-height:600px;display:grid;grid-template-columns:44% 56%;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 24px 70px rgba(4,28,48,.18)}
+.visual{position:relative;color:#fff;padding:26px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(135deg,rgba(3,35,48,.84),rgba(5,74,65,.62)),url('https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=1200&q=85') center/cover}
+.visual:after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(3,22,39,.3),rgba(0,35,32,.62));pointer-events:none}.visual>*{position:relative;z-index:1}
+.brand{font-weight:850;font-size:14px}.brand span{color:#7ef7e2}.visual-main{margin:auto 0}.shield{font-size:38px}.visual h2{font-size:31px;line-height:1.12;margin:12px 0 9px}.visual p{font-size:13px;color:#e8fffa;max-width:350px}.feature{font-size:11px;margin:9px 0;color:#dffaf3}.copyright{font-size:10px;color:rgba(255,255,255,.68)}
+.form-side{display:flex;align-items:center;justify-content:center;padding:30px;background:#fff}.box{width:min(370px,100%)}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.home{font-size:11px;color:#1567d8;font-weight:800;text-decoration:none}.langs{display:flex;border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}.langs a{font-size:10px;padding:6px 9px;border-radius:8px;color:#53677a;text-decoration:none}.langs a.active{background:#1769df;color:#fff;font-weight:800}
+h1{font-size:27px;margin:0 0 5px}.sub{font-size:12px;color:var(--muted);margin:0 0 20px}.alert{padding:9px 11px;border-radius:9px;font-size:11px;margin-bottom:12px}.err{background:#fff0f1;color:#b4232c;border:1px solid #ffc8cc}.ok{background:#ecfbf4;color:#087c58;border:1px solid #bfeeda}.social{display:grid;gap:8px}.social a{height:42px;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center;text-decoration:none;color:#17283a;font-size:12px;font-weight:750}.divider{display:flex;align-items:center;gap:10px;color:#9aa9b6;font-size:10px;margin:14px 0}.divider:before,.divider:after{content:"";height:1px;background:#e4e9ee;flex:1}
+label{display:block;font-size:11px;font-weight:800;margin:0 0 5px}.field{margin-bottom:13px}input{width:100%;height:43px;border:1px solid var(--line);border-radius:9px;padding:0 12px;font-size:12px;outline:none}input:focus{border-color:#2d79df;box-shadow:0 0 0 3px rgba(45,121,223,.1)}.forgot{text-align:right;display:block;color:#1769df;font-size:10px;font-weight:800;text-decoration:none;margin:-3px 0 15px}.submit{width:100%;height:43px;border:0;border-radius:9px;background:linear-gradient(135deg,#0c79d8,#092b5c);color:#fff;font-weight:850;font-size:12px;cursor:pointer}.footer{text-align:center;font-size:11px;color:var(--muted);margin-top:16px}.footer a{color:#0c72d4;font-weight:850;text-decoration:none}.whistle{text-align:center;margin-top:11px}.whistle a{font-size:10px;color:#9a7100;font-weight:800;text-decoration:none}
+@media(max-width:760px){body{padding:10px}.auth{width:100%;height:auto;min-height:0;grid-template-columns:1fr}.visual{min-height:240px;padding:22px}.visual h2{font-size:25px}.form-side{padding:25px 20px}.box{max-width:370px}}
+</style></head><body>
+<div class="auth"><section class="visual"><div class="brand">🛡 Cyber Security <span>&amp; Digital Forensics</span></div><div class="visual-main"><div class="shield">◈</div><h2>Ulinzi wa Kidijitali</h2><p>Ripoti, chunguza na linda matukio ya usalama wa mtandao katika eneo moja salama.</p><div class="feature">🔐 Ripoti tukio kwa usalama</div><div class="feature">🤖 AI Assistant kwa watumiaji wote</div><div class="feature">🕵️ Whistleblower kwa siri</div></div><div class="copyright">© 2026 Cyber Security &amp; Digital Forensics Tanzania</div></section>
+<section class="form-side"><div class="box"><div class="top"><a class="home" th:href="@{/}">← Nyumbani</a><div class="langs"><a th:href="@{/lang(lang=sw,redirect=/login)}" class="active">SW</a><a th:href="@{/lang(lang=en,redirect=/login)}">EN</a></div></div>
+<h1>Karibu Tena</h1><p class="sub">Ingia kwenye akaunti yako</p><div class="alert err" th:if="${param.error}">Jina la mtumiaji au neno la siri si sahihi.</div><div class="alert ok" th:if="${param.logout}">Umetoka kwenye mfumo.</div>
+<div class="social"><a th:href="@{/oauth2/authorization/google}">G Continue with Google</a><a href="#" onclick="return false"> Continue with Apple</a></div><div class="divider">au</div>
+<form th:action="@{/login}" method="post"><div class="field"><label>Jina la Mtumiaji</label><input name="username" autocomplete="username" required autofocus></div><div class="field"><label>Neno la Siri</label><input type="password" name="password" autocomplete="current-password" required></div><a class="forgot" th:href="@{/forgot-password}">Umesahau neno la siri?</a><button class="submit" type="submit">🔐 Ingia</button></form>
+<div class="footer">Huna akaunti? <a th:href="@{/register}">Unda akaunti</a></div><div class="whistle"><a th:href="@{/whistleblower}">🕵️ Ripoti kwa Siri</a></div></div></section></div></body></html>
