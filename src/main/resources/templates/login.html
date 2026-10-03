@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ingia | Cyber Security & Digital Forensics</title>
+<title>Ingia | Cyber Security &amp; Digital Forensics</title>
 <style>
 :root{--ink:#071827;--blue:#061a38;--cyan:#11d9e6;--green:#11a879;--line:#d9e3ec;--muted:#66788a}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#eef8f5,#f7fbff);font-family:Inter,"Segoe UI",system-ui,sans-serif;color:var(--ink);display:grid;place-items:center;padding:22px}
@@ -15,9 +15,28 @@ h1{font-size:27px;margin:0 0 5px}.sub{font-size:12px;color:var(--muted);margin:0
 label{display:block;font-size:11px;font-weight:800;margin:0 0 5px}.field{margin-bottom:13px}input{width:100%;height:43px;border:1px solid var(--line);border-radius:9px;padding:0 12px;font-size:12px;outline:none}input:focus{border-color:#2d79df;box-shadow:0 0 0 3px rgba(45,121,223,.1)}.forgot{text-align:right;display:block;color:#1769df;font-size:10px;font-weight:800;text-decoration:none;margin:-3px 0 15px}.submit{width:100%;height:43px;border:0;border-radius:9px;background:linear-gradient(135deg,#0c79d8,#092b5c);color:#fff;font-weight:850;font-size:12px;cursor:pointer}.footer{text-align:center;font-size:11px;color:var(--muted);margin-top:16px}.footer a{color:#0c72d4;font-weight:850;text-decoration:none}.whistle{text-align:center;margin-top:11px}.whistle a{font-size:10px;color:#9a7100;font-weight:800;text-decoration:none}
 @media(max-width:760px){body{padding:10px}.auth{width:100%;height:auto;min-height:0;grid-template-columns:1fr}.visual{min-height:240px;padding:22px}.visual h2{font-size:25px}.form-side{padding:25px 20px}.box{max-width:370px}}
 </style></head><body>
-<div class="auth"><section class="visual"><div class="brand">🛡 Cyber Security <span>&amp; Digital Forensics</span></div><div class="visual-main"><div class="shield">◈</div><h2>Ulinzi wa Kidijitali</h2><p>Ripoti, chunguza na linda matukio ya usalama wa mtandao katika eneo moja salama.</p><div class="feature">🔐 Ripoti tukio kwa usalama</div><div class="feature">🤖 AI Assistant kwa watumiaji wote</div><div class="feature">🕵️ Whistleblower kwa siri</div></div><div class="copyright">© 2026 Cyber Security &amp; Digital Forensics Tanzania</div></section>
-<section class="form-side"><div class="box"><div class="top"><a class="home" th:href="@{/}">← Nyumbani</a><div class="langs"><a th:href="@{/lang(lang=sw,redirect=/login)}" class="active">SW</a><a th:href="@{/lang(lang=en,redirect=/login)}">EN</a></div></div>
-<h1>Karibu Tena</h1><p class="sub">Ingia kwenye akaunti yako</p><div class="alert err" th:if="${param.error}">Jina la mtumiaji au neno la siri si sahihi.</div><div class="alert ok" th:if="${param.logout}">Umetoka kwenye mfumo.</div>
-<div class="social"><a th:href="@{/oauth2/authorization/google}">G Continue with Google</a><a href="#" onclick="return false"> Continue with Apple</a></div><div class="divider">au</div>
-<form th:action="@{/login}" method="post"><div class="field"><label>Jina la Mtumiaji</label><input name="username" autocomplete="username" required autofocus></div><div class="field"><label>Neno la Siri</label><input type="password" name="password" autocomplete="current-password" required></div><a class="forgot" th:href="@{/forgot-password}">Umesahau neno la siri?</a><button class="submit" type="submit">🔐 Ingia</button></form>
-<div class="footer">Huna akaunti? <a th:href="@{/register}">Unda akaunti</a></div><div class="whistle"><a th:href="@{/whistleblower}">🕵️ Ripoti kwa Siri</a></div></div></section></div></body></html>
+<div class="auth">
+<section class="visual">
+<div class="brand">🛡 Cyber Security <span>&amp; Digital Forensics</span></div>
+<div class="visual-main"><div class="shield">◈</div><h2>Ulinzi wa Kidijitali</h2><p>Ripoti, chunguza na linda matukio ya usalama wa mtandao katika eneo moja salama.</p><div class="feature">🔐 Ripoti tukio kwa usalama</div><div class="feature">🤖 AI Assistant kwa watumiaji wote</div><div class="feature">🕵️ Whistleblower kwa siri</div></div>
+<div class="copyright">© 2026 Cyber Security &amp; Digital Forensics Tanzania</div>
+</section>
+<section class="form-side"><div class="box">
+<div class="top"><a class="home" th:href="@{/}">← Nyumbani</a><div class="langs"><a th:href="@{/lang(lang='sw',redirect='/login')}" class="active">SW</a><a th:href="@{/lang(lang='en',redirect='/login')}">EN</a></div></div>
+<h1>Karibu Tena</h1><p class="sub">Ingia kwenye akaunti yako</p>
+<div class="alert err" th:if="${param.error}">Jina la mtumiaji au neno la siri si sahihi.</div>
+<div class="alert ok" th:if="${param.logout}">Umetoka kwenye mfumo.</div>
+<div class="alert ok" th:if="${param.registered}">Usajili umefanikiwa. Angalia taarifa zako za akaunti.</div>
+<div class="social"><a th:href="@{/oauth2/authorization/google}">G&nbsp;&nbsp;Continue with Google</a></div>
+<div class="divider">au</div>
+<form th:action="@{/login}" method="post">
+<div class="field"><label>Jina la Mtumiaji</label><input name="username" autocomplete="username" required autofocus></div>
+<div class="field"><label>Neno la Siri</label><input type="password" name="password" autocomplete="current-password" required></div>
+<a class="forgot" th:href="@{/forgot-password}">Umesahau neno la siri?</a>
+<button class="submit" type="submit">🔐 Ingia</button>
+</form>
+<div class="footer">Huna akaunti? <a th:href="@{/register}">Unda akaunti</a></div>
+<div class="whistle"><a th:href="@{/whistleblower}">🕵️ Ripoti kwa Siri</a></div>
+</div></section>
+</div>
+</body></html>
