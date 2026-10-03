@@ -6,6 +6,9 @@ import com.tz.forensics.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Service
 public class UserService {
 
@@ -45,8 +48,17 @@ public class UserService {
         user.setWhatsappNumber(dto.getWhatsappNumber());
         user.setRole("INDIVIDUAL");
         user.setEnabled(true);
+        user.setEmailVerified(false);
+        user.setVerificationToken(UUID.randomUUID().toString());
+        user.setVerificationTokenExpiresAt(LocalDateTime.now().plusHours(24));
 
         userRepository.save(user);
+
+        try {
+            emailService.sendVerificationEmail(dto.getEmail(), dto.getUsername(), user.getVerificationToken());
+        } catch (Exception e) {
+            System.err.println("❌ Verification email failed: " + e.getMessage());
+        }
 
         // ===== 1. EMAIL KWA MTU MWENYEWE (BURE) =====
         try {
