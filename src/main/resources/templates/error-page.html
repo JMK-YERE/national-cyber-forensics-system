@@ -1,38 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>System Error | Cyber Security &amp; Digital Forensics</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#eef8f5,#f7fbff);font-family:Inter,"Segoe UI",system-ui,sans-serif;color:#102033;display:grid;place-items:center;padding:24px}
+.error-shell{width:min(760px,94vw);background:#fff;border:1px solid #dce8ef;border-radius:22px;box-shadow:0 24px 70px rgba(4,28,48,.14);overflow:hidden}
+.error-head{padding:22px 28px;background:linear-gradient(110deg,#071b3c,#123d78);color:#fff;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:850}.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:7px 11px;border-radius:20px;font-size:11px}
+.error-body{text-align:center;padding:48px 30px}.icon{font-size:64px}.status{display:inline-block;margin:15px 0 8px;padding:7px 13px;border-radius:20px;background:#fff1f1;color:#b4232c;font-weight:900;font-size:12px}
+h1{margin:8px 0;color:#b4232c;font-size:30px}.message{color:#607184;max-width:560px;margin:0 auto;line-height:1.6;font-size:14px}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-block;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:800;font-size:12px}.primary{background:#0b3f85;color:#fff}.secondary{border:1px solid #b8c8d8;color:#0b3f85;background:#fff}
+@media(max-width:560px){.error-head{padding:18px}.error-body{padding:38px 20px}.error-head .badge{display:none}}
+</style>
 </head>
 <body>
-<div class="navbar" style="background: #0f2557; color: white; padding: 15px 30px; display: flex; justify-content: space-between;">
-    <div class="logo" style="font-weight: bold;">🛡️ Cyber Forensics System</div></main>
-    <div>
-        <a th:href="@{/dashboard}" style="color: white; margin-right: 15px; text-decoration: none;">Dashboard</a>
-        <a th:href="@{/login}" style="color: white; text-decoration: none;">Login</a>
-    </div></main>
-</div></main>
-
-<div class="app-container" style="max-width: 700px; margin: 50px auto; padding: 0 15px;">
-    <div class="app-card" style="text-align: center; padding: 40px; background: rgba(220,38,38,0.08); border: 3px solid #dc2626; border-radius: 12px;">
-        <div style="font-size: 70px; margin-bottom: 20px;">⚠️</div></main>
-        <h1 style="color: #dc2626; margin: 0 0 15px 0;">Hitilafu Imetokea</h1>
-        <p style="font-size: 16px; color: #333;">
-            <strong>Status:</strong> <span th:text="${statusCode}">500</span>
-        </p>
-        <p style="color: #666;" th:text="${errorMessage}">An unexpected error occurred</p>
-    </div></main>
-
-    <div class="app-card" style="text-align: center; margin-top: 20px; padding: 30px; background: white; border-radius: 12px;">
-        <p>Samahani kwa usumbufu. Tafadhali jaribu tena au rudi kwenye ukurasa wa mwanzo.</p>
-        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
-            <a th:href="@{/dashboard}" style="background: #0f2557; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold;">🏠 Dashboard</a>
-            <a th:href="@{/login}" style="background: white; color: #0f2557; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 2px solid #0f2557;">🔐 Login</a>
-        </div></main>
-    </div></main>
-</div></main>
-<script th:src="@{/js/app.js}"></script>
+<main class="error-shell">
+<header class="error-head"><div class="brand">🛡 Cyber Security &amp; Digital Forensics</div><div class="badge">System Error</div></header>
+<section class="error-body">
+<div class="icon">⚠️</div>
+<div class="status">HTTP <span th:text="${statusCode}">500</span></div>
+<h1>Hitilafu Imetokea</h1>
+<p class="message">Samahani kwa usumbufu. Mfumo umepata hitilafu wakati wa kufungua ukurasa huu. Jaribu tena au rudi kwenye ukurasa wa kuingia.</p>
+<div class="actions">
+<a class="btn primary" th:href="@{/login}">🔐 Rudi Login</a>
+<a class="btn secondary" th:href="@{/}">🏠 Mwanzo</a>
+</div>
+</section>
+</main>
 </body>
 </html>
