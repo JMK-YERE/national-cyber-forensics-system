@@ -20,14 +20,6 @@
 <a th:href="@{/login}" class="btn-ghost">Login</a><a th:href="@{/register}" class="btn-main">Create Account</a>
 </div>
 </nav>
-<section class="anonymous-report-banner">
-  <div class="anonymous-copy">
-    <span class="anonymous-hand" aria-hidden="true">☝️</span><span class="anonymous-badge">ANONYMOUS REPORTING</span>
-    <h2>Una tukio la cyber lakini hutaki kutumia jina lako?</h2>
-    <p>Ripoti kwa siri bila kufungua akaunti. Bonyeza hapa ujifunze namna ya kutoa taarifa na kufuatilia report yako kwa tracking code.</p>
-  </div>
-  <a th:href="@{/whistleblower}" class="btn-anonymous">🚨 REPORT ANONYMOUSLY →</a>
-</section>
 
 <section class="hero-slider" id="heroSlider">
 <div class="hero-slide active" style="background-image:url('/images/cyber-forensics-hero.svg')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">NATIONAL DIGITAL SECURITY</span><h1>Detect. Investigate.<br><strong>Protect Digital Evidence.</strong></h1><p>Secure reporting, cyber incident investigation and digital forensics in one connected platform.</p><div><a th:href="@{/login}" class="btn-main btn-large">Report Incident</a><a th:href="@{/login}" class="btn-light btn-large">Sign In</a></div></div></div>
@@ -36,6 +28,18 @@
 <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&amp;fit=crop&amp;w=1800&amp;q=85')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">CYBER AWARENESS</span><h1>Learn. Report.<br><strong>Stay Secure.</strong></h1><p>Practical security tools and guidance for individuals, teams and organizations.</p></div></div>
 <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&amp;fit=crop&amp;w=1800&amp;q=85')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">TRUSTED OPERATIONS</span><h1>One Workspace for<br><strong>Cyber Response.</strong></h1><p>Role-aware access, audit trails, notifications and compliance workflows.</p></div></div>
 <div class="slider-dots"><button data-slide="0" class="active"></button><button data-slide="1"></button><button data-slide="2"></button><button data-slide="3"></button><button data-slide="4"></button></div>
+</section>
+
+<section class="anonymous-report-banner" aria-label="Anonymous reporting">
+  <div class="anonymous-copy">
+    <span class="anonymous-badge">ANONYMOUS REPORTING</span>
+    <h2>Una tukio la cyber lakini hutaki kutumia jina lako?</h2>
+    <p>Jifunze kwanza jinsi ya kuripoti kwa siri. Hutahitaji akaunti; utapokea tracking code baada ya kutuma taarifa.</p>
+  </div>
+  <div class="anonymous-action">
+    <span class="anonymous-hand" aria-hidden="true">☝️</span>
+    <a th:href="@{/whistleblower}" class="btn-anonymous">🚨 REPORT ANONYMOUSLY →</a>
+  </div>
 </section>
 
 <section class="intro" id="what"><div><span class="eyebrow green">WHAT IS CYBER SECURITY?</span><h2>Technology, people and processes working together.</h2></div><p>Cyber security protects systems, accounts, networks and digital evidence against unauthorized access, abuse, disruption and loss.</p></section>
