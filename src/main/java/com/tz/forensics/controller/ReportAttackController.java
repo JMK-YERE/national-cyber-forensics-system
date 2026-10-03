@@ -352,7 +352,7 @@ public class ReportAttackController {
         model.addAttribute("todayCount", service.countToday());
         model.addAttribute("totalCount", service.countTotal());
         model.addAttribute("assignableUsers", userRepository.findAll().stream()
-                .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList());
+                .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics() || "ANALYST".equalsIgnoreCase(u.getRole())).toList());
         return "report-attack-admin";
     }
 
