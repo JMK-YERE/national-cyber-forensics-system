@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +45,7 @@
             </div>
 
             <!-- 2. Password Breach -->
-            <div class="tool-card" onclick="toggleTool('tool2', event)">
+            <div class="tool-card" th:if="${isStaff}" onclick="toggleTool('tool2', event)">
                 <div class="tool-icon">🔓</div>
                 <div class="tool-title">Password Breach Check</div>
                 <div class="tool-desc">Angalia kama password yako imevuja</div>
@@ -115,7 +115,7 @@
             </div>
 
             <!-- 7. Headers Check -->
-            <div class="tool-card" onclick="toggleTool('tool7', event)">
+            <div class="tool-card" th:if="${isStaff}" onclick="toggleTool('tool7', event)">
                 <div class="tool-icon">📊</div>
                 <div class="tool-title">HTTP Headers</div>
                 <div class="tool-desc">Angalia security headers</div>
@@ -143,7 +143,7 @@
             </div>
 
             <!-- 9. Domain Age -->
-            <div class="tool-card" onclick="toggleTool('tool9', event)">
+            <div class="tool-card" th:if="${isStaff}" onclick="toggleTool('tool9', event)">
                 <div class="tool-icon">📅</div>
                 <div class="tool-title">Domain Age</div>
                 <div class="tool-desc">Angalia umri wa domain</div>
