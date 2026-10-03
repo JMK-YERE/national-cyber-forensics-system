@@ -16,6 +16,43 @@ import java.util.*;
 @Service
 public class AdvancedSecurityService {
 
+    private boolean isPublicHost(String host) {
+        try {
+            if (host == null || host.isBlank()) return false;
+            InetAddress[] addresses = InetAddress.getAllByName(host);
+            if (addresses.length == 0) return false;
+            for (InetAddress address : addresses) {
+                if (address.isAnyLocalAddress() || address.isLoopbackAddress()
+                        || address.isLinkLocalAddress() || address.isSiteLocalAddress()
+                        || address.isMulticastAddress()) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private URI validatePublicHttpUrl(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("URL haipo.");
+        String normalized = value.matches("^[a-zA-Z][a-zA-Z0-9+.-]*://.*$") ? value : "https://" + value;
+        URI uri = URI.create(normalized);
+        String scheme = uri.getScheme();
+        if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
+            throw new IllegalArgumentException("Protocol inaruhusiwa: HTTP/HTTPS pekee.");
+        }
+        if (uri.getUserInfo() != null) throw new IllegalArgumentException("URL yenye user-info hairuhusiwi.");
+        if (uri.getHost() == null || !isPublicHost(uri.getHost())) {
+            throw new IllegalArgumentException("Host ya private/local network hairuhusiwi.");
+        }
+        int port = uri.getPort();
+        if (port != -1 && port != 80 && port != 443) {
+            throw new IllegalArgumentException("Port hairuhusiwi kwa URL checker.");
+        }
+        return uri;
+    }
+
     // ========== 1. SSL CERTIFICATE CHECK ==========
     public Map<String, Object> checkSSL(String url) {
         Map<String, Object> result = new HashMap<>();
@@ -23,8 +60,10 @@ public class AdvancedSecurityService {
         result.put("valid", false);
 
         try {
-            if (!url.startsWith("https://")) url = "https://" + url.replaceFirst("^https?://", "");
-            String domain = URI.create(url).getHost();
+            URI safeUri = validatePublicHttpUrl(url);
+            if (!"https".equalsIgnoreCase(safeUri.getScheme())) throw new IllegalArgumentException("SSL check inahitaji HTTPS.");
+            url = safeUri.toString();
+            String domain = safeUri.getHost();
 
             URL siteURL = new URL(url);
             HttpURLConnection conn = (HttpURLConnection) siteURL.openConnection();
@@ -70,7 +109,6 @@ public class AdvancedSecurityService {
             result.put("ips", ips);
             result.put("hostName", addresses[0].getHostName());
             result.put("canonicalHost", addresses[0].getCanonicalHostName());
-            result.put("reachable", addresses[0].isReachable(3000));
             result.put("message", "Domain inatafsiriwa kwa IPs " + ips.size());
         } catch (Exception e) {
             result.put("success", false);
@@ -102,7 +140,6 @@ public class AdvancedSecurityService {
             try {
                 InetAddress addr = InetAddress.getByName(ip);
                 result.put("reverseDns", addr.getCanonicalHostName());
-                result.put("reachable", addr.isReachable(3000));
             } catch (Exception e) {
                 result.put("reverseDns", "N/A");
             }
@@ -131,15 +168,16 @@ public class AdvancedSecurityService {
         List<String> good = new ArrayList<>();
 
         try {
-            if (!url.startsWith("http")) url = "https://" + url;
+            URI safeUri = validatePublicHttpUrl(url);
+            url = safeUri.toString();
 
             HttpClient client = HttpClient.newBuilder()
-                    .followRedirects(HttpClient.Redirect.NORMAL)
+                    .followRedirects(HttpClient.Redirect.NEVER)
                     .connectTimeout(Duration.ofSeconds(10))
                     .build();
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
+                    .uri(safeUri)
                     .timeout(Duration.ofSeconds(10))
                     .header("User-Agent", "CyberForensicsSystem/1.0")
                     .GET().build();
@@ -305,6 +343,11 @@ public class AdvancedSecurityService {
             if (host != null && host.matches("\\d+\\.\\d+\\.\\d+\\.\\d+")) {
                 riskScore += 40;
                 warnings.add("🔴 Inatumia IP address badala ya domain");
+            }
+
+            if (!isPublicHost(host)) {
+                riskScore += 50;
+                warnings.add("🔴 Host haionekani kuwa public; inaweza kuwa private/local network.");
             }
 
             String[] riskyTlds = {".tk", ".ml", ".ga", ".cf", ".gq", ".top", ".work", ".click", ".zip"};
