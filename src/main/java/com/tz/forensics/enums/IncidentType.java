@@ -12,6 +12,9 @@ public enum IncidentType {
     IDENTITY_THEFT("🆔 Identity Theft", "🆔", "#a855f7"),
     ONLINE_SCAM("🕸️ Online Scam", "🕸️", "#f59e0b"),
     REVENGE_PORN("🚫 Revenge Porn", "🚫", "#dc2626"),
+    SOCIAL_MEDIA_HACKED("📱 Social Media Hacked", "📱", "#7c3aed"),
+    BANK_CARD_LOST("💳 Bank Card Lost", "💳", "#b45309"),
+    ACCOUNT_COMPROMISED("🔐 Account Compromised", "🔐", "#dc2626"),
     OTHER("❓ Other", "❓", "#6b7280");
 
     private final String label;
