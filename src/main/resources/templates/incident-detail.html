@@ -116,7 +116,7 @@
                 </td>
                 <td>
                     <a th:href="@{'/evidence/download/' + ${ev.id}}">⬇️</a>
-                    <form th:if="${!ev.verified}" th:action="@{'/evidence/verify/' + ${ev.id}}" method="post" style="display:inline;">
+                    <form th:if="${!ev.verified}" th:action="@{/evidence/verify/{id}(id=${ev.id})}" method="post" style="display:inline;">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <button type="submit" class="app-btn app-btn-outline" style="padding:4px 10px;font-size:11px;">✅</button>
                     </form>
