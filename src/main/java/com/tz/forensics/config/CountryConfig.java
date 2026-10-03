@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.time.Duration;
 
 @Configuration
 public class CountryConfig implements WebMvcConfigurer {
@@ -97,8 +98,7 @@ public class CountryConfig implements WebMvcConfigurer {
         CookieLocaleResolver resolver = new CookieLocaleResolver();
         resolver.setDefaultLocale(new Locale("en"));
         resolver.setCookieName("lang");
-        resolver.setCookieMaxAge(365 * 24 * 60 * 60);
-        resolver.setCookieMaxAge(365 * 24 * 60 * 60);
+        resolver.setCookieMaxAge(Duration.ofDays(365));
         return resolver;
     }
 
