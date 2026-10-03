@@ -15,6 +15,12 @@ public class EmailService {
     @Value("${spring.mail.username:}")
     private String fromEmail;
 
+    @Value("${spring.mail.host:}")
+    private String mailHost;
+
+    @Value("${spring.mail.password:}")
+    private String mailPassword;
+
     @Value("${app.admin.email:}")
     private String adminEmail;
 
@@ -25,7 +31,10 @@ public class EmailService {
     private String appUrl;
 
     private boolean isConfigured() {
-        return mailSender != null && fromEmail != null && !fromEmail.isEmpty();
+        return mailSender != null
+                && fromEmail != null && !fromEmail.isBlank()
+                && mailHost != null && !mailHost.isBlank()
+                && mailPassword != null && !mailPassword.isBlank();
     }
 
     public boolean sendEmail(String to, String subject, String body) {
@@ -35,7 +44,7 @@ public class EmailService {
         }
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(appName + " <" + fromEmail + ">");
+            message.setFrom(fromEmail);
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
@@ -43,7 +52,12 @@ public class EmailService {
             System.out.println("✅ Email sent to " + to);
             return true;
         } catch (Exception e) {
-            System.err.println("❌ Email failed to " + to + ": " + e.getMessage());
+            Throwable root = e;
+            while (root.getCause() != null && root.getCause() != root) root = root.getCause();
+            System.err.println("❌ Email failed to " + to
+                    + " | type=" + e.getClass().getSimpleName()
+                    + " | root=" + root.getClass().getSimpleName()
+                    + " | message=" + String.valueOf(root.getMessage()));
             return false;
         }
     }
