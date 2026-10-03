@@ -12,20 +12,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 public class DashboardController {
-
     private static final Logger log = LoggerFactory.getLogger(DashboardController.class);
-
     private final UserRepository userRepository;
     private final ReportAttackRepository reportRepo;
     private final WhistleblowerReportRepository wbRepo;
 
-    public DashboardController(UserRepository userRepository,
-                                ReportAttackRepository reportRepo,
-                                WhistleblowerReportRepository wbRepo) {
+    public DashboardController(UserRepository userRepository, ReportAttackRepository reportRepo,
+                               WhistleblowerReportRepository wbRepo) {
         this.userRepository = userRepository;
         this.reportRepo = reportRepo;
         this.wbRepo = wbRepo;
@@ -34,7 +34,6 @@ public class DashboardController {
     @GetMapping("/dashboard")
     public String dashboard(Authentication auth, Model model) {
         if (auth == null || auth.getName() == null) return "redirect:/login";
-
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
 
@@ -53,25 +52,51 @@ public class DashboardController {
             if (isStaff) {
                 long totalReports = reportRepo.count();
                 long newReports = reportRepo.countByStatus("NEW");
-                long totalWb = wbRepo.count();
-                long totalUsers = userRepository.count();
-
                 model.addAttribute("totalReports", totalReports);
                 model.addAttribute("newReports", newReports);
-                model.addAttribute("totalWb", totalWb);
-                model.addAttribute("totalUsers", totalUsers);
+                model.addAttribute("totalWb", wbRepo.count());
+                model.addAttribute("totalUsers", userRepository.count());
 
-                List<ReportAttack> recent = reportRepo.findAllByOrderByCreatedAtDesc();
+                model.addAttribute("newCount", newReports);
+                model.addAttribute("triagedCount", reportRepo.countByStatus("TRIAGED"));
+                model.addAttribute("assignedCount", reportRepo.countByStatus("ASSIGNED"));
+                model.addAttribute("investigatingCount", reportRepo.countByStatus("INVESTIGATING"));
+                model.addAttribute("containmentCount", reportRepo.countByStatus("CONTAINMENT"));
+                model.addAttribute("eradicationCount", reportRepo.countByStatus("ERADICATION"));
+                model.addAttribute("recoveryCount", reportRepo.countByStatus("RECOVERY"));
+                model.addAttribute("closedCount", reportRepo.countByStatus("CLOSED"));
+
+                List<ReportAttack> allReports = reportRepo.findAllByOrderByCreatedAtDesc();
+                List<Integer> dailyCounts = new ArrayList<>();
+                List<String> dailyLabels = new ArrayList<>();
+                LocalDate today = LocalDate.now();
+                for (int i = 6; i >= 0; i--) {
+                    LocalDate day = today.minusDays(i);
+                    LocalDateTime start = day.atStartOfDay();
+                    LocalDateTime end = day.plusDays(1).atStartOfDay();
+                    long count = allReports.stream().filter(r -> r.getCreatedAt() != null
+                            && !r.getCreatedAt().isBefore(start)
+                            && r.getCreatedAt().isBefore(end)).count();
+                    dailyCounts.add((int) count);
+                    dailyLabels.add(day.getDayOfWeek().toString().substring(0, 3));
+                }
+                model.addAttribute("dailyCounts", dailyCounts);
+                model.addAttribute("dailyLabels", dailyLabels);
+
+                List<ReportAttack> recent = allReports;
                 if (recent.size() > 5) recent = recent.subList(0, 5);
                 model.addAttribute("recentReports", recent);
             } else {
                 List<ReportAttack> my = reportRepo.findByUserIdOrderByCreatedAtDesc(user.getId());
                 model.addAttribute("myReports", my);
+                model.addAttribute("personalReportCount", my.size());
             }
         } catch (Exception e) {
-            log.error("Dashboard error: {}", e.getMessage());
+            log.error("Dashboard error: {}", e.getMessage(), e);
             model.addAttribute("recentReports", List.of());
             model.addAttribute("myReports", List.of());
+            model.addAttribute("dailyCounts", List.of(0,0,0,0,0,0,0));
+            model.addAttribute("dailyLabels", List.of("","","","","","",""));
         }
 
         model.addAttribute("isAdmin", isAdmin);
