@@ -36,16 +36,28 @@ public class PasswordController {
     @PostMapping("/forgot-password")
     public String forgotSubmit(@RequestParam String email, RedirectAttributes ra) {
         User user = userRepository.findByEmail(email.trim()).orElse(null);
-        // Always use the same response to avoid revealing whether an email exists.
-        if (user != null) {
-            String token = UUID.randomUUID().toString();
-            user.setPasswordResetToken(token);
-            user.setPasswordResetExpiresAt(LocalDateTime.now().plusHours(1));
+
+        // Do not reveal whether an account exists.
+        if (user != null && user.getEmail() != null && !user.getEmail().isBlank()) {
+            String otp = String.valueOf(100000 + new SecureRandom().nextInt(900000));
+            user.setPasswordResetToken(passwordEncoder.encode(otp));
+            user.setPasswordResetExpiresAt(LocalDateTime.now().plusSeconds(60));
+            user.setPasswordResetAttempts(0);
             userRepository.save(user);
-            emailService.sendPasswordResetEmail(user.getEmail(), user.getUsername(), token);
+
+            boolean sent = emailService.sendPasswordResetOtp(user.getEmail(), user.getUsername(), otp);
+            if (!sent) {
+                user.setPasswordResetToken(null);
+                user.setPasswordResetExpiresAt(null);
+                user.setPasswordResetAttempts(0);
+                userRepository.save(user);
+                ra.addFlashAttribute("error", "Email ya uthibitisho haikutumwa. Tafadhali jaribu tena.");
+                return "redirect:/forgot-password";
+            }
         }
+
         ra.addFlashAttribute("sent", true);
-        return "redirect:/forgot-password?sent";
+        return "redirect:/reset-password?emailOtp=true";
     }
 
     @PostMapping("/forgot-password/sms")
@@ -66,34 +78,56 @@ public class PasswordController {
     }
 
     @GetMapping("/reset-password")
-    public String resetForm(@RequestParam(required = false) String token, @RequestParam(required = false) String sms, Model model) {
+    public String resetForm(@RequestParam(required = false) String token,
+                            @RequestParam(required = false) String sms,
+                            @RequestParam(required = false) String emailOtp,
+                            @RequestParam(required = false) String sent,
+                            Model model) {
         model.addAttribute("token", token == null ? "" : token);
         model.addAttribute("smsMode", sms != null);
+        model.addAttribute("emailOtp", emailOtp != null);
+        model.addAttribute("sent", sent != null);
         return "reset-password";
     }
 
     @PostMapping("/reset-password")
-    public String resetSubmit(@RequestParam String token,
+    public String resetSubmit(@RequestParam(required = false, defaultValue = "") String token,
                               @RequestParam String password,
                               @RequestParam String confirmPassword,
                               Model model) {
+        String cleanToken = token.trim();
         User user = userRepository.findAll().stream()
-                .filter(u -> token.equals(u.getPasswordResetToken()))
+                .filter(u -> u.getPasswordResetToken() != null)
+                .filter(u -> passwordEncoder.matches(cleanToken, u.getPasswordResetToken())
+                        || cleanToken.equals(u.getPasswordResetToken()))
                 .findFirst().orElse(null);
+
         if (user == null || user.getPasswordResetExpiresAt() == null ||
                 user.getPasswordResetExpiresAt().isBefore(LocalDateTime.now())) {
-            model.addAttribute("error", "Reset link/OTP si sahihi au ime-expire.");
-            model.addAttribute("token", token);
+            model.addAttribute("error", "OTP si sahihi au ime-expire. Omba OTP mpya.");
+            model.addAttribute("emailOtp", true);
             return "reset-password";
         }
+
+        if (user.getPasswordResetAttempts() >= 5) {
+            model.addAttribute("error", "Umefikia kikomo cha majaribio. Omba OTP mpya.");
+            model.addAttribute("emailOtp", true);
+            return "reset-password";
+        }
+
+        user.setPasswordResetAttempts(user.getPasswordResetAttempts() + 1);
+
         if (password.length() < 6 || !password.equals(confirmPassword)) {
+            userRepository.save(user);
             model.addAttribute("error", "Password lazima iwe na angalau herufi 6 na zifanane.");
-            model.addAttribute("token", token);
+            model.addAttribute("emailOtp", true);
             return "reset-password";
         }
+
         user.setPassword(passwordEncoder.encode(password));
         user.setPasswordResetToken(null);
         user.setPasswordResetExpiresAt(null);
+        user.setPasswordResetAttempts(0);
         userRepository.save(user);
         return "redirect:/login?registered=true";
     }
