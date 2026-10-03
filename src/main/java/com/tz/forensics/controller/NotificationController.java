@@ -31,8 +31,9 @@ public class NotificationController {
     }
 
     @PostMapping("/read/{id}")
-    public String markAsRead(@PathVariable Long id) {
-        notificationService.markAsRead(id);
+    public String markAsRead(@PathVariable Long id, Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (user != null) notificationService.markAsReadForUser(id, user.getId());
         return "redirect:/notifications";
     }
 
