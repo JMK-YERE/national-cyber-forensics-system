@@ -42,6 +42,7 @@ public class ReportAttackController {
     private final NotificationService notificationService;
     private final ReportMessageRepository messageRepo;
     private final AIChatService aiChatService;
+    private final AdvancedSecurityService advancedSecurityService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${app.upload.dir:uploads/evidence}")
@@ -52,13 +53,15 @@ public class ReportAttackController {
                                    AuditService auditService,
                                    NotificationService notificationService,
                                    ReportMessageRepository messageRepo,
-                                   AIChatService aiChatService) {
+                                   AIChatService aiChatService,
+                                   AdvancedSecurityService advancedSecurityService) {
         this.service = service;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.notificationService = notificationService;
         this.messageRepo = messageRepo;
         this.aiChatService = aiChatService;
+        this.advancedSecurityService = advancedSecurityService;
     }
 
     private boolean canSeeAllReports(User user) {
@@ -144,6 +147,18 @@ public class ReportAttackController {
                     }
                 }
             } catch (Exception e) { log.error("Dynamic fields parse error: {}", e.getMessage()); }
+        }
+
+        // Security-first intake: verify a phishing URL on the server as well as in the browser.
+        if ("PHISHING".equalsIgnoreCase(attackType)) {
+            String phishingUrl = allParams != null ? allParams.get("phishing_url") : null;
+            if (phishingUrl != null && !phishingUrl.isBlank()) {
+                try {
+                    dynamicDetails.put("url_security_check", advancedSecurityService.checkUrlReputation(phishingUrl));
+                } catch (Exception e) {
+                    log.warn("URL security check failed: {}", e.getMessage());
+                }
+            }
         }
 
         try {
