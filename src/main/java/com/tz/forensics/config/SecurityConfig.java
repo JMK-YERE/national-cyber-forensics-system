@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/", "/features", "/about", "/contact",
                     "/login", "/register", "/access-denied", "/error",
-                    "/forgot-password", "/reset-password",
+                    "/forgot-password", "/reset-password", "/verify-email",
                     "/whistleblower", "/whistleblower/**",
                     "/css/**", "/js/**", "/images/**", "/static/**",
                     "/favicon.ico", "/webjars/**",
