@@ -110,9 +110,12 @@ public class User {
         return "FORENSICS".equalsIgnoreCase(role);
     }
 
+    public boolean isAnalyst() {
+        return "ANALYST".equalsIgnoreCase(role);
+    }
+
     public boolean isIndividual() {
-        // Individual ni yeyote ambaye SI admin, professional, au forensics
-        return !isAdmin() && !isProfessional() && !isForensics();
+        return !isAdmin() && !isProfessional() && !isForensics() && !isAnalyst();
     }
 
     public int countSocialAccounts() {
