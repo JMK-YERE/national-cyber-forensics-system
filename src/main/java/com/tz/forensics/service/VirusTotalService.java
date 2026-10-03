@@ -2,6 +2,8 @@ package com.tz.forensics.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public class VirusTotalService {
     private String apiKey;
 
     private static final String VT_API = "https://www.virustotal.com/api/v3";
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public boolean isConfigured() {
         return apiKey != null && !apiKey.isEmpty() && !apiKey.equals("null");
@@ -212,46 +215,33 @@ public class VirusTotalService {
     // ========== PARSE RESPONSE ==========
     private void parseAndFill(String json, Map<String, Object> result) {
         try {
-            // Malicious count
-            int malicious = extractInt(json, "\"malicious\":");
-            int suspicious = extractInt(json, "\"suspicious\":");
-            int harmless = extractInt(json, "\"harmless\":");
-            int undetected = extractInt(json, "\"undetected\":");
-
+            JsonNode root = objectMapper.readTree(json);
+            JsonNode attrs = root.path("data").path("attributes");
+            JsonNode stats = attrs.path("last_analysis_stats");
+            int malicious = stats.path("malicious").asInt(0);
+            int suspicious = stats.path("suspicious").asInt(0);
+            int harmless = stats.path("harmless").asInt(0);
+            int undetected = stats.path("undetected").asInt(0);
+            int timeout = stats.path("timeout").asInt(0);
             result.put("malicious", malicious);
             result.put("suspicious", suspicious);
             result.put("harmless", harmless);
             result.put("undetected", undetected);
-
-            int total = malicious + suspicious + harmless + undetected;
-            result.put("totalEngines", total);
-
-            // Verdict
-            String verdict;
-            String emoji;
-            if (malicious > 5) { verdict = "MALICIOUS"; emoji = "🚨"; }
-            else if (malicious > 0) { verdict = "SUSPICIOUS"; emoji = "⚠️"; }
-            else if (suspicious > 0) { verdict = "SUSPICIOUS"; emoji = "⚠️"; }
-            else { verdict = "SAFE"; emoji = "✅"; }
-
+            result.put("timeout", timeout);
+            result.put("totalEngines", malicious + suspicious + harmless + undetected + timeout);
+            String verdict = malicious > 0 ? "MALICIOUS" : suspicious > 0 ? "SUSPICIOUS" : "SAFE";
             result.put("verdict", verdict);
-            result.put("emoji", emoji);
-
-            // Additional info
-            String reputation = extractValue(json, "\"reputation\":");
-            if (reputation != null) result.put("reputation", reputation);
-
-            String country = extractValue(json, "\"country\":\"");
-            if (country != null) result.put("country", country);
-
-            String asOwner = extractValue(json, "\"as_owner\":\"");
-            if (asOwner != null) result.put("asOwner", asOwner);
-
-            String registrar = extractValue(json, "\"registrar\":\"");
-            if (registrar != null) result.put("registrar", registrar);
-
+            result.put("emoji", "MALICIOUS".equals(verdict) ? "🚨" : "SUSPICIOUS".equals(verdict) ? "⚠️" : "✅");
+            if (attrs.hasNonNull("reputation")) result.put("reputation", attrs.get("reputation").asInt());
+            if (attrs.hasNonNull("country")) result.put("country", attrs.get("country").asText());
+            if (attrs.hasNonNull("as_owner")) result.put("asOwner", attrs.get("as_owner").asText());
+            if (attrs.hasNonNull("registrar")) result.put("registrar", attrs.get("registrar").asText());
+            if (attrs.hasNonNull("last_final_url")) result.put("finalUrl", attrs.get("last_final_url").asText());
+            if (attrs.hasNonNull("last_http_response_code")) result.put("httpCode", attrs.get("last_http_response_code").asInt());
         } catch (Exception e) {
             log.error("Parse failed: {}", e.getMessage());
+            result.put("success", false);
+            result.put("error", "VirusTotal response could not be parsed");
         }
     }
 
