@@ -6,6 +6,7 @@
     <title>Report Attack</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <style>.incident-hero{background:linear-gradient(135deg,#03261d,#08785a 58%,#087d93);color:#fff;border-radius:18px;padding:24px 26px;margin-bottom:16px;box-shadow:0 14px 34px rgba(3,38,29,.15)}.incident-hero h1{margin:0 0 6px;font-size:26px;color:#fff}.incident-hero p{margin:0;color:#dff8ee;font-size:13px}.form-section{border:1px solid #dce9e4;border-radius:14px;padding:18px;background:#fff;margin-bottom:15px}.form-section h2{font-size:15px;color:#063b2c;margin:0 0 13px}.section-note{font-size:11px;color:#61736d;margin:-7px 0 14px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.form-group{margin-bottom:0}.form-group.full{grid-column:1/-1}.form-group label{display:block;font-weight:800;margin-bottom:6px;color:#07543e;font-size:12px}.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 12px;border:1px solid #cfe0da;border-radius:9px;font-size:13px;font-family:inherit;background:#fbfefd;color:#10251f}.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#0aa879;box-shadow:0 0 0 3px rgba(10,168,121,.11)}.reporter-box{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid #cfe0da;background:#f3faf7;border-radius:10px}.reporter-avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#0aa879,#08c7d8);color:#fff;font-weight:900}.reporter-box strong{display:block;font-size:12px;color:#063b2c}.reporter-box span{font-size:10px;color:#61736d}.required{color:#dc2626}.loss-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.submit-row{display:flex;justify-content:flex-end;gap:10px;align-items:center}.report-row{padding:14px;margin:8px 0;border-radius:10px;background:#f8fcfa;border:1px solid #e0ece7;border-left:4px solid #0aa879;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}@media(max-width:900px){.loss-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.form-grid{grid-template-columns:1fr}.loss-grid{grid-template-columns:1fr}.incident-hero{padding:20px}.incident-hero h1{font-size:22px}}</style><style>
+        .url-check-box{margin-top:10px;padding:12px;border:1px solid #bfe5d7;border-radius:10px;background:#f4fcf8}.url-check-box button{margin-top:8px}.url-check-result{margin-top:8px;font-size:11px;font-weight:700}.account-security-box{margin-top:10px;padding:12px;border-radius:10px;background:#eefbfd;border-left:4px solid #08c7d8}.account-security-box a{display:inline-flex;margin:6px 6px 0 0;padding:8px 10px;border-radius:8px;background:#07543e;color:#fff;font-size:11px;font-weight:800}
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #07543e; font-size: 14px; }
         .form-group input, .form-group select, .form-group textarea {
@@ -169,78 +170,17 @@
 <!-- JAVASCRIPT — DYNAMIC FIELD SWITCHING -->
 <!-- ===================================================== -->
 <script th:inline="javascript">
-    /*<![CDATA[*/
-    const ALL_FIELDS = /*[[${allFields}]]*/ {};
-
-    function switchDynamicFields() {
-        const select = document.getElementById('attackType');
-        const type = select.value;
-        const section = document.getElementById('dynamicSection');
-        const container = document.getElementById('dynamicFields');
-        const badge = document.getElementById('typeBadge');
-        const title = document.getElementById('dynamicTitle');
-
-        container.innerHTML = '';
-
-        if (!type || !ALL_FIELDS[type] || ALL_FIELDS[type].length === 0) {
-            section.style.display = 'none';
-            return;
-        }
-
-        section.style.display = 'block';
-
-        const selectedOption = select.options[select.selectedIndex];
-        const color = selectedOption.getAttribute('data-color') || '#07543e';
-        badge.style.background = color;
-        badge.textContent = selectedOption.textContent;
-        title.textContent = '📋 Maelezo ya ' + selectedOption.textContent.replace(/^[^\s]+\s/, '');
-
-        ALL_FIELDS[type].forEach(function(field) {
-            const div = document.createElement('div');
-            div.className = 'form-group';
-
-            const label = document.createElement('label');
-            label.innerHTML = field.label + (field.required ? ' <span class="required">*</span>' : '');
-            div.appendChild(label);
-
-            let input;
-            if (field.type === 'textarea') {
-                input = document.createElement('textarea');
-                input.rows = 3;
-            } else if (field.type === 'select') {
-                input = document.createElement('select');
-                const empty = document.createElement('option');
-                empty.value = '';
-                empty.textContent = '-- Chagua --';
-                input.appendChild(empty);
-                (field.options || []).forEach(function(opt) {
-                    const o = document.createElement('option');
-                    o.value = opt;
-                    o.textContent = opt;
-                    input.appendChild(o);
-                });
-            } else if (field.type === 'boolean') {
-                input = document.createElement('select');
-                const opt1 = document.createElement('option'); opt1.value = ''; opt1.textContent = '-- Chagua --'; input.appendChild(opt1);
-                const opt2 = document.createElement('option'); opt2.value = 'true'; opt2.textContent = 'Ndiyo'; input.appendChild(opt2);
-                const opt3 = document.createElement('option'); opt3.value = 'false'; opt3.textContent = 'Hapana'; input.appendChild(opt3);
-            } else {
-                input = document.createElement('input');
-                input.type = field.type;
-            }
-
-            input.name = field.name;
-            if (field.required) input.required = true;
-            if (field.type === 'date') input.type = 'date';
-            if (field.type === 'number') input.type = 'number';
-
-            div.appendChild(input);
-            container.appendChild(div);
-        });
-    }
-    /*]]>*/
-</script>
-
-<script th:src="@{/js/app.js}"></script>
+/*<![CDATA[*/
+const ALL_FIELDS = /*[[${allFields${]]*/ {};
+const platformLinks = {"Facebook":"https://www.facebook.com/settings?tab=security","Instagram":"https://www.instagram.com/accounts/password/reset/","TikTok":"https://www.tiktok.com/setting/security","WhatsApp":"https://faq.whatsapp.com/131041029532136","X (Twitter)":"https://twitter.com/settings/security","Gmail":"https://myaccount.google.com/security"};
+let urlCheckState={input:null,value:null,verdict:null,risk:null};
+function switchDynamicFields(){const select=document.getElementById('attackType'),type=select.value,section=document.getElementById('dynamicSection'),container=document.getElementById('dynamicFields'),badge=document.getElementById('typeBadge'),title=document.getElementById('dynamicTitle');container.innerHTML='';urlCheckState={input:null,value:null,verdict:null,risk:null};if(!type||!ALL_FIELDS[type]||!ALL_FIELDS[type].length){section.style.display='none';return;}section.style.display='block';const opt=select.options[select.selectedIndex],color=opt.getAttribute('data-color')||'#07543e';badge.style.background=color;badge.textContent=opt.textContent;title.textContent='📋 Maelezo ya '+opt.textContent.replace(/^[^\s]+\s/,'');ALL_FIELDS[type].forEach(function(field){const div=document.createElement('div');div.className='form-group';const label=document.createElement('label');label.textContent=field.label+(field.required?' *':'');div.appendChild(label);let input;if(field.type==='textarea'){input=document.createElement('textarea');input.rows=3}else if(field.type==='select'){input=document.createElement('select');const empty=document.createElement('option');empty.value='';empty.textContent='-- Chagua --';input.appendChild(empty);(field.options||[]).forEach(function(opt){const o=document.createElement('option');o.value=opt;o.textContent=opt;input.appendChild(o)})}else if(field.type==='boolean'){input=document.createElement('select');[['','-- Chagua --'],['true','Ndiyo'],['false','Hapana']].forEach(function(x){const o=document.createElement('option');o.value=x[0];o.textContent=x[1];input.appendChild(o)})}else{input=document.createElement('input');input.type=field.type}input.name=field.name;if(field.required)input.required=true;div.appendChild(input);container.appendChild(div);
+if(field.name==='phishing_url'){input.type='url';input.placeholder='https://example.com/...';input.dataset.urlCheck='true';urlCheckState.input=input;const box=document.createElement('div');box.className='url-check-box';box.innerHTML='<strong>🔎 Test link kabla ya kuripoti</strong><div style="font-size:10px;color:#61736d;margin-top:3px">Mfumo utaichunguza kwanza na kutoa risk/verdict.</div><button type="button" class="app-btn app-btn-cyan" id="precheckUrlBtn">🛡 Test Link</button><div id="precheckUrlResult" class="url-check-result"></div>';div.appendChild(box);input.addEventListener('input',function(){urlCheckState={input:input,value:null,verdict:null,risk:null};document.getElementById('precheckUrlResult').textContent=''});box.querySelector('#precheckUrlBtn').addEventListener('click',precheckUrl)}
+if(field.name==='platform')input.addEventListener('change',function(){renderPlatformSecurity(input.value)})});renderPlatformSecurity(container.querySelector('[name="platform"]')?.value||'')}
+function precheckUrl(){const input=urlCheckState.input,result=document.getElementById('precheckUrlResult');if(!input||!input.value){result.textContent='⚠️ Weka URL kwanza.';return}result.textContent='⏳ Inachunguza link...';fetch(/*[[@{/tools/url-check-api}]]*/,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'url='+encodeURIComponent(input.value)}).then(r=>{if(!r.ok)throw new Error('URL checker haijapatikana');return r.json()}).then(data=>{const verdict=data.verdict||data.rating||'UNKNOWN',risk=Number(data.riskScore??data.risk??0);urlCheckState={input:input,value:input.value,verdict:verdict,risk:risk};result.textContent=(verdict==='PHISHING'?'🚨 ':verdict==='SUSPICIOUS'?'⚠️ ':'✅ ')+verdict+' — Risk '+risk+'/100';result.style.color=verdict==='PHISHING'?'#dc2626':verdict==='SUSPICIOUS'?'#b7791f':'#087d68'}).catch(e=>{urlCheckState={input:input,value:null,verdict:null,risk:null};result.textContent='❌ '+e.message;result.style.color='#dc2626'})}
+function renderPlatformSecurity(platform){const old=document.getElementById('accountSecurityBox');if(old)old.remove();if(!platform)return;const box=document.createElement('div');box.id='accountSecurityBox';box.className='account-security-box';box.innerHTML='<strong>🔐 Account Security — '+platform+'</strong><div style="font-size:10px;color:#456;margin-top:4px">Ikiwa akaunti yako imeathirika, linda credentials kwanza.</div><a href="/change-password">Badilisha password ya akaunti hii</a>'+(platformLinks[platform]?'<a href="'+platformLinks[platform]+'" target="_blank" rel="noopener">Fungua security/recovery ya '+platform+' ↗</a>':'');document.getElementById('dynamicFields').appendChild(box)}
+document.getElementById('reportForm').addEventListener('submit',function(e){if(urlCheckState.input){if(!urlCheckState.value||urlCheckState.value!==urlCheckState.input.value){e.preventDefault();alert('Tafadhali test URL kwanza kabla ya kutuma report.');return}if(urlCheckState.verdict==='PHISHING'){e.preventDefault();alert('URL imeonekana kuwa PHISHING (Risk '+urlCheckState.risk+'/100). Usifungue link; hifadhi ushahidi na endelea na report kwa njia salama.');return}}});
+/*]]>*/
+</script><script th:src="@{/js/app.js}"></script>
 </main></body>
 </html>
