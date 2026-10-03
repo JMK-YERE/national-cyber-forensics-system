@@ -3,7 +3,11 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cyber Forensics TZ | National Cyber Security &amp; Digital Forensics</title>
 <link rel="stylesheet" th:href="@{/css/landing.css}">
-</head>
+<style>
+.anonymous-report-banner{display:flex;align-items:center;justify-content:space-between;gap:22px;margin:0;padding:15px 5vw;background:linear-gradient(90deg,#fff4f5,#fff,#fff7ed);border-bottom:1px solid #ffd7dc;border-top:1px solid #ffd7dc}
+.anonymous-copy{max-width:900px}.anonymous-badge{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.08em;color:#b4232c;margin-bottom:4px}.anonymous-report-banner h2{margin:0;color:#16352c;font-size:18px}.anonymous-report-banner p{margin:4px 0 0;color:#63756e;font-size:11px;line-height:1.5}.btn-anonymous{white-space:nowrap;background:#e11d48;color:#fff;text-decoration:none;font-weight:900;font-size:11px;padding:11px 15px;border-radius:999px;box-shadow:0 7px 18px rgba(225,29,72,.2)}
+@media(max-width:720px){.anonymous-report-banner{display:block;padding:14px 18px}.btn-anonymous{display:inline-block;margin-top:9px}}
+</style></head>
 <body>
 <nav class="public-nav">
 <a th:href="@{/}" class="brand"><span>🛡</span><span>Cyber Forensics TZ</span></a>
@@ -16,6 +20,14 @@
 <a th:href="@{/login}" class="btn-ghost">Login</a><a th:href="@{/register}" class="btn-main">Create Account</a>
 </div>
 </nav>
+<section class="anonymous-report-banner">
+  <div class="anonymous-copy">
+    <span class="anonymous-badge">👉 ANONYMOUS REPORTING</span>
+    <h2>Una tukio la cyber lakini hutaki kutumia jina lako?</h2>
+    <p>Ripoti kwa siri bila kufungua akaunti. Bonyeza hapa ujifunze namna ya kutoa taarifa na kufuatilia report yako kwa tracking code.</p>
+  </div>
+  <a th:href="@{/whistleblower}" class="btn-anonymous">🚨 REPORT ANONYMOUSLY →</a>
+</section>
 
 <section class="hero-slider" id="heroSlider">
 <div class="hero-slide active" style="background-image:url('/images/cyber-forensics-hero.svg')"><div class="hero-overlay"></div><div class="hero-copy"><span class="eyebrow">NATIONAL DIGITAL SECURITY</span><h1>Detect. Investigate.<br><strong>Protect Digital Evidence.</strong></h1><p>Secure reporting, cyber incident investigation and digital forensics in one connected platform.</p><div><a th:href="@{/login}" class="btn-main btn-large">Report Incident</a><a th:href="@{/login}" class="btn-light btn-large">Sign In</a></div></div></div>
@@ -43,7 +55,7 @@
 
 <section class="education"><div class="section-heading"><span class="eyebrow green">EDUCATION WORDS</span><h2>Know the language of cyber security</h2></div><div class="word-grid"><span>Phishing</span><span>Malware</span><span>Ransomware</span><span>Firewall</span><span>Encryption</span><span>Digital Evidence</span><span>IOC</span><span>Two-Factor Authentication</span></div></section>
 
-<section class="emergency"><div><span class="eyebrow">EMERGENCY</span><h2>What to do when you suspect an attack</h2><p>Disconnect affected devices where appropriate, preserve evidence, avoid deleting suspicious messages/files, change compromised credentials from a trusted device and report the incident.</p></div><a th:href="@{/login}" class="btn-light btn-large">Report an Incident →</a></section>
+<section class="emergency"><div><span class="eyebrow">EMERGENCY</span><h2>What to do when you suspect an attack</h2><p>Disconnect affected devices where appropriate, preserve evidence, avoid deleting suspicious messages/files, change compromised credentials from a trusted device and report the incident.</p></div><a th:href="@{/whistleblower}" class="btn-light btn-large">🚨 Report Anonymously →</a></section>
 
 <section class="feature-grid four" id="features">
 <article><div class="feature-body"><span>01</span><h3>Secure Reporting</h3><p>Structured incident intake and status tracking.</p></div></article>
