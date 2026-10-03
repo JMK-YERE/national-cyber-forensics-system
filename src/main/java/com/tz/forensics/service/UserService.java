@@ -48,6 +48,7 @@ public class UserService {
         user.setWhatsappNumber(dto.getWhatsappNumber());
         user.setRole("INDIVIDUAL");
         user.setEnabled(true);
+        user.setApprovalStatus("PENDING");
         user.setEmailVerified(false);
         user.setVerificationToken(UUID.randomUUID().toString());
         user.setVerificationTokenExpiresAt(LocalDateTime.now().plusHours(24));
