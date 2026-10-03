@@ -17,17 +17,20 @@ public class UserService {
     private final EmailService emailService;
     private final WhatsAppService whatsAppService;
     private final NotificationService notificationService;
+    private final SmsService smsService;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        EmailService emailService,
                        WhatsAppService whatsAppService,
-                       NotificationService notificationService) {
+                       NotificationService notificationService,
+                       SmsService smsService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
         this.whatsAppService = whatsAppService;
         this.notificationService = notificationService;
+        this.smsService = smsService;
     }
 
     public String registerUser(UserRegistrationDto dto) {
@@ -41,7 +44,8 @@ public class UserService {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        // Password is intentionally created after registration through a one-time email link or SMS OTP.
+        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
         user.setFullName(dto.getFullName());
         user.setOrganization(dto.getOrganization());
         user.setPhone(dto.getPhone());
@@ -50,15 +54,28 @@ public class UserService {
         user.setEnabled(true);
         user.setApprovalStatus("PENDING");
         user.setEmailVerified(false);
-        user.setVerificationToken(UUID.randomUUID().toString());
-        user.setVerificationTokenExpiresAt(LocalDateTime.now().plusHours(24));
+        String channel = "SMS".equalsIgnoreCase(dto.getVerificationChannel()) ? "SMS" : "EMAIL";
+        String setupToken = "SMS".equals(channel)
+                ? String.valueOf(100000 + new java.util.Random().nextInt(900000))
+                : UUID.randomUUID().toString();
+        user.setPasswordSetupToken(setupToken);
+        user.setPasswordSetupExpiresAt(LocalDateTime.now().plusMinutes("SMS".equals(channel) ? 10 : 60 * 24));
+        user.setPasswordSetupChannel(channel);
+        user.setVerificationToken(setupToken);
+        user.setVerificationTokenExpiresAt(user.getPasswordSetupExpiresAt());
 
         userRepository.save(user);
 
         try {
-            emailService.sendVerificationEmail(dto.getEmail(), dto.getUsername(), user.getVerificationToken());
+            if ("EMAIL".equals(channel)) {
+                emailService.sendPasswordSetupEmail(dto.getEmail(), dto.getUsername(), setupToken);
+            }
         } catch (Exception e) {
             System.err.println("❌ Verification email failed: " + e.getMessage());
+        }
+
+        if ("SMS".equals(channel)) {
+            smsService.sendSms(dto.getPhone(), "Cyber Forensics TZ: OTP yako ya kutengeneza password ni " + setupToken + ". Inaisha ndani ya dakika 10.");
         }
 
         // ===== 1. EMAIL KWA MTU MWENYEWE (BURE) =====
