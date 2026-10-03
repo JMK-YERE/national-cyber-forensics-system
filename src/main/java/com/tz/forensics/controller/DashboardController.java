@@ -74,11 +74,12 @@ public class DashboardController {
             model.addAttribute("myReports", List.of());
         }
 
-        if (isAdmin) return "dashboard-admin";
-        if (isPro) return "dashboard-professional";
-        if (isForensics) return "dashboard-forensics";
-        if (isAnalyst) return "dashboard-admin";
-        return "dashboard-individual";
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("isCyberPro", isPro);
+        model.addAttribute("isForensics", isForensics);
+        model.addAttribute("isAnalyst", isAnalyst);
+        model.addAttribute("isStaff", isStaff);
+        return "dashboard";
     }
 
     @GetMapping("/access-denied")
