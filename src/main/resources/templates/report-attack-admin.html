@@ -5,75 +5,58 @@
     <title>Admin Reports - Cyber Forensics System</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <style>
-        .admin-header { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; }
-        .admin-header h1 { color: white; margin: 0; }
-        .admin-header p { color: rgba(255,255,255,0.9); margin-top: 10px; }
-        .report-row { background: white; border: 1px solid rgba(7,84,62,0.15); border-radius: 8px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; }
-        .report-row:hover { border-color: #8b5cf6; box-shadow: 0 4px 15px rgba(139,92,246,0.15); }
-        .report-row h3 { color: #07543e; margin: 0 0 10px 0; }
-        .report-meta { display: flex; flex-wrap: wrap; gap: 20px; font-size: 13px; color: #555; margin-top: 10px; }
-        .action-buttons { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        .btn-view { background: #07543e; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; }
-        .btn-ai { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
-        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,92,246,0.4); }
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .badge-new { background: #8b1a1a; color: white; }
-        .badge-critical { background: #c73030; color: white; }
-        .badge-high { background: #d97706; color: white; }
-        .badge-medium { background: #c9a227; color: #07543e; }
-    </style>
+.workspace-kicker{font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.admin-header{background:linear-gradient(135deg,#063b2c 0%,#087d68 52%,#1476c9 100%);color:#fff;padding:24px;border-radius:18px;margin-bottom:16px;box-shadow:0 12px 30px rgba(4,70,55,.16);position:relative;overflow:hidden}
+.admin-header:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-55px;top:-80px;background:rgba(255,255,255,.12)}
+.admin-header>*{position:relative;z-index:1}.admin-header h1{color:#fff;margin:0;font-size:25px}.admin-header p{color:#eafff8;margin:7px 0 0;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}.stat-card{border:0;border-radius:15px;padding:17px;color:#fff;min-height:92px;box-shadow:0 9px 22px rgba(0,0,0,.08);position:relative;overflow:hidden}.stat-card:after{content:"";position:absolute;width:65px;height:65px;border-radius:50%;right:-18px;top:-20px;background:rgba(255,255,255,.15)}.stat-card b{font-size:27px;color:#fff;position:relative;z-index:1}.stat-card span{display:block;color:rgba(255,255,255,.9);font-size:10px;margin-top:4px;position:relative;z-index:1}.s-total{background:linear-gradient(135deg,#2476e8,#4db7ff)}.s-new{background:linear-gradient(135deg,#e94b5f,#ff7b54)}.s-today{background:linear-gradient(135deg,#008f78,#16c7a0)}
+.reports-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:var(--shadow)}.reports-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.reports-title h2{margin:0;color:#073b2e;font-size:17px}.reports-title span{font-size:10px;color:var(--muted)}
+.report-row{background:#fbfefd;border:1px solid #dfeee9;border-radius:14px;padding:16px;margin-bottom:10px;transition:.2s}.report-row:hover{border-color:#0aa879;box-shadow:0 7px 20px rgba(4,70,55,.09);transform:translateY(-1px)}.report-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.report-row h3{color:#073b2e;margin:0;font-size:14px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}.report-id{font-family:monospace;color:#087d68;font-size:11px;font-weight:900}.report-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.meta{background:#fff;border:1px solid #e7f0ed;border-radius:9px;padding:8px;font-size:10px;color:var(--muted)}.meta strong{display:block;color:#36534b;font-size:9px;margin-bottom:3px}.meta-value{color:#163f35;font-weight:700;word-break:break-word}.priority{font-weight:900}.p-critical,.p-high{color:#d63b4d}.p-medium{color:#b77900}.p-low{color:#087d68}
+.action-buttons{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.btn-view,.btn-ai{border:0;padding:9px 13px;border-radius:9px;text-decoration:none;font-weight:800;font-size:10px;display:inline-flex;align-items:center;gap:5px;cursor:pointer}.btn-view{background:#063b2c;color:#fff}.btn-view:hover{background:#087d68}.btn-ai{background:linear-gradient(135deg,#7657d9,#b06cff);color:#fff}.btn-ai:hover{box-shadow:0 6px 16px rgba(118,87,217,.25);transform:translateY(-1px)}
+.badge{padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase}.badge-new{background:#fff0f2;color:#d63b4d;border:1px solid #ffd1d7}.badge-status{background:#eaf7f3;color:#087d68;border:1px solid #c8e9df}
+@media(max-width:900px){.report-meta{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.stats{grid-template-columns:1fr}.report-meta{grid-template-columns:1fr}.admin-header h1{font-size:21px}.report-top{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main"><div class="app-container">
-    <div style="margin-bottom:14px;color:var(--muted);font-size:12px">Admin operational reports workspace</div>
+    <div class="workspace-kicker">Admin Operational Reports Workspace</div>
 <div class="admin-header">
         <h1>👑 Admin Reports Panel</h1>
         <p>Simamia reports zote za watumiaji. Unaweza kuona na kusaidia.</p>
     </div>
 
     <!-- STATS -->
-    <div class="app-stats-grid">
-        <div class="app-stat-box">
-            <div class="stat-value" th:text="${totalCount}">0</div>
-            <div class="stat-label">Total Reports</div>
-        </div>
-        <div class="app-stat-box">
-            <div class="stat-value" th:text="${newCount}" style="color:#8b1a1a;">0</div>
-            <div class="stat-label">New</div>
-        </div>
-        <div class="app-stat-box">
-            <div class="stat-value" th:text="${todayCount}">0</div>
-            <div class="stat-label">Today</div>
-        </div>
+    <div class="stats">
+      <div class="stat-card s-total"><b th:text="${totalCount}">0</b><span>📋 Total Reports</span></div>
+      <div class="stat-card s-new"><b th:text="${newCount}">0</b><span>🚨 New / Pending</span></div>
+      <div class="stat-card s-today"><b th:text="${todayCount}">0</b><span>📅 Reports Today</span></div>
     </div>
 
     <!-- REPORTS LIST -->
-    <div class="app-card">
-        <h2>📋 All Reports</h2>
+    <div class="reports-card">
+        <div class="reports-title"><h2>📋 All Reports</h2><span>Review, assist and respond to submitted incidents</span></div>
 
         <div th:if="${reports.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
             No reports yet.
         </div>
 
         <div th:each="r : ${reports}" class="report-row">
-            <h3>
+            <div class="report-top"><h3>
                 <span th:if="${r.status == 'NEW'}" class="badge badge-new">NEW</span>
-                <span th:text="${r.attackTypeLabel}"></span>
-                -
-                <span th:text="${r.title}"></span>
-            </h3>
-
+                <span th:unless="${r.status == 'NEW'}" class="badge badge-status" th:text="${r.status}">STATUS</span>
+                <span th:text="${r.attackTypeLabel}">Incident Type</span>
+                <span>—</span><span th:text="${r.title}">Incident title</span>
+            </h3><span class="report-id" th:text="${r.reportId}">REPORT-ID</span></div>
             <div class="report-meta">
-                <span><strong>Report ID:</strong> <span th:text="${r.reportId}" style="color:#c9a227; font-family:monospace;"></span></span>
-                <span><strong>Reporter:</strong> <span th:text="${r.reporterName}"></span></span>
-                <span><strong>Phone:</strong> <span th:text="${r.reporterPhone}"></span></span>
-                <span><strong>Region:</strong> <span th:text="${r.region}"></span></span>
-                <span><strong>Country:</strong> <span th:text="${r.countryName}"></span></span>
-                <span><strong>Priority:</strong> <span th:text="${r.priority}"></span></span>
-                <span><strong>Date:</strong> <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span></span>
+                <div class="meta"><strong>Reporter</strong><span class="meta-value" th:text="${r.reporterName}">—</span></div>
+                <div class="meta"><strong>Phone</strong><span class="meta-value" th:text="${r.reporterPhone}">—</span></div>
+                <div class="meta"><strong>Region</strong><span class="meta-value" th:text="${r.region}">—</span></div>
+                <div class="meta"><strong>Country</strong><span class="meta-value" th:text="${r.countryName}">—</span></div>
+                <div class="meta"><strong>Priority</strong><span class="meta-value priority" th:classappend="${r.priority == 'CRITICAL' ? ' p-critical' : (r.priority == 'HIGH' ? ' p-high' : (r.priority == 'MEDIUM' ? ' p-medium' : ' p-low'))}" th:text="${r.priority}">—</span></div>
+                <div class="meta"><strong>Date & Time</strong><span class="meta-value" th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}">—</span></div>
             </div>
 
             <div class="action-buttons">
