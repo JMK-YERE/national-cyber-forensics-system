@@ -53,6 +53,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setPassword("$2a$10$OAUTH2USERPLACEHOLDERxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
             user.setRole("INDIVIDUAL");
             user.setEnabled(true);
+            user.setEmailVerified(true);
+            user.setApprovalStatus("APPROVED");
             user.setOauthProvider(provider);
             user.setOauthId(sub);
             user.setProfilePicture(picture);
