@@ -80,6 +80,22 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
+    // ===== APPROVE USER =====
+    @PostMapping("/users/{id}/approve")
+    public String approveUser(@PathVariable Long id, Authentication auth, RedirectAttributes ra) {
+        User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (currentUser == null || !currentUser.isAdmin()) return "redirect:/access-denied";
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setApprovalStatus("APPROVED");
+            user.setEnabled(true);
+            userRepository.save(user);
+            auditService.log("APPROVE_USER", "User", user.getUsername(), "User approved");
+            ra.addFlashAttribute("success", "✅ " + user.getUsername() + " ameidhinishwa");
+        }
+        return "redirect:/admin/users";
+    }
+
     // ===== ENABLE/DISABLE USER =====
     @PostMapping("/users/{id}/toggle")
     public String toggleUser(@PathVariable Long id,
