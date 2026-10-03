@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.Locale;
 
 @Controller
 @RequestMapping("/whistleblower")
@@ -82,10 +83,16 @@ public class WhistleblowerController {
 
         if (evidenceFile != null && !evidenceFile.isEmpty()) {
             try {
-                Path uploadPath = Paths.get(uploadDir);
+                if (evidenceFile.getSize() > 10 * 1024 * 1024) throw new IOException("File exceeds 10 MB limit.");
+                Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
                 if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
-                String storedName = UUID.randomUUID() + "_" + evidenceFile.getOriginalFilename();
-                Path targetPath = uploadPath.resolve(storedName);
+                String original = evidenceFile.getOriginalFilename() == null ? "evidence.bin" : evidenceFile.getOriginalFilename();
+                String extension = "";
+                int dot = original.lastIndexOf(".");
+                if (dot >= 0 && dot < original.length() - 1) extension = original.substring(dot).replaceAll("[^A-Za-z0-9.]", "").toLowerCase(Locale.ROOT);
+                String storedName = UUID.randomUUID() + extension;
+                Path targetPath = uploadPath.resolve(storedName).normalize();
+                if (!targetPath.startsWith(uploadPath)) throw new IOException("Invalid upload path.");
                 Files.write(targetPath, evidenceFile.getBytes());
                 report.setEvidenceFilePath(storedName);
                 report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
@@ -98,7 +105,7 @@ public class WhistleblowerController {
         // ===== NOTIFY ADMINS =====
         try {
             List<User> admins = userRepository.findAll().stream()
-                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
+                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics() || "ANALYST".equalsIgnoreCase(u.getRole())).toList();
             for (User admin : admins) {
                 notificationService.createNotification(
                     admin.getId(),
@@ -164,7 +171,7 @@ public class WhistleblowerController {
     public String adminList(Authentication auth, Model model) {
         if (auth == null) return "redirect:/login";
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null || (!user.isAdmin() && !user.isProfessional() && !user.isForensics()))
+        if (user == null || (!user.isAdmin() && !user.isProfessional() && !user.isForensics() && !"ANALYST".equalsIgnoreCase(user.getRole())))
             return "redirect:/access-denied";
         model.addAttribute("reports", service.getAll());
         model.addAttribute("newCount", service.countNew());
