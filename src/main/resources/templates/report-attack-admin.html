@@ -8,19 +8,19 @@
         .admin-header { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; }
         .admin-header h1 { color: white; margin: 0; }
         .admin-header p { color: rgba(255,255,255,0.9); margin-top: 10px; }
-        .report-row { background: white; border: 1px solid rgba(15,37,87,0.15); border-radius: 8px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; }
+        .report-row { background: white; border: 1px solid rgba(7,84,62,0.15); border-radius: 8px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; }
         .report-row:hover { border-color: #8b5cf6; box-shadow: 0 4px 15px rgba(139,92,246,0.15); }
-        .report-row h3 { color: #0f2557; margin: 0 0 10px 0; }
+        .report-row h3 { color: #07543e; margin: 0 0 10px 0; }
         .report-meta { display: flex; flex-wrap: wrap; gap: 20px; font-size: 13px; color: #555; margin-top: 10px; }
         .action-buttons { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        .btn-view { background: #0f2557; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; }
+        .btn-view { background: #07543e; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; }
         .btn-ai { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
         .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,92,246,0.4); }
         .badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .badge-new { background: #8b1a1a; color: white; }
         .badge-critical { background: #c73030; color: white; }
         .badge-high { background: #d97706; color: white; }
-        .badge-medium { background: #c9a227; color: #0f2557; }
+        .badge-medium { background: #c9a227; color: #07543e; }
     </style>
 </head>
 <body>
@@ -32,23 +32,23 @@
 <div class="admin-header">
         <h1>👑 Admin Reports Panel</h1>
         <p>Simamia reports zote za watumiaji. Unaweza kuona na kusaidia.</p>
-    </div></main>
+    </div>
 
     <!-- STATS -->
     <div class="app-stats-grid">
         <div class="app-stat-box">
-            <div class="stat-value" th:text="${totalCount}">0</div></main>
-            <div class="stat-label">Total Reports</div></main>
-        </div></main>
+            <div class="stat-value" th:text="${totalCount}">0</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
         <div class="app-stat-box">
-            <div class="stat-value" th:text="${newCount}" style="color:#8b1a1a;">0</div></main>
-            <div class="stat-label">New</div></main>
-        </div></main>
+            <div class="stat-value" th:text="${newCount}" style="color:#8b1a1a;">0</div>
+            <div class="stat-label">New</div>
+        </div>
         <div class="app-stat-box">
-            <div class="stat-value" th:text="${todayCount}">0</div></main>
-            <div class="stat-label">Today</div></main>
-        </div></main>
-    </div></main>
+            <div class="stat-value" th:text="${todayCount}">0</div>
+            <div class="stat-label">Today</div>
+        </div>
+    </div>
 
     <!-- REPORTS LIST -->
     <div class="app-card">
@@ -56,7 +56,7 @@
 
         <div th:if="${reports.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
             No reports yet.
-        </div></main>
+        </div>
 
         <div th:each="r : ${reports}" class="report-row">
             <h3>
@@ -74,7 +74,7 @@
                 <span><strong>Country:</strong> <span th:text="${r.countryName}"></span></span>
                 <span><strong>Priority:</strong> <span th:text="${r.priority}"></span></span>
                 <span><strong>Date:</strong> <span th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm')}"></span></span>
-            </div></main>
+            </div>
 
             <div class="action-buttons">
                 <!-- VIEW BUTTON — Kila mtu anaweza kuona -->
@@ -88,10 +88,10 @@
                         🤖 Let AI Reply Now
                     </button>
                 </form>
-            </div></main>
-        </div></main>
-    </div></main>
-</div></main>
+            </div>
+        </div>
+    </div>
+</div>
 <script th:src="@{/js/app.js}"></script>
-</body>
+</main></body>
 </html>
