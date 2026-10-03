@@ -1,70 +1,38 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title th:text="${editMode} ? 'Edit Announcement' : 'New Announcement'">Announcement</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title th:text="${editMode} ? 'Edit Announcement' : 'New Announcement'">Announcement</title>
+<link rel="stylesheet" th:href="@{/css/theme.css}">
+<style>
+.announcement-page{max-width:900px;margin:0 auto}.announcement-hero{background:linear-gradient(135deg,#063b2c 0%,#087d68 58%,#1476c9 100%);color:#fff;border-radius:16px;padding:22px 24px;margin-bottom:18px;box-shadow:0 10px 28px rgba(6,59,44,.14)}.announcement-hero h1{margin:0;color:#fff;font-size:24px}.announcement-hero p{margin:6px 0 0;color:rgba(255,255,255,.86);font-size:13px}.announcement-form{background:#fff;border:1px solid rgba(7,84,62,.14);border-radius:16px;padding:22px;box-shadow:0 8px 24px rgba(15,23,42,.07)}.form-field{margin-bottom:16px}.form-field label{display:block;font-weight:700;color:#17352d;margin-bottom:6px;font-size:13px}.required{color:#dc2626}.announcement-form input[type="text"],.announcement-form input[type="number"],.announcement-form select,.announcement-form textarea{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:9px;border:1px solid #cbd5e1;background:#fff;color:#17352d;font:inherit;outline:none}.announcement-form textarea{min-height:150px;resize:vertical;line-height:1.55}.announcement-form input:focus,.announcement-form select:focus,.announcement-form textarea:focus{border-color:#0b8f72;box-shadow:0 0 0 3px rgba(11,143,114,.12)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field-help{display:block;margin-top:5px;color:#64748b;font-size:11px}.active-row{display:flex!important;align-items:center;gap:9px;padding:12px 14px;background:#f0fdf9;border:1px solid #ccefe4;border-radius:9px;color:#14532d}.active-row input{width:17px;height:17px;accent-color:#087d68}.form-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-top:16px;border-top:1px solid #e2e8f0;margin-top:20px}.form-actions .app-btn{margin:0!important}@media(max-width:700px){.announcement-page{max-width:none}.announcement-hero{padding:18px}.announcement-hero h1{font-size:20px}.announcement-form{padding:16px}.form-grid{grid-template-columns:1fr;gap:0}}
+</style>
 </head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div></main>
-<div th:replace="~{fragments/sidebar :: sidebar}"></div></main>
-
-<main class="app-main"><div class="app-container">
-    <div class="app-card" style="background: linear-gradient(135deg, #0A1F44, #1E3A8A); color: white; padding: 30px;">
-        <h1 style="color: white; margin: 0;" th:text="${editMode} ? '✏️ Edit Announcement' : '➕ New Announcement'">Announcement</h1>
-    </div></main>
-
-    <form th:action="@{/admin/announcements/save}" method="post" class="app-card">
-        <input type="hidden" name="id" th:value="${announcement.id}">
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold;">Title *</label>
-            <input type="text" name="title" required th:value="${announcement.title}" style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold;">Content *</label>
-            <textarea name="content" rows="5" required th:text="${announcement.content}" style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;"></textarea>
-        </div></main>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label style="font-weight: bold;">Organization</label>
-                <input type="text" name="organization" th:value="${announcement.organization}" placeholder="TCRA, Police, BoT..." style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
-            </div></main>
-            <div>
-                <label style="font-weight: bold;">Priority</label>
-                <select name="priority" style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
-                    <option value="LOW" th:selected="${announcement.priority == 'LOW'}">🟢 LOW</option>
-                    <option value="MEDIUM" th:selected="${announcement.priority == 'MEDIUM' || announcement.priority == null}">🟡 MEDIUM</option>
-                    <option value="HIGH" th:selected="${announcement.priority == 'HIGH'}">🔴 HIGH</option>
-                </select>
-            </div></main>
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold;">Image URL (optional)</label>
-            <input type="text" name="imageUrl" th:value="${announcement.imageUrl}" placeholder="https://..." style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold;">Display Order</label>
-            <input type="number" name="displayOrder" th:value="${announcement.displayOrder != null ? announcement.displayOrder : 0}" style="width:100%; padding:12px; border-radius:8px; border:2px solid #E2E8F0; margin-top:5px;">
-        </div></main>
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold;">
-                <input type="checkbox" name="active" th:checked="${announcement.active == null || announcement.active}">
-                Active (inaonekana kwenye landing page)
-            </label>
-        </div></main>
-
-        <button type="submit" class="app-btn app-btn-primary" style="padding: 14px 30px; font-size: 16px;">
-            💾 Save Announcement
-        </button>
-        <a th:href="@{/admin/announcements}" class="app-btn app-btn-outline" style="text-decoration: none; padding: 14px 30px; margin-left: 10px;">Cancel</a>
-    </form>
-</div></main>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main">
+<div class="app-container announcement-page">
+<section class="announcement-hero">
+<h1 th:text="${editMode} ? '✏️ Edit Announcement' : '➕ New Announcement'">Announcement</h1>
+<p th:text="${editMode} ? 'Hariri tangazo kwa urahisi bila kupoteza maudhui.' : 'Unda tangazo litakaloonekana kwenye landing page.'">Manage announcement</p>
+</section>
+<form th:action="@{/admin/announcements/save}" method="post" class="announcement-form">
+<input type="hidden" name="id" th:value="${announcement.id}">
+<div class="form-field"><label for="title">Title <span class="required">*</span></label><input id="title" type="text" name="title" required th:value="${announcement.title}" placeholder="Mfano: Tahadhari ya Usalama Mtandaoni"></div>
+<div class="form-field"><label for="content">Content <span class="required">*</span></label><textarea id="content" name="content" rows="7" required th:text="${announcement.content}" placeholder="Andika maudhui ya tangazo hapa..."></textarea><small class="field-help">Maandishi marefu yataendelea ndani ya kisanduku; unaweza kuongeza urefu kwa kuvuta kona ya chini.</small></div>
+<div class="form-grid">
+<div class="form-field"><label for="organization">Organization</label><input id="organization" type="text" name="organization" th:value="${announcement.organization}" placeholder="TCRA, Police, BoT..."></div>
+<div class="form-field"><label for="priority">Priority</label><select id="priority" name="priority"><option value="LOW" th:selected="${announcement.priority == 'LOW'}">🟢 LOW</option><option value="MEDIUM" th:selected="${announcement.priority == 'MEDIUM' || announcement.priority == null}">🟡 MEDIUM</option><option value="HIGH" th:selected="${announcement.priority == 'HIGH'}">🔴 HIGH</option></select></div>
+</div>
+<div class="form-field"><label for="imageUrl">Image URL <span style="font-weight:400;color:#64748b">(optional)</span></label><input id="imageUrl" type="text" name="imageUrl" th:value="${announcement.imageUrl}" placeholder="https://..."></div>
+<div class="form-field"><label for="displayOrder">Display Order</label><input id="displayOrder" type="number" name="displayOrder" th:value="${announcement.displayOrder != null ? announcement.displayOrder : 0}" min="0"></div>
+<div class="form-field"><label class="active-row"><input type="checkbox" name="active" th:checked="${announcement.active == null || announcement.active}"><span>Active <span style="font-weight:400">(inaonekana kwenye landing page)</span></span></label></div>
+<div class="form-actions"><button type="submit" class="app-btn app-btn-primary">💾 Save Announcement</button><a th:href="@{/admin/announcements}" class="app-btn app-btn-outline" style="text-decoration:none">Cancel</a></div>
+</form>
+</div>
+</main>
 <script th:src="@{/js/app.js}"></script>
 </body>
 </html>
