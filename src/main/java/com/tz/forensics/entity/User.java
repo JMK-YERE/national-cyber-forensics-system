@@ -110,6 +110,9 @@ public class User {
     @Column(name = "password_reset_expires_at")
     private LocalDateTime passwordResetExpiresAt;
 
+    @Column(name = "password_reset_attempts")
+    private Integer passwordResetAttempts = 0;
+
     @Column(name = "oauth_provider", length = 20)
     private String oauthProvider;
 
@@ -231,6 +234,8 @@ public class User {
     public void setPasswordResetToken(String passwordResetToken) { this.passwordResetToken = passwordResetToken; }
     public LocalDateTime getPasswordResetExpiresAt() { return passwordResetExpiresAt; }
     public void setPasswordResetExpiresAt(LocalDateTime passwordResetExpiresAt) { this.passwordResetExpiresAt = passwordResetExpiresAt; }
+    public Integer getPasswordResetAttempts() { return passwordResetAttempts == null ? 0 : passwordResetAttempts; }
+    public void setPasswordResetAttempts(Integer passwordResetAttempts) { this.passwordResetAttempts = passwordResetAttempts; }
     public boolean isEmailVerified() { return emailVerified == null || Boolean.TRUE.equals(emailVerified); }
     public Boolean getAccountLocked() { return accountLocked; }
     public void setAccountLocked(Boolean accountLocked) { this.accountLocked = accountLocked; }
