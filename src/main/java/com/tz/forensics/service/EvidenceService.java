@@ -68,6 +68,17 @@ public class EvidenceService {
         evidence.setDescription(dto.getDescription());
         evidence.setSourceDevice(dto.getSourceDevice());
         evidence.setAcquisitionMethod(dto.getAcquisitionMethod());
+        evidence.setAcquisitionType(dto.getAcquisitionType());
+        evidence.setDeviceMake(dto.getDeviceMake());
+        evidence.setDeviceModel(dto.getDeviceModel());
+        evidence.setDeviceSerial(dto.getDeviceSerial());
+        evidence.setSourceIdentifier(dto.getSourceIdentifier());
+        evidence.setAcquisitionTool(dto.getAcquisitionTool());
+        evidence.setAcquisitionToolVersion(dto.getAcquisitionToolVersion());
+        evidence.setWriteBlockerUsed(Boolean.TRUE.equals(dto.getWriteBlockerUsed()));
+        evidence.setAcquisitionNotes(dto.getAcquisitionNotes());
+        evidence.setAcquisitionStartedAt(LocalDateTime.now());
+        evidence.setAcquisitionCompletedAt(LocalDateTime.now());
         evidence.setVerified(false);
         evidence.setUploadedBy(uploadedBy);
         evidence.setUploadedAt(LocalDateTime.now());
