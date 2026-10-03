@@ -38,8 +38,8 @@
 
 <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" class="sidebar-section">Professional Workspace</div>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
-<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO')" th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label">Users &amp; Access</span></a>
-<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/admin/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
+<a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label">Users &amp; Access</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_ANALYST')" th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit Trail</span></a>
 <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label">System Settings</span></a>
 </nav>
