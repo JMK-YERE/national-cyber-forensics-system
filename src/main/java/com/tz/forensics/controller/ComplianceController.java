@@ -6,6 +6,9 @@ import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.ComplianceService;
 import org.springframework.security.core.Authentication;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +23,12 @@ public class ComplianceController {
     private final ComplianceService service;
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final com.tz.forensics.service.PDFReportService pdfReportService;
 
     public ComplianceController(ComplianceService service,
                                  UserRepository userRepository,
-                                 AuditService auditService) {
+                                 AuditService auditService,
+                                 com.tz.forensics.service.PDFReportService pdfReportService) {
         this.service = service;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -69,6 +74,19 @@ public class ComplianceController {
         model.addAttribute("report", report);
         model.addAttribute("user", user);
         return "compliance-report";
+    }
+
+    @GetMapping("/view/{id}/pdf")
+    public ResponseEntity<byte[]> pdf(@PathVariable Long id, Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (!canAccess(user)) return ResponseEntity.status(403).build();
+        ComplianceReport report = service.getById(id);
+        if (report == null) return ResponseEntity.notFound().build();
+        byte[] pdf = pdfReportService.generateComplianceReport(report);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"compliance-" + report.getReportId() + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     @PostMapping("/update/{id}")
