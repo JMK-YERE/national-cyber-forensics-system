@@ -21,8 +21,10 @@ public class SecurityToolsController {
     }
 
     @GetMapping("/security-center")
-    public String securityCenter(Model model) {
+    public String securityCenter(org.springframework.security.core.Authentication auth, Model model) {
         model.addAttribute("vtConfigured", virusTotalService.isConfigured());
+        boolean staff = auth != null && auth.getAuthorities().stream().anyMatch(a -> java.util.Set.of("ROLE_ADMIN","ROLE_CYBER_PRO","ROLE_FORENSICS","ROLE_ANALYST").contains(a.getAuthority()));
+        model.addAttribute("isStaff", staff);
         return "security-center";
     }
 
