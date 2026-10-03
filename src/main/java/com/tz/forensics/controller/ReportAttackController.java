@@ -91,6 +91,15 @@ public class ReportAttackController {
         } catch (Exception e) { log.error("Notify admins failed: {}", e.getMessage()); }
     }
 
+    @GetMapping("/my-reports")
+    public String myReports(Authentication auth, Model model) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (user == null) return "redirect:/login";
+        model.addAttribute("user", user);
+        model.addAttribute("reports", service.getMine(user.getId()));
+        return "my-reports";
+    }
+
     @GetMapping
     public String showForm(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
