@@ -4,6 +4,8 @@ import com.tz.forensics.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,14 +17,28 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 public class SecurityConfig {
     private final CustomOAuth2UserService oauth2UserService;
     private final OAuth2LoginSuccessHandler oauth2Handler;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
-    public SecurityConfig(CustomOAuth2UserService oauth2UserService, OAuth2LoginSuccessHandler oauth2Handler) {
+    public SecurityConfig(CustomOAuth2UserService oauth2UserService,
+                          OAuth2LoginSuccessHandler oauth2Handler,
+                          ClientRegistrationRepository clientRegistrationRepository) {
         this.oauth2UserService = oauth2UserService;
         this.oauth2Handler = oauth2Handler;
+        this.clientRegistrationRepository = clientRegistrationRepository;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+
+    @Bean
+    public DefaultOAuth2AuthorizationRequestResolver oauth2AuthorizationRequestResolver() {
+        DefaultOAuth2AuthorizationRequestResolver resolver =
+                new DefaultOAuth2AuthorizationRequestResolver(
+                        clientRegistrationRepository, "/oauth2/authorization");
+        resolver.setAuthorizationRequestCustomizer(builder ->
+                builder.additionalParameters(java.util.Map.of("prompt", "select_account")));
+        return resolver;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -37,7 +53,8 @@ public class SecurityConfig {
                     "/css/**", "/js/**", "/images/**", "/static/**",
                     "/favicon.ico", "/webjars/**",
                     "/announcements", "/announcements/**",
-                    "/oauth2/**", "/login/oauth2/**"
+                    "/oauth2/**", "/login/oauth2/**",
+                    "/oauth2/verify", "/oauth2/verify/**"
                 ).permitAll()
 
                 .requestMatchers("/admin/audit", "/admin/audit/**")
@@ -88,6 +105,7 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth -> oauth
                 .loginPage("/login")
+                .authorizationEndpoint(a -> a.authorizationRequestResolver(oauth2AuthorizationRequestResolver()))
                 .userInfoEndpoint(u -> u.userService(oauth2UserService))
                 .successHandler(oauth2Handler)
                 .failureUrl("/login?error")
