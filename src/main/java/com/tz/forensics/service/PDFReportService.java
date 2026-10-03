@@ -139,6 +139,38 @@ public class PDFReportService {
         }
     }
 
+
+    public byte[] generateComplianceReport(com.tz.forensics.entity.ComplianceReport report) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PdfDocument pdfDoc = new PdfDocument(new PdfWriter(baos));
+            Document doc = new Document(pdfDoc);
+            doc.add(new Paragraph("CYBER FORENSICS TZ").setFontSize(18).setBold().setFontColor(CYBER_DARK).setTextAlignment(TextAlignment.CENTER));
+            doc.add(new Paragraph(report.getTitle()).setFontSize(14).setBold().setTextAlignment(TextAlignment.CENTER));
+            doc.add(new Paragraph("Report ID: " + report.getReportId()).setFontSize(10).setTextAlignment(TextAlignment.CENTER));
+            doc.add(new Paragraph(" "));
+            Table table = new Table(UnitValue.createPercentArray(new float[]{45,55})).setWidth(UnitValue.createPercentValue(100));
+            addRow(table, "Type", report.getReportTypeLabel());
+            addRow(table, "Compliance Score", String.valueOf(report.getComplianceScore()) + "%");
+            addRow(table, "Total Controls", String.valueOf(report.getTotalControls()));
+            addRow(table, "Passed Controls", String.valueOf(report.getPassedControls()));
+            addRow(table, "Failed Controls", String.valueOf(report.getFailedControls()));
+            addRow(table, "Status", report.getStatus());
+            doc.add(table);
+            doc.add(new Paragraph("SUMMARY").setBold().setFontColor(CYBER_GREEN).setMarginTop(18));
+            doc.add(new Paragraph(report.getSummary() == null ? "N/A" : report.getSummary()));
+            doc.add(new Paragraph("FINDINGS").setBold().setFontColor(CYBER_GREEN).setMarginTop(14));
+            doc.add(new Paragraph(report.getFindings() == null ? "N/A" : report.getFindings()));
+            doc.add(new Paragraph("RECOMMENDATIONS").setBold().setFontColor(CYBER_GREEN).setMarginTop(14));
+            doc.add(new Paragraph(report.getRecommendations() == null ? "N/A" : report.getRecommendations()));
+            doc.add(new Paragraph("Generated: " + java.time.LocalDateTime.now().format(FMT)).setFontSize(8).setItalic().setMarginTop(20));
+            doc.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Compliance PDF generation failed", e);
+        }
+    }
+
     // ===== CASE FILE PDF =====
     public byte[] generateCaseReport(CaseFile caseFile) {
         try {
