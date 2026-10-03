@@ -76,6 +76,12 @@ public class SecurityToolsController {
         return "redirect:/tools/security-center";
     }
 
+    @PostMapping("/url-check-api")
+    @ResponseBody
+    public Object urlCheckApi(@RequestParam String url) {
+        return service.checkUrlReputation(url);
+    }
+
     @PostMapping("/domain-age")
     public String domainAge(@RequestParam String domain, RedirectAttributes ra) {
         ra.addFlashAttribute("domainResult", service.checkDomainAge(domain));
