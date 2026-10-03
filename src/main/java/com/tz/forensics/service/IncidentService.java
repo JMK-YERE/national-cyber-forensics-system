@@ -101,7 +101,7 @@ public class IncidentService {
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (incident != null) {
             incident.setWorkflowStatus(status);
-            if ("COMPLETED".equals(status)) {
+            if ("CLOSED".equals(status)) {
                 incident.setIsClosed(true);
                 incident.setClosedAt(LocalDateTime.now());
                 incident.setStatus("Resolved");
