@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.security.SecureRandom;
 
 @Service
 public class UserService {
@@ -56,7 +57,7 @@ public class UserService {
         user.setEmailVerified(false);
         String channel = "SMS".equalsIgnoreCase(dto.getVerificationChannel()) ? "SMS" : "EMAIL";
         String setupToken = "SMS".equals(channel)
-                ? String.valueOf(100000 + new java.util.Random().nextInt(900000))
+                ? String.valueOf(100000 + new SecureRandom().nextInt(900000))
                 : UUID.randomUUID().toString();
         user.setPasswordSetupToken(setupToken);
         user.setPasswordSetupExpiresAt(LocalDateTime.now().plusMinutes("SMS".equals(channel) ? 10 : 60 * 24));
