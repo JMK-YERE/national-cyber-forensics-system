@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class CaseFileService {
@@ -22,7 +22,7 @@ public class CaseFileService {
                                 String priority, Long createdBy, String createdByName) {
         CaseFile caseFile = new CaseFile();
         String caseNumber = "CASE-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-                + "-" + (100 + new Random().nextInt(900));
+                + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         caseFile.setCaseNumber(caseNumber);
         caseFile.setIncidentId(incidentId);
         caseFile.setTitle(title);
