@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>My Security Dashboard | Cyber Forensics TZ</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
-</head>
+<style>
+.section-mark{display:inline-flex;align-items:center;justify-content:center;padding:4px 7px;border-radius:6px;background:#e8f6f2;color:#087d68;font-size:9px;letter-spacing:.05em;font-weight:900;vertical-align:middle;margin-right:5px}
+.report-type{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:#eef6ff;color:#1769aa;font-size:10px;font-weight:800;vertical-align:middle}
+.app-list-item{transition:.18s;border-radius:12px}.app-list-item:hover{background:#f7fcfa;box-shadow:0 5px 16px rgba(4,70,55,.07);transform:translateY(-1px)}
+</style></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main">
     <div class="app-container">
-        <div style="background:linear-gradient(135deg, #064E3B, #16A34A); color:white; padding:30px; border-radius:16px; margin-bottom:20px; box-shadow:0 10px 30px rgba(6,78,59,0.3);">
-            <h1 style="color:white; margin:0; font-size:28px;">👤 Karibu, <span th:text="${username}">User</span>!</h1>
+        <div style="background:linear-gradient(135deg, #063b2c, #087d68 55%, #1476c9); color:white; padding:30px; border-radius:16px; margin-bottom:20px; box-shadow:0 10px 30px rgba(6,78,59,0.3);">
+            <h1 style="color:white; margin:0; font-size:28px;">Karibu, <span th:text="${username}">User</span>!</h1>
             <p style="color:rgba(255,255,255,0.9); margin-top:8px;">Dashibodi yako ya usalama wa mtandao</p>
         </div>
 
@@ -37,22 +41,22 @@
         </div>
 
         <div class="app-card">
-            <h2>📋 Ripoti Zangu</h2>
+            <h2><span class="section-mark">REPORTS</span> Ripoti Zangu</h2>
             <div th:if="${myReports == null || myReports.isEmpty()}" style="text-align:center; padding:30px; color:#64748B;">
                 <p>Hakuna ripoti bado.</p>
-                <a th:href="@{/report-attack}" class="app-btn app-btn-primary" style="margin-top:15px;">🚨 Anza Ripoti</a>
+                <a th:href="@{/report-attack}" class="app-btn app-btn-primary" style="margin-top:15px;">Report Incident</a>
             </div>
             <div th:each="r : ${myReports}" class="app-list-item">
                 <div>
                     <strong style="color:#064E3B; font-family:monospace;" th:text="${r.reportId}"></strong>
-                    <span style="margin-left:10px; color:#16A34A; font-weight:600;" th:text="${r.attackTypeLabel}"></span>
+                    <span class="report-type" th:text="${r.attackTypeLabel}"></span>
                     <br>
                     <small style="color:#64748B;">
                         <span th:text="${r.title}"></span> |
                         <strong th:text="${r.status}"></strong>
                     </small>
                 </div>
-                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="app-btn app-btn-primary">View</a>
+                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="app-btn app-btn-primary">Open Report</a>
             </div>
         </div>
     </div>
