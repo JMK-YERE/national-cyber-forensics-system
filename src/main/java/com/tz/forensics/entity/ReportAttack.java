@@ -3,6 +3,7 @@ package com.tz.forensics.entity;
 import com.tz.forensics.enums.IncidentType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "report_attacks")
@@ -45,8 +46,29 @@ public class ReportAttack {
     @Column(length = 20)
     private String priority = "MEDIUM";
 
+    @Column(length = 20)
+    private String severity = "MEDIUM";
+
     @Column(length = 50)
     private String region;
+
+    @Column(length = 180)
+    private String organization;
+
+    @Column(name = "direct_loss", precision = 18, scale = 2)
+    private BigDecimal directLoss;
+
+    @Column(name = "recovery_cost", precision = 18, scale = 2)
+    private BigDecimal recoveryCost;
+
+    @Column(name = "downtime_cost", precision = 18, scale = 2)
+    private BigDecimal downtimeCost;
+
+    @Column(name = "legal_fees", precision = 18, scale = 2)
+    private BigDecimal legalFees;
+
+    @Column(name = "reputation_damage", precision = 18, scale = 2)
+    private BigDecimal reputationDamage;
 
     @Column(length = 10)
     private String country = "TZ";
@@ -150,8 +172,22 @@ public class ReportAttack {
     public void setStatus(String status) { this.status = status; }
     public String getPriority() { return priority; }
     public void setPriority(String priority) { this.priority = priority; }
+    public String getSeverity() { return severity == null ? priority : severity; }
+    public void setSeverity(String severity) { this.severity = severity; }
     public String getRegion() { return region; }
     public void setRegion(String region) { this.region = region; }
+    public String getOrganization() { return organization; }
+    public void setOrganization(String organization) { this.organization = organization; }
+    public BigDecimal getDirectLoss() { return directLoss; }
+    public void setDirectLoss(BigDecimal directLoss) { this.directLoss = directLoss; }
+    public BigDecimal getRecoveryCost() { return recoveryCost; }
+    public void setRecoveryCost(BigDecimal recoveryCost) { this.recoveryCost = recoveryCost; }
+    public BigDecimal getDowntimeCost() { return downtimeCost; }
+    public void setDowntimeCost(BigDecimal downtimeCost) { this.downtimeCost = downtimeCost; }
+    public BigDecimal getLegalFees() { return legalFees; }
+    public void setLegalFees(BigDecimal legalFees) { this.legalFees = legalFees; }
+    public BigDecimal getReputationDamage() { return reputationDamage; }
+    public void setReputationDamage(BigDecimal reputationDamage) { this.reputationDamage = reputationDamage; }
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
     public String getCountryName() { return countryName; }
