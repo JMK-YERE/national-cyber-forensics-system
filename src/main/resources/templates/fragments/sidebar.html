@@ -23,7 +23,7 @@
 
   <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')">
     <div class="sidebar-section">Forensics Workspace</div>
-    <a th:href="@{/evidence}" class="sidebar-item"><span class="icon">▤</span><span class="label">Evidence</span></a>
+    <a th:href="@{/incidents}" class="sidebar-item"><span class="icon">▤</span><span class="label">Evidence & Cases</span></a>
     <a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
     <a th:href="@{/admin/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
     <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_ANALYST')" th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit Trail</span></a>
