@@ -20,22 +20,22 @@ button{width:100%;min-height:44px;border:0;border-radius:10px;font-size:13px;fon
 <main class="auth"><div class="topbar"></div><section class="box">
 <div class="shield">🛡️</div><div class="brand">Cyber Forensics <span>TZ</span></div>
 <h1>Completing sign-in</h1><p class="sub">Verifying your device to keep your account secure…</p>
-<div class="steps"><div class="step active">1. Google account</div><div class="step active">2. Security check</div><div class="step" th:classappend="\${sent} ? ' active' : ''">3. Email OTP</div></div>
-<div class="alert err" th:if="\${error}" th:text="\${error}"></div><div class="alert ok" th:if="\${expired}">⏱️ OTP yako ime-expire. Omba OTP mpya.</div>
-<div th:if="\${!sent}">
+<div class="steps"><div class="step active">1. Google account</div><div class="step active">2. Security check</div><div class="step" th:classappend="${sent} ? ' active' : ''">3. Email OTP</div></div>
+<div class="alert err" th:if="${error}" th:text="${error}"></div><div class="alert ok" th:if="${expired}">⏱️ OTP yako ime-expire. Omba OTP mpya.</div>
+<div th:if="${!sent}">
 <div class="notice">Google imethibitisha akaunti yako. Kabla ya kufungua dashboard, <strong>kubali security verification</strong>. Tutatuma OTP ya tarakimu 6 kwenye email yako. OTP ita-expire ndani ya <strong>sekunde 60</strong>.</div>
-<div class="mail" th:text="\${emailMasked}"></div>
-<form th:action="@{/oauth2/verify/send}" method="post"><input type="hidden" th:name="\${_csrf.parameterName}" th:value="\${_csrf.token}"><button class="accept" type="submit">✓ I ACCEPT — SEND OTP TO MY EMAIL</button></form>
-<form th:action="@{/oauth2/verify/decline}" method="post"><input type="hidden" th:name="\${_csrf.parameterName}" th:value="\${_csrf.token}"><button class="decline" type="submit">Cancel and return to login</button></form>
+<div class="mail" th:text="${emailMasked}"></div>
+<form th:action="@{/oauth2/verify/send}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="accept" type="submit">✓ I ACCEPT — SEND OTP TO MY EMAIL</button></form>
+<form th:action="@{/oauth2/verify/decline}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="decline" type="submit">Cancel and return to login</button></form>
 </div>
-<div th:if="\${sent}">
-<div class="notice">📧 OTP imetumwa kwenye <strong th:text="\${emailMasked}"></strong>. Imefunguliwa kwa sekunde 60 tu.</div>
-<form class="otp-form" th:action="@{/oauth2/verify/check}" method="post" autocomplete="one-time-code"><input type="hidden" th:name="\${_csrf.parameterName}" th:value="\${_csrf.token}"><input class="otp-input" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="••••••" autocomplete="one-time-code" required autofocus><div class="timer">OTP expires in <strong id="countdown">60</strong> seconds</div><button class="accept" id="verifyBtn" type="submit">🔐 VERIFY & ENTER DASHBOARD</button></form>
-<form th:action="@{/oauth2/verify/resend}" method="post"><input type="hidden" th:name="\${_csrf.parameterName}" th:value="\${_csrf.token}"><button class="secondary" type="submit">↻ Resend a new OTP</button></form>
+<div th:if="${sent}">
+<div class="notice">📧 OTP imetumwa kwenye <strong th:text="${emailMasked}"></strong>. Imefunguliwa kwa sekunde 60 tu.</div>
+<form class="otp-form" th:action="@{/oauth2/verify/check}" method="post" autocomplete="one-time-code"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><input class="otp-input" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="••••••" autocomplete="one-time-code" required autofocus><div class="timer">OTP expires in <strong id="countdown">60</strong> seconds</div><button class="accept" id="verifyBtn" type="submit">🔐 VERIFY & ENTER DASHBOARD</button></form>
+<form th:action="@{/oauth2/verify/resend}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="secondary" type="submit">↻ Resend a new OTP</button></form>
 </div>
 <div class="foot">Never share your OTP. Cyber Forensics TZ will never ask you to send it to another person.</div>
 </section></main>
-<script th:if="\${sent}">
-(function(){const sentAt=Number('[[\${session.OAUTH_OTP_SENT_AT}]]');const end=sentAt+60000;const timer=document.getElementById('countdown');const btn=document.getElementById('verifyBtn');function tick(){const left=Math.max(0,Math.ceil((end-Date.now())/1000));timer.textContent=left;if(left<=0){btn.disabled=true;btn.style.opacity='.55';}}tick();setInterval(tick,250);})();
+<script th:if="${sent}">
+(function(){const sentAt=Number('[[${session.OAUTH_OTP_SENT_AT}]]');const end=sentAt+60000;const timer=document.getElementById('countdown');const btn=document.getElementById('verifyBtn');function tick(){const left=Math.max(0,Math.ceil((end-Date.now())/1000));timer.textContent=left;if(left<=0){btn.disabled=true;btn.style.opacity='.55';}}tick();setInterval(tick,250);})();
 </script>
 </body></html>
