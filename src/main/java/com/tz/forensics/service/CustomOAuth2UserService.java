@@ -57,7 +57,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setApprovalStatus("APPROVED");
             user.setOauthProvider(provider);
             user.setOauthId(sub);
-            user.setProfilePicture(limit(picture, 2048));
+            user.setProfilePicture(limit(picture, 450));
             user.setCreatedAt(LocalDateTime.now());
             userRepository.save(user);
             log.info("New OAuth user created: {}", user.getUsername());
