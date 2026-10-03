@@ -39,7 +39,15 @@
             .reg-img h2 { font-size: 18px; }
             .form-row { grid-template-columns: 1fr; }
         }
-    </style>
+    
+/* Final compact auth layout */
+body{background:#f4faf7!important;min-height:100vh!important}
+.login-wrap,.reg-wrap{min-height:100vh!important;grid-template-columns:42% 58%!important;max-width:1280px;margin:0 auto;box-shadow:0 0 50px rgba(3,38,29,.08)}
+.login-img,.reg-img{padding:24px!important;background-position:center!important}
+.login-img h2,.reg-img h2{font-size:25px!important}.login-form-side,.reg-form-side{padding:18px 24px!important}
+.login-box,.reg-box{max-width:340px!important}.form-group{margin-bottom:9px!important}.form-group input{padding:8px 10px!important}.social-btn{padding:8px!important}.btn-login,.btn-register{padding:10px!important}
+@media(max-width:800px){.login-wrap,.reg-wrap{grid-template-columns:1fr!important}.login-img,.reg-img{min-height:220px!important}.login-form-side,.reg-form-side{padding:20px!important}.login-box,.reg-box{max-width:340px!important}}
+</style>
 </head>
 <body>
 <div class="reg-wrap">
