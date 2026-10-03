@@ -74,8 +74,9 @@ public class UserService {
             System.err.println("❌ Verification email failed: " + e.getMessage());
         }
 
+        boolean smsSent = false;
         if ("SMS".equals(channel)) {
-            smsService.sendSms(dto.getPhone(), "Cyber Forensics TZ: OTP yako ya kutengeneza password ni " + setupToken + ". Inaisha ndani ya dakika 10.");
+            smsSent = smsService.sendSms(dto.getPhone(), "Cyber Forensics TZ: OTP yako ya kutengeneza password ni " + setupToken + ". Inaisha ndani ya dakika 10.");
         }
 
         // ===== 1. EMAIL KWA MTU MWENYEWE (BURE) =====
@@ -105,6 +106,6 @@ public class UserService {
             System.err.println("❌ Notification failed: " + e.getMessage());
         }
 
-        return "SUCCESS";
+        return "SMS".equals(channel) ? (smsSent ? "SMS_SENT" : "SMS_NOT_SENT") : "SUCCESS";
     }
 }
