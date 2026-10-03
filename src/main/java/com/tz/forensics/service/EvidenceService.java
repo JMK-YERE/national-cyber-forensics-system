@@ -74,10 +74,12 @@ public class EvidenceService {
 
         Evidence saved = evidenceRepository.save(evidence);
 
-        custodyRepository.save(new ChainOfCustody(
+        ChainOfCustody uploadedEvent = new ChainOfCustody(
                 saved.getId(), "UPLOADED", uploadedBy, username, getClientIp(),
                 "Initial evidence upload: " + dto.getDescription()
-        ));
+        );
+        uploadedEvent.setHashAtAction(sha256);
+        custodyRepository.save(uploadedEvent);
         return saved;
     }
 
@@ -121,9 +123,11 @@ public class EvidenceService {
         evidence.setVerifiedAt(LocalDateTime.now());
         evidenceRepository.save(evidence);
 
-        custodyRepository.save(new ChainOfCustody(
+        ChainOfCustody verifiedEvent = new ChainOfCustody(
                 evidenceId, "VERIFIED", verifiedBy, username, getClientIp(),
                 "Evidence verified by " + username + " | SHA-256: " + evidence.getSha256Hash()
-        ));
+        );
+        verifiedEvent.setHashAtAction(evidence.getSha256Hash());
+        custodyRepository.save(verifiedEvent);
     }
 }
