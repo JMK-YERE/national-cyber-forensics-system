@@ -12,7 +12,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 /**
  * Google login is deliberately not considered a completed application login yet.
@@ -48,9 +47,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             return;
         }
 
-        user.setLastLogin(LocalDateTime.now());
-        userRepository.save(user);
-
+        
         var session = request.getSession(true);
         session.setAttribute("OAUTH_VERIFY_USER_ID", user.getId());
         session.setAttribute("OAUTH_VERIFY_EMAIL", user.getEmail());
