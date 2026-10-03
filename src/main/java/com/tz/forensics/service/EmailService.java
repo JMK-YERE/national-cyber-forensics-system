@@ -28,10 +28,10 @@ public class EmailService {
         return mailSender != null && fromEmail != null && !fromEmail.isEmpty();
     }
 
-    public void sendEmail(String to, String subject, String body) {
+    public boolean sendEmail(String to, String subject, String body) {
         if (!isConfigured()) {
             System.out.println("⚠️ Email not configured. Would send to: " + to);
-            return;
+            return false;
         }
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -41,8 +41,10 @@ public class EmailService {
             message.setText(body);
             mailSender.send(message);
             System.out.println("✅ Email sent to " + to);
+            return true;
         } catch (Exception e) {
             System.err.println("❌ Email failed to " + to + ": " + e.getMessage());
+            return false;
         }
     }
 
@@ -80,7 +82,7 @@ public class EmailService {
         sendEmail(to, subject, body);
     }
 
-    public void sendOAuthLoginOtp(String to, String username, String otp) {
+    public boolean sendOAuthLoginOtp(String to, String username, String otp) {
         String subject = "🔐 Msimbo wa usalama wa kuingia - " + appName;
         String body = "Habari " + username + ",\n\n"
                 + "Tumepokea ombi la kuingia kwenye " + appName + " kupitia Google.\n\n"
@@ -89,7 +91,7 @@ public class EmailService {
                 + "Msimbo huu una muda wa sekunde 60 tu na unaweza kutumika mara moja.\n"
                 + "Usimpe mtu mwingine msimbo huu. Kama hukuomba kuingia, puuza email hii na badilisha usalama wa akaunti yako.\n\n"
                 + appName + " - Tanzania 🇹🇿";
-        sendEmail(to, subject, body);
+        return sendEmail(to, subject, body);
     }
 
     // ===== KWA MTU MWENYEWE (Welcome) =====
