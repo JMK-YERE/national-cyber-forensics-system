@@ -8,8 +8,8 @@
 <div class="header-clock"><span>📅</span><span class="clock-date" id="clockDate">—</span><span>•</span><span class="clock-time" id="clockTime">--:--:--</span></div>
 <div class="header-profile">
 <button class="profile-btn" onclick="toggleProfileMenu()" aria-haspopup="true" aria-expanded="false">
-<div class="profile-avatar" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'${">U</div>
-<span th:text="${#authentication != null ? #authentication.name : 'User'${">User</span><span>⌄</span>
+<div class="profile-avatar" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'}">U</div>
+<span th:text="${#authentication != null ? #authentication.name : 'User'}">User</span><span>⌄</span>
 </button>
 <div class="profile-dropdown" id="profileDropdown">
 <a th:href="@{/dashboard}" class="dropdown-item"><span>⌂</span>Dashboard</a>
