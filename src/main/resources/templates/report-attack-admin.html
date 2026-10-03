@@ -16,7 +16,10 @@
 .badge{padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase}.badge-new{background:#fff0f2;color:#d63b4d;border:1px solid #ffd1d7}.badge-status{background:#eaf7f3;color:#087d68;border:1px solid #c8e9df}
 @media(max-width:900px){.report-meta{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.stats{grid-template-columns:1fr}.report-meta{grid-template-columns:1fr}.admin-header h1{font-size:21px}.report-top{align-items:flex-start;flex-direction:column}}
 </style>
-</head>
+<style>
+.type-badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#eef7ff;color:#1769aa;border:1px solid #d6eaff;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.03em}
+.title-separator{color:#8aa59c;font-weight:900}
+</style></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
@@ -24,20 +27,20 @@
 <main class="app-main"><div class="app-container">
     <div class="workspace-kicker">Admin Operational Reports Workspace</div>
 <div class="admin-header">
-        <h1>👑 Admin Reports Panel</h1>
+        <h1>Admin Reports Panel</h1>
         <p>Simamia reports zote za watumiaji. Unaweza kuona na kusaidia.</p>
     </div>
 
     <!-- STATS -->
     <div class="stats">
-      <div class="stat-card s-total"><b th:text="${totalCount}">0</b><span>📋 Total Reports</span></div>
-      <div class="stat-card s-new"><b th:text="${newCount}">0</b><span>🚨 New / Pending</span></div>
-      <div class="stat-card s-today"><b th:text="${todayCount}">0</b><span>📅 Reports Today</span></div>
+      <div class="stat-card s-total"><b th:text="${totalCount}">0</b><span>Total Reports</span></div>
+      <div class="stat-card s-new"><b th:text="${newCount}">0</b><span>New / Pending</span></div>
+      <div class="stat-card s-today"><b th:text="${todayCount}">0</b><span>Reports Today</span></div>
     </div>
 
     <!-- REPORTS LIST -->
     <div class="reports-card">
-        <div class="reports-title"><h2>📋 All Reports</h2><span>Review, assist and respond to submitted incidents</span></div>
+        <div class="reports-title"><h2>All Reports</h2><span>Review, assist and respond to submitted incidents</span></div>
 
         <div th:if="${reports.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
             No reports yet.
@@ -47,8 +50,8 @@
             <div class="report-top"><h3>
                 <span th:if="${r.status == 'NEW'}" class="badge badge-new">NEW</span>
                 <span th:unless="${r.status == 'NEW'}" class="badge badge-status" th:text="${r.status}">STATUS</span>
-                <span th:text="${r.attackTypeLabel}">Incident Type</span>
-                <span>—</span><span th:text="${r.title}">Incident title</span>
+                <span class="type-badge" th:text="${r.attackTypeLabel}">Incident Type</span>
+                <span class="title-separator">•</span><span th:text="${r.title}">Incident title</span>
             </h3><span class="report-id" th:text="${r.reportId}">REPORT-ID</span></div>
             <div class="report-meta">
                 <div class="meta"><strong>Reporter</strong><span class="meta-value" th:text="${r.reporterName}">—</span></div>
@@ -62,13 +65,13 @@
             <div class="action-buttons">
                 <!-- VIEW BUTTON — Kila mtu anaweza kuona -->
                 <a th:href="@{'/report-attack/view/' + ${r.id}}" class="btn-view">
-                    👁️ View Report & Help
+                    View Report & Help
                 </a>
 
                 <!-- AI BUTTON — Admin anaweza kubonyeza -->
                 <form th:action="@{'/report-attack/' + ${r.id} + '/ai-reply'}" method="post" style="display:inline;">
                     <button type="submit" class="btn-ai">
-                        🤖 Let AI Reply Now
+                        Let AI Reply Now
                     </button>
                 </form>
             </div>
