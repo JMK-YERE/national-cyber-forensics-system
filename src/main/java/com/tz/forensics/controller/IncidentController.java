@@ -141,8 +141,20 @@ public class IncidentController {
         Incident incident = incidentService.getById(id);
         if (!canManage(currentUser) || !canAccess(incident, currentUser)) return "redirect:/access-denied";
 
-        incidentService.updateWorkflowStatus(id, status);
-        auditService.log("UPDATE_WORKFLOW", "Incident", String.valueOf(id), "Workflow: " + status);
+        String normalizedStatus = status == null ? "" : status.trim().toUpperCase();
+        java.util.Set<String> allowedStatuses = java.util.Set.of(
+                "NEW", "TRIAGED", "ASSIGNED", "INVESTIGATING",
+                "CONTAINMENT", "ERADICATION", "RECOVERY", "CLOSED"
+        );
+        if (!allowedStatuses.contains(normalizedStatus)) {
+            auditService.log("REJECT_WORKFLOW", "Incident", String.valueOf(id),
+                    "Rejected invalid workflow status: " + status);
+            return "redirect:/incidents/" + id;
+        }
+
+        incidentService.updateWorkflowStatus(id, normalizedStatus);
+        auditService.log("UPDATE_WORKFLOW", "Incident", String.valueOf(id),
+                "Workflow: " + normalizedStatus);
         return "redirect:/incidents/" + id;
     }
 
