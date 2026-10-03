@@ -46,6 +46,17 @@ public class EmailService {
         }
     }
 
+    public void sendVerificationEmail(String to, String username, String token) {
+        String subject = "🔐 Thibitisha email yako - " + appName;
+        String body = "Habari " + username + ",\n\n"
+                + "Thibitisha email yako ili kuamilisha akaunti yako.\n\n"
+                + appUrl + "/verify-email?token=" + token + "\n\n"
+                + "Link hii ita-expire ndani ya saa 24.\n\n"
+                + "Kama hukuomba akaunti hii, puuza ujumbe huu.\n\n"
+                + appName + " - Tanzania 🇹🇿";
+        sendEmail(to, subject, body);
+    }
+
     // ===== KWA MTU MWENYEWE (Welcome) =====
     public void sendWelcomeEmail(String to, String username) {
         String subject = "🇹🇿 Karibu " + appName + ", " + username + "!";
