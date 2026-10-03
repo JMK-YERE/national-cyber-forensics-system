@@ -1,32 +1,86 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<body><div th:fragment="navbar" class="legacy-nav-shell">
+<body>
+<div th:fragment="navbar" class="legacy-nav-shell">
 <header class="app-header">
-<button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+<button class="mobile-toggle" type="button" onclick="toggleSidebar()" aria-label="Menu" aria-controls="appSidebar">☰</button>
 <div class="header-logo"><span class="logo-icon">🛡</span><span>Cyber Security &amp; Digital Forensics</span></div>
 <div class="header-clock"><span id="legacyDate">—</span><b id="legacyTime">--:--:--</b></div>
-<div class="header-profile"><button class="profile-btn" onclick="toggleProfileMenu()" type="button"><span class="profile-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'}">U</span><span>Account</span>⌄</button><div class="profile-dropdown" id="profileDropdown"><a th:href="@{/dashboard}" class="dropdown-item">⌂ Dashboard</a><a th:href="@{/change-password}" class="dropdown-item">🔐 Change Password</a><form th:action="@{/logout}" method="post"><button type="submit" class="dropdown-item danger">🚪 Logout</button></form></div></div>
+<div class="header-profile">
+<button class="profile-btn" type="button" onclick="toggleProfileMenu()" aria-expanded="false" aria-controls="profileDropdown">
+<span class="profile-avatar" th:text="${#authentication != null && #authentication.name != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'}">U</span>
+<span class="profile-label">Profile</span><span class="profile-caret">⌄</span>
+</button>
+<div class="profile-dropdown" id="profileDropdown">
+<a th:href="@{/dashboard}" class="dropdown-item">⌂ Dashboard</a>
+<a th:href="@{/change-password}" class="dropdown-item">🔐 Change Password</a>
+<form th:action="@{/logout}" method="post"><button type="submit" class="dropdown-item danger">🚪 Logout</button></form>
+</div>
+</div>
 </header>
-<aside class="app-sidebar"><nav class="sidebar-nav">
+
+<aside class="app-sidebar" id="appSidebar">
+<nav class="sidebar-nav">
 <a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label">Dashboard</span></a>
+
 <div class="sidebar-section">Incident Work</div>
 <a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Incident</span></a>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/incidents}" class="sidebar-item"><span class="icon">◈</span><span class="label">Investigations</span></a>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label">Cyber Incident Map</span></a>
+
 <div class="sidebar-section">My Account</div>
 <a th:href="@{/notifications}" class="sidebar-item"><span class="icon">♢</span><span class="label">Notifications</span></a>
 <a th:href="@{/downloads}" class="sidebar-item"><span class="icon">↓</span><span class="label">Downloads</span></a>
-<a th:href="@{/change-password}" class="sidebar-item"><span class="icon">🔐</span><span class="label">Change Password</span></a>
+
 <div class="sidebar-section">Security Tools</div>
 <a th:href="@{/tools/security-center}" class="sidebar-item"><span class="icon">⌘</span><span class="label">Basic Security Tools</span></a>
 <a th:href="@{/ai/assistant}" class="sidebar-item"><span class="icon">🤖</span><span class="label">AI Assistant</span></a>
-<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" class="sidebar-section">Professional</div>
+
+<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" class="sidebar-section">Professional Workspace</div>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO')" th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label">Users &amp; Access</span></a>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/admin/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_ANALYST')" th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit Trail</span></a>
 <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label">System Settings</span></a>
-</nav></aside>
-<a th:href="@{/ai/assistant}" class="ai-floating" aria-label="AI Assistant"><span style="font-size:38px">🤖</span><span class="ai-floating-label">AI Assistant</span></a>
-<script>function toggleProfileMenu(){document.getElementById("profileDropdown")?.classList.toggle("show")}document.addEventListener('DOMContentLoaded',function(){function tick(){const d=new Date();const date=d.toLocaleDateString('sw-TZ',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const time=d.toLocaleTimeString('en-GB');const a=document.getElementById('legacyDate'),b=document.getElementById('legacyTime');if(a)a.textContent=date;if(b)b.textContent=time}tick();setInterval(tick,1000)});</script>
-</div></body></html>
+</nav>
+</aside>
+
+<a th:href="@{/ai/assistant}" class="ai-floating" aria-label="AI Assistant"><span class="ai-floating-icon">🤖</span><span class="ai-floating-label">AI Assistant</span></a>
+
+<script>
+function toggleSidebar(){
+  const sidebar=document.getElementById('appSidebar');
+  if(sidebar) sidebar.classList.toggle('show');
+}
+function toggleProfileMenu(){
+  const menu=document.getElementById('profileDropdown');
+  const btn=document.querySelector('.profile-btn');
+  if(menu){
+    const open=menu.classList.toggle('show');
+    if(btn) btn.setAttribute('aria-expanded',String(open));
+  }
+}
+document.addEventListener('DOMContentLoaded',function(){
+  function tick(){
+    const d=new Date();
+    const date=d.toLocaleDateString('sw-TZ',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+    const time=d.toLocaleTimeString('en-GB');
+    const a=document.getElementById('legacyDate'),b=document.getElementById('legacyTime');
+    if(a)a.textContent=date;
+    if(b)b.textContent=time;
+  }
+  tick(); setInterval(tick,1000);
+  document.addEventListener('click',function(e){
+    const menu=document.getElementById('profileDropdown');
+    const wrap=document.querySelector('.header-profile');
+    if(menu && wrap && !wrap.contains(e.target)){
+      menu.classList.remove('show');
+      const btn=document.querySelector('.profile-btn');
+      if(btn) btn.setAttribute('aria-expanded','false');
+    }
+  });
+});
+</script>
+</div>
+</body>
+</html>
