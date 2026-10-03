@@ -70,6 +70,7 @@ public class AdvancedSecurityService {
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
             conn.setRequestMethod("HEAD");
+            conn.setInstanceFollowRedirects(false);
             conn.connect();
 
             javax.net.ssl.SSLSocketFactory factory = (javax.net.ssl.SSLSocketFactory) javax.net.ssl.SSLSocketFactory.getDefault();
