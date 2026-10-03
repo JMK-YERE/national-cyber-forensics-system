@@ -57,7 +57,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setApprovalStatus("APPROVED");
             user.setOauthProvider(provider);
             user.setOauthId(sub);
-            user.setProfilePicture(picture);
+            user.setProfilePicture(limit(picture, 2048));
             user.setCreatedAt(LocalDateTime.now());
             userRepository.save(user);
             log.info("New OAuth user created: {}", user.getUsername());
@@ -65,10 +65,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             if (user.getOauthProvider() == null) {
                 user.setOauthProvider(provider);
                 user.setOauthId(sub);
-                user.setProfilePicture(picture);
+                user.setProfilePicture(limit(picture, 2048));
                 userRepository.save(user);
             }
         }
         return oauth2User;
+    }
+
+    private String limit(String value, int max) {
+        if (value == null) return null;
+        String v = value.trim();
+        return v.length() <= max ? v : v.substring(0, max);
     }
 }
