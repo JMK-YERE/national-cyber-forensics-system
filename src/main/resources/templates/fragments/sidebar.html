@@ -1,55 +1,39 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar">
-<nav class="sidebar-nav">
-  <a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label">Dashboard</span></a>
-
-  <div class="sidebar-section">Incidents</div>
-  <a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Incident</span></a>
-  <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/incidents}" class="sidebar-item"><span class="icon">▣</span><span class="label">Investigations</span></a>
-  <a th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label">Cyber Incident Map</span></a>
-
-  <div class="sidebar-section">My Security</div>
-  <button class="sidebar-item" onclick="toggleSubmenu('toolsMenu',this)"><span class="icon">⌘</span><span class="label">Security Tools</span><span class="arrow">›</span></button>
-  <div class="sidebar-submenu" id="toolsMenu">
-    <a th:href="@{/tools/security-center}" class="sidebar-subitem"><span class="dot"></span>Security Center</a>
-    <a th:href="@{/tools/security-center#password}" class="sidebar-subitem"><span class="dot"></span>Password Check</a>
-    <a th:href="@{/tools/security-center#url}" class="sidebar-subitem"><span class="dot"></span>URL Check</a>
-    <a th:href="@{/tools/security-center#ip}" class="sidebar-subitem"><span class="dot"></span>IP Lookup</a>
-  </div>
-  <a th:href="@{/notifications}" class="sidebar-item"><span class="icon">♢</span><span class="label">Notifications</span></a>
-  <a th:href="@{/downloads}" class="sidebar-item"><span class="icon">↓</span><span class="label">Downloads</span></a>
-
-  <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')">
-    <div class="sidebar-section">Forensics Workspace</div>
-    <a th:href="@{/incidents}" class="sidebar-item"><span class="icon">▤</span><span class="label">Evidence & Cases</span></a>
-    <a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
-    <a th:href="@{/admin/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
-    <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_ANALYST')" th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit Trail</span></a>
-  </div>
-
-  <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO')">
-    <div class="sidebar-section">Management</div>
-    <a th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label">Users & Access</span></a>
-  </div>
-  <div sec:authorize="hasAuthority('ROLE_ADMIN')">
-    <a th:href="@{/admin/announcements}" class="sidebar-item"><span class="icon">✦</span><span class="label">Announcements</span></a>
-    <a th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label">System Settings</span></a>
-  </div>
-</nav>
-</aside>
-
+<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar"><nav class="sidebar-nav">
+<a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label">Dashboard</span></a>
+<div class="sidebar-section">Incident Management</div>
+<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Incident</span></a>
+<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">▤</span><span class="label">My Reports</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/incidents}" class="sidebar-item"><span class="icon">◈</span><span class="label">Investigations</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label">Cyber Incident Map</span></a>
+<div class="sidebar-section">My Security</div>
+<button class="sidebar-item" onclick="toggleSubmenu('toolsMenu',this)"><span class="icon">⌘</span><span class="label">Security Tools</span><span class="arrow">›</span></button>
+<div class="sidebar-submenu" id="toolsMenu">
+<a th:href="@{/tools/security-center}" class="sidebar-subitem"><span class="dot"></span>Security Center</a>
+<a th:href="@{/tools/security-center#password}" class="sidebar-subitem"><span class="dot"></span>Password Check</a>
+<a th:href="@{/tools/security-center#url}" class="sidebar-subitem"><span class="dot"></span>URL Check</a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/tools/security-center#ip}" class="sidebar-subitem"><span class="dot"></span>IP Lookup</a>
+</div>
+<a th:href="@{/notifications}" class="sidebar-item"><span class="icon">♢</span><span class="label">Notifications</span></a>
+<a th:href="@{/downloads}" class="sidebar-item"><span class="icon">↓</span><span class="label">Downloads</span></a>
+<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')">
+<div class="sidebar-section">Forensics Workspace</div>
+<a th:href="@{/incidents}" class="sidebar-item"><span class="icon">▤</span><span class="label">Cases & Evidence</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/admin/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_ANALYST')" th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit Trail</span></a>
+</div>
+<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO')">
+<div class="sidebar-section">Management</div>
+<a th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label">Users & Access</span></a>
+</div>
+<div sec:authorize="hasAuthority('ROLE_ADMIN')">
+<a th:href="@{/admin/announcements}" class="sidebar-item"><span class="icon">✦</span><span class="label">Announcements</span></a>
+<a th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label">System Settings</span></a>
+</div>
+</nav></aside>
 <a th:href="@{/ai/assistant}" class="ai-floating" aria-label="Open AI Assistant">
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
- <defs><linearGradient id="aiGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0aa879"/><stop offset="1" stop-color="#08c7d8"/></linearGradient></defs>
- <circle cx="50" cy="50" r="46" fill="#fff" opacity=".95" stroke="#08c7d8" stroke-width="3"/>
- <path d="M31 48c0-13 8-21 19-21s19 8 19 21v22H31z" fill="url(#aiGrad)"/>
- <circle cx="43" cy="46" r="3" fill="#03261d"/><circle cx="57" cy="46" r="3" fill="#03261d"/>
- <path d="M42 57q8 7 16 0" fill="none" stroke="#03261d" stroke-width="2.5" stroke-linecap="round"/>
- <path d="M50 27V17" stroke="#08c7d8" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="13" r="4" fill="#08c7d8"/>
- <rect x="24" y="70" width="52" height="7" rx="3.5" fill="url(#aiGrad)"/>
-</svg>
-<span class="ai-floating-label">AI Assistant</span>
-</a>
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="aiGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0aa879"/><stop offset="1" stop-color="#08c7d8"/></linearGradient></defs><circle cx="50" cy="50" r="46" fill="#fff" stroke="#08c7d8" stroke-width="3"/><path d="M31 48c0-13 8-21 19-21s19 8 19 21v22H31z" fill="url(#aiGrad)"/><circle cx="43" cy="46" r="3"/><circle cx="57" cy="46" r="3"/><path d="M42 57q8 7 16 0" fill="none" stroke="#03261d" stroke-width="2.5" stroke-linecap="round"/><path d="M50 27V17" stroke="#08c7d8" stroke-width="3"/><circle cx="50" cy="13" r="4" fill="#08c7d8"/><rect x="24" y="70" width="52" height="7" rx="3.5" fill="url(#aiGrad)"/></svg><span class="ai-floating-label">AI Assistant</span></a>
 </body></html>
