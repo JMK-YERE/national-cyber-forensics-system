@@ -308,7 +308,7 @@ public class ReportAttackController {
                     "Downloaded evidence | SHA-256: " + r.getEvidenceSha256());
 
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="" + fileName + """)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .contentLength(data.length)
                     .body(data);
