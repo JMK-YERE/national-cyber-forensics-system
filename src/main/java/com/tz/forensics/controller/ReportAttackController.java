@@ -44,6 +44,7 @@ public class ReportAttackController {
     private final ReportMessageRepository messageRepo;
     private final AIChatService aiChatService;
     private final AdvancedSecurityService advancedSecurityService;
+    private final EncryptionService encryptionService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${app.upload.dir:uploads/evidence}")
@@ -55,7 +56,8 @@ public class ReportAttackController {
                                    NotificationService notificationService,
                                    ReportMessageRepository messageRepo,
                                    AIChatService aiChatService,
-                                   AdvancedSecurityService advancedSecurityService) {
+                                   AdvancedSecurityService advancedSecurityService,
+                                   EncryptionService encryptionService) {
         this.service = service;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -63,6 +65,7 @@ public class ReportAttackController {
         this.messageRepo = messageRepo;
         this.aiChatService = aiChatService;
         this.advancedSecurityService = advancedSecurityService;
+        this.encryptionService = encryptionService;
     }
 
     private boolean canSeeAllReports(User user) {
@@ -184,7 +187,7 @@ public class ReportAttackController {
                 String storedName = UUID.randomUUID() + "_" + originalName;
                 Path targetPath = uploadPath.resolve(storedName).normalize();
                 if (!targetPath.getParent().equals(uploadPath.toAbsolutePath().normalize())) throw new IllegalArgumentException("Invalid evidence filename.");
-                Files.write(targetPath, evidenceBytes);
+                Files.write(targetPath, encryptionService.encrypt(evidenceBytes));
 
                 report.setEvidenceFilePath(storedName);
                 report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
@@ -195,6 +198,12 @@ public class ReportAttackController {
         }
 
         ReportAttack saved = service.create(report);
+        auditService.log("CREATE_REPORT", "ReportAttack", String.valueOf(saved.getId()),
+                "Created report " + saved.getReportId() + " | type=" + saved.getAttackType() + " | severity=" + saved.getSeverity());
+        if (saved.getHasEvidence() != null && saved.getHasEvidence()) {
+            auditService.log("ATTACH_REPORT_EVIDENCE", "ReportAttack", String.valueOf(saved.getId()),
+                    "Evidence attached | SHA-256: " + saved.getEvidenceSha256() + " | size=" + saved.getEvidenceFileSize());
+        }
 
         try {
             String welcome = "✅ Report Received\n\nAsante kwa kuripoti. Timu yetu itaangalia taarifa yako. Utapata jibu hivi karibuni.";
@@ -222,6 +231,7 @@ public class ReportAttackController {
         if (!isAdmin && !isOwner) return "redirect:/access-denied";
 
         List<ReportMessage> messages = messageRepo.findByReportIdOrderByCreatedAtAsc(id);
+        auditService.log("VIEW_REPORT", "ReportAttack", String.valueOf(id), "Viewed report " + r.getReportId());
 
         // ===== Parse dynamic details for display =====
         Map<String, Object> dynMap = new LinkedHashMap<>();
@@ -269,7 +279,9 @@ public class ReportAttackController {
 
         Path filePath = Paths.get(uploadDir, r.getEvidenceFilePath());
         if (!Files.exists(filePath)) return ResponseEntity.notFound().build();
-        byte[] data = Files.readAllBytes(filePath);
+        byte[] data = encryptionService.decrypt(Files.readAllBytes(filePath));
+        auditService.log("DOWNLOAD_REPORT_EVIDENCE", "ReportAttack", String.valueOf(id),
+                "Downloaded evidence | SHA-256: " + r.getEvidenceSha256());
         String fileName = r.getEvidenceFilePath();
         int idx = fileName.indexOf("_");
         if (idx > 0) fileName = fileName.substring(idx + 1);
@@ -288,6 +300,7 @@ public class ReportAttackController {
 
         String senderType = canSeeAllReports(user) ? "ADMIN" : "USER";
         messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
+        auditService.log("REPORT_REPLY", "ReportAttack", String.valueOf(id), "Reply sent by " + user.getUsername());
 
         if ("ADMIN".equals(senderType)) {
             if (r.getUserId() != null) {
@@ -373,6 +386,8 @@ public class ReportAttackController {
         }
 
         service.updateStatus(id, status, adminResponse, assignedTo, assignedName);
+        auditService.log("UPDATE_REPORT", "ReportAttack", String.valueOf(id),
+                "Status=" + status + " | assignedTo=" + assignedTo);
 
         if (policeCaseNumber != null && !policeCaseNumber.isEmpty()) {
             ReportAttack r = service.getById(id);
