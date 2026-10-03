@@ -7,8 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🛡️ Whistleblower Portal</div></main>
+<header style="height:58px;background:linear-gradient(100deg,#03261d,#08785a);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-family:Inter,Segoe UI,sans-serif"><strong>🛡 Cyber Forensics TZ</strong><a href="/login" style="color:#fff;text-decoration:none;font-size:12px">Login →</a></header></main>
     <div class="nav-links">
         <a th:href="@{/whistleblower}">Home</a>
         <a th:href="@{/whistleblower/track}">Track Report</a>
@@ -16,7 +15,7 @@
 </div></main>
 
 <div class="app-container" style="max-width: 600px; margin: 50px auto;">
-    <div class="app-card" style="text-align: center; padding: 30px; background: linear-gradient(135deg, #0f2557, #1a3a70); color: white;">
+    <div class="app-card" style="text-align: center; padding: 30px; background: linear-gradient(135deg, #07543e, #0aa879); color: white;">
         <div style="font-size: 50px;">🔍</div></main>
         <h1 style="color: white; margin: 15px 0;">Track Your Report</h1>
         <p style="color: rgba(255,255,255,0.9);">Ingiza tracking code yako kuona updates</p>
@@ -29,7 +28,7 @@
     <form th:action="@{/whistleblower/track}" method="post" class="app-card" style="margin-top: 20px;">
         <label style="display: block; font-weight: 600; margin-bottom: 10px;">Tracking Code</label>
         <input type="text" name="code" required placeholder="WB-XXXXXXXX"
-               style="width: 100%; padding: 15px; font-size: 18px; font-family: monospace; text-align: center; letter-spacing: 3px; border: 2px solid #0f2557; border-radius: 8px; text-transform: uppercase;">
+               style="width: 100%; padding: 15px; font-size: 18px; font-family: monospace; text-align: center; letter-spacing: 3px; border: 2px solid #07543e; border-radius: 8px; text-transform: uppercase;">
         <button type="submit" class="app-btn app-btn-primary" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 15px;">
             🔍 TRACK REPORT
         </button>
