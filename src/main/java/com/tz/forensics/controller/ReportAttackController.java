@@ -1,6 +1,7 @@
 package com.tz.forensics.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.tz.forensics.config.CountryConfig;
 import com.tz.forensics.config.DynamicFieldConfig;
 import com.tz.forensics.entity.ReportAttack;
@@ -247,7 +248,7 @@ public class ReportAttackController {
         Map<String, Object> dynMap = new LinkedHashMap<>();
         if (r.getDynamicDetails() != null) {
             try {
-                dynMap = objectMapper.readValue(r.getDynamicDetails(), Map.class);
+                dynMap = objectMapper.readValue(r.getDynamicDetails(), new TypeReference<Map<String, Object>>() {});
             } catch (Exception e) { log.error("Parse dyn: {}", e.getMessage()); }
         }
 
