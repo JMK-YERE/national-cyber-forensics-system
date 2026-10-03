@@ -23,7 +23,7 @@ public class AdminAuditController {
     private boolean isAdmin(Authentication auth) {
         if (auth == null) return false;
         User u = userRepository.findByUsername(auth.getName()).orElse(null);
-        return u != null && (u.isAdmin() || u.isProfessional() || u.isForensics());
+        return u != null && (u.isAdmin() || u.isProfessional() || u.isForensics() || "ANALYST".equalsIgnoreCase(u.getRole()));
     }
 
     @GetMapping
