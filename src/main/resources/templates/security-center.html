@@ -68,7 +68,7 @@
                         <input type="url" name="url" class="tool-input" placeholder="https://example.com" required>
                         <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check URL</button>
                     </form>
-                    <div class="tool-result" id="urlResult"></div>
+                    <div th:if="${urlResult}" class="tool-result show" id="urlResult" th:text="${urlResult}"></div>
                 </div>
             </div>
 
@@ -82,7 +82,7 @@
                         <input type="text" name="ip" class="tool-input" placeholder="192.168.1.1" required>
                         <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Lookup</button>
                     </form>
-                    <div class="tool-result" id="ipResult"></div>
+                    <div th:if="${ipResult}" class="tool-result show" id="ipResult" th:text="${ipResult}"></div>
                 </div>
             </div>
 
@@ -96,7 +96,7 @@
                         <input type="text" name="domain" class="tool-input" placeholder="example.com" required>
                         <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Lookup</button>
                     </form>
-                    <div class="tool-result" id="dnsResult"></div>
+                    <div th:if="${dnsResult}" class="tool-result show" id="dnsResult" th:text="${dnsResult}"></div>
                 </div>
             </div>
 
@@ -107,10 +107,10 @@
                 <div class="tool-desc">Angalia SSL ya website</div>
                 <div class="tool-form" id="tool6">
                     <form th:action="@{/tools/ssl-check}" method="post" onsubmit="return submitForm(event, this, 'sslResult')">
-                        <input type="text" name="domain" class="tool-input" placeholder="example.com" required>
+                        <input type="text" name="url" class="tool-input" placeholder="https://example.com" required>
                         <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check SSL</button>
                     </form>
-                    <div class="tool-result" id="sslResult"></div>
+                    <div th:if="${sslResult}" class="tool-result show" id="sslResult" th:text="${sslResult}"></div>
                 </div>
             </div>
 
@@ -124,7 +124,7 @@
                         <input type="url" name="url" class="tool-input" placeholder="https://example.com" required>
                         <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check</button>
                     </form>
-                    <div class="tool-result" id="headersResult"></div>
+                    <div th:if="${headersResult}" class="tool-result show" id="headersResult" th:text="${headersResult}"></div>
                 </div>
             </div>
 
@@ -138,7 +138,7 @@
                         <input type="text" name="hash" class="tool-input" placeholder="SHA-256 hash..." required>
                         <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check</button>
                     </form>
-                    <div class="tool-result" id="hashResult"></div>
+                    <div th:if="${hashResult}" class="tool-result show" id="hashResult" th:text="${hashResult}"></div>
                 </div>
             </div>
 
@@ -152,7 +152,7 @@
                         <input type="text" name="domain" class="tool-input" placeholder="example.com" required>
                         <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px; width:100%;">🔍 Check</button>
                     </form>
-                    <div class="tool-result" id="ageResult"></div>
+                    <div th:if="${domainResult}" class="tool-result show" id="ageResult" th:text="${domainResult}"></div>
                 </div>
             </div>
         </div>
