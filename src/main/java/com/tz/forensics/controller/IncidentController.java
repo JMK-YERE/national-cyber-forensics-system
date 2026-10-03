@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/incidents")
@@ -37,26 +38,34 @@ public class IncidentController {
         this.userRepository = userRepository;
     }
 
-    private boolean isStaff(User user) {
-        return user != null && (user.isProfessional() || user.isForensics() || user.isAdmin()
-                || "ANALYST".equalsIgnoreCase(user.getRole()));
-    }
+    private boolean isAdmin(User u) { return u != null && u.isAdmin(); }
+    private boolean isCyberPro(User u) { return u != null && u.isProfessional(); }
+    private boolean isForensics(User u) { return u != null && u.isForensics(); }
+    private boolean isAnalyst(User u) { return u != null && u.isAnalyst(); }
+
+    private boolean canViewAll(User u) { return isAdmin(u) || isCyberPro(u); }
+    private boolean canManageWorkflow(User u) { return isAdmin(u) || isCyberPro(u) || isForensics(u); }
+    private boolean canAssign(User u) { return isAdmin(u) || isCyberPro(u); }
 
     private boolean canAccess(Incident incident, User user) {
         if (incident == null || user == null) return false;
-        return isStaff(user)
-                || user.getId().equals(incident.getReporterUserId())
-                || user.getId().equals(incident.getAssignedTo());
+        if (canViewAll(user)) return true;
+        return (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
+                || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
     }
-
-    private boolean canManage(User user) { return isStaff(user); }
 
     @GetMapping
     public String listIncidents(Model model, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        model.addAttribute("incidents", user != null && isStaff(user)
+        if (user == null) return "redirect:/login";
+        model.addAttribute("incidents", canViewAll(user)
                 ? incidentService.getAllIncidents()
-                : incidentService.getMyIncidents(user != null ? user.getId() : null));
+                : incidentService.getMyIncidents(user.getId()));
+        model.addAttribute("user", user);
+        model.addAttribute("isAdmin", isAdmin(user));
+        model.addAttribute("isCyberPro", isCyberPro(user));
+        model.addAttribute("isForensics", isForensics(user));
+        model.addAttribute("isAnalyst", isAnalyst(user));
         return "incidents";
     }
 
@@ -70,24 +79,21 @@ public class IncidentController {
     }
 
     @GetMapping("/new")
-    public String showForm(Model model) {
+    public String showForm(Model model, Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+        if (user == null) return "redirect:/login";
         model.addAttribute("incident", new IncidentDto());
+        model.addAttribute("user", user);
         return "incident-form";
     }
 
     @PostMapping("/new")
-    public String createIncident(@ModelAttribute("incident") IncidentDto dto,
-                                 Authentication auth, Model model) {
+    public String createIncident(@ModelAttribute("incident") IncidentDto dto, Authentication auth, Model model) {
         Incident saved = incidentService.createIncident(dto, auth.getName());
-        auditService.log("CREATE_INCIDENT", "Incident", saved.getIncidentId(),
-                "Created incident: " + saved.getTitle());
-        try { notificationService.createIncidentNotification(saved.getIncidentId(), saved.getTitle(), saved.getSeverity()); }
-        catch (Exception e) { System.err.println("Notif failed: " + e.getMessage()); }
-        try { emailService.sendIncidentAlert(saved.getIncidentId(), saved.getTitle(), saved.getSeverity()); }
-        catch (Exception e) { System.err.println("Email failed: " + e.getMessage()); }
-        try { whatsAppService.sendIncidentAlert(saved.getIncidentId(), saved.getTitle(), saved.getSeverity()); }
-        catch (Exception e) { System.err.println("WhatsApp failed: " + e.getMessage()); }
-
+        auditService.log("CREATE_INCIDENT", "Incident", saved.getIncidentId(), "Created incident: " + saved.getTitle());
+        try { notificationService.createIncidentNotification(saved.getIncidentId(), saved.getTitle(), saved.getSeverity()); } catch (Exception ignored) {}
+        try { emailService.sendIncidentAlert(saved.getIncidentId(), saved.getTitle(), saved.getSeverity()); } catch (Exception ignored) {}
+        try { whatsAppService.sendIncidentAlert(saved.getIncidentId(), saved.getTitle(), saved.getSeverity()); } catch (Exception ignored) {}
         model.addAttribute("success", "Incident imehifadhiwa! Incident ID: " + saved.getIncidentId());
         model.addAttribute("incident", new IncidentDto());
         return "incident-form";
@@ -101,11 +107,12 @@ public class IncidentController {
 
         model.addAttribute("incident", incident);
         model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(id));
+        model.addAttribute("canAssign", canAssign(currentUser));
+        model.addAttribute("canManageWorkflow", canManageWorkflow(currentUser));
 
-        if (canManage(currentUser)) {
+        if (canAssign(currentUser)) {
             List<User> assignableUsers = userRepository.findAll().stream()
-                    .filter(u -> u.isProfessional() || u.isForensics() || u.isAdmin()
-                            || "ANALYST".equalsIgnoreCase(u.getRole()))
+                    .filter(u -> u.isProfessional() || u.isForensics() || u.isAdmin() || u.isAnalyst())
                     .toList();
             model.addAttribute("assignableUsers", assignableUsers);
         }
@@ -121,52 +128,39 @@ public class IncidentController {
         User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
         User assignedUser = userRepository.findById(assignedTo).orElse(null);
         Incident incident = incidentService.getById(id);
-        if (!canManage(currentUser) || incident == null || assignedUser == null) return "redirect:/access-denied";
+        if (!canAssign(currentUser) || incident == null || assignedUser == null) return "redirect:/access-denied";
 
-        incidentService.assignIncident(id, assignedTo, assignedUser.getUsername(),
-                currentUser.getId(), priority, dueDate);
-        auditService.log("ASSIGN_INCIDENT", "Incident", String.valueOf(id),
-                "Assigned to: " + assignedUser.getUsername());
-        try {
-            notificationService.createNotification("Incident ime-assign kwako",
-                    "Una kazi mpya: Incident ID #" + id, "INFO", "/incidents/my-tasks");
-        } catch (Exception e) { }
+        incidentService.assignIncident(id, assignedTo, assignedUser.getUsername(), currentUser.getId(), priority, dueDate);
+        auditService.log("ASSIGN_INCIDENT", "Incident", String.valueOf(id), "Assigned to: " + assignedUser.getUsername());
         return "redirect:/incidents/" + id;
     }
 
     @PostMapping("/{id}/workflow")
-    public String updateWorkflow(@PathVariable Long id, @RequestParam String status,
-                                 Authentication auth) {
+    public String updateWorkflow(@PathVariable Long id, @RequestParam String status, Authentication auth) {
         User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
         Incident incident = incidentService.getById(id);
-        if (!canManage(currentUser) || !canAccess(incident, currentUser)) return "redirect:/access-denied";
+        if (!canManageWorkflow(currentUser) || !canAccess(incident, currentUser)) return "redirect:/access-denied";
 
         String normalizedStatus = status == null ? "" : status.trim().toUpperCase();
-        java.util.Set<String> allowedStatuses = java.util.Set.of(
-                "NEW", "TRIAGED", "ASSIGNED", "INVESTIGATING",
-                "CONTAINMENT", "ERADICATION", "RECOVERY", "CLOSED"
-        );
+        Set<String> allowedStatuses = Set.of("NEW","TRIAGED","ASSIGNED","INVESTIGATING","CONTAINMENT","ERADICATION","RECOVERY","CLOSED");
         if (!allowedStatuses.contains(normalizedStatus)) {
-            auditService.log("REJECT_WORKFLOW", "Incident", String.valueOf(id),
-                    "Rejected invalid workflow status: " + status);
+            auditService.log("REJECT_WORKFLOW", "Incident", String.valueOf(id), "Rejected invalid workflow status: " + status);
             return "redirect:/incidents/" + id;
         }
-
         incidentService.updateWorkflowStatus(id, normalizedStatus);
-        auditService.log("UPDATE_WORKFLOW", "Incident", String.valueOf(id),
-                "Workflow: " + normalizedStatus);
+        auditService.log("UPDATE_WORKFLOW", "Incident", String.valueOf(id), "Workflow: " + normalizedStatus);
         return "redirect:/incidents/" + id;
     }
 
     @GetMapping("/search")
-    public String searchPage(@RequestParam(required = false) String incidentId,
-                             Model model, Authentication auth) {
+    public String searchPage(@RequestParam(required = false) String incidentId, Model model, Authentication auth) {
         User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (!isStaff(currentUser)) return "redirect:/access-denied";
+        if (!(isAdmin(currentUser) || isCyberPro(currentUser) || isForensics(currentUser))) return "redirect:/access-denied";
         if (incidentId != null && !incidentId.isBlank()) {
             model.addAttribute("results", incidentService.searchByIncidentId(incidentId));
             model.addAttribute("searchId", incidentId);
         }
+        model.addAttribute("user", currentUser);
         return "search";
     }
 }
