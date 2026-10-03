@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Email Verification | Cyber Forensics TZ</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#eef8f5,#f7fbff);font-family:"Segoe UI",Tahoma,sans-serif;color:#071827}.card{width:min(520px,90vw);background:#fff;border-radius:18px;padding:38px;text-align:center;box-shadow:0 22px 60px rgba(4,28,48,.14);border-top:5px solid #16A34A}.icon{font-size:58px}h1{margin:10px 0;color:#064E3B}.msg{color:#607184;line-height:1.6}.btn{display:inline-block;margin-top:22px;background:linear-gradient(135deg,#064E3B,#16A34A);color:#fff;text-decoration:none;padding:11px 22px;border-radius:9px;font-weight:800}
+</style></head>
+<body><main class="card"><div class="icon" th:text="${success} ? '✅' : '⚠️'">⚠️</div><h1 th:text="${success} ? 'Email Imethibitishwa' : 'Verification Imeshindikana'">Email Verification</h1><p class="msg" th:text="${message}">Verification result.</p><a class="btn" th:href="@{/login}">🔐 Rudi Login</a></main></body></html>
