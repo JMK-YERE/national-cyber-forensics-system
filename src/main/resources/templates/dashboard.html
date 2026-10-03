@@ -1,68 +1,46 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Cyber Forensics System</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard | National Cyber Security & Digital Forensics</title><link rel="stylesheet" th:href="@{/css/theme.css}">
+<style>
+.hero{background:linear-gradient(105deg,#03261d,#07543e 55%,#087d93);color:#fff;border-radius:18px;padding:25px 28px;margin-bottom:17px;position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(3,38,29,.18)}.hero:after{content:"";position:absolute;right:-100px;top:-130px;width:350px;height:350px;border-radius:50%;border:55px solid rgba(8,199,216,.12)}.hero h1{color:#fff;font-size:28px;margin:0 0 6px}.hero p{color:#dff8ee;margin:0;font-size:13px}.role-pill{display:inline-flex;margin-top:14px;padding:6px 10px;border-radius:20px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.2);font-size:10px;font-weight:900;letter-spacing:.8px}.role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px;margin-bottom:17px}.role-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);transition:.2s}.role-card:hover{transform:translateY(-2px);border-color:#9bcdbd}.role-card .icon{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:var(--mint);color:var(--forest-900);font-size:20px;margin-bottom:10px}.role-card h3{font-size:15px;color:var(--forest-950);margin-bottom:5px}.role-card p{font-size:12px;color:var(--muted);margin-bottom:12px}.role-card a{font-size:11px;font-weight:900;color:var(--forest-800)}.two-col{display:grid;grid-template-columns:1.35fr .65fr;gap:15px}.map-card{min-height:360px}.map-placeholder{height:270px;border-radius:12px;background:radial-gradient(circle at 52% 40%,rgba(8,199,216,.28),transparent 30%),linear-gradient(145deg,#063b2c,#075b46);position:relative;overflow:hidden}.map-placeholder:before{content:"TANZANIA";position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.1);font-size:70px;font-weight:900;letter-spacing:8px;transform:rotate(-8deg)}.map-note{position:absolute;left:15px;bottom:13px;color:#dff8ee;font-size:11px;background:rgba(3,38,29,.65);padding:7px 10px;border-radius:8px}.status-row{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}.status-dot{width:7px;height:7px;display:inline-block;border-radius:50%;background:var(--green);margin-right:6px}.activity{max-height:360px;overflow:auto}.empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}.permission-note{font-size:11px;color:var(--muted);margin-top:4px}@media(max-width:900px){.two-col{grid-template-columns:1fr}.hero h1{font-size:23px}}
+</style></head>
 <body>
-<div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ</div></main>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
-        <a th:href="@{/incidents/new}">➕ Report</a>
-        <a th:href="@{/incidents/search}">🔍 Search</a>
-        <a th:href="@{/tools/security-center}">🛡️ Security Center</a>
-        <a th:href="@{/notifications}">🔔 Notifications</a>
-        <a th:href="@{/audit}">📊 Audit</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
-    </div></main>
-</div></main>
-
+<div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 <main class="app-main"><div class="app-container">
-    <div class="app-card">
-        <h1>Welcome, <span th:text="${username}">User</span></h1>
-        <p>Role: <strong th:text="${role}">ROLE</strong></p>
-        <p>Mfumo wa Kitaifa wa Kuripoti Matukio ya Usalama wa Mtandao na Uchambuzi wa Ushahidi wa Kidijitali - Tanzania.</p>
-    </div></main>
+<section class="hero"><h1>Welcome, <span th:text="\${username}">User</span></h1>
+<p th:if="\${isAdmin}">Administrator workspace — manage users, security operations, compliance and the whole platform.</p>
+<p th:if="\${isCyberPro}">Cyber Pro workspace — review reports, coordinate investigations and supervise operational work.</p>
+<p th:if="\${isForensics}">Forensics workspace — investigate cases, manage evidence and maintain forensic workflow integrity.</p>
+<p th:if="\${isAnalyst}">Analyst workspace — analyze incidents, monitor cases and review the audit trail.</p>
+<p th:unless="\${isStaff}">Personal security workspace — report incidents, monitor your reports and use basic security checks.</p>
+<span class="role-pill" th:text="\${role}">INDIVIDUAL</span></section>
 
-    <div class="app-stats-grid">
-        <div class="app-stat-box">
-            <div class="stat-value" th:text="${totalIncidents}">0</div></main>
-            <div class="stat-label">Total Incidents</div></main>
-        </div></main>
-        <div class="app-stat-box">
-            <div class="stat-value">🔐</div></main>
-            <div class="stat-label">Encrypted Evidence</div></main>
-        </div></main>
-        <div class="app-stat-box">
-            <div class="stat-value">🛡️</div></main>
-            <div class="stat-label">Chain of Custody</div></main>
-        </div></main>
-        <div class="app-stat-box">
-            <div class="stat-value"></div></main>
-            <div class="stat-label">TCRA Ready</div></main>
-        </div></main>
-    </div></main>
+<div class="app-stats-grid" th:if="\${isStaff}">
+<div class="app-stat-box"><div class="value" th:text="\${totalReports != null ? totalReports : 0}">0</div><div class="label">All Reports</div></div>
+<div class="app-stat-box"><div class="value" th:text="\${newReports != null ? newReports : 0}">0</div><div class="label">New / Pending</div></div>
+<div class="app-stat-box"><div class="value" th:text="\${totalWb != null ? totalWb : 0}">0</div><div class="label">Whistleblower Reports</div></div>
+<div class="app-stat-box"><div class="value" th:text="\${totalUsers != null ? totalUsers : 0}">0</div><div class="label">Registered Users</div></div></div>
 
-    <div class="app-card">
-        <h2>⚡ Quick Actions</h2>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
-            <a th:href="@{/incidents/new}" class="app-btn app-btn-outline">➕ Report New Incident</a>
-            <a th:href="@{/incidents}" class="app-btn app-btn-outline">📋 View All Incidents</a>
-            <a th:href="@{/incidents/search}" class="app-btn app-btn-outline">🔍 Search Incident</a>
-            <a th:href="@{/audit}" class="app-btn app-btn-outline">📊 View Audit Log</a>
-        </div></main>
-    </div></main>
+<div class="app-stats-grid" th:unless="\${isStaff}">
+<div class="app-stat-box"><div class="value" th:text="\${user != null && user.securityScore != null ? user.securityScore : 0}">0</div><div class="label">Security Score</div></div>
+<div class="app-stat-box"><div class="value" th:text="\${myReports != null ? myReports.size() : 0}">0</div><div class="label">My Reports</div></div>
+<div class="app-stat-box"><div class="value" th:text="\${user != null && user.has2fa != null && user.has2fa ? 'ON' : 'OFF'}">OFF</div><div class="label">Two-Factor Auth</div></div>
+<div class="app-stat-box"><div class="value" th:text="\${user != null && user.breachChecked != null && user.breachChecked ? 'CHECKED' : '—'}">—</div><div class="label">Breach Check</div></div></div>
 
-    <footer>
-         National Cyber Security & Digital Forensics System | Tanzania
-    </footer>
-</div></main>
-<script th:src="@{/js/app.js}"></script>
-</body>
-</html>
+<section class="role-grid">
+<div class="role-card" th:if="\${isAdmin}"><div class="icon">♛</div><h3>Administration</h3><p>Users, roles, system settings, announcements, compliance and audit.</p><a th:href="@{/admin/users}">Manage access →</a></div>
+<div class="role-card" th:if="\${isCyberPro}"><div class="icon">◈</div><h3>Operational Supervision</h3><p>Review incoming reports and coordinate cases that require professional attention.</p><a th:href="@{/report-attack/admin}">Review reports →</a></div>
+<div class="role-card" th:if="\${isForensics}"><div class="icon">⌘</div><h3>Forensic Workspace</h3><p>Open investigations, evidence and chain-of-custody workflow.</p><a th:href="@{/incidents}">Open cases →</a></div>
+<div class="role-card" th:if="\${isAnalyst}"><div class="icon">⌁</div><h3>Analysis & Audit</h3><p>Investigate assigned work and inspect accountable system activity.</p><a th:href="@{/incidents}">Analyze cases →</a></div>
+<div class="role-card" th:unless="\${isStaff}"><div class="icon">⚠</div><h3>Report a Cyber Incident</h3><p>Submit a report and follow its progress from your personal account.</p><a th:href="@{/report-attack}">Start report →</a></div>
+<div class="role-card" th:unless="\${isStaff}"><div class="icon">🛡</div><h3>Basic Security Tools</h3><p>Password and URL checks are available without exposing staff investigation tools.</p><a th:href="@{/tools/security-center}">Open tools →</a></div></section>
+
+<div class="two-col" th:if="\${isStaff}">
+<section class="app-card map-card"><h2>Cyber Incident Map</h2><p class="permission-note">Staff-only view of aggregated reported incidents. Individual users cannot access this map.</p><div class="map-placeholder"><a th:href="@{/threat-map}" class="app-btn app-btn-cyan" style="position:absolute;left:15px;top:15px">Open live map →</a><div class="map-note">Regional incident view · no reporter identity shown</div></div></section>
+<section class="app-card"><h2>System Access</h2><div class="status-row"><span><i class="status-dot"></i>Dashboard</span><b>Active</b></div><div class="status-row"><span><i class="status-dot"></i>Incident workflow</span><b>Connected</b></div><div class="status-row"><span><i class="status-dot"></i>Evidence controls</span><b>Role protected</b></div><div class="status-row"><span><i class="status-dot"></i>Audit</span><b th:text="\${isAdmin || isAnalyst ? 'Available' : 'Restricted'}">Restricted</b></div></section></div>
+
+<section class="app-card" th:if="\${isStaff}"><h2>Recent Reports</h2><div class="activity" th:if="\${recentReports != null && !recentReports.isEmpty()}"><div th:each="r : \${recentReports}" class="app-list-item"><div><strong th:text="\${r.reportId}">REPORT</strong><span style="margin-left:9px;color:var(--green);font-weight:800" th:text="\${r.attackTypeLabel}">TYPE</span><br><small th:text="\${r.title}">Title</small><br><small style="color:var(--muted)" th:text="\${r.status}">NEW</small></div><a th:href="@{'/report-attack/view/' + \${r.id}}" class="app-btn app-btn-primary">Open</a></div></div><div class="empty" th:unless="\${recentReports != null && !recentReports.isEmpty()}">No reports found.</div></section>
+
+<section class="app-card" th:unless="\${isStaff}"><h2>My Reports</h2><div th:if="\${myReports != null && !myReports.isEmpty()}"><div th:each="r : \${myReports}" class="app-list-item"><div><strong th:text="\${r.reportId}">REPORT</strong><br><small th:text="\${r.title}">Title</small><br><small style="color:var(--muted)" th:text="\${r.status}">STATUS</small></div><a th:href="@{'/report-attack/view/' + \${r.id}}" class="app-btn app-btn-primary">View</a></div></div><div class="empty" th:unless="\${myReports != null && !myReports.isEmpty()}">You have not submitted an incident yet. <a th:href="@{/report-attack}" style="color:var(--forest-800);font-weight:900">Report one →</a></div></section>
+<footer>National Cyber Security & Digital Forensics System · Tanzania</footer>
+</div></main><script th:src="@{/js/app.js}"></script></body></html>
