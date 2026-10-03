@@ -1,26 +1,32 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<body>
-<div class="navbar" th:fragment="navbar">
-    <div class="logo">🛡️ <span th:text="#{app.title}">Cyber Forensics</span></div>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}" th:text="#{nav.dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}" th:text="#{nav.report}">Report</a>
-        <a th:href="@{/ai/assistant}" th:text="#{nav.ai}">AI</a>
-        <a th:href="@{/tools/security-center}" th:text="#{nav.tools}">Tools</a>
-        <a th:href="@{/notifications}">🔔 <span th:text="#{nav.notifications}">Notifications</span></a>
-
-        <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')"
-           th:href="@{/report-attack/admin}"
-           style="color:#C9A227; font-weight:bold;">👑 <span th:text="#{nav.admin}">Admin</span></a>
-
-        <a th:href="@{/change-password}" style="color: #34D399;">🔐 <span th:text="#{password.change}">Password</span></a>
-
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn" th:text="#{nav.logout}">Logout</button>
-        </form>
-    </div>
-</div>
-</body>
-</html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body><div th:fragment="navbar" class="legacy-nav-shell">
+<header class="app-header">
+<button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+<div class="header-logo"><span class="logo-icon">🛡</span><span>Cyber Security &amp; Digital Forensics</span></div>
+<div class="header-clock"><span id="legacyDate">—</span><b id="legacyTime">--:--:--</b></div>
+<div class="header-profile"><a class="profile-btn" th:href="@{/dashboard}"><span class="profile-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'}">U</span><span>Dashboard</span></a></div>
+</header>
+<aside class="app-sidebar"><nav class="sidebar-nav">
+<a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label">Dashboard</span></a>
+<div class="sidebar-section">Incident Work</div>
+<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Incident</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/incidents}" class="sidebar-item"><span class="icon">◈</span><span class="label">Investigations</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label">Cyber Incident Map</span></a>
+<div class="sidebar-section">My Account</div>
+<a th:href="@{/notifications}" class="sidebar-item"><span class="icon">♢</span><span class="label">Notifications</span></a>
+<a th:href="@{/downloads}" class="sidebar-item"><span class="icon">↓</span><span class="label">Downloads</span></a>
+<a th:href="@{/change-password}" class="sidebar-item"><span class="icon">🔐</span><span class="label">Change Password</span></a>
+<div class="sidebar-section">Security Tools</div>
+<a th:href="@{/tools/security-center}" class="sidebar-item"><span class="icon">⌘</span><span class="label">Basic Security Tools</span></a>
+<a th:href="@{/ai/assistant}" class="sidebar-item"><span class="icon">🤖</span><span class="label">AI Assistant</span></a>
+<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" class="sidebar-section">Professional</div>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO')" th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label">Users &amp; Access</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/admin/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_ANALYST')" th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit Trail</span></a>
+<a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label">System Settings</span></a>
+</nav></aside>
+<a th:href="@{/ai/assistant}" class="ai-floating" aria-label="AI Assistant"><span style="font-size:38px">🤖</span><span class="ai-floating-label">AI Assistant</span></a>
+<script>document.addEventListener('DOMContentLoaded',function(){function tick(){const d=new Date();const date=d.toLocaleDateString('sw-TZ',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const time=d.toLocaleTimeString('en-GB');const a=document.getElementById('legacyDate'),b=document.getElementById('legacyTime');if(a)a.textContent=date;if(b)b.textContent=time}tick();setInterval(tick,1000)});</script>
+</div></body></html>
