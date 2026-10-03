@@ -1,36 +1,60 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar"><nav class="sidebar-nav">
+<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar">
+<nav class="sidebar-nav">
 <a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label">Dashboard</span></a>
+
 <div class="sidebar-section">Incident Work</div>
-<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Incident</span></a>
+<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Attack</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label">Threat Map</span></a>
 <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/incidents}" class="sidebar-item"><span class="icon">◈</span><span class="label">Investigations</span></a>
-<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label">Cyber Incident Map</span></a>
+
+<div class="sidebar-section">Security Tools</div>
+<button class="sidebar-item sidebar-parent" onclick="toggleSubmenu('toolsMenu',this)" type="button"><span class="icon">⌘</span><span class="label">Security Tools</span><span class="arrow">›</span></button>
+<div class="sidebar-submenu" id="toolsMenu">
+<a th:href="@{/tools/security-center#password}" class="sidebar-subitem">🔐 Password Strength</a>
+<a th:href="@{/tools/security-center#url}" class="sidebar-subitem">🌐 URL Safety Check</a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/tools/security-center#ip}" class="sidebar-subitem">🌍 IP Lookup</a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/tools/security-center#dns}" class="sidebar-subitem">🔎 DNS Lookup</a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/tools/security-center#ssl}" class="sidebar-subitem">🔒 SSL Certificate</a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/tools/security-center#headers}" class="sidebar-subitem">📊 HTTP Headers</a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/tools/security-center#hash}" class="sidebar-subitem">🗂 File Hash</a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/tools/security-center#domain-age}" class="sidebar-subitem">📅 Domain Age</a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/tools/security-center#breach}" class="sidebar-subitem">🔓 Password Breach</a>
+</div>
+
 <div class="sidebar-section">My Account</div>
 <a th:href="@{/notifications}" class="sidebar-item"><span class="icon">♢</span><span class="label">Notifications</span></a>
 <a th:href="@{/downloads}" class="sidebar-item"><span class="icon">↓</span><span class="label">Downloads</span></a>
-<a th:href="@{/change-password}" class="sidebar-item"><span class="icon">🔐</span><span class="label">Change Password</span></a>
-<div class="sidebar-section">Security Tools</div>
-<button class="sidebar-item" onclick="toggleSubmenu('toolsMenu',this)"><span class="icon">⌘</span><span class="label">Security Tools</span><span class="arrow">›</span></button>
-<div class="sidebar-submenu" id="toolsMenu">
-<a th:href="@{/tools/security-center}" class="sidebar-subitem"><span class="dot"></span>Security Center</a>
-<a th:href="@{/tools/security-center#password}" class="sidebar-subitem"><span class="dot"></span>Password Check</a>
-<a th:href="@{/tools/security-center#url}" class="sidebar-subitem"><span class="dot"></span>URL Safety Check</a>
-<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" th:href="@{/tools/security-center#ip}" class="sidebar-subitem"><span class="dot"></span>IP Lookup</a>
-</div>
+
 <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')">
 <div class="sidebar-section">Professional Workspace</div>
 <a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
 <a th:href="@{/incidents/my-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label">My Tasks</span></a>
 </div>
-<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')"><a th:href="@{/admin/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a></div>
-<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_ANALYST')"><a th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit Trail</span></a></div>
-<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO')">
-<div class="sidebar-section">Management</div><a th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label">Users & Access</span></a></div>
+
 <div sec:authorize="hasAuthority('ROLE_ADMIN')">
+<div class="sidebar-section">Admin Panel</div>
+<a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">▣</span><span class="label">All Reports</span></a>
+<a th:href="@{/whistleblower/admin}" class="sidebar-item"><span class="icon">🕵</span><span class="label">Whistleblower</span></a>
+<a th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label">Users Management</span></a>
+<a th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit Log</span></a>
 <a th:href="@{/admin/announcements}" class="sidebar-item"><span class="icon">✦</span><span class="label">Announcements</span></a>
-<a th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label">System Settings</span></a></div>
-</nav></aside>
-<a th:href="@{/ai/assistant}" class="ai-floating" aria-label="Open AI Assistant"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="aiGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0aa879"/><stop offset="1" stop-color="#08c7d8"/></linearGradient></defs><circle cx="50" cy="50" r="46" fill="#fff" stroke="#08c7d8" stroke-width="3"/><path d="M31 48c0-13 8-21 19-21s19 8 19 21v22H31z" fill="url(#aiGrad)"/><circle cx="43" cy="46" r="3"/><circle cx="57" cy="46" r="3"/><path d="M42 57q8 7 16 0" fill="none" stroke="#03261d" stroke-width="2.5" stroke-linecap="round"/><path d="M50 27V17" stroke="#08c7d8" stroke-width="3"/><circle cx="50" cy="13" r="4" fill="#08c7d8"/></svg><span class="ai-floating-label">AI Assistant</span></a>
+<a th:href="@{/admin/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
+<a th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label">Settings</span></a>
+</div>
+</nav>
+</aside>
+
+<a th:href="@{/ai/assistant}" class="ai-floating" aria-label="Uliza AI">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI robot">
+<defs><linearGradient id="aiGrad2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16A34A"/><stop offset="1" stop-color="#06D6D6"/></linearGradient></defs>
+<circle cx="50" cy="50" r="46" fill="#fff" stroke="#06D6D6" stroke-width="3"/>
+<rect x="29" y="30" width="42" height="40" rx="13" fill="url(#aiGrad2)"/>
+<circle cx="42" cy="48" r="4" fill="#071827"/><circle cx="58" cy="48" r="4" fill="#071827"/>
+<path d="M41 58 Q50 65 59 58" fill="none" stroke="#071827" stroke-width="3" stroke-linecap="round"/>
+<path d="M50 30V18" stroke="#06D6D6" stroke-width="4"/><circle cx="50" cy="14" r="4" fill="#06D6D6"/>
+</svg><span class="ai-floating-label">Uliza AI →</span>
+</a>
 </body></html>
