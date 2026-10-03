@@ -31,7 +31,8 @@ public class CaseFileController {
     }
 
     private boolean canManageCases(User user) {
-        return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
+        return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics()
+                || "ANALYST".equalsIgnoreCase(user.getRole()));
     }
 
     @GetMapping
