@@ -32,6 +32,7 @@ public class ComplianceController {
         this.service = service;
         this.userRepository = userRepository;
         this.auditService = auditService;
+        this.pdfReportService = pdfReportService;
     }
 
     private boolean canAccess(User user) {
