@@ -69,6 +69,17 @@ public class EmailService {
         sendEmail(to, subject, body);
     }
 
+    public void sendPasswordResetEmail(String to, String username, String token) {
+        String subject = "🔑 Reset password - " + appName;
+        String body = "Habari " + username + ",\n\n"
+                + "Umeomba kutengeneza password mpya.\n\n"
+                + appUrl + "/reset-password?token=" + token + "\n\n"
+                + "Link hii ita-expire ndani ya saa 1.\n"
+                + "Kama hukuomba reset, puuza ujumbe huu.\n\n"
+                + appName + " - Tanzania 🇹🇿";
+        sendEmail(to, subject, body);
+    }
+
     // ===== KWA MTU MWENYEWE (Welcome) =====
     public void sendWelcomeEmail(String to, String username) {
         String subject = "🇹🇿 Karibu " + appName + ", " + username + "!";
