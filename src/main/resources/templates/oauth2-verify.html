@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Secure Sign-in | Cyber Forensics TZ</title>
+<style>
+:root{--g:#07543e;--g2:#0aa879;--c:#08c7d8;--ink:#10251f;--muted:#667b74;--line:#d8e8e1;--danger:#b4232c}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#d9fff0,#f7fbfa 48%,#eaf8f5);font-family:Inter,"Segoe UI",system-ui,sans-serif;color:var(--ink);display:grid;place-items:center;padding:18px}
+.auth{width:min(470px,94vw);background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 20px 60px rgba(3,70,48,.16);overflow:hidden}.topbar{height:7px;background:linear-gradient(90deg,var(--g),var(--g2),var(--c))}
+.box{padding:28px}.shield{width:56px;height:56px;margin:0 auto 10px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;font-size:28px;box-shadow:0 10px 24px rgba(10,168,121,.22)}
+.brand{text-align:center;font-weight:900;color:var(--g);font-size:15px}.brand span{color:var(--c)}h1{text-align:center;font-size:24px;margin:16px 0 5px;color:var(--g)}.sub{text-align:center;color:var(--muted);font-size:12px;line-height:1.6;margin:0 auto 18px;max-width:390px}
+.notice{border:1px solid #ccefe0;background:#effcf6;border-radius:12px;padding:13px;font-size:12px;line-height:1.6;margin-bottom:14px}.notice strong{color:var(--g)}.mail{text-align:center;font-weight:900;color:var(--g);margin:8px 0 16px}
+.alert{padding:10px 12px;border-radius:10px;font-size:12px;margin-bottom:12px}.err{background:#fff1f2;color:var(--danger);border:1px solid #ffd2d7}.ok{background:#effcf6;color:#08785a;border:1px solid #ccefe0}
+button{width:100%;min-height:44px;border:0;border-radius:10px;font-size:13px;font-weight:900;cursor:pointer}.accept{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff}.decline{background:#fff;border:1px solid var(--line);color:var(--muted);margin-top:9px}
+.otp-form{margin-top:15px}.otp-input{width:100%;height:54px;border:2px solid var(--line);border-radius:12px;text-align:center;font-size:25px;letter-spacing:9px;font-weight:900;color:var(--g);outline:0}.otp-input:focus{border-color:var(--g2);box-shadow:0 0 0 4px rgba(10,168,121,.1)}
+.timer{text-align:center;margin:12px 0;color:var(--muted);font-size:12px}.timer strong{color:var(--danger);font-size:15px}.secondary{background:#fff;border:1px solid var(--line);color:var(--g);margin-top:9px}.steps{display:flex;gap:7px;margin:0 0 18px}.step{flex:1;padding:8px 5px;border-radius:9px;background:#f2f7f5;color:#71827c;text-align:center;font-size:10px;font-weight:850}.step.active{background:#e2f8ef;color:var(--g)}.foot{text-align:center;margin-top:17px;font-size:10px;color:#82928d}
+@media(max-width:480px){body{padding:10px}.box{padding:22px 18px}h1{font-size:21px}.otp-input{font-size:22px;letter-spacing:7px}}
+</style></head>
+<body>
+<main class="auth"><div class="topbar"></div><section class="box">
+<div class="shield">🛡️</div><div class="brand">Cyber Forensics <span>TZ</span></div>
+<h1>Completing sign-in</h1><p class="sub">Verifying your device to keep your account secure…</p>
+<div class="steps"><div class="step active">1. Google account</div><div class="step active">2. Security check</div><div class="step" th:classappend="\${sent} ? ' active' : ''">3. Email OTP</div></div>
+<div class="alert err" th:if="\${error}" th:text="\${error}"></div><div class="alert ok" th:if="\${expired}">⏱️ OTP yako ime-expire. Omba OTP mpya.</div>
+<div th:if="\${!sent}">
+<div class="notice">Google imethibitisha akaunti yako. Kabla ya kufungua dashboard, <strong>kubali security verification</strong>. Tutatuma OTP ya tarakimu 6 kwenye email yako. OTP ita-expire ndani ya <strong>sekunde 60</strong>.</div>
+<div class="mail" th:text="\${emailMasked}"></div>
+<form th:action="@{/oauth2/verify/send}" method="post"><input type="hidden" th:name="\${_csrf.parameterName}" th:value="\${_csrf.token}"><button class="accept" type="submit">✓ I ACCEPT — SEND OTP TO MY EMAIL</button></form>
+<form th:action="@{/oauth2/verify/decline}" method="post"><input type="hidden" th:name="\${_csrf.parameterName}" th:value="\${_csrf.token}"><button class="decline" type="submit">Cancel and return to login</button></form>
+</div>
+<div th:if="\${sent}">
+<div class="notice">📧 OTP imetumwa kwenye <strong th:text="\${emailMasked}"></strong>. Imefunguliwa kwa sekunde 60 tu.</div>
+<form class="otp-form" th:action="@{/oauth2/verify/check}" method="post" autocomplete="one-time-code"><input type="hidden" th:name="\${_csrf.parameterName}" th:value="\${_csrf.token}"><input class="otp-input" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="••••••" autocomplete="one-time-code" required autofocus><div class="timer">OTP expires in <strong id="countdown">60</strong> seconds</div><button class="accept" id="verifyBtn" type="submit">🔐 VERIFY & ENTER DASHBOARD</button></form>
+<form th:action="@{/oauth2/verify/resend}" method="post"><input type="hidden" th:name="\${_csrf.parameterName}" th:value="\${_csrf.token}"><button class="secondary" type="submit">↻ Resend a new OTP</button></form>
+</div>
+<div class="foot">Never share your OTP. Cyber Forensics TZ will never ask you to send it to another person.</div>
+</section></main>
+<script th:if="\${sent}">
+(function(){const sentAt=Number('[[\${session.OAUTH_OTP_SENT_AT}]]');const end=sentAt+60000;const timer=document.getElementById('countdown');const btn=document.getElementById('verifyBtn');function tick(){const left=Math.max(0,Math.ceil((end-Date.now())/1000));timer.textContent=left;if(left<=0){btn.disabled=true;btn.style.opacity='.55';}}tick();setInterval(tick,250);})();
+</script>
+</body></html>
