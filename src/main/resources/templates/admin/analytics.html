@@ -16,7 +16,7 @@
 <div class="app-stat-box"><div class="label">Whistleblower</div><div class="value" th:text="${totalWhistleblowers}">0</div></div>
 </div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
-<section class="app-card"><h2>Reports by Status</h2><canvas id="statusChart"></canvas></section>
+<section class="app-card"><h2>Reports by Status</h2><div style="height:280px"><canvas id="statusChart"></canvas></div></section>
 <section class="app-card"><h2>Reports by Attack Type</h2><canvas id="categoryChart"></canvas></section>
 </div>
 </div></main>
@@ -24,7 +24,7 @@
 <script th:inline="javascript">
 const statusLabels=[[${statusLabels}]], statusValues=[[${statusValues}]];
 const categoryLabels=[[${categoryLabels}]], categoryValues=[[${categoryValues}]];
-new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:statusLabels,datasets:[{data:statusValues}]},options:{responsive:true}});
-new Chart(document.getElementById('categoryChart'),{type:'bar',data:{labels:categoryLabels,datasets:[{label:'Reports',data:categoryValues}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+new Chart(document.getElementById('statusChart'),{type:'line',data:{labels:statusLabels,datasets:[{data:statusValues}]},options:{responsive:true}});
+new Chart(document.getElementById('categoryChart'),{type:'bar',data:{labels:categoryLabels,datasets:[{label:'Reports',data:categoryValues}]},options:{responsive:true,plugins:{legend:{display:false}},elements:{line:{tension:.35},point:{radius:4}},scales:{y:{beginAtZero:true}}}});
 </script>
 </body></html>
