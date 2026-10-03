@@ -1,53 +1,23 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="#{nav.incidents} + ' - ' + #{app.title}">Incidents</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Investigations | Cyber Forensics TZ</title><link rel="stylesheet" th:href="@{/css/theme.css}"></head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div></main>
-<div th:replace="~{fragments/sidebar :: sidebar}"></div></main>
-
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 <main class="app-main"><div class="app-container">
-    <div class="app-card">
-        <h1 th:text="#{nav.incidents}">Incidents</h1>
-        <div style="margin-top:15px;">
-            <a th:href="@{/incidents/new}" class="app-btn app-btn-primary">➕ <span th:text="#{nav.report}">Report</span></a>
-            <a th:href="@{/incidents/search}" class="app-btn app-btn-outline">🔍 <span th:text="#{general.search}">Search</span></a>
-        </div></main>
-    </div></main>
-
-    <div class="app-card">
-        <table>
-            <thead>
-            <tr>
-                <th>Incident ID</th>
-                <th th:text="#{report.title2}">Title</th>
-                <th>Severity</th>
-                <th th:text="#{report.status}">Status</th>
-                <th th:text="#{report.region}">Region</th>
-                <th th:text="#{general.date}">Date</th>
-                <th th:text="#{general.action}">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:if="${incidents.isEmpty()}">
-                <td colspan="7" style="text-align:center;">Hakuna matukio bado.</td>
-            </tr>
-            <tr th:each="inc : ${incidents}" th:class="${inc.statusClass}">
-                <td th:text="${inc.incidentId}"></td>
-                <td th:text="${inc.title}"></td>
-                <td th:text="${inc.severity}"></td>
-                <td th:text="${inc.status}"></td>
-                <td th:text="${inc.region}"></td>
-                <td th:text="${#temporals.format(inc.dateReported, 'yyyy-MM-dd HH:mm')}"></td>
-                <td><a th:href="@{'/incidents/' + ${inc.id}}" th:text="#{general.view}">View</a></td>
-            </tr>
-            </tbody>
-        </table>
-    </div></main>
-</div></main>
+<section class="app-card" style="background:linear-gradient(135deg,#0A1628,#0F2744);color:#fff">
+<h1 style="color:#fff">🔎 Investigations</h1><p style="color:#dbeafe">Incident cases zinazoshughulikiwa na authorized staff.</p>
+<div style="margin-top:15px"><a th:href="@{/incidents/new}" class="app-btn app-btn-primary">➕ Report Incident</a><a th:href="@{/incidents/search}" class="app-btn app-btn-outline" style="margin-left:8px">🔍 Search</a></div>
+</section>
+<section class="app-card">
+<div th:if="${incidents == null || incidents.isEmpty()}" style="text-align:center;padding:45px;color:#61736d"><div style="font-size:45px">📭</div><p>Hakuna investigation/case bado.</p></div>
+<div th:if="${incidents != null && !incidents.isEmpty()}" style="overflow:auto">
+<table style="width:100%;border-collapse:collapse"><thead><tr><th>Incident ID</th><th>Title</th><th>Severity</th><th>Status</th><th>Region</th><th>Date</th><th>Action</th></tr></thead>
+<tbody><tr th:each="inc : ${incidents}">
+<td th:text="${inc.incidentId}"></td><td th:text="${inc.title}"></td><td th:text="${inc.severity}"></td><td th:text="${inc.status}"></td><td th:text="${inc.region}"></td><td th:text="${#temporals.format(inc.dateReported,'yyyy-MM-dd HH:mm')}"></td>
+<td><a th:href="@{/incidents/{id}(id=${inc.id})}" class="app-btn app-btn-outline">View</a></td>
+</tr></tbody></table></div>
+</section></div></main>
 <script th:src="@{/js/app.js}"></script>
-</body>
-</html>
+</body></html>
