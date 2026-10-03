@@ -61,13 +61,13 @@ public class PasswordController {
                     "Cyber Forensics TZ: OTP ya reset password ni " + otp + ". Inaisha ndani ya dakika 10.");
         }
         ra.addFlashAttribute("sent", true);
-        return "redirect:/forgot-password?sent=sms";
+        return "redirect:/reset-password?sms=true";
     }
 
     @GetMapping("/reset-password")
-    public String resetForm(@RequestParam(required = false) String token, Model model) {
+    public String resetForm(@RequestParam(required = false) String token, @RequestParam(required = false) String sms, Model model) {
         model.addAttribute("token", token == null ? "" : token);
-        model.addAttribute("smsMode", false);
+        model.addAttribute("smsMode", sms != null);
         return "reset-password";
     }
 
