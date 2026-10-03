@@ -125,19 +125,19 @@ public class ReportAttack {
 
     // ===== HELPERS =====
     public String getAttackTypeLabel() {
-        if (attackType == null) return "❓ Unknown";
+        if (attackType == null) return "Unknown";
         try {
             return IncidentType.valueOf(attackType).getLabel();
         } catch (Exception e) {
-            return "❓ " + attackType;
+            return attackType.replace("_", " ");
         }
     }
 
     public String getAttackTypeIcon() {
-        if (attackType == null) return "❓";
+        if (attackType == null) return "•";
         try {
             return IncidentType.valueOf(attackType).getIcon();
-        } catch (Exception e) { return "❓"; }
+        } catch (Exception e) { return "•"; }
     }
 
     public String getAttackTypeColor() {
