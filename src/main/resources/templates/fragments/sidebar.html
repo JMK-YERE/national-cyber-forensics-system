@@ -32,7 +32,7 @@
 <div class="sidebar-section">Professional Workspace</div>
 <a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label">Review Reports</span></a>
 <a th:href="@{/incidents/my-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label">My Tasks</span></a>
-<a th:if="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
+<a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Compliance</span></a>
 </div>
 
 <div sec:authorize="hasAuthority('ROLE_ADMIN')">
