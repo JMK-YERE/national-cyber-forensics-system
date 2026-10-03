@@ -3,10 +3,10 @@
 <body>
 <header class="app-header" th:fragment="header">
 <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
-<div class="header-logo"><span class="logo-icon">🛡</span><span>Cyber Security & Digital Forensics</span></div>
-<div class="header-clock"><span>📅</span><span class="clock-date" id="clockDate">—</span><span>•</span><span class="clock-time" id="clockTime">--:--:--</span><span style="margin-left:10px"><a th:href="@{/lang(lang=sw)}" style="color:inherit;text-decoration:none;font-weight:800">SW</a> / <a th:href="@{/lang(lang=en)}" style="color:inherit;text-decoration:none;font-weight:800">EN</a></span></div>
+<div class="header-logo"><span class="logo-icon">🛡</span><span>Cyber Forensics TZ</span></div>
+<div class="header-clock"><span>📅</span><span class="clock-date" id="clockDate">—</span><span>•</span><span class="clock-time" id="clockTime">--:--:--</span></div>
 <div class="header-profile">
-<button class="profile-btn" onclick="toggleProfileMenu()" aria-haspopup="true">
+<button class="profile-btn" onclick="toggleProfileMenu()" aria-haspopup="true" aria-expanded="false">
 <div class="profile-avatar" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'}">U</div>
 <span th:text="${#authentication != null ? #authentication.name : 'User'}">User</span><span>⌄</span>
 </button>
