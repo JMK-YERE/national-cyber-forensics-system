@@ -127,7 +127,7 @@ public class EmailService {
     private String jsonEscape(String value) {
         if (value == null) return "";
         return value.replace("\\", "\\\\")
-                .replace("\"", "\\"")
+                .replace("\"", "\\\"")
                 .replace("\r", "\\r")
                 .replace("\n", "\\n");
     }
