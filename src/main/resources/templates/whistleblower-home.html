@@ -7,8 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
-<div class="navbar">
-    <div class="logo">🛡️ Cyber Forensics System</div></main>
+<header style="height:58px;background:linear-gradient(100deg,#03261d,#08785a);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-family:Inter,Segoe UI,sans-serif"><strong>🛡 Cyber Forensics TZ</strong><a href="/login" style="color:#fff;text-decoration:none;font-size:12px">Login →</a></header></main>
     <div class="nav-links">
         <a th:href="@{/whistleblower}">Home</a>
         <a th:href="@{/whistleblower/track}">TRACK YOUR REPORT</a>
@@ -24,7 +23,7 @@
 
 <div class="app-container" style="max-width: 1100px; margin: 30px auto;">
     <!-- HERO -->
-    <div style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 60px 40px; border-radius: 12px; text-align: center;">
+    <div style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; padding: 60px 40px; border-radius: 12px; text-align: center;">
         <h1 style="color: white; font-size: 38px; margin: 0 0 15px 0;">Whistleblower Portal</h1>
         <p style="color: rgba(255,255,255,0.9); font-size: 16px; max-width: 700px; margin: 0 auto 30px;">
             Report corruption, bribery, harassment anonymously. Your safety is our priority.
@@ -33,7 +32,7 @@
             <a th:href="@{/whistleblower/report}" class="app-btn app-btn-primary" style="padding: 15px 40px; font-size: 16px; text-decoration: none; font-weight: bold;">
                 🚨 REPORT NOW
             </a>
-            <a th:href="@{/whistleblower/track}" class="app-btn app-btn-primary" style="padding: 15px 40px; font-size: 16px; text-decoration: none; font-weight: bold; background: white; color: #0f2557;">
+            <a th:href="@{/whistleblower/track}" class="app-btn app-btn-primary" style="padding: 15px 40px; font-size: 16px; text-decoration: none; font-weight: bold; background: white; color: #07543e;">
                 🔍 TRACK YOUR REPORT
             </a>
         </div></main>
@@ -43,27 +42,27 @@
     <div class="app-card" style="margin-top: 30px;">
         <h2>What can you report?</h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 20px;">
-            <a th:href="@{/whistleblower/report(category='CORRUPTION')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557; transition: all 0.2s;">
+            <a th:href="@{/whistleblower/report(category='CORRUPTION')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #07543e; transition: all 0.2s;">
                 <div style="font-size: 40px; margin-bottom: 10px;">💰</div></main>
                 <div style="font-weight: bold;">CORRUPTION / BRIBERY</div></main>
             </a>
-            <a th:href="@{/whistleblower/report(category='FRAUD')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557; transition: all 0.2s;">
+            <a th:href="@{/whistleblower/report(category='FRAUD')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #07543e; transition: all 0.2s;">
                 <div style="font-size: 40px; margin-bottom: 10px;">🎭</div></main>
                 <div style="font-weight: bold;">FRAUD</div></main>
             </a>
-            <a th:href="@{/whistleblower/report(category='CYBER_ATTACK')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557; transition: all 0.2s;">
+            <a th:href="@{/whistleblower/report(category='CYBER_ATTACK')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #07543e; transition: all 0.2s;">
                 <div style="font-size: 40px; margin-bottom: 10px;">💻</div></main>
                 <div style="font-weight: bold;">CYBER ATTACK</div></main>
             </a>
-            <a th:href="@{/whistleblower/report(category='HARASSMENT')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557; transition: all 0.2s;">
+            <a th:href="@{/whistleblower/report(category='HARASSMENT')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #07543e; transition: all 0.2s;">
                 <div style="font-size: 40px; margin-bottom: 10px;">😢</div></main>
                 <div style="font-weight: bold;">HARASSMENT</div></main>
             </a>
-            <a th:href="@{/whistleblower/report(category='DRUG_TRAFFICKING')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557;">
+            <a th:href="@{/whistleblower/report(category='DRUG_TRAFFICKING')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #07543e;">
                 <div style="font-size: 40px; margin-bottom: 10px;">💊</div></main>
                 <div style="font-weight: bold;">DRUG TRAFFICKING</div></main>
             </a>
-            <a th:href="@{/whistleblower/report(category='TAX_EVASION')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #0f2557;">
+            <a th:href="@{/whistleblower/report(category='TAX_EVASION')}" style="text-decoration: none; text-align: center; padding: 25px 15px; background: rgba(15,37,87,0.03); border: 2px solid rgba(15,37,87,0.1); border-radius: 10px; color: #07543e;">
                 <div style="font-size: 40px; margin-bottom: 10px;">📊</div></main>
                 <div style="font-weight: bold;">TAX EVASION</div></main>
             </a>
