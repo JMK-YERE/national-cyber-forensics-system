@@ -63,6 +63,9 @@ public class SecurityConfig {
                 .requestMatchers("/tools/ssl-check", "/tools/dns-lookup", "/tools/headers-check", "/tools/hash-check", "/tools/password-breach", "/tools/domain-age", "/tools/ip-check", "/tools/vt-url", "/tools/vt-hash", "/tools/vt-ip", "/tools/vt-domain")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
+                .requestMatchers("/ai/debug", "/ai/test-models")
+                    .hasAuthority("ROLE_ADMIN")
+
                 .requestMatchers("/ai/**", "/tools/**", "/report-attack/**", "/notifications/**", "/downloads/**", "/change-password")
                     .authenticated()
 
