@@ -6,28 +6,28 @@
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div></main>
-<div th:replace="~{fragments/sidebar :: sidebar}"></div></main>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main"><div class="app-container">
-    <div class="app-card" style="background: linear-gradient(135deg, #0A1F44, #1E3A8A); color: white; padding: 30px;">
+    <div class="app-card" style="background: linear-gradient(135deg, #07543e, #08785a); color: white; padding: 30px;">
         <h1 style="color: white; margin: 0;">📢 Announcements Management</h1>
         <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Simamia matangazo ya umma</p>
-    </div></main>
+    </div>
 
     <div class="app-card" th:if="${success}" style="background: rgba(16,185,129,0.1); border-left: 4px solid #10B981; padding: 15px;">
         <p style="color: #10B981; margin: 0;" th:text="${success}"></p>
-    </div></main>
+    </div>
 
     <div class="app-card">
         <a th:href="@{/admin/announcements/new}" class="app-btn app-btn-primary" style="text-decoration: none; padding: 12px 25px;">
             ➕ Add New Announcement
         </a>
-    </div></main>
+    </div>
 
     <div class="app-card">
         <h2>📋 All Announcements</h2>
-        <div th:each="a : ${announcements}" style="padding: 15px; margin: 10px 0; background: rgba(10,31,68,0.03); border-left: 4px solid #0A1F44; border-radius: 8px;">
+        <div th:each="a : ${announcements}" style="padding: 15px; margin: 10px 0; background: rgba(7,84,62,0.03); border-left: 4px solid #07543e; border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                 <div style="flex: 1;">
                     <span style="font-weight: bold; color: #C9A227;" th:text="${a.organization}"></span>
@@ -37,20 +37,20 @@
                     <h3 th:text="${a.title}" style="margin: 8px 0;"></h3>
                     <p th:text="${a.content}" style="color: #666; margin: 5px 0;"></p>
                     <small style="color: #888;" th:text="${#temporals.format(a.createdAt, 'dd MMM yyyy HH:mm')}"></small>
-                </div></main>
+                </div>
                 <div style="display: flex; gap: 8px; align-items: flex-start;">
-                    <a th:href="@{'/admin/announcements/' + ${a.id} + '/edit'}" class="app-btn app-btn-outline" style="text-decoration: none; padding: 8px 15px; background: #0A1F44; color: white;">✏️ Edit</a>
+                    <a th:href="@{'/admin/announcements/' + ${a.id} + '/edit'}" class="app-btn app-btn-outline" style="text-decoration: none; padding: 8px 15px; background: #07543e; color: white;">✏️ Edit</a>
                     <form th:action="@{'/admin/announcements/' + ${a.id} + '/delete'}" method="post" onsubmit="return confirm('Una uhakika?');">
                         <button type="submit" class="app-btn app-btn-outline" style="padding: 8px 15px; background: #DC2626; color: white;">🗑️ Delete</button>
                     </form>
-                </div></main>
-            </div></main>
-        </div></main>
+                </div>
+            </div>
+        </div>
         <div th:if="${announcements == null || announcements.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
             <p>Hakuna announcements bado.</p>
-        </div></main>
-    </div></main>
-</div></main>
+        </div>
+    </div>
+</div>
 <script th:src="@{/js/app.js}"></script>
-</body>
+</main></body>
 </html>
