@@ -5,8 +5,8 @@
 <link rel="stylesheet" th:href="@{/css/landing.css}">
 <style>
 .anonymous-report-banner{display:flex;align-items:center;justify-content:space-between;gap:22px;margin:0;padding:15px 5vw;background:linear-gradient(90deg,#fff4f5,#fff,#fff7ed);border-bottom:1px solid #ffd7dc;border-top:1px solid #ffd7dc}
-.anonymous-copy{max-width:900px}.anonymous-badge{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.08em;color:#b4232c;margin-bottom:4px}.anonymous-report-banner h2{margin:0;color:#16352c;font-size:18px}.anonymous-report-banner p{margin:4px 0 0;color:#63756e;font-size:11px;line-height:1.5}.btn-anonymous{white-space:nowrap;background:#e11d48;color:#fff;text-decoration:none;font-weight:900;font-size:11px;padding:11px 15px;border-radius:999px;box-shadow:0 7px 18px rgba(225,29,72,.2)}
-@media(max-width:720px){.anonymous-report-banner{display:block;padding:14px 18px}.btn-anonymous{display:inline-block;margin-top:9px}}
+.anonymous-hand{font-size:34px;display:inline-block;animation:pointPulse 1s ease-in-out infinite;transform-origin:50% 80%}.anonymous-copy{max-width:900px}.anonymous-badge{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.08em;color:#b4232c;margin-bottom:4px}.anonymous-report-banner h2{margin:0;color:#16352c;font-size:18px}.anonymous-report-banner p{margin:4px 0 0;color:#63756e;font-size:11px;line-height:1.5}.btn-anonymous{white-space:nowrap;background:#e11d48;color:#fff;text-decoration:none;font-weight:900;font-size:11px;padding:11px 15px;border-radius:999px;box-shadow:0 7px 18px rgba(225,29,72,.2)}
+@keyframes pointPulse{0%,100%{transform:translateX(0) rotate(-10deg)}50%{transform:translateX(7px) rotate(8deg)}}@media(max-width:720px){.anonymous-report-banner{display:block;padding:14px 18px}.btn-anonymous{display:inline-block;margin-top:9px}}
 </style></head>
 <body>
 <nav class="public-nav">
@@ -22,7 +22,7 @@
 </nav>
 <section class="anonymous-report-banner">
   <div class="anonymous-copy">
-    <span class="anonymous-badge">👉 ANONYMOUS REPORTING</span>
+    <span class="anonymous-hand" aria-hidden="true">☝️</span><span class="anonymous-badge">ANONYMOUS REPORTING</span>
     <h2>Una tukio la cyber lakini hutaki kutumia jina lako?</h2>
     <p>Ripoti kwa siri bila kufungua akaunti. Bonyeza hapa ujifunze namna ya kutoa taarifa na kufuatilia report yako kwa tracking code.</p>
   </div>
