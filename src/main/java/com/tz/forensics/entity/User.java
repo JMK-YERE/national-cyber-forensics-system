@@ -95,6 +95,15 @@ public class User {
     @Column(name = "verification_token_expires_at")
     private LocalDateTime verificationTokenExpiresAt;
 
+    @Column(name = "password_setup_token", length = 120)
+    private String passwordSetupToken;
+
+    @Column(name = "password_setup_expires_at")
+    private LocalDateTime passwordSetupExpiresAt;
+
+    @Column(name = "password_setup_channel", length = 10)
+    private String passwordSetupChannel;
+
     @Column(name = "oauth_provider", length = 20)
     private String oauthProvider;
 
@@ -197,6 +206,12 @@ public class User {
     public void setVerificationToken(String verificationToken) { this.verificationToken = verificationToken; }
     public LocalDateTime getVerificationTokenExpiresAt() { return verificationTokenExpiresAt; }
     public void setVerificationTokenExpiresAt(LocalDateTime verificationTokenExpiresAt) { this.verificationTokenExpiresAt = verificationTokenExpiresAt; }
+    public String getPasswordSetupToken() { return passwordSetupToken; }
+    public void setPasswordSetupToken(String passwordSetupToken) { this.passwordSetupToken = passwordSetupToken; }
+    public LocalDateTime getPasswordSetupExpiresAt() { return passwordSetupExpiresAt; }
+    public void setPasswordSetupExpiresAt(LocalDateTime passwordSetupExpiresAt) { this.passwordSetupExpiresAt = passwordSetupExpiresAt; }
+    public String getPasswordSetupChannel() { return passwordSetupChannel; }
+    public void setPasswordSetupChannel(String passwordSetupChannel) { this.passwordSetupChannel = passwordSetupChannel; }
     public boolean isEmailVerified() { return emailVerified == null || Boolean.TRUE.equals(emailVerified); }
     public Boolean getAccountLocked() { return accountLocked; }
     public void setAccountLocked(Boolean accountLocked) { this.accountLocked = accountLocked; }
