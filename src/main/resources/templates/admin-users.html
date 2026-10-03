@@ -53,6 +53,11 @@
                 </small>
             </div></main>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <!-- APPROVAL -->
+                <form th:if="${u.approvalStatus == 'PENDING'}" th:action="@{'/admin/users/' + ${u.id} + '/approve'}" method="post" style="display: inline;">
+                    <button type="submit" class="user-btn" style="background:#16A34A;">Approve</button>
+                </form>
+
                 <!-- ENABLE/DISABLE -->
                 <form th:action="@{'/admin/users/' + ${u.id} + '/toggle'}" method="post" style="display: inline;">
                     <button type="submit" class="user-btn" style="background: #0f2557;"
