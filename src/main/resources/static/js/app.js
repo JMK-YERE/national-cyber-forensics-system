@@ -38,6 +38,26 @@ document.addEventListener('click', function(e) {
     }
 });
 
+document.addEventListener('click', function(e) {
+    // On phones/tablets, selecting a sidebar destination must immediately
+    // close the drawer so the destination page gets the full viewport.
+    if (window.innerWidth <= 900) {
+        const link = e.target.closest('.app-sidebar a.sidebar-item');
+        if (link) closeSidebar();
+    }
+});
+
+function closeSidebar() {
+    const s = document.getElementById('appSidebar');
+    const o = document.getElementById('sidebarOverlay');
+    if (s) s.classList.remove('show');
+    if (o) o.classList.remove('show');
+}
+
+window.addEventListener('resize', function() {
+    if (window.innerWidth > 900) closeSidebar();
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     updateClock();
     setInterval(updateClock, 1000);
