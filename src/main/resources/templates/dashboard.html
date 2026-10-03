@@ -37,6 +37,13 @@
 <div class="personal-box"><span>🛡️ Security Score</span><b th:text="${user.securityScore != null ? user.securityScore : 0}">0</b></div>
 <div class="personal-box"><span>🔐 2FA</span><b th:text="${user.has2fa != null && user.has2fa ? 'ON' : 'OFF'}">OFF</b></div>
 </section>
+<section class="card" style="margin-bottom:14px">
+<div th:if="${isAdmin}"><h2>👑 Administrator Command Center</h2><div class="sub">System governance, access control, compliance, audit and operational oversight.</div></div>
+<div th:if="${isCyberPro}"><h2>🛡 Cyber Professional Workspace</h2><div class="sub">Triage incidents, coordinate investigations, review reports and manage response activities.</div></div>
+<div th:if="${isForensics}"><h2>🧪 Digital Forensics Workspace</h2><div class="sub">Preserve, examine and document digital evidence with controlled forensic workflows and accountability.</div></div>
+<div th:if="${isAnalyst}"><h2>🔎 Cyber Analyst Workspace</h2><div class="sub">Analyze assigned cases, identify indicators and support incident investigation with evidence-based findings.</div></div>
+<div th:unless="${isStaff}"><h2>👤 Personal Security Workspace</h2><div class="sub">Manage your own reports, notifications, downloads and security checks.</div></div>
+</section>
 <div class="work">
 <section class="card"><h2>Role workspace</h2><div class="sub">Only features assigned to the signed-in role are shown.</div><div class="actions">
 <a th:if="${isAdmin}" class="action" th:href="@{/admin/users}"><b>👥 Users & Access</b><small>Manage accounts and permissions.</small></a>
