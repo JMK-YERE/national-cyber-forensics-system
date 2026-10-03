@@ -58,7 +58,10 @@ public class SecurityConfig {
                 .requestMatchers("/incidents/my-tasks", "/incidents/my-tasks/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
-                .requestMatchers("/incidents", "/incidents/**", "/evidence/**")
+                .requestMatchers("/incidents", "/incidents/**")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
+
+                .requestMatchers("/evidence/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS")
 
                 .requestMatchers("/threat-map", "/threat-map/**")
