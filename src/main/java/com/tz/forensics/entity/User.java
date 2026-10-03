@@ -116,7 +116,7 @@ public class User {
     @Column(name = "oauth_id", length = 100)
     private String oauthId;
 
-    @Column(name = "profile_picture", length = 500)
+    @Column(name = "profile_picture", length = 2048)
     private String profilePicture;
 
     @Column(name = "created_at")
