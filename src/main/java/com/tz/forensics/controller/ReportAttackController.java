@@ -286,8 +286,12 @@ public class ReportAttackController {
         boolean isOwner = r.getUserId() != null && r.getUserId().equals(user.getId());
         if (!isAdmin && !isOwner) return ResponseEntity.status(403).build();
 
-        Path filePath = Paths.get(uploadDir, r.getEvidenceFilePath());
-        if (!Files.exists(filePath)) return ResponseEntity.notFound().build();
+        Path basePath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Path filePath = basePath.resolve(r.getEvidenceFilePath()).normalize();
+        if (!filePath.startsWith(basePath) || !Files.isRegularFile(filePath)) {
+            log.warn("Rejected invalid report evidence path for report {}", id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         byte[] data = encryptionService.decrypt(Files.readAllBytes(filePath));
         auditService.log("DOWNLOAD_REPORT_EVIDENCE", "ReportAttack", String.valueOf(id),
                 "Downloaded evidence | SHA-256: " + r.getEvidenceSha256());
