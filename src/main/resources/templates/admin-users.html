@@ -5,8 +5,8 @@
     <title>Users Management</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <style>
-        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; margin: 8px 0; background: rgba(15,37,87,0.03); border-left: 4px solid #0f2557; border-radius: 8px; flex-wrap: wrap; gap: 10px; }
-        .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; background: #0f2557; margin-left: 8px; }
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; margin: 8px 0; background: rgba(7,84,62,0.03); border-left: 4px solid #07543e; border-radius: 8px; flex-wrap: wrap; gap: 10px; }
+        .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; background: #07543e; margin-left: 8px; }
         .role-ADMIN { background: #dc2626; }
         .role-CYBER_PRO { background: #eab308; }
         .role-FORENSICS { background: #8b5cf6; }
@@ -15,29 +15,29 @@
     </style>
 </head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div></main>
-<div th:replace="~{fragments/sidebar :: sidebar}"></div></main>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main"><div class="app-container">
-    <div class="app-card" style="background: linear-gradient(135deg, #0f2557, #1a3a70); color: white; padding: 25px;">
+    <div class="app-card" style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; padding: 25px;">
         <h1 style="color: white; margin: 0;">👥 Users Management</h1>
         <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Simamia watumiaji wote wa mfumo</p>
-    </div></main>
+    </div>
 
     <div class="app-card" th:if="${success}" style="background: rgba(27,122,74,0.1); border-left: 4px solid #1b7a4a; padding: 15px;">
         <p style="color: #1b7a4a; margin: 0;" th:text="${success}"></p>
-    </div></main>
+    </div>
 
     <div class="app-card" th:if="${error}" style="background: rgba(220,38,38,0.1); border-left: 4px solid #dc2626; padding: 15px;">
         <p style="color: #dc2626; margin: 0;" th:text="${error}"></p>
-    </div></main>
+    </div>
 
     <div class="app-stats-grid">
-        <div class="app-stat-box"><div class="stat-value" th:text="${totalUsers}">0</div><div class="stat-label">Total Users</div></div></main>
-        <div class="app-stat-box"><div class="stat-value" style="color: #dc2626;" th:text="${adminCount}">0</div><div class="stat-label">Admins</div></div></main>
-        <div class="app-stat-box"><div class="stat-value" style="color: #eab308;" th:text="${proCount}">0</div><div class="stat-label">Professionals</div></div></main>
-        <div class="app-stat-box"><div class="stat-value" style="color: #1b7a4a;" th:text="${individualCount}">0</div><div class="stat-label">Individuals</div></div></main>
-    </div></main>
+        <div class="app-stat-box"><div class="stat-value" th:text="${totalUsers}">0</div><div class="stat-label">Total Users</div></div>
+        <div class="app-stat-box"><div class="stat-value" style="color: #dc2626;" th:text="${adminCount}">0</div><div class="stat-label">Admins</div></div>
+        <div class="app-stat-box"><div class="stat-value" style="color: #eab308;" th:text="${proCount}">0</div><div class="stat-label">Professionals</div></div>
+        <div class="app-stat-box"><div class="stat-value" style="color: #1b7a4a;" th:text="${individualCount}">0</div><div class="stat-label">Individuals</div></div>
+    </div>
 
     <div class="app-card">
         <h2>📋 All Users</h2>
@@ -51,7 +51,7 @@
                     <span th:text="${u.email}">email</span> |
                     <span th:text="${u.enabled != null && u.enabled ? '✅ Active' : '❌ Disabled'}"></span>
                 </small>
-            </div></main>
+            </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <!-- APPROVAL -->
                 <form th:if="${u.approvalStatus == 'PENDING'}" th:action="@{'/admin/users/' + ${u.id} + '/approve'}" method="post" style="display: inline;">
@@ -60,7 +60,7 @@
 
                 <!-- ENABLE/DISABLE -->
                 <form th:action="@{'/admin/users/' + ${u.id} + '/toggle'}" method="post" style="display: inline;">
-                    <button type="submit" class="user-btn" style="background: #0f2557;"
+                    <button type="submit" class="user-btn" style="background: #07543e;"
                             th:text="${u.enabled != null && u.enabled ? 'Disable' : 'Enable'}"></button>
                 </form>
 
@@ -89,14 +89,14 @@
                       onsubmit="return confirm('Una uhakika unataka kumfuta ${u.username}?');">
                     <button type="submit" class="user-btn" style="background: #dc2626;">Delete</button>
                 </form>
-            </div></main>
-        </div></main>
-    </div></main>
+            </div>
+        </div>
+    </div>
 
     <div style="margin: 20px 0;">
         <a th:href="@{/dashboard}" class="app-btn app-btn-outline" style="text-decoration: none;">← Back to Dashboard</a>
-    </div></main>
-</div></main>
+    </div>
+</div>
 <script th:src="@{/js/app.js}"></script>
-</body>
+</main></body>
 </html>
