@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -25,7 +26,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/", "/features", "/about", "/contact",
@@ -42,8 +43,11 @@ public class SecurityConfig {
                 .requestMatchers("/admin/audit", "/admin/audit/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
-                .requestMatchers("/admin/**", "/whistleblower/admin/**")
+                .requestMatchers("/admin/**")
                     .hasAuthority("ROLE_ADMIN")
+
+                .requestMatchers("/whistleblower/admin/**")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS")
 
                 .requestMatchers("/compliance", "/compliance/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS")
