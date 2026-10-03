@@ -5,7 +5,7 @@
 <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
 <div class="header-logo"><span class="logo-icon">🛡</span><span>Cyber Security &amp; Digital Forensics</span></div>
 <div class="header-clock"><span id="legacyDate">—</span><b id="legacyTime">--:--:--</b></div>
-<div class="header-profile"><a class="profile-btn" th:href="@{/dashboard}"><span class="profile-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'}">U</span><span>Dashboard</span></a></div>
+<div class="header-profile"><button class="profile-btn" onclick="toggleProfileMenu()" type="button"><span class="profile-avatar" th:text="${#authentication != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'}">U</span><span>Account</span>⌄</button><div class="profile-dropdown" id="profileDropdown"><a th:href="@{/dashboard}" class="dropdown-item">⌂ Dashboard</a><a th:href="@{/change-password}" class="dropdown-item">🔐 Change Password</a><form th:action="@{/logout}" method="post"><button type="submit" class="dropdown-item danger">🚪 Logout</button></form></div></div>
 </header>
 <aside class="app-sidebar"><nav class="sidebar-nav">
 <a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label">Dashboard</span></a>
@@ -28,5 +28,5 @@
 <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label">System Settings</span></a>
 </nav></aside>
 <a th:href="@{/ai/assistant}" class="ai-floating" aria-label="AI Assistant"><span style="font-size:38px">🤖</span><span class="ai-floating-label">AI Assistant</span></a>
-<script>document.addEventListener('DOMContentLoaded',function(){function tick(){const d=new Date();const date=d.toLocaleDateString('sw-TZ',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const time=d.toLocaleTimeString('en-GB');const a=document.getElementById('legacyDate'),b=document.getElementById('legacyTime');if(a)a.textContent=date;if(b)b.textContent=time}tick();setInterval(tick,1000)});</script>
+<script>function toggleProfileMenu(){document.getElementById("profileDropdown")?.classList.toggle("show")}document.addEventListener('DOMContentLoaded',function(){function tick(){const d=new Date();const date=d.toLocaleDateString('sw-TZ',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const time=d.toLocaleTimeString('en-GB');const a=document.getElementById('legacyDate'),b=document.getElementById('legacyTime');if(a)a.textContent=date;if(b)b.textContent=time}tick();setInterval(tick,1000)});</script>
 </div></body></html>
