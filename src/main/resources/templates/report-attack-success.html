@@ -1,46 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Report Submitted</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-</head>
-<body>
-<div class="navbar">
-    <div class="logo">🛡️ Cyber Forensics System</div></main>
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}">Report</a>
-    </div></main>
-</div></main>
-
+<html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Report Submitted | Cyber Forensics TZ</title><link rel="stylesheet" th:href="@{/css/theme.css}"></head>
+<body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 <main class="app-main"><div class="app-container">
-    <div class="app-card" style="text-align:center; padding:40px;">
-        <div style="font-size:80px;">✅</div></main>
-        <h1 style="color:#1b7a4a;">Report Submitted!</h1>
-        <p>Your report has been received. We will help you.</p>
-    </div></main>
-
-    <div class="app-card" th:if="${report != null}" style="background:rgba(201,162,39,0.1); border-left:4px solid #c9a227;">
-        <h2>📋 Report ID</h2>
-        <div style="background:#0f2557; padding:20px; border-radius:8px; text-align:center; margin:15px 0;">
-            <span style="font-family:monospace; font-size:28px; color:#ffd700; letter-spacing:3px; font-weight:bold;"
-                  th:text="${report.reportId}"></span>
-        </div></main>
-        <p>Save this ID to track your report.</p>
-    </div></main>
-
-    <div class="app-card" th:if="${report != null && report.aiRecommendation != null}">
-        <h2>🤖 AI Recommendations</h2>
-        <div style="background:rgba(15,37,87,0.05); padding:20px; border-radius:8px; border-left:4px solid #0f2557; white-space:pre-line; line-height:1.9;"
-             th:text="${report.aiRecommendation}"></div></main>
-    </div></main>
-
-    <div style="text-align:center; margin:30px 0;">
-        <a th:href="@{'/report-attack/view/' + ${report.id}}" class="app-btn app-btn-primary" style="padding:15px 30px;">📄 View Your Report</a>
-        <a th:href="@{/report-attack}" class="app-btn app-btn-outline" style="padding:15px 30px;">← Report Another</a>
-    </div></main>
-</div></main>
-<script th:src="@{/js/app.js}"></script>
-</body>
-</html>
+<section class="app-card" style="text-align:center;padding:45px"><div style="font-size:70px">✅</div><h1 style="color:var(--forest-900)">Report Submitted Successfully</h1><p>Asante. Taarifa yako imepokelewa na security team.</p></section>
+<section class="app-card" th:if="${report != null}"><h2>📋 Report ID</h2><div style="background:#0A1628;padding:20px;border-radius:10px;text-align:center;margin:15px 0"><span style="font-family:monospace;font-size:28px;color:#7ee7c5;letter-spacing:3px;font-weight:900" th:text="${report.reportId}"></span></div><p>Hifadhi Report ID kwa ajili ya kufuatilia taarifa yako.</p></section>
+<section class="app-card" th:if="${report != null && report.aiRecommendation != null}"><h2>🤖 AI Recommendations</h2><div style="white-space:pre-line;line-height:1.8;background:#f3faf7;padding:18px;border-radius:10px" th:text="${report.aiRecommendation}"></div></section>
+<div style="text-align:center;margin:25px 0"><a th:if="${report != null}" th:href="@{/report-attack/view/{id}(id=${report.id})}" class="app-btn app-btn-primary">📄 View Report</a><a th:href="@{/report-attack}" class="app-btn app-btn-outline">← Report Another</a><a th:href="@{/dashboard}" class="app-btn app-btn-outline">⌂ Dashboard</a></div>
+</div></main><script th:src="@{/js/app.js}"></script></body></html>
