@@ -6,6 +6,12 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+
 @Service
 public class EmailService {
 
@@ -30,36 +36,100 @@ public class EmailService {
     @Value("${app.url:https://cyber-forensics-tz.onrender.com}")
     private String appUrl;
 
-    private boolean isConfigured() {
+    @Value("${email.provider:auto}")
+    private String emailProvider;
+
+    @Value("${email.resend.api-key:}")
+    private String resendApiKey;
+
+    @Value("${email.resend.from:}")
+    private String resendFrom;
+
+    private boolean smtpConfigured() {
         return mailSender != null
                 && fromEmail != null && !fromEmail.isBlank()
                 && mailHost != null && !mailHost.isBlank()
                 && mailPassword != null && !mailPassword.isBlank();
     }
 
+    private boolean resendConfigured() {
+        return resendApiKey != null && !resendApiKey.isBlank()
+                && resendFrom != null && !resendFrom.isBlank();
+    }
+
     public boolean sendEmail(String to, String subject, String body) {
-        if (!isConfigured()) {
-            System.out.println("⚠️ Email not configured. Would send to: " + to);
-            return false;
+        String provider = emailProvider == null ? "auto" : emailProvider.trim().toLowerCase();
+
+        if (("resend".equals(provider) || "auto".equals(provider)) && resendConfigured()) {
+            if (sendViaResend(to, subject, body)) return true;
+            if ("resend".equals(provider)) return false;
         }
+
+        if (smtpConfigured()) {
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom(fromEmail);
+                message.setTo(to);
+                message.setSubject(subject);
+                message.setText(body);
+                mailSender.send(message);
+                System.out.println("✅ Email sent via SMTP to " + to);
+                return true;
+            } catch (Exception e) {
+                Throwable root = e;
+                while (root.getCause() != null && root.getCause() != root) root = root.getCause();
+                System.err.println("❌ SMTP email failed to " + to
+                        + " | root=" + root.getClass().getSimpleName()
+                        + " | message=" + String.valueOf(root.getMessage()));
+            }
+        }
+
+        System.err.println("❌ No usable email provider configured for " + to
+                + ". Configure RESEND_API_KEY + RESEND_FROM_EMAIL on Render.");
+        return false;
+    }
+
+    private boolean sendViaResend(String to, String subject, String body) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
-            mailSender.send(message);
-            System.out.println("✅ Email sent to " + to);
-            return true;
+            String json = "{"
+                    + "\"from\":\"" + jsonEscape(resendFrom) + "\","
+                    + "\"to\":[\"" + jsonEscape(to) + "\"],"
+                    + "\"subject\":\"" + jsonEscape(subject) + "\","
+                    + "\"text\":\"" + jsonEscape(body) + "\""
+                    + "}";
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.resend.com/emails"))
+                    .header("Authorization", "Bearer " + resendApiKey)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                    .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                System.out.println("✅ Email sent via Resend to " + to);
+                return true;
+            }
+
+            System.err.println("❌ Resend rejected email to " + to
+                    + " | HTTP " + response.statusCode()
+                    + " | response=" + response.body());
+            return false;
         } catch (Exception e) {
-            Throwable root = e;
-            while (root.getCause() != null && root.getCause() != root) root = root.getCause();
-            System.err.println("❌ Email failed to " + to
+            System.err.println("❌ Resend request failed"
                     + " | type=" + e.getClass().getSimpleName()
-                    + " | root=" + root.getClass().getSimpleName()
-                    + " | message=" + String.valueOf(root.getMessage()));
+                    + " | message=" + String.valueOf(e.getMessage()));
             return false;
         }
+    }
+
+    private String jsonEscape(String value) {
+        if (value == null) return "";
+        return value.replace("\\", "\\\\")
+                .replace("\"", "\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n");
     }
 
     public void sendPasswordSetupEmail(String to, String username, String token) {
