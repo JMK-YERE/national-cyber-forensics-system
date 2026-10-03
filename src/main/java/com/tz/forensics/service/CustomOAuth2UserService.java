@@ -8,6 +8,11 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+
+import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -69,7 +74,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 userRepository.save(user);
             }
         }
-        return oauth2User;
+        // Spring Security uses OAuth2User.getName() for Authentication.getName().
+        // Google returns the provider "sub" by default, but the application dashboard
+        // resolves users by the local username. Return a local identity so the OAuth
+        // session reaches the same /dashboard flow as normal INDIVIDUAL users.
+        String localUsername = user.getUsername();
+        return new DefaultOAuth2User(
+                List.of(new SimpleGrantedAuthority("ROLE_INDIVIDUAL")),
+                oauth2User.getAttributes(),
+                oauth2User.getAttributes().containsKey("email") ? "email" : "sub"
+        ) {
+            @Override
+            public String getName() {
+                return localUsername;
+            }
+        };
     }
 
     private String limit(String value, int max) {
