@@ -5,16 +5,18 @@
 <nav class="sidebar-nav">
 <a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label">Dashboard</span></a>
 
-<div class="sidebar-section">My Security</div>
-<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Incident</span></a>
-<a th:href="@{/report-attack/my-reports}" class="sidebar-item"><span class="icon">📋</span><span class="label">My Reports</span></a>
+<div class="sidebar-section">Workspace</div>
 <a th:href="@{/notifications}" class="sidebar-item"><span class="icon">♢</span><span class="label">Notifications</span></a>
 <a th:href="@{/downloads}" class="sidebar-item"><span class="icon">↓</span><span class="label">Downloads</span></a>
+<div sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')">
+<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label">Report Incident</span></a>
+<a th:href="@{/report-attack/my-reports}" class="sidebar-item"><span class="icon">📋</span><span class="label">My Reports</span></a>
+</div>
 
 <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="sidebar-section">Administration</div>
 <div sec:authorize="hasAuthority('ROLE_ADMIN')">
 <a th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label">Users & Access</span></a>
-<a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">▣</span><span class="label">All Reports</span></a>
+<a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">▣</span><span class="label">All Incidents & Reports</span></a>
 <a th:href="@{/whistleblower/admin}" class="sidebar-item"><span class="icon">🕵</span><span class="label">Anonymous Reports</span></a>
 <a th:href="@{/admin/analytics}" class="sidebar-item"><span class="icon">📊</span><span class="label">System Analytics</span></a>
 <a th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label">Audit & Security Log</span></a>
