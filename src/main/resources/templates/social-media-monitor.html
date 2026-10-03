@@ -17,9 +17,8 @@
         .score-display { text-align:center; padding: 30px; background: rgba(0,0,0,0.4); border-radius: 8px; margin: 20px 0; }
     </style>
 </head>
-<body>
-<div class="navbar">
-    <div class="logo"> CYBER FORENSICS TZ</div></main>
+<body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/my-accounts}">📱 My Accounts</a>
@@ -27,8 +26,8 @@
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
-    </div></main>
-</div></main>
+    </div>
+</div>
 
 <main class="app-main"><div class="app-container">
     <div class="app-card">
@@ -37,7 +36,7 @@
         <p style="font-size:11px; color:#888; margin-top:8px;">
             🔒 <strong>Privacy:</strong> Usernames hazihifadhiwi kwenye database.
         </p>
-    </div></main>
+    </div>
 
     <div class="app-card">
         <h2>🔍 Check Accounts Zako</h2>
@@ -46,46 +45,46 @@
                 <div>
                     <label>👥 Facebook Username</label>
                     <input type="text" name="facebook" placeholder="mfano: jmk.yere">
-                </div></main>
+                </div>
                 <div>
                     <label>📷 Instagram Username</label>
                     <input type="text" name="instagram" placeholder="mfano: jmk_yere">
-                </div></main>
+                </div>
                 <div>
                     <label>🎵 TikTok Username</label>
                     <input type="text" name="tiktok" placeholder="mfano: jmkyere">
-                </div></main>
+                </div>
                 <div>
                     <label>💬 WhatsApp Number</label>
                     <input type="text" name="whatsapp" placeholder="mfano: 255627827053">
-                </div></main>
+                </div>
                 <div>
                     <label>🐦 X (Twitter) Username</label>
                     <input type="text" name="x" placeholder="mfano: jmkyere">
-                </div></main>
+                </div>
                 <div>
                     <label>📧 Gmail Address</label>
                     <input type="email" name="gmail" placeholder="mfano: email@gmail.com">
-                </div></main>
-            </div></main>
+                </div>
+            </div>
             <button type="submit" class="app-btn app-btn-primary" style="width:100%; margin-top:20px; padding:15px;">
                 🛡️ Check Security & Get Recommendations
             </button>
         </form>
-    </div></main>
+    </div>
 
     <!-- SCORE -->
     <div class="score-display" th:if="${score != null}">
         <h2>🛡️ Security Score</h2>
         <div style="font-size:72px; color:#00ff9d; text-shadow: 0 0 30px rgba(0,255,157,0.8); margin: 10px 0;"
-             th:text="${score}"></div></main>
-        <div style="font-size:16px; color:#00d4ff;">/ 100</div></main>
+             th:text="${score}"></div>
+        <div style="font-size:16px; color:#00d4ff;">/ 100</div>
         <div style="margin-top:15px; font-size:16px;"
-             th:text="${score >= 70 ? '🟢 Nzuri sana!' : (score >= 40 ? '🟡 Inaweza kuboreshwa' : '🔴 Hatari — jihadhari!')}"></div></main>
+             th:text="${score >= 70 ? '🟢 Nzuri sana!' : (score >= 40 ? '🟡 Inaweza kuboreshwa' : '🔴 Hatari — jihadhari!')}"></div>
         <p style="margin-top:15px; font-size:13px;">
             Accounts zilizochunguzwa: <strong th:text="${totalAccounts}"></strong>
         </p>
-    </div></main>
+    </div>
 
     <!-- RESULTS -->
     <div th:if="${accounts != null && !accounts.isEmpty()}">
@@ -96,24 +95,24 @@
                 <div class="account-platform">
                     <span th:text="${acc.icon} + ' ' + ${acc.platform}"></span>
                     <span style="font-size:13px; color:#888; margin-left:10px;" th:text="'@' + ${acc.username}"></span>
-                </div></main>
+                </div>
                 <div>
                     <span th:if="${acc.exists}" class="badge-found">✅ Profile Inapatikana</span>
                     <span th:unless="${acc.exists}" class="badge-notfound">⚠️ Haijathibitishwa</span>
-                </div></main>
-            </div></main>
+                </div>
+            </div>
 
             <div style="margin: 15px 0;">
                 <a th:href="${acc.profileLink}" target="_blank" class="app-btn app-btn-outline" style="font-size:11px; padding:8px 15px;">🔗 View Profile</a>
                 <a th:href="${acc.securityLink}" target="_blank" class="app-btn app-btn-primary" style="font-size:11px; padding:8px 15px;">🛡️ Security Settings</a>
-            </div></main>
+            </div>
 
             <h4 style="color:#00d4ff; margin-top:20px; font-size:14px;">📝 Security Recommendations:</h4>
             <ul class="rec-list">
                 <li th:each="rec : ${acc.recommendations}" th:text="${rec}"></li>
             </ul>
-        </div></main>
-    </div></main>
+        </div>
+    </div>
 
     <div class="app-card">
         <h2>💡 Vidokezo vya Usalama</h2>
@@ -124,8 +123,8 @@
             ✅ Usibonyeze links za kutiliwa shaka<br>
             ✅ Badilisha password mara kwa mara
         </p>
-    </div></main>
-</div></main>
+    </div>
+</div>
 <script th:src="@{/js/app.js}"></script>
-</body>
+</main></body>
 </html>
