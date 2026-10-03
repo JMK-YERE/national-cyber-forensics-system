@@ -82,7 +82,7 @@
 <div class="report" th:each="r : ${recentReports}"><div><b th:text="${r.reportId}">REPORT</b><small th:text="${r.title}">Title</small><small th:text="${r.status}">STATUS</small></div><a class="btn" th:href="@{'/report-attack/view/' + ${r.id}}">Open</a></div></div>
 <div th:if="${!isStaff && myReports != null && !myReports.isEmpty()}">
 <div class="report" th:each="r : ${myReports}"><div><b th:text="${r.reportId}">REPORT</b><small th:text="${r.title}">Title</small><small th:text="${r.status}">STATUS</small></div><a class="btn" th:href="@{'/report-attack/view/' + ${r.id}}">View</a></div></div>
-<div class="sub" th:if="${(isStaff && (recentReports == null || recentReports.isEmpty())) || (!isStaff && (myReports == null || myReports.isEmpty())}">No reports to display yet.</div>
+<div class="sub" th:if="${(isStaff && (recentReports == null || recentReports.isEmpty())) || (!isStaff && (myReports == null || myReports.isEmpty()))}">No reports to display yet.</div>
 </section>
 </div></main>
 <script th:src="@{/js/app.js}"></script><script>(function(){function t(){var n=new Date(),d=document.getElementById('dashDate'),x=document.getElementById('dashTime');if(d)d.textContent=n.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});if(x)x.textContent=n.toLocaleTimeString([], {hour12:false});}t();setInterval(t,1000)})();</script>
