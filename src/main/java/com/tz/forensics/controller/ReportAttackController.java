@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -203,7 +204,7 @@ public class ReportAttackController {
                 report.setEvidenceFileSize(evidenceFile.getSize());
                 report.setEvidenceSha256(sha256(evidenceBytes));
                 report.setHasEvidence(true);
-            } catch (IOException e) { log.error("File: {}", e.getMessage()); }
+            } catch (IOException | IllegalArgumentException e) { log.error("File: {}", e.getMessage()); } catch (Exception e) { log.error("Evidence encryption failed: {}", e.getMessage()); }
         }
 
         ReportAttack saved = service.create(report);
