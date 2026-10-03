@@ -55,22 +55,26 @@
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <!-- APPROVAL -->
                 <form th:if="${u.approvalStatus == 'PENDING'}" th:action="@{'/admin/users/' + ${u.id} + '/approve'}" method="post" style="display: inline;">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button type="submit" class="user-btn" style="background:#16A34A;">Approve</button>
                 </form>
 
                 <!-- ENABLE/DISABLE -->
                 <form th:action="@{'/admin/users/' + ${u.id} + '/toggle'}" method="post" style="display: inline;">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button type="submit" class="user-btn" style="background: #07543e;"
                             th:text="${u.enabled != null && u.enabled ? 'Disable' : 'Enable'}"></button>
                 </form>
 
                 <!-- UNLOCK -->
                 <form th:if="${u.accountLocked}" th:action="@{'/admin/users/' + ${u.id} + '/unlock'}" method="post" style="display: inline;">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button type="submit" class="user-btn" style="background: #eab308;">Unlock</button>
                 </form>
 
                 <!-- CHANGE ROLE -->
                 <form th:action="@{'/admin/users/' + ${u.id} + '/role'}" method="post" style="display: flex; gap: 5px;">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <select name="role" style="padding: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 12px;">
                         <option value="INDIVIDUAL" th:selected="${u.role == 'INDIVIDUAL'}">INDIVIDUAL</option>
                         <option value="CYBER_PRO" th:selected="${u.role == 'CYBER_PRO'}">CYBER_PRO</option>
@@ -87,6 +91,7 @@
                 <!-- DELETE -->
                 <form th:if="${u.username != 'admin'}" th:action="@{'/admin/users/' + ${u.id} + '/delete'}" method="post" style="display: inline;"
                       onsubmit="return confirm('Una uhakika unataka kumfuta ${u.username}?');">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button type="submit" class="user-btn" style="background: #dc2626;">Delete</button>
                 </form>
             </div>

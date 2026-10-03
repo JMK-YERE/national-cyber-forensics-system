@@ -19,6 +19,7 @@
 <p th:text="${editMode} ? 'Hariri tangazo kwa urahisi bila kupoteza maudhui.' : 'Unda tangazo litakaloonekana kwenye landing page.'">Manage announcement</p>
 </section>
 <form th:action="@{/admin/announcements/save}" method="post" class="announcement-form">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 <input type="hidden" name="id" th:value="${announcement.id}">
 <div class="form-field"><label for="title">Title <span class="required">*</span></label><input id="title" type="text" name="title" required th:value="${announcement.title}" placeholder="Mfano: Tahadhari ya Usalama Mtandaoni"></div>
 <div class="form-field"><label for="content">Content <span class="required">*</span></label><textarea id="content" name="content" rows="7" required th:text="${announcement.content}" placeholder="Andika maudhui ya tangazo hapa..."></textarea><small class="field-help">Maandishi marefu yataendelea ndani ya kisanduku; unaweza kuongeza urefu kwa kuvuta kona ya chini.</small></div>

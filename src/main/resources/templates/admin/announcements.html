@@ -41,6 +41,7 @@
                 <div style="display: flex; gap: 8px; align-items: flex-start;">
                     <a th:href="@{'/admin/announcements/' + ${a.id} + '/edit'}" class="app-btn app-btn-outline" style="text-decoration: none; padding: 8px 15px; background: #07543e; color: white;">✏️ Edit</a>
                     <form th:action="@{'/admin/announcements/' + ${a.id} + '/delete'}" method="post" onsubmit="return confirm('Una uhakika?');">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <button type="submit" class="app-btn app-btn-outline" style="padding: 8px 15px; background: #DC2626; color: white;">🗑️ Delete</button>
                     </form>
                 </div>
