@@ -119,6 +119,15 @@ public class User {
     @Column(name = "profile_picture", length = 2048)
     private String profilePicture;
 
+    @Column(name = "oauth_otp_hash", length = 100)
+    private String oauthOtpHash;
+
+    @Column(name = "oauth_otp_expires_at")
+    private LocalDateTime oauthOtpExpiresAt;
+
+    @Column(name = "oauth_otp_attempts")
+    private Integer oauthOtpAttempts = 0;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -237,4 +246,10 @@ public class User {
     public void setOauthId(String oauthId) { this.oauthId = oauthId; }
     public String getProfilePicture() { return profilePicture; }
     public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
+    public String getOauthOtpHash() { return oauthOtpHash; }
+    public void setOauthOtpHash(String oauthOtpHash) { this.oauthOtpHash = oauthOtpHash; }
+    public LocalDateTime getOauthOtpExpiresAt() { return oauthOtpExpiresAt; }
+    public void setOauthOtpExpiresAt(LocalDateTime oauthOtpExpiresAt) { this.oauthOtpExpiresAt = oauthOtpExpiresAt; }
+    public Integer getOauthOtpAttempts() { return oauthOtpAttempts == null ? 0 : oauthOtpAttempts; }
+    public void setOauthOtpAttempts(Integer oauthOtpAttempts) { this.oauthOtpAttempts = oauthOtpAttempts; }
 }
