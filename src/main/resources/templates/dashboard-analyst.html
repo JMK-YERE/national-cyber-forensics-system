@@ -6,7 +6,7 @@
 <main class="app-main"><div class="app-container"><section class="cyber-visual" aria-label="Cyber forensics overview">
 <div class="cyber-grid"></div><div class="cyber-scan"></div><div class="cyber-orbit"><i></i><i></i><i></i></div>
 <div class="cyber-visual-copy"><span>CYBER FORENSICS // LIVE OVERVIEW</span><strong>Operational intelligence</strong><small>Incidents • Evidence • Response • Risk</small></div>
-</section></div><div class="app-container">
+</section><div th:replace="~{fragments/incident-map :: incidentMap}"></div></div><div class="app-container">
 <section class="w"><h1>Welcome, <span th:text="${username}">Analyst</span></h1><p>Evidence-based cyber analysis workspace · ANALYST</p></section>
 <section class="a"><h2>📊 Analysis Analytics</h2><div class="g">
 <div class="s"><b th:text="${assignedCount != null ? assignedCount : 0}">0</b><span>Assigned tasks</span></div>
