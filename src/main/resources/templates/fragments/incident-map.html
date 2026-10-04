@@ -19,25 +19,7 @@
 .intel-map-layer{z-index:1;opacity:0;transition:opacity 1s ease}
 .intel-stage.map-ready .intel-splash{opacity:0;transform:translateX(-8%);pointer-events:none}
 .intel-stage.map-ready .intel-map-layer{opacity:1}
-.dashboard-map-canvas{width:100%;height:100%;overflow:hidden}
-.dashboard-map-canvas .leaflet-container{width:100%;height:100%;background:#03130f;font:11px Inter,"Segoe UI",sans-serif}
-.dashboard-map-head{display:flex;justify-content:space-between;gap:15px;align-items:end;margin:18px 0 10px}
-.dashboard-map-head h2{font-size:17px;color:#022c22;margin:0}
-.dashboard-map-head p{font-size:10px;color:#71807d;margin:3px 0 0}
-.dashboard-map-meta{font-size:10px;color:#047857;font-weight:900;letter-spacing:.08em}
-.incident-dot{width:13px;height:13px;border-radius:50%;background:#ff3b30;border:2px solid #fff;box-shadow:0 0 7px #ff3b30,0 0 18px rgba(255,59,48,.95);animation:incidentPulse 1.35s ease-in-out infinite}
-.incident-dot.medium{background:#22c55e;box-shadow:0 0 7px #22c55e,0 0 18px rgba(34,197,94,.85)}
-.incident-dot.low{background:#facc15;box-shadow:0 0 7px #facc15,0 0 18px rgba(250,204,21,.8)}
-@keyframes incidentPulse{0%,100%{transform:scale(.72);opacity:.72}50%{transform:scale(1.32);opacity:1}}
-.incident-popup{min-width:170px;font-family:Inter,"Segoe UI",sans-serif}
-.incident-popup strong{color:#064e3b}.incident-popup small{display:block;color:#566a63;margin-top:3px}
-@media(max-width:600px){
- .intel-stage{height:300px}
- .intel-splash-copy strong{font-size:26px}
- .dashboard-map-head{display:block}
- .dashboard-map-meta{margin-top:6px}
-}
-</style>
+.cyber-map{position:relative;width:100%;height:100%;background:#031b14 url('/images/cyber-world-map.svg') center/cover no-repeat;overflow:hidden}.cyber-map:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 62% 65%,rgba(34,197,94,.12),transparent 30%),linear-gradient(rgba(2,44,34,.05),rgba(2,44,34,.25));pointer-events:none}.cyber-dot{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#ff3b30;border:2px solid #fff;box-shadow:0 0 7px #ff3b30,0 0 20px rgba(255,59,48,.95);animation:incidentPulse 1.25s ease-in-out infinite;z-index:5;cursor:pointer}.cyber-dot.medium{background:#22c55e;box-shadow:0 0 7px #22c55e,0 0 20px rgba(34,197,94,.85)}.cyber-dot.low{background:#facc15;box-shadow:0 0 7px #facc15,0 0 20px rgba(250,204,21,.8)}.cyber-dot-label{position:absolute;left:12px;top:14px;display:none;min-width:155px;padding:8px 10px;background:rgba(1,20,15,.94);border:1px solid rgba(134,239,172,.35);color:#eafff5;font-size:10px;line-height:1.45;z-index:10}.cyber-dot:hover .cyber-dot-label,.cyber-dot:focus .cyber-dot-label{display:block}@keyframes incidentPulse{0%,100%{transform:scale(.72);opacity:.72}50%{transform:scale(1.35);opacity:1}}@media(max-width:600px){.intel-stage{height:300px}.intel-splash-copy strong{font-size:26px}.dashboard-map-head{display:block}.dashboard-map-meta{margin-top:6px}.cyber-dot{width:10px;height:10px;margin:-5px 0 0 -5px}.cyber-dot-label{font-size:9px;min-width:135px}}</style>
 <div class="intel-welcome">
   <span>CYBER FORENSICS TZ</span>
   <h2>Karibu kwenye kituo cha taarifa za usalama</h2>
@@ -45,41 +27,26 @@
 </div>
 <div id="incidentIntelligenceStage" class="intel-stage" aria-label="Forensics intelligence map">
   <div class="intel-splash">
-    <img th:src="@{/images/forensics-splash.svg}" alt="Cyber forensics investigation workspace">
+    <img src="https://images.pexels.com/photos/5380593/pexels-photo-5380593.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Cyber forensics investigation workspace">
     <div class="intel-splash-copy">
       <small>DIGITAL FORENSICS • INCIDENT INTELLIGENCE</small>
       <strong>Evidence. Investigation. Response.</strong>
       <span>Muonekano wa forensic unaandaa ramani ya matukio yaliyoripotiwa.</span>
     </div>
   </div>
-  <div class="intel-map-layer"><div id="dashboardIncidentMap" class="dashboard-map-canvas"></div></div>
+  <div class="intel-map-layer"><div id="dashboardIncidentMap" class="cyber-map"></div></div>
 </div>
 <div class="dashboard-map-head">
   <div><h2>Ramani ya Matukio</h2><p>Dot inayowaka inaonyesha tukio lililoripotiwa; taarifa binafsi za aliyeripoti hazionyeshwi.</p></div>
   <div class="dashboard-map-meta">● LIVE INCIDENT INTELLIGENCE</div>
 </div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const dashboardReports = /*[[${mapPoints}]]*/[] || [];
-const dashboardRegions = {Arusha:[-3.3869,36.6830],Dar:[-6.7924,39.2083],"Dar es Salaam":[-6.7924,39.2083],Dodoma:[-6.1630,35.7516],Geita:[-2.8728,32.2294],Iringa:[-7.7696,35.6914],Kagera:[-1.3290,31.8090],Katavi:[-6.8270,31.0750],Kigoma:[-4.8769,29.6267],Kilimanjaro:[-3.0674,37.3556],Lindi:[-9.9931,39.7165],Manyara:[-4.3150,36.9541],Mara:[-1.7757,34.1532],Mbeya:[-8.9094,33.4608],Morogoro:[-6.8278,37.6591],Mtwara:[-10.2736,40.1828],Mwanza:[-2.5164,32.9175],Njombe:[-9.3333,34.7667],Pwani:[-7.3238,38.7660],Rukwa:[-8.0109,31.6107],Ruvuma:[-10.6870,35.6500],Shinyanga:[-3.6619,33.4232],Simiyu:[-2.9995,33.7940],Singida:[-4.8149,34.7439],Songwe:[-8.2582,32.5325],Tabora:[-5.0160,32.8009],Tanga:[-5.0689,39.0982],Zanzibar:[-6.1659,39.2026]};
-function initIncidentMap(){
- const map=L.map('dashboardIncidentMap',{scrollWheelZoom:false,zoomControl:true,preferCanvas:true}).setView([-6.369,34.8888],6);
- L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);
- dashboardReports.forEach((r,index)=>{
-   const rawRegion=(r.region||'').trim(); const base=dashboardRegions[rawRegion]||dashboardRegions[rawRegion.replace(/^Region of /i,'')]; if(!base)return;
-   const angle=index*2.399, ring=0.045, pos=[base[0]+Math.sin(angle)*ring,base[1]+Math.cos(angle)*ring];
-   const priority=(r.priority||'MEDIUM').toUpperCase();
-   const cls=priority==='CRITICAL'||priority==='HIGH'?'':(priority==='LOW'?' low':' medium');
-   const icon=L.divIcon({className:'',html:'<div class="incident-dot'+cls+'"></div>',iconSize:[13,13],iconAnchor:[6.5,6.5]});
-   const marker=L.marker(pos,{icon}).addTo(map);
-   const type=(r.type||'Other').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-   const status=(r.status||'NEW').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-   marker.bindPopup('<div class="incident-popup"><strong>'+rawRegion+'</strong><small>Incident: '+type+'</small><small>Status: '+status+' • Priority: '+priority+'</small></div>');
- });
- setTimeout(()=>map.invalidateSize(),300);
- window.setTimeout(()=>document.getElementById('incidentIntelligenceStage')?.classList.add('map-ready'),3400);
-}
-if(window.L){initIncidentMap()}else{window.addEventListener('load',initIncidentMap)}
+const dashboardReports=/*[[${mapPoints}]]*/[]||[];
+const regionCoords={Arusha:[-3.3869,36.6830],Dar:[-6.7924,39.2083],"Dar es Salaam":[-6.7924,39.2083],Dodoma:[-6.1630,35.7516],Geita:[-2.8728,32.2294],Iringa:[-7.7696,35.6914],Kagera:[-1.3290,31.8090],Katavi:[-6.8270,31.0750],Kigoma:[-4.8769,29.6267],Kilimanjaro:[-3.0674,37.3556],Lindi:[-9.9931,39.7165],Manyara:[-4.3150,36.9541],Mara:[-1.7757,34.1532],Mbeya:[-8.9094,33.4608],Morogoro:[-6.8278,37.6591],Mtwara:[-10.2736,40.1828],Mwanza:[-2.5164,32.9175],Njombe:[-9.3333,34.7667],Pwani:[-7.3238,38.7660],Rukwa:[-8.0109,31.6107],Ruvuma:[-10.6870,35.6500],Shinyanga:[-3.6619,33.4232],Simiyu:[-2.9995,33.7940],Singida:[-4.8149,34.7439],Songwe:[-8.2582,32.5325],Tabora:[-5.0160,32.8009],Tanga:[-5.0689,39.0982],Zanzibar:[-6.1659,39.2026]};
+function project(lat,lon){return{x:((lon+180)/360)*100,y:((90-lat)/180)*100}}
+function safe(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function initCyberIncidentMap(){const map=document.getElementById('dashboardIncidentMap');if(!map)return;if(!dashboardReports.length)map.insertAdjacentHTML('beforeend','<div class="cyber-map-empty">NO REPORTED INCIDENTS YET</div>');dashboardReports.forEach((r,index)=>{const key=(r.region||'').trim(),base=regionCoords[key]||regionCoords[key.replace(/^Region of /i,'')];if(!base)return;const p=project(base[0],base[1]),priority=(r.priority||'MEDIUM').toUpperCase(),cls=priority==='LOW'?' low':priority==='MEDIUM'?' medium':'';const dot=document.createElement('button');dot.type='button';dot.className='cyber-dot'+cls;dot.style.left=p.x+'%';dot.style.top=p.y+'%';dot.setAttribute('aria-label','Incident '+key);dot.innerHTML='<span class="cyber-dot-label"><strong>'+safe(key)+'</strong><br>'+safe(r.type||'Other')+'<br>'+safe(r.status||'NEW')+' • '+safe(priority)+'</span>';map.appendChild(dot)});setTimeout(()=>document.getElementById('incidentIntelligenceStage')?.classList.add('map-ready'),3400)}
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',initCyberIncidentMap):initCyberIncidentMap();
 </script>
 </section>
 </body>
