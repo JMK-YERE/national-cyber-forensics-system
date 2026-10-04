@@ -79,7 +79,7 @@ public class ReportAttackController {
 
     private boolean canInteractWithReport(User user, ReportAttack report) {
         if (user == null || report == null) return false;
-        return canSeeAllReports(user) || (report.getUserId() != null && report.getUserId().equals(user.getId()));
+        return canSeeAllReports(user) || (report.getUserId() != null && report.getUserId().equals(user.getId())) || (report.getAssignedTo() != null && report.getAssignedTo().equals(user.getId()));
     }
 
     private void notifyAdmins(String title, String message, String type, String linkUrl) {
@@ -287,7 +287,8 @@ public class ReportAttackController {
 
             boolean staff = canSeeAllReports(user);
             boolean owner = r.getUserId() != null && r.getUserId().equals(user.getId());
-            if (!staff && !owner) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            boolean assignee = r.getAssignedTo() != null && r.getAssignedTo().equals(user.getId());
+            if (!staff && !owner && !assignee) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
             Path basePath = Paths.get(uploadDir).toAbsolutePath().normalize();
             Path filePath = basePath.resolve(r.getEvidenceFilePath()).normalize();
@@ -326,7 +327,7 @@ public class ReportAttackController {
         if (!canInteractWithReport(user, r)) return "redirect:/access-denied";
         if (message == null || message.isBlank() || message.length() > 4000) return "redirect:/report-attack/view/" + id;
 
-        String senderType = canSeeAllReports(user) ? "ADMIN" : "USER";
+        String senderType = canSeeAllReports(user) ? "ADMIN" : (r.getAssignedTo() != null && r.getAssignedTo().equals(user.getId()) ? "STAFF" : "USER");
         messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
         auditService.log("REPORT_REPLY", "ReportAttack", String.valueOf(id), "Reply sent by " + user.getUsername());
 
