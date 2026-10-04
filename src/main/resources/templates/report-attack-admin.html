@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Reports - Cyber Forensics System</title>
+    <title>Reports for Examination - Cyber Forensics TZ</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <style>
 .workspace-kicker{font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
@@ -25,10 +25,10 @@
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main"><div class="app-container">
-    <div class="workspace-kicker">Admin Operational Reports Workspace</div>
+    <div class="workspace-kicker">Digital Forensics • Examination Workspace</div>
 <div class="admin-header">
-        <h1>Admin Reports Panel</h1>
-        <p>Simamia reports zote za watumiaji. Unaweza kuona na kusaidia.</p>
+        <h1>Reports for Examination</h1>
+        <p>Chunguza reports za matukio, tathmini ushahidi wa awali, assign case na anza response workflow.</p>
     </div>
 
     <!-- STATS -->
@@ -63,12 +63,12 @@
             </div>
 
             <div class="action-buttons">
-                <!-- VIEW BUTTON — Kila mtu anaweza kuona -->
+                <!-- EXAMINATION VIEW -->
                 <a th:href="@{'/report-attack/view/' + ${r.id}}" class="btn-view">
                     View Report & Help
                 </a>
 
-                <!-- AI BUTTON — Admin anaweza kubonyeza -->
+                <!-- ASSISTED AI REVIEW -->
                 <form th:action="@{'/report-attack/' + ${r.id} + '/ai-reply'}" method="post" style="display:inline;">
                     <button type="submit" class="btn-ai">
                         Let AI Reply Now
