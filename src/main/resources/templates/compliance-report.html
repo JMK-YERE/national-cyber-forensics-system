@@ -9,13 +9,6 @@
 <body>
 <div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/compliance}">📋 Compliance</a>
-        <button onclick="window.print()" class="app-btn app-btn-outline" style="margin-left:10px;">🖨️ Print</button>
-    </div>
-</div>
-
 <main class="app-main"><div class="app-container">
     <div class="app-card" style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; padding: 30px;">
         <h1 style="color: white; margin: 0;" th:text="${report.title}"></h1>
