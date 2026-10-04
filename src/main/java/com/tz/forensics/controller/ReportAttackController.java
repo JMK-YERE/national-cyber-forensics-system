@@ -237,8 +237,9 @@ public class ReportAttackController {
 
         boolean isAdmin = canSeeAllReports(user);
         boolean isOwner = r.getUserId() != null && r.getUserId().equals(user.getId());
+        boolean isAssignee = r.getAssignedTo() != null && r.getAssignedTo().equals(user.getId());
 
-        if (!isAdmin && !isOwner) return "redirect:/access-denied";
+        if (!isAdmin && !isOwner && !isAssignee) return "redirect:/access-denied";
 
         List<ReportMessage> messages = messageRepo.findByReportIdOrderByCreatedAtAsc(id);
         auditService.log("VIEW_REPORT", "ReportAttack", String.valueOf(id), "Viewed report " + r.getReportId());
@@ -271,6 +272,7 @@ public class ReportAttackController {
         model.addAttribute("user", user);
         model.addAttribute("canSeeAll", isAdmin);
         model.addAttribute("isOwner", isOwner);
+        model.addAttribute("isAssignee", isAssignee);
         model.addAttribute("messages", messages);
         model.addAttribute("dynFields", dynFields);
         return "report-attack-detail";
