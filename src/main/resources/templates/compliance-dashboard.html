@@ -24,18 +24,6 @@
 <body>
 <div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/report-attack}">Report</a>
-        <a th:href="@{/compliance}">📋 Compliance</a>
-        <a th:href="@{/report-attack/admin}">👑 Admin</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
-    </div>
-</div>
-
 <main class="app-main"><div class="app-container">
     <div class="app-card" style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; text-align: center; padding: 30px;">
         <h1 style="color: white; margin: 0;">📋 Compliance & Audit Reports</h1>
