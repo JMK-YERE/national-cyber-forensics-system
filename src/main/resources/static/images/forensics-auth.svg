@@ -1,1 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900"><defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#022c22"/><stop offset=".55" stop-color="#064e3b"/><stop offset="1" stop-color="#16a34a"/></linearGradient><pattern id="g" width="45" height="45" patternUnits="userSpaceOnUse"><path d="M45 0H0V45" fill="none" stroke="#86efac" stroke-opacity=".1"/></pattern></defs><rect width="900" height="900" rx="40" fill="url(#a)"/><rect width="900" height="900" rx="40" fill="url(#g)"/><circle cx="450" cy="420" r="220" fill="#021f18" fill-opacity=".55" stroke="#6ee7a5" stroke-opacity=".45" stroke-width="3"/><path d="M310 410c0-90 62-165 140-165s140 75 140 165v155c0 65-62 110-140 110s-140-45-140-110z" fill="#073b2d" stroke="#8af5b4" stroke-width="3"/><path d="M350 415h200v110H350z" fill="#0b5c44" stroke="#43e38e"/><circle cx="400" cy="470" r="16" fill="#9fffc3"/><circle cx="500" cy="470" r="16" fill="#9fffc3"/><path d="M400 525q50 40 100 0" fill="none" stroke="#9fffc3" stroke-width="7" stroke-linecap="round"/><path d="M450 245V185" stroke="#8af5b4" stroke-width="8"/><circle cx="450" cy="168" r="16" fill="#22c55e"/><g fill="#a7f3d0" font-family="Arial" text-anchor="middle"><text x="450" y="770" font-size="28" font-weight="700">SECURE FORENSIC WORKSPACE</text><text x="450" y="810" font-size="17">Cyber Response • Digital Evidence • Investigation</text></g><g stroke="#7ff0ae" stroke-opacity=".35"><path d="M90 180h120M90 180v120M810 180H690M810 180v120M90 720h120M90 720V600M810 720H690M810 720V600"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 760" role="img" aria-labelledby="title desc">
+<title id="title">Cyber Forensics TZ secure investigation workspace</title>
+<desc id="desc">Professional digital forensics illustration with shield, world grid, evidence and investigation signals.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#011b15"/><stop offset=".52" stop-color="#064e3b"/><stop offset="1" stop-color="#0b7a55"/></linearGradient>
+ <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b8f63"/><stop offset="1" stop-color="#022c22"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#86efac" stop-opacity=".35"/><stop offset="1" stop-color="#86efac" stop-opacity="0"/></radialGradient>
+ <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#a7f3d0" stroke-opacity=".08"/></pattern>
+ <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity=".35"/></filter>
+</defs>
+<rect width="1000" height="760" rx="34" fill="url(#bg)"/>
+<rect width="1000" height="760" rx="34" fill="url(#grid)"/>
+<circle cx="500" cy="350" r="310" fill="url(#glow)"/>
+<!-- world intelligence -->
+<g transform="translate(500 350)" opacity=".62" fill="none" stroke="#9fffc3">
+ <ellipse rx="270" ry="105" stroke-opacity=".28"/><ellipse rx="270" ry="185" stroke-opacity=".22"/><ellipse rx="145" ry="270" stroke-opacity=".24"/><ellipse rx="230" ry="270" stroke-opacity=".18"/>
+ <circle r="270" stroke-opacity=".38" stroke-width="2"/>
+ <path d="M-270 0H270M0-270V270" stroke-opacity=".18"/>
+</g>
+<!-- shield -->
+<path d="M500 108L690 185v165c0 135-86 218-190 270-104-52-190-135-190-270V185z" fill="url(#shield)" stroke="#b7f7cf" stroke-width="5" filter="url(#shadow)"/>
+<path d="M500 158L642 216v130c0 101-60 168-142 215-82-47-142-114-142-215V216z" fill="#032f24" fill-opacity=".55" stroke="#43e38e" stroke-opacity=".65" stroke-width="2"/>
+<!-- forensic evidence case -->
+<rect x="392" y="300" width="216" height="148" rx="16" fill="#eafff3" fill-opacity=".96"/>
+<rect x="420" y="330" width="160" height="8" rx="4" fill="#064e3b"/>
+<rect x="420" y="354" width="116" height="7" rx="3" fill="#4b7667"/>
+<rect x="420" y="378" width="138" height="7" rx="3" fill="#4b7667"/>
+<circle cx="555" cy="413" r="17" fill="#16a34a"/><path d="M546 413l7 7 13-16" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- scan/circuit signals -->
+<g fill="none" stroke="#8af5b4" stroke-width="3" stroke-linecap="round">
+ <path d="M145 170h150l55 55"/><path d="M855 170H705l-55 55"/><path d="M120 590h165l62-62"/><path d="M880 590H715l-62-62"/>
+</g>
+<g fill="#22c55e"><circle cx="145" cy="170" r="7"/><circle cx="855" cy="170" r="7"/><circle cx="120" cy="590" r="7"/><circle cx="880" cy="590" r="7"/></g>
+<!-- typography -->
+<g fill="#ecfff5" text-anchor="middle" font-family="Arial,Segoe UI,sans-serif">
+ <text x="500" y="670" font-size="30" font-weight="800" letter-spacing="3">CYBER FORENSICS TZ</text>
+ <text x="500" y="708" font-size="16" fill="#b7e8d3" letter-spacing="1.2">SECURE INVESTIGATION • DIGITAL EVIDENCE • RESPONSE</text>
+</g>
+</svg>
