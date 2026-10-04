@@ -5,14 +5,14 @@
 <header class="app-header">
 <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
 <div class="header-logo"><span class="logo-icon">🛡</span><span>Cyber Forensics TZ</span></div>
-<div class="header-clock"><span>📅</span><span class="clock-date" id="clockDate">—</span><span>•</span><span class="clock-time" id="clockTime">--:--:--</span><div class="header-language"><button type="button" class="language-btn" onclick="toggleLanguageMenu()" aria-label="Language">🌐 <span th:text="${#locale.language == 'sw' ? 'SW' : 'EN'}">EN</span></button><div class="language-menu" id="languageMenu"><a th:href="@{/lang(lang='sw',redirect=${#request.requestURI})}">SW — Kiswahili</a><a th:href="@{/lang(lang='en',redirect=${#httpServletRequest.requestURI})}">EN — English</a></div></div></div>
+<div class="header-clock"><span>📅</span><span class="clock-date" id="clockDate">—</span><span>•</span><span class="clock-time" id="clockTime">--:--:--</span><button type="button" class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">☾</button><div class="header-language"><button type="button" class="language-btn" onclick="toggleLanguageMenu()" aria-label="Language">🌐 <span th:text="${#locale.language == 'sw' ? 'SW' : 'EN'}">EN</span></button><div class="language-menu" id="languageMenu"><a th:href="@{/lang(lang='sw',redirect=${#request.requestURI})}">SW — Kiswahili</a><a th:href="@{/lang(lang='en',redirect=${#request.requestURI})}">EN — English</a></div></div></div>
 <div class="header-profile">
 <button class="profile-btn" onclick="toggleProfileMenu()" aria-haspopup="true" aria-expanded="false">
 <div class="profile-avatar" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'}">U</div>
 <span th:text="${#authentication != null ? #authentication.name : 'User'}">User</span><span>⌄</span>
 </button>
 <div class="profile-dropdown" id="profileDropdown">
-<a th:href="@{/dashboard}" class="dropdown-item"><span>⌂</span th:text="#{nav.dashboard}">Dashboard</a>
+<a th:href="@{/dashboard}" class="dropdown-item"><span>⌂</span><span th:text="#{nav.dashboard}">Dashboard</span></a>
 <a th:href="@{/change-password}" class="dropdown-item"><span>🔐</span><span th:text="#{nav.changePassword}">Change Password</span></a>
 <div class="dropdown-divider"></div>
 <form th:action="@{/logout}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button type="submit" class="dropdown-item danger"><span>🚪</span><span th:text="#{nav.logout}">Logout</span></button></form>
@@ -28,7 +28,7 @@
 <span class="ai-floating-label">Uliza AI →</span></a>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <style>
-.header-language{position:relative;margin-left:8px}.language-btn{height:34px;padding:0 9px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#ecfdf5;border-radius:7px;font-size:11px;font-weight:900;cursor:pointer}.language-menu{display:none;position:absolute;right:0;top:40px;min-width:155px;background:#fff;border:1px solid #d6e9df;box-shadow:0 12px 30px rgba(2,44,34,.16);z-index:99999}.language-menu.show{display:block}.language-menu a{display:block;padding:11px 13px;color:#064e3b!important;font-size:12px;font-weight:800;text-decoration:none}.language-menu a:hover{background:#ecfdf5;color:#047857!important}@media(max-width:600px){.header-language{margin-left:2px}.language-btn{height:38px;padding:0 8px}.language-menu{right:-42px}}
+.theme-btn{height:34px;width:34px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#ecfdf5;border-radius:7px;font-size:16px;font-weight:900;cursor:pointer}.header-language{position:relative;margin-left:8px}.language-btn{height:34px;padding:0 9px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#ecfdf5;border-radius:7px;font-size:11px;font-weight:900;cursor:pointer}.language-menu{display:none;position:absolute;right:0;top:40px;min-width:155px;background:#fff;border:1px solid #d6e9df;box-shadow:0 12px 30px rgba(2,44,34,.16);z-index:99999}.language-menu.show{display:block}.language-menu a{display:block;padding:11px 13px;color:#064e3b!important;font-size:12px;font-weight:800;text-decoration:none}.language-menu a:hover{background:#ecfdf5;color:#047857!important}@media(max-width:600px){.header-language{margin-left:2px}.language-btn{height:38px;padding:0 8px}.language-menu{right:-42px}}
 </style>
 <script>
 function toggleLanguageMenu(){const m=document.getElementById('languageMenu');if(m)m.classList.toggle('show')}
