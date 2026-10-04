@@ -78,11 +78,14 @@
         <form th:action="@{/incidents/{value}/workflow(value=${incident.id})}" method="post" style="margin-top:15px;">
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 <select name="status">
-                <option value="NEW">NEW</option>
-                <option value="ASSIGNED">ASSIGNED</option>
-                <option value="IN_PROGRESS">IN PROGRESS</option>
-                <option value="REVIEW">REVIEW</option>
-                <option value="COMPLETED">COMPLETED</option>
+                <option value="NEW">🆕 New</option>
+                <option value="TRIAGED">🔎 Triaged</option>
+                <option value="ASSIGNED">👤 Assigned</option>
+                <option value="INVESTIGATING">🧪 Investigating</option>
+                <option value="CONTAINMENT">🛑 Containment</option>
+                <option value="ERADICATION">🧹 Eradication</option>
+                <option value="RECOVERY">🔄 Recovery</option>
+                <option value="CLOSED">✅ Closed</option>
             </select>
             <button type="submit" class="app-btn app-btn-outline" style="margin-left:10px;">🔄 Update</button>
         </form>
