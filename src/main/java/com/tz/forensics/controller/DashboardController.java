@@ -120,6 +120,19 @@ public class DashboardController {
                 List<ReportAttack> my = reportRepo.findByUserIdOrderByCreatedAtDesc(user.getId());
                 model.addAttribute("myReports", my);
                 model.addAttribute("personalReportCount", my.size());
+
+                // Personal map scope: only this user's reported incidents are exposed.
+                List<Map<String,Object>> mapPoints = new ArrayList<>();
+                for (ReportAttack r : my) {
+                    if (r.getRegion() == null || r.getRegion().isBlank()) continue;
+                    Map<String,Object> point = new LinkedHashMap<>();
+                    point.put("region", r.getRegion().trim());
+                    point.put("priority", r.getPriority() == null ? "MEDIUM" : r.getPriority());
+                    point.put("type", r.getAttackTypeLabel() == null ? "Other" : r.getAttackTypeLabel());
+                    point.put("status", r.getStatus() == null ? "NEW" : r.getStatus());
+                    mapPoints.add(point);
+                }
+                model.addAttribute("mapPoints", mapPoints);
             }
         } catch (Exception e) {
             log.error("Dashboard error: {}", e.getMessage(), e);
