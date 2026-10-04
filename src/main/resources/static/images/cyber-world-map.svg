@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560">
+<defs>
+ <radialGradient id="g"><stop stop-color="#19d38b" stop-opacity=".55"/><stop offset="1" stop-color="#19d38b" stop-opacity="0"/></radialGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="5"/></filter>
+</defs>
+<rect width="1200" height="560" fill="#031b14"/>
+<g fill="#0b5a43" stroke="#168764" stroke-width="2" opacity=".9">
+<path d="M65 140l45-42 67-20 42 28 56 7 45 48-19 42-48 9-30 39-46-7-35-43-54-15z"/>
+<path d="M238 258l37 5 25 33-12 43-31 51-21-29 8-38-26-25z"/>
+<path d="M365 116l44-31 79 4 44 34 67 13 44 38-9 48-58 8-41 29-43-13-49 11-34-34-41-15 5-48z"/>
+<path d="M478 258l55-9 40 28 26 60-27 48-53 9-33-48-29-32z"/>
+<path d="M620 101l42-20 54 11 18 28-22 25-53-1-38-17z"/>
+<path d="M652 146l50-8 44 22 24 42-28 28-45-9-22 31-38-24 4-43z"/>
+<path d="M739 218l51-17 55 14 45 33 71 9 35 33-29 35-58-5-39 29-55-22-53 5-31-38 9-41z"/>
+<path d="M885 347l46 9 29 29-10 39-39 14-45-26-12-31z"/>
+<path d="M1000 288l35-14 39 19 14 30-31 23-42-9-25-25z"/>
+<path d="M1072 394l47-17 34 22 4 36-43 27-42-17-20-29z"/>
+</g>
+<g fill="none" stroke="#19d38b" opacity=".18">
+<path d="M0 280h1200M0 140h1200M0 420h1200"/><path d="M200 0v560M400 0v560M600 0v560M800 0v560M1000 0v560"/>
+</g>
+<circle cx="740" cy="365" r="120" fill="url(#g)" opacity=".28"/>
+<text x="35" y="45" fill="#9ff0d0" font-family="monospace" font-size="16" font-weight="700" letter-spacing="3">CYBER THREAT / DIGITAL FORENSICS INTELLIGENCE</text>
+<text x="35" y="520" fill="#4fd8a8" font-family="monospace" font-size="12" letter-spacing="2">OFFLINE MAP • INCIDENT DOTS • NO MAP API REQUIRED</text>
+</svg>
