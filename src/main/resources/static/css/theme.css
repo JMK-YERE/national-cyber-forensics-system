@@ -108,3 +108,9 @@ a:hover{color:#047857}
 .app-stat-box .value{font-size:30px!important;font-weight:900}
 .app-stat-box .label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#657b72}
 .app-stats-grid{gap:18px}
+
+/* Dashboard role workspaces: remove heavy frames while preserving hierarchy */
+.welcome-banner,.ph,.fh,.w{border-radius:0!important;box-shadow:none!important;border-left:3px solid #22c55e}
+.pc,.fc,.a{background:transparent!important;border:0!important;border-bottom:1px solid rgba(6,95,70,.14)!important;border-radius:0!important;box-shadow:none!important;padding:15px 2px!important}
+.pc a,.fc a,.actions a{background:transparent!important;color:#047857!important;border:0!important;padding-left:0!important}
+.pc a:hover,.fc a:hover,.actions a:hover{background:transparent!important;color:#022c22!important;transform:translateX(3px)}
