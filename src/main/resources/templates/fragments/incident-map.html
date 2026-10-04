@@ -1,11 +1,86 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org" th:inline="javascript"><body>
-<section th:fragment="incidentMap" class="dashboard-map"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<style>.intel-welcome{padding:4px 0 17px;border-left:3px solid #22c55e;padding-left:15px;margin-bottom:14px}.intel-welcome span{font-size:9px;font-weight:900;letter-spacing:.14em;color:#15803d}.intel-welcome h2{font-size:25px;color:#022c22;margin:5px 0}.intel-welcome p{font-size:12px;color:#61736d;margin:0;line-height:1.6}.intel-world{width:100%;margin:0 0 20px;overflow:hidden;background:#022c22}.intel-world img{display:block;width:100%;height:auto;min-height:180px;object-fit:cover}.dashboard-map{margin:0 0 26px;border-bottom:1px solid rgba(6,95,70,.14);padding:0 0 20px}.dashboard-map-head{display:flex;justify-content:space-between;gap:15px;align-items:end;margin-bottom:12px}.dashboard-map-head h2{font-size:17px;color:#022c22;margin:0}.dashboard-map-head p{font-size:10px;color:#71807d;margin:3px 0 0}.dashboard-map-meta{font-size:10px;color:#047857;font-weight:800}.dashboard-map-canvas{height:330px;width:100%;overflow:hidden}.dashboard-map-canvas .leaflet-container{font:11px Inter,"Segoe UI",sans-serif}@media(max-width:600px){.dashboard-map-canvas{height:270px}.dashboard-map-head{display:block}.dashboard-map-meta{margin-top:6px}}</style>
-<div class="intel-welcome"><div><span>CYBER FORENSICS TZ</span><h2>Karibu kwenye kituo cha taarifa za usalama</h2><p>Hapa unaona picha ya mazingira ya kidijitali, kisha ramani ya matukio yaliyoripotiwa katika maeneo mbalimbali.</p></div></div>
-<div class="intel-world"><img src="/images/forensics-world.svg" alt="Cyber forensic world intelligence overview"></div>
-<div class="dashboard-map-head"><div><h2>Ramani ya Matukio</h2><p>Matukio yamekusanywa kwa mkoa; taarifa binafsi za aliyeripoti hazionyeshwi.</p></div><div class="dashboard-map-meta">LIVE INCIDENT INTELLIGENCE</div></div><div id="dashboardIncidentMap" class="dashboard-map-canvas"></div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>
-const dashboardReports=/*[[${mapPoints}]]*/[];
-const dashboardRegions={Arusha:[-3.3869,36.6830],Dar:[-6.7924,39.2083],"Dar es Salaam":[-6.7924,39.2083],Dodoma:[-6.1630,35.7516],Geita:[-2.8728,32.2294],Iringa:[-7.7696,35.6914],Kagera:[-1.3290,31.8090],Katavi:[-6.8270,31.0750],Kigoma:[-4.8769,29.6267],Kilimanjaro:[-3.0674,37.3556],Lindi:[-9.9931,39.7165],Manyara:[-4.3150,36.9541],Mara:[-1.7757,34.1532],Mbeya:[-8.9094,33.4608],Morogoro:[-6.8278,37.6591],Mtwara:[-10.2736,40.1828],Mwanza:[-2.5164,32.9175],Njombe:[-9.3333,34.7667],Pwani:[-7.3238,38.7660],Rukwa:[-8.0109,31.6107],Ruvuma:[-10.6870,35.6500],Shinyanga:[-3.6619,33.4232],Simiyu:[-2.9995,33.7940],Singida:[-4.8149,34.7439],Songwe:[-8.2582,32.5325],Tabora:[-5.0160,32.8009],Tanga:[-5.0689,39.0982],Zanzibar:[-6.1659,39.2026]};
-const dashboardMap=L.map('dashboardIncidentMap',{scrollWheelZoom:false}).setView([-6.369,34.8888],6);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(dashboardMap);const groups={};dashboardReports.forEach(r=>{const k=r.region;groups[k]??={total:0,high:0,types:{}};groups[k].total++;if(['HIGH','CRITICAL'].includes((r.priority||'MEDIUM').toUpperCase()))groups[k].high++;groups[k].types[r.type]=(groups[k].types[r.type]||0)+1});Object.entries(groups).forEach(([region,g])=>{const pos=dashboardRegions[region]||dashboardRegions[region.trim()];if(!pos)return;const color=g.high?'#dc2626':'#15803d';const marker=L.circleMarker(pos,{radius:Math.min(22,7+g.total*1.5),color,fillColor:color,fillOpacity:.58,weight:2}).addTo(dashboardMap);const types=Object.entries(g.types).map(x=>x[0]+' ('+x[1]+')').join(', ');marker.bindPopup('<b>'+region+'</b><br>Reports: '+g.total+'<br>High/Critical: '+g.high+'<br>'+types)});setTimeout(()=>dashboardMap.invalidateSize(),250);
-</script></section></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:inline="javascript">
+<body>
+<section th:fragment="incidentMap" class="dashboard-intelligence">
+<style>
+.intel-welcome{padding:4px 0 17px;border-left:3px solid #22c55e;padding-left:15px;margin-bottom:14px}
+.intel-welcome span{font-size:9px;font-weight:900;letter-spacing:.14em;color:#15803d}
+.intel-welcome h2{font-size:25px;color:#022c22;margin:5px 0}
+.intel-welcome p{font-size:12px;color:#61736d;margin:0;line-height:1.6}
+.intel-stage{position:relative;width:100%;height:clamp(290px,42vw,500px);overflow:hidden;background:#02140f;border:1px solid rgba(34,197,94,.18)}
+.intel-splash,.intel-map-layer{position:absolute;inset:0}
+.intel-splash{z-index:3;display:flex;align-items:center;justify-content:center;background:#02140f;opacity:1;transform:translateX(0);transition:opacity .9s ease,transform 1s ease}
+.intel-splash img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.intel-splash:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(1,20,15,.72),rgba(1,20,15,.05) 55%,rgba(1,20,15,.35))}
+.intel-splash-copy{position:absolute;z-index:2;left:clamp(18px,4vw,58px);bottom:clamp(22px,5vw,52px);color:#fff;max-width:650px}
+.intel-splash-copy small{display:block;color:#86efac;font:900 10px/1.2 ui-monospace,SFMono-Regular,monospace;letter-spacing:.18em}
+.intel-splash-copy strong{display:block;margin-top:8px;font-size:clamp(25px,4vw,48px);line-height:1.04}
+.intel-splash-copy span{display:block;margin-top:9px;color:#c9f7e4;font-size:12px}
+.intel-map-layer{z-index:1;opacity:0;transition:opacity 1s ease}
+.intel-stage.map-ready .intel-splash{opacity:0;transform:translateX(-8%);pointer-events:none}
+.intel-stage.map-ready .intel-map-layer{opacity:1}
+.dashboard-map-canvas{width:100%;height:100%;overflow:hidden}
+.dashboard-map-canvas .leaflet-container{width:100%;height:100%;background:#03130f;font:11px Inter,"Segoe UI",sans-serif}
+.dashboard-map-head{display:flex;justify-content:space-between;gap:15px;align-items:end;margin:18px 0 10px}
+.dashboard-map-head h2{font-size:17px;color:#022c22;margin:0}
+.dashboard-map-head p{font-size:10px;color:#71807d;margin:3px 0 0}
+.dashboard-map-meta{font-size:10px;color:#047857;font-weight:900;letter-spacing:.08em}
+.incident-dot{width:13px;height:13px;border-radius:50%;background:#ff3b30;border:2px solid #fff;box-shadow:0 0 7px #ff3b30,0 0 18px rgba(255,59,48,.95);animation:incidentPulse 1.35s ease-in-out infinite}
+.incident-dot.medium{background:#22c55e;box-shadow:0 0 7px #22c55e,0 0 18px rgba(34,197,94,.85)}
+.incident-dot.low{background:#facc15;box-shadow:0 0 7px #facc15,0 0 18px rgba(250,204,21,.8)}
+@keyframes incidentPulse{0%,100%{transform:scale(.72);opacity:.72}50%{transform:scale(1.32);opacity:1}}
+.incident-popup{min-width:170px;font-family:Inter,"Segoe UI",sans-serif}
+.incident-popup strong{color:#064e3b}.incident-popup small{display:block;color:#566a63;margin-top:3px}
+@media(max-width:600px){
+ .intel-stage{height:300px}
+ .intel-splash-copy strong{font-size:26px}
+ .dashboard-map-head{display:block}
+ .dashboard-map-meta{margin-top:6px}
+}
+</style>
+<div class="intel-welcome">
+  <span>CYBER FORENSICS TZ</span>
+  <h2>Karibu kwenye kituo cha taarifa za usalama</h2>
+  <p>Muhtasari unaanza hapa: utambulisho wa mazingira ya forensic, kisha ramani ya matukio yaliyoripotiwa kulingana na eneo.</p>
+</div>
+<div id="incidentIntelligenceStage" class="intel-stage" aria-label="Forensics intelligence map">
+  <div class="intel-splash">
+    <img th:src="@{/images/forensics-splash.svg}" alt="Cyber forensics investigation workspace">
+    <div class="intel-splash-copy">
+      <small>DIGITAL FORENSICS • INCIDENT INTELLIGENCE</small>
+      <strong>Evidence. Investigation. Response.</strong>
+      <span>Muonekano wa forensic unaandaa ramani ya matukio yaliyoripotiwa.</span>
+    </div>
+  </div>
+  <div class="intel-map-layer"><div id="dashboardIncidentMap" class="dashboard-map-canvas"></div></div>
+</div>
+<div class="dashboard-map-head">
+  <div><h2>Ramani ya Matukio</h2><p>Dot inayowaka inaonyesha tukio lililoripotiwa; taarifa binafsi za aliyeripoti hazionyeshwi.</p></div>
+  <div class="dashboard-map-meta">● LIVE INCIDENT INTELLIGENCE</div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const dashboardReports = /*[[${mapPoints}]]*/[] || [];
+const dashboardRegions = {Arusha:[-3.3869,36.6830],Dar:[-6.7924,39.2083],"Dar es Salaam":[-6.7924,39.2083],Dodoma:[-6.1630,35.7516],Geita:[-2.8728,32.2294],Iringa:[-7.7696,35.6914],Kagera:[-1.3290,31.8090],Katavi:[-6.8270,31.0750],Kigoma:[-4.8769,29.6267],Kilimanjaro:[-3.0674,37.3556],Lindi:[-9.9931,39.7165],Manyara:[-4.3150,36.9541],Mara:[-1.7757,34.1532],Mbeya:[-8.9094,33.4608],Morogoro:[-6.8278,37.6591],Mtwara:[-10.2736,40.1828],Mwanza:[-2.5164,32.9175],Njombe:[-9.3333,34.7667],Pwani:[-7.3238,38.7660],Rukwa:[-8.0109,31.6107],Ruvuma:[-10.6870,35.6500],Shinyanga:[-3.6619,33.4232],Simiyu:[-2.9995,33.7940],Singida:[-4.8149,34.7439],Songwe:[-8.2582,32.5325],Tabora:[-5.0160,32.8009],Tanga:[-5.0689,39.0982],Zanzibar:[-6.1659,39.2026]};
+function initIncidentMap(){
+ const map=L.map('dashboardIncidentMap',{scrollWheelZoom:false,zoomControl:true,preferCanvas:true}).setView([-6.369,34.8888],6);
+ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);
+ dashboardReports.forEach((r,index)=>{
+   const rawRegion=(r.region||'').trim(); const base=dashboardRegions[rawRegion]||dashboardRegions[rawRegion.replace(/^Region of /i,'')]; if(!base)return;
+   const angle=index*2.399, ring=0.045, pos=[base[0]+Math.sin(angle)*ring,base[1]+Math.cos(angle)*ring];
+   const priority=(r.priority||'MEDIUM').toUpperCase();
+   const cls=priority==='CRITICAL'||priority==='HIGH'?'':(priority==='LOW'?' low':' medium');
+   const icon=L.divIcon({className:'',html:'<div class="incident-dot'+cls+'"></div>',iconSize:[13,13],iconAnchor:[6.5,6.5]});
+   const marker=L.marker(pos,{icon}).addTo(map);
+   const type=(r.type||'Other').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+   const status=(r.status||'NEW').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+   marker.bindPopup('<div class="incident-popup"><strong>'+rawRegion+'</strong><small>Incident: '+type+'</small><small>Status: '+status+' • Priority: '+priority+'</small></div>');
+ });
+ setTimeout(()=>map.invalidateSize(),300);
+ window.setTimeout(()=>document.getElementById('incidentIntelligenceStage')?.classList.add('map-ready'),3400);
+}
+if(window.L){initIncidentMap()}else{window.addEventListener('load',initIncidentMap)}
+</script>
+</section>
+</body>
+</html>
