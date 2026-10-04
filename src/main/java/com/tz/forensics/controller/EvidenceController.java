@@ -116,7 +116,8 @@ public class EvidenceController {
         User user = currentUser(auth);
         Evidence evidence = evidenceService.getById(id);
         if (evidence == null) return "redirect:/incidents";
-        if (!isStaff(user)) return "redirect:/access-denied";
+        Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if (!isStaff(user) || !canAccessIncident(incident, user)) return "redirect:/access-denied";
 
         evidenceService.verifyEvidence(id, auth.getName(), user.getId());
         auditService.log("VERIFY_EVIDENCE", "Evidence", String.valueOf(id),
