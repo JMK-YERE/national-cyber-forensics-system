@@ -386,7 +386,8 @@ public class ReportAttackController {
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null || !canSeeAllReports(user)) return "redirect:/access-denied";
+        // STRICT ADMIN AREA: only ADMIN may open the Admin Reports Panel.
+        if (user == null || !user.isAdmin()) return "redirect:/access-denied";
 
         model.addAttribute("reports", service.getAll());
         model.addAttribute("user", user);
@@ -406,7 +407,8 @@ public class ReportAttackController {
                                 @RequestParam(required = false) String policeCaseNumber,
                                 Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null || !canSeeAllReports(user)) return "redirect:/access-denied";
+        // Status/assignment actions from this endpoint are ADMIN-only.
+        if (user == null || !user.isAdmin()) return "redirect:/access-denied";
 
         String assignedName = null;
         if (assignedTo != null) {
