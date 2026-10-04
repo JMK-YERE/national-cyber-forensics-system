@@ -5,6 +5,13 @@ import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.EmailService;
 import com.tz.forensics.service.SmsService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -94,7 +101,9 @@ public class PasswordController {
     public String resetSubmit(@RequestParam(required = false, defaultValue = "") String token,
                               @RequestParam String password,
                               @RequestParam String confirmPassword,
-                              Model model) {
+                              Model model,
+                              HttpServletRequest request,
+                              HttpServletResponse response) {
         String cleanToken = token.trim();
         User user = userRepository.findAll().stream()
                 .filter(u -> u.getPasswordResetToken() != null)
@@ -129,7 +138,24 @@ public class PasswordController {
         user.setPasswordResetExpiresAt(null);
         user.setPasswordResetAttempts(0);
         userRepository.save(user);
-        return "redirect:/login?registered=true";
+
+        // The password-reset flow is already a verified identity flow.
+        // Establish a normal authenticated session so the user goes straight
+        // to the role-aware dashboard instead of being forced through login again.
+        String role = user.getRole() == null || user.getRole().isBlank()
+                ? "INDIVIDUAL" : user.getRole().trim().toUpperCase();
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        user.getUsername(),
+                        null,
+                        java.util.List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        new HttpSessionSecurityContextRepository().saveContext(context, request, response);
+
+        return "redirect:/dashboard";
     }
 
     @GetMapping("/change-password")
