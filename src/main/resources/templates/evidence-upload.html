@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Evidence - Cyber Forensics</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <title>Forensic Evidence Acquisition - Cyber Forensics TZ</title><style>.evidence-head{border-left:3px solid #22c55e;padding-left:14px;margin-bottom:18px}.evidence-head h1{color:#022c22;margin:0;font-size:27px}.evidence-head p{color:#61736d;font-size:12px;margin:5px 0 0}.evidence-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}.evidence-form .full{grid-column:1/-1}.evidence-form label{display:block;margin-bottom:5px;color:#064e3b;font-size:10px;font-weight:900;letter-spacing:.04em}.evidence-form input,.evidence-form select,.evidence-form textarea{width:100%;min-height:42px;border:0;border-bottom:1px solid #b7cec4;background:transparent;padding:8px 2px;outline:0}.evidence-form input[type=file]{border:1px dashed #9bcdbd;background:#f7fcf9;padding:10px}.evidence-form textarea{min-height:92px;resize:vertical}.evidence-note{font-size:11px;color:#61736d;line-height:1.55}.evidence-register{overflow-x:auto}.evidence-register table{min-width:780px}.evidence-register th{font-size:10px;text-transform:uppercase;letter-spacing:.05em}.hash-display{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;word-break:break-all}@media(max-width:700px){.evidence-form{grid-template-columns:1fr}.evidence-form .full{grid-column:auto}.evidence-head h1{font-size:22px}}</style>
+    <link rel="stylesheet" th:href="@{/css/theme.css(v=20261004)}">
 </head>
 <body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <div class="nav-links">
         <a th:href="@{/dashboard}">🏠 Dashboard</a>
         <a th:href="@{/incidents}">📋 Incidents</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
+        <form class="evidence-form" th:action="@{/logout}" method="post" style="display:inline;">
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 <button type="submit" class="logout-btn">🚪 Logout</button>
         </form>
     </div>
 </div>
 
-<main class="app-main"><div class="app-container">
+<main class="app-main"><div class="app-container"><header class="evidence-head"><h1>🔬 Forensic Evidence Acquisition</h1><p>Authorized acquisition • preservation • SHA-256 integrity • encrypted evidence registration</p></header>
     <div class="app-card">
         <h1>🔬 Forensic Evidence Acquisition</h1>
         <p><strong>Workflow:</strong> acquire on an authorized forensic workstation → preserve the source → calculate SHA-256 → record the acquisition metadata → upload the forensic image/export. The web app does not bypass device locks or directly mount raw phones/USB devices.</p>
@@ -85,7 +85,7 @@
         </form>
     </div>
 
-    <div class="app-card" th:if="${!evidenceList.isEmpty()}">
+    <div class="app-card evidence-register" th:if="${!evidenceList.isEmpty()}">
         <h2>📁 Evidence Register</h2>
         <p>SHA-256 ndiyo integrity reference ya msingi. MD5 iliyopo kwenye backend ni legacy/reference metadata, si uthibitisho mkuu wa integrity.</p>
         <table style="margin-top:15px;">
