@@ -5,7 +5,7 @@
 <header class="app-header">
 <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
 <div class="header-logo"><span class="logo-icon">🛡</span><span>Cyber Forensics TZ</span></div>
-<div class="header-clock"><span>📅</span><span class="clock-date" id="clockDate">—</span><span>•</span><span class="clock-time" id="clockTime">--:--:--</span><div class="header-language"><button type="button" class="language-btn" onclick="toggleLanguageMenu()" aria-label="Language">🌐 <span th:text="${#locale.language == 'sw' ? 'SW' : 'EN'}">EN</span></button><div class="language-menu" id="languageMenu"><a th:href="@{/lang(lang='sw',redirect=${#httpServletRequest.requestURI})}">SW — Kiswahili</a><a th:href="@{/lang(lang='en',redirect=${#httpServletRequest.requestURI})}">EN — English</a></div></div></div>
+<div class="header-clock"><span>📅</span><span class="clock-date" id="clockDate">—</span><span>•</span><span class="clock-time" id="clockTime">--:--:--</span><div class="header-language"><button type="button" class="language-btn" onclick="toggleLanguageMenu()" aria-label="Language">🌐 <span th:text="${#locale.language == 'sw' ? 'SW' : 'EN'}">EN</span></button><div class="language-menu" id="languageMenu"><a th:href="@{/lang(lang='sw',redirect=${#request.requestURI})}">SW — Kiswahili</a><a th:href="@{/lang(lang='en',redirect=${#httpServletRequest.requestURI})}">EN — English</a></div></div></div>
 <div class="header-profile">
 <button class="profile-btn" onclick="toggleProfileMenu()" aria-haspopup="true" aria-expanded="false">
 <div class="profile-avatar" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name,0,1).toUpperCase() : 'U'}">U</div>
