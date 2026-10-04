@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 @Controller
 public class DashboardController {
@@ -86,6 +88,34 @@ public class DashboardController {
                 List<ReportAttack> recent = allReports;
                 if (recent.size() > 5) recent = recent.subList(0, 5);
                 model.addAttribute("recentReports", recent);
+
+                // Role-aware geographic intelligence: aggregate regions only; no reporter identity.
+                List<Map<String,Object>> mapPoints = new ArrayList<>();
+                for (ReportAttack r : allReports) {
+                    if (r.getRegion() == null || r.getRegion().isBlank()) continue;
+                    Map<String,Object> point = new LinkedHashMap<>();
+                    point.put("region", r.getRegion().trim());
+                    point.put("priority", r.getPriority() == null ? "MEDIUM" : r.getPriority());
+                    point.put("type", r.getAttackTypeLabel() == null ? "Other" : r.getAttackTypeLabel());
+                    point.put("status", r.getStatus() == null ? "NEW" : r.getStatus());
+                    mapPoints.add(point);
+                }
+                model.addAttribute("mapPoints", mapPoints);
+                model.addAttribute("analyticsTotal", allReports.size());
+                model.addAttribute("analyticsHigh", allReports.stream().filter(r -> "HIGH".equalsIgnoreCase(r.getPriority()) || "CRITICAL".equalsIgnoreCase(r.getPriority())).count());
+                model.addAttribute("analyticsOpen", allReports.stream().filter(r -> r.getStatus() == null || !"CLOSED".equalsIgnoreCase(r.getStatus())).count());
+                model.addAttribute("analyticsClosed", allReports.stream().filter(r -> "CLOSED".equalsIgnoreCase(r.getStatus())).count());
+                Map<String,Integer> regionCounts = new LinkedHashMap<>();
+                Map<String,Integer> typeCounts = new LinkedHashMap<>();
+                allReports.forEach(r -> {
+                    if (r.getRegion() != null && !r.getRegion().isBlank()) regionCounts.merge(r.getRegion().trim(), 1, Integer::sum);
+                    String type = r.getAttackTypeLabel() == null ? "Other" : r.getAttackTypeLabel();
+                    typeCounts.merge(type, 1, Integer::sum);
+                });
+                model.addAttribute("regionLabels", regionCounts.keySet());
+                model.addAttribute("regionValues", regionCounts.values());
+                model.addAttribute("typeLabels", typeCounts.keySet());
+                model.addAttribute("typeValues", typeCounts.values());
             } else {
                 List<ReportAttack> my = reportRepo.findByUserIdOrderByCreatedAtDesc(user.getId());
                 model.addAttribute("myReports", my);
