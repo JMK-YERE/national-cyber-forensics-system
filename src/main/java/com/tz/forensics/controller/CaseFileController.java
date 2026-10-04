@@ -75,7 +75,7 @@ public class CaseFileController {
         return "redirect:/cases";
     }
 
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}", "/view/{id}"})
     public String viewCase(@PathVariable Long id, Model model, Authentication auth) {
         User user = getCurrentUser(auth);
         if (!canManageCases(user)) return "redirect:/access-denied";
