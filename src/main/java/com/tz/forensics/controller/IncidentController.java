@@ -132,6 +132,16 @@ public class IncidentController {
 
         incidentService.assignIncident(id, assignedTo, assignedUser.getUsername(), currentUser.getId(), priority, dueDate);
         auditService.log("ASSIGN_INCIDENT", "Incident", String.valueOf(id), "Assigned to: " + assignedUser.getUsername());
+        try {
+            notificationService.createNotification(
+                    assignedUser.getId(),
+                    "📌 Incident assigned to you",
+                    incident.getIncidentId() + " — " + incident.getTitle()
+                            + (priority != null ? " | Priority: " + priority : ""),
+                    "ASSIGNMENT",
+                    "/incidents/" + id
+            );
+        } catch (Exception ignored) {}
         return "redirect:/incidents/" + id;
     }
 
@@ -149,6 +159,28 @@ public class IncidentController {
         }
         incidentService.updateWorkflowStatus(id, normalizedStatus);
         auditService.log("UPDATE_WORKFLOW", "Incident", String.valueOf(id), "Workflow: " + normalizedStatus);
+        try {
+            String message = incident.getIncidentId() + " — workflow changed to " + normalizedStatus;
+            if (incident.getReporterUserId() != null) {
+                notificationService.createNotification(
+                        incident.getReporterUserId(),
+                        "🔄 Incident status updated",
+                        message,
+                        "WORKFLOW",
+                        "/incidents/" + id
+                );
+            }
+            if (incident.getAssignedTo() != null
+                    && !incident.getAssignedTo().equals(incident.getReporterUserId())) {
+                notificationService.createNotification(
+                        incident.getAssignedTo(),
+                        "🔄 Assigned incident updated",
+                        message,
+                        "WORKFLOW",
+                        "/incidents/" + id
+                );
+            }
+        } catch (Exception ignored) {}
         return "redirect:/incidents/" + id;
     }
 
