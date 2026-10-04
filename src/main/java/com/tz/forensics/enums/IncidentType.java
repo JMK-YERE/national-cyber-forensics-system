@@ -14,6 +14,7 @@ public enum IncidentType {
     REVENGE_PORN("🚫 Revenge Porn", "🚫", "#dc2626"),
     SOCIAL_MEDIA_HACKED("📱 Social Media Hacked", "📱", "#7c3aed"),
     BANK_CARD_LOST("💳 Bank Card Lost", "💳", "#b45309"),
+    PHONE_STOLEN("📱 Phone Stolen", "📱", "#dc2626"),
     ACCOUNT_COMPROMISED("🔐 Account Compromised", "🔐", "#dc2626"),
     OTHER("❓ Other", "❓", "#6b7280");
 
