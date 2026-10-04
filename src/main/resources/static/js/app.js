@@ -76,3 +76,19 @@ document.addEventListener('DOMContentLoaded', function() {
     markActiveNavigation();
     setInterval(updateClock, 1000);
 });
+
+
+/* ===== GLOBAL THEME PREFERENCE ===== */
+function applyTheme(){
+    const dark=localStorage.getItem('cftz-theme')==='dark';
+    document.documentElement.dataset.theme=dark?'dark':'light';
+    document.body.classList.toggle('theme-dark',dark);
+    document.querySelectorAll('.theme-btn').forEach(b=>{b.textContent=dark?'☀':'☾';b.setAttribute('aria-pressed',dark?'true':'false');});
+}
+function toggleTheme(){
+    const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+    localStorage.setItem('cftz-theme',next);
+    applyTheme();
+}
+document.addEventListener('DOMContentLoaded',applyTheme);
+applyTheme();
