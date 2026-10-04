@@ -114,3 +114,23 @@ a:hover{color:#047857}
 .pc,.fc,.a{background:transparent!important;border:0!important;border-bottom:1px solid rgba(6,95,70,.14)!important;border-radius:0!important;box-shadow:none!important;padding:15px 2px!important}
 .pc a,.fc a,.actions a{background:transparent!important;color:#047857!important;border:0!important;padding-left:0!important}
 .pc a:hover,.fc a:hover,.actions a:hover{background:transparent!important;color:#022c22!important;transform:translateX(3px)}
+
+/* ===== FINAL RESPONSIVE ACCESSIBILITY HARDENING ===== */
+.app-btn-primary,.app-btn-cyan,.btn-main{color:#fff!important;text-shadow:none}
+.app-btn-danger,.danger-btn{color:#fff!important;background:#b91c1c!important}
+.app-btn-warning{color:#1f2937!important;background:#facc15!important}
+button:not(.mobile-toggle):not(.profile-btn):not(.language-btn):not(.eye-btn){font-family:inherit}
+.sidebar-item{white-space:normal;line-height:1.35}
+@media(max-width:900px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .app-sidebar{z-index:1200}
+  .sidebar-overlay{z-index:1100}
+  .app-header{z-index:1300}
+  .app-main{position:relative;z-index:1}
+  .app-main .app-btn,.app-main button,.app-main input,.app-main select,.app-main textarea{font-size:14px;line-height:1.25}
+  .app-main .app-btn{min-height:44px}
+}
+@media(max-width:480px){
+  .app-main .app-btn{min-width:0;padding:10px 12px}
+  .app-main .app-btn span{font-size:inherit}
+}
