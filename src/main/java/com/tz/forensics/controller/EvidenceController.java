@@ -46,7 +46,7 @@ public class EvidenceController {
 
     private boolean canAccessIncident(Incident incident, User user) {
         if (incident == null || user == null) return false;
-        return isStaff(user)
+        return user.isAdmin()
                 || user.getId().equals(incident.getReporterUserId())
                 || user.getId().equals(incident.getAssignedTo());
     }
