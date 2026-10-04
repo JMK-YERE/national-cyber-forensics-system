@@ -134,3 +134,32 @@ button:not(.mobile-toggle):not(.profile-btn):not(.language-btn):not(.eye-btn){fo
   .app-main .app-btn{min-width:0;padding:10px 12px}
   .app-main .app-btn span{font-size:inherit}
 }
+
+
+/* ===== SYSTEM-WIDE DARK MODE ===== */
+html[data-theme="dark"],html[data-theme="dark"] body{background:#071a14;color:#e7f7f0}
+html[data-theme="dark"] .app-main{background:radial-gradient(circle at 85% 0%,#103d2f 0,#071a14 34%,#071a14 100%);color:#e7f7f0}
+html[data-theme="dark"] .app-card,
+html[data-theme="dark"] .profile-dropdown{background:#0c251d;color:#e7f7f0;border-color:#214a3c}
+html[data-theme="dark"] .app-card h2{color:#d9f6ec;border-color:#285847}
+html[data-theme="dark"] .app-list-item{border-color:#214a3c}
+html[data-theme="dark"] .app-stat-box .label{color:#9fc5b6}
+html[data-theme="dark"] .app-btn-outline{background:#0c251d;color:#9ff0d0;border-color:#34745e}
+html[data-theme="dark"] .dropdown-item{color:#e7f7f0}
+html[data-theme="dark"] .dropdown-item:hover{background:#12382c}
+html[data-theme="dark"] .dropdown-divider{background:#214a3c}
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea{background:#0c251d;color:#e7f7f0;border-color:#285847}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder{color:#7fa99a}
+html[data-theme="dark"] table{color:#e7f7f0}
+html[data-theme="dark"] th{background:#10382c;color:#d9f6ec}
+html[data-theme="dark"] td{border-color:#214a3c}
+html[data-theme="dark"] .welcome-banner,
+html[data-theme="dark"] .pc,
+html[data-theme="dark"] .fc,
+html[data-theme="dark"] .a{color:#e7f7f0;border-color:#285847!important}
+html[data-theme="dark"] .language-menu{background:#0c251d;border-color:#285847}
+html[data-theme="dark"] .language-menu a{color:#d9f6ec!important}
+html[data-theme="dark"] .language-menu a:hover{background:#12382c}
