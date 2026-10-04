@@ -13,10 +13,21 @@ function updateClock() {
 }
 
 function toggleSidebar() {
-    const s = document.getElementById('appSidebar');
-    const o = document.getElementById('sidebarOverlay');
-    if (s) s.classList.toggle('show');
-    if (o) o.classList.toggle('show');
+    const s=document.getElementById('appSidebar');
+    const o=document.getElementById('sidebarOverlay');
+    if(!s)return;
+    const open=!s.classList.contains('show');
+    s.classList.toggle('show',open);
+    if(o)o.classList.toggle('show',open);
+    document.body.classList.toggle('sidebar-open',open);
+    document.documentElement.classList.toggle('sidebar-open',open);
+}
+function closeSidebar(){
+    const s=document.getElementById('appSidebar'),o=document.getElementById('sidebarOverlay');
+    if(s)s.classList.remove('show');
+    if(o)o.classList.remove('show');
+    document.body.classList.remove('sidebar-open');
+    document.documentElement.classList.remove('sidebar-open');
 }
 
 function toggleSubmenu(id, btn) {
@@ -42,17 +53,10 @@ document.addEventListener('click', function(e) {
     // On phones/tablets, selecting a sidebar destination must immediately
     // close the drawer so the destination page gets the full viewport.
     if (window.innerWidth <= 900) {
-        const link = e.target.closest('.app-sidebar a.sidebar-item');
-        if (link) closeSidebar();
+        const link=e.target.closest('.app-sidebar a,.app-sidebar button.sidebar-item');
+        if(link)closeSidebar();
     }
 });
-
-function closeSidebar() {
-    const s = document.getElementById('appSidebar');
-    const o = document.getElementById('sidebarOverlay');
-    if (s) s.classList.remove('show');
-    if (o) o.classList.remove('show');
-}
 
 window.addEventListener('resize', function() {
     if (window.innerWidth > 900) closeSidebar();
