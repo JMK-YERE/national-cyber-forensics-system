@@ -180,6 +180,6 @@ html[data-theme="dark"] .language-menu a:hover{background:#12382c}
 
 /* Mobile announcement pacing */
 @media (max-width:600px){
-  .announcement-track{animation-duration:46s!important}
+  .announcement-track{animation-duration:90s!important}
   .announcement-marquee{padding-left:2px;padding-right:2px}
 }
