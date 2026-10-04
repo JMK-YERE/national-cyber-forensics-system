@@ -1,52 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="#{nav.cases} + ' - ' + #{app.title}">Cases</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-</head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title th:text="#{nav.cases} + ' - ' + #{app.title}">Forensic Cases</title>
+<link rel="stylesheet" th:href="@{/css/theme.css}">
+<style>
+.case-head{display:flex;align-items:end;justify-content:space-between;gap:16px;border-left:3px solid #22c55e;padding:4px 0 8px 15px;margin-bottom:24px}.case-head h1{margin:0;color:#022c22;font-size:28px}.case-head p{margin:4px 0 0;color:#61736d;font-size:12px}.case-actions a{white-space:nowrap}
+.case-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:28px}.case-stat{padding:10px 5px;border-bottom:2px solid #b8dfcb}.case-stat strong{display:block;font-size:30px;color:#15803d}.case-stat span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#657b72}
+.case-table{width:100%;overflow-x:auto}.case-table table{width:100%;min-width:760px;border-collapse:collapse}.case-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#657b72;padding:10px 8px;border-bottom:2px solid #d6e9df}.case-table td{padding:13px 8px;border-bottom:1px solid rgba(6,95,70,.12);font-size:12px}.case-table tr:hover{background:#f0faf5}.case-link{color:#047857;font-weight:800}.empty{text-align:center;padding:30px;color:#71807d}
+@media(max-width:650px){.case-head{display:block}.case-actions{margin-top:14px}.case-stats{grid-template-columns:1fr 1fr;gap:16px}.case-stat strong{font-size:24px}}@media(max-width:400px){.case-stats{grid-template-columns:1fr}}
+</style></head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div></main>
-<div th:replace="~{fragments/sidebar :: sidebar}"></div></main>
-
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 <main class="app-main"><div class="app-container">
-    <div class="app-card">
-        <h1 th:text="#{nav.cases}">Cases</h1>
-        <a th:href="@{/cases/new}" class="app-btn app-btn-primary" style="margin-top:15px;">➕ Add</a>
-    </div></main>
-
-    <div class="app-stats-grid">
-        <div class="app-stat-box"><div class="stat-value" th:text="${openCount}">0</div><div class="stat-label">Open</div></div></main>
-        <div class="app-stat-box"><div class="stat-value" th:text="${investigatingCount}">0</div><div class="stat-label">Investigating</div></div></main>
-        <div class="app-stat-box"><div class="stat-value" th:text="${closedCount}">0</div><div class="stat-label">Closed</div></div></main>
-    </div></main>
-
-    <div class="app-card">
-        <table>
-            <thead>
-            <tr>
-                <th>Case #</th>
-                <th th:text="#{report.title2}">Title</th>
-                <th th:text="#{general.priority}">Priority</th>
-                <th th:text="#{report.status}">Status</th>
-                <th th:text="#{admin.assigned}">Assigned</th>
-                <th th:text="#{general.action}">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:if="${cases.isEmpty()}"><td colspan="6" style="text-align:center;">No cases yet.</td></tr>
-            <tr th:each="c : ${cases}" th:class="${c.statusClass}">
-                <td th:text="${c.caseNumber}"></td>
-                <td th:text="${c.title}"></td>
-                <td th:text="${c.priority}"></td>
-                <td th:text="${c.status}"></td>
-                <td th:text="${c.assignedToName != null ? c.assignedToName : '—'}"></td>
-                <td><a th:href="@{'/cases/' + ${c.id}}" th:text="#{general.view}">View</a></td>
-            </tr>
-            </tbody>
-        </table>
-    </div></main>
-</div></main>
-<script th:src="@{/js/app.js}"></script>
-</body>
-</html>
+<header class="case-head"><div><h1 th:text="#{nav.cases}">Forensic Cases</h1><p>Controlled digital-forensics case files and examination workflow.</p></div><div class="case-actions"><a th:href="@{/cases/new}" class="app-btn app-btn-primary">+ Add Case</a></div></header>
+<section class="case-stats">
+<div class="case-stat"><strong th:text="${openCount}">0</strong><span>Open cases</span></div>
+<div class="case-stat"><strong th:text="${investigatingCount}">0</strong><span>Investigating</span></div>
+<div class="case-stat"><strong th:text="${closedCount}">0</strong><span>Closed cases</span></div>
+</section>
+<section class="case-table"><table><thead><tr><th>Case #</th><th>Title</th><th>Priority</th><th>Status</th><th>Assigned</th><th>Action</th></tr></thead>
+<tbody><tr th:if="${cases.isEmpty()}"><td colspan="6" class="empty">No forensic cases have been opened yet.</td></tr>
+<tr th:each="c : ${cases}"><td th:text="${c.caseNumber}"></td><td th:text="${c.title}"></td><td th:text="${c.priority}"></td><td th:text="${c.status}"></td><td th:text="${c.assignedToName != null ? c.assignedToName : '—'}"></td><td><a class="case-link" th:href="@{'/cases/' + ${c.id}}" th:text="#{general.view}">Open</a></td></tr></tbody></table></section>
+</div></main><script th:src="@{/js/app.js}"></script></body></html>
