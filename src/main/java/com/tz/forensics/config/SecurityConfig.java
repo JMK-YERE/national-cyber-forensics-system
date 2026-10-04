@@ -70,7 +70,7 @@ public class SecurityConfig {
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS")
 
                 .requestMatchers("/report-attack/admin", "/report-attack/admin/**")
-                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS")
+                    .hasAuthority("ROLE_ADMIN")
 
                 .requestMatchers("/incidents/my-tasks", "/incidents/my-tasks/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
