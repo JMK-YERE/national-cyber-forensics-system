@@ -42,6 +42,7 @@
 <a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">📋</span><span class="label">Reports for Examination</span></a>
 <a th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label">Incident Map</span></a>
 <a th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label">Forensic Compliance</span></a>
+<a th:href="@{/analytics}" class="sidebar-item"><span class="icon">▥</span><span class="label">Forensic Data Analytics</span></a>
 </div>
 
 <div sec:authorize="hasAuthority('ROLE_ANALYST')" class="sidebar-section">Cyber Analysis</div>
@@ -49,6 +50,7 @@
 <a th:href="@{/incidents/my-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label">My Analysis Tasks</span></a>
 <a th:href="@{/incidents}" class="sidebar-item"><span class="icon">🔎</span><span class="label">Permitted Cases</span></a>
 <a th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label">Threat Intelligence Map</span></a>
+<a th:href="@{/analytics}" class="sidebar-item"><span class="icon">▥</span><span class="label">Data Analytics</span></a>
 </div>
 
 <div class="sidebar-section">Security Tools</div>
