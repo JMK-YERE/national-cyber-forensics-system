@@ -22,7 +22,7 @@ public class LanguageController {
                                  HttpServletResponse response) {
         Locale locale = "sw".equalsIgnoreCase(lang) ? new Locale("sw") : Locale.ENGLISH;
         localeResolver.setLocale(request, response, locale);
-        String safe = redirect == null || redirect.isBlank() ? "/" : redirect;
+        String safe = redirect == null || redirect.isBlank() ? request.getHeader("Referer") : redirect;
         try {
             URI uri = URI.create(safe);
             if (uri.isAbsolute() || uri.getHost() != null || !safe.startsWith("/")) safe = "/";
