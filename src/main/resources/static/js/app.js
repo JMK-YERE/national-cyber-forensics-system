@@ -58,7 +58,21 @@ window.addEventListener('resize', function() {
     if (window.innerWidth > 900) closeSidebar();
 });
 
+function markActiveNavigation() {
+    const current = window.location.pathname.replace(/\\/$/, '') || '/';
+    document.querySelectorAll('.app-sidebar a.sidebar-item').forEach(link => {
+        try {
+            const target = new URL(link.href, window.location.origin).pathname.replace(/\\/$/, '') || '/';
+            const active = target === current || (target !== '/dashboard' && target.length > 1 && current.startsWith(target + '/'));
+            link.classList.toggle('active', active);
+            if (active) link.setAttribute('aria-current', 'page');
+            else link.removeAttribute('aria-current');
+        } catch (_) {}
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     updateClock();
+    markActiveNavigation();
     setInterval(updateClock, 1000);
 });
