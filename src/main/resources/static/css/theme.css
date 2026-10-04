@@ -177,3 +177,9 @@ html[data-theme="dark"] .language-menu a:hover{background:#12382c}
   .app-sidebar{width:88vw!important;max-width:330px!important}
   .app-main{padding-left:10px!important;padding-right:10px!important}
 }
+
+/* Mobile announcement pacing */
+@media (max-width:600px){
+  .announcement-track{animation-duration:46s!important}
+  .announcement-marquee{padding-left:2px;padding-right:2px}
+}
