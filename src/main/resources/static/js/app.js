@@ -50,13 +50,28 @@ document.addEventListener('click', function(e) {
 });
 
 document.addEventListener('click', function(e) {
-    // On phones/tablets, selecting a sidebar destination must immediately
-    // close the drawer so the destination page gets the full viewport.
+    // Mobile: every sidebar destination closes the drawer BEFORE navigation.
     if (window.innerWidth <= 900) {
         const link=e.target.closest('.app-sidebar a,.app-sidebar button.sidebar-item');
-        if(link)closeSidebar();
+        if(link){
+            closeSidebar();
+            requestAnimationFrame(closeSidebar);
+            setTimeout(closeSidebar, 0);
+        }
     }
-});
+}, true);
+
+document.addEventListener('pointerdown', function(e) {
+    if (window.innerWidth <= 900 && e.target.closest('.app-sidebar a,.app-sidebar button.sidebar-item')) {
+        closeSidebar();
+    }
+}, true);
+
+document.addEventListener('touchstart', function(e) {
+    if (window.innerWidth <= 900 && e.target.closest('.app-sidebar a,.app-sidebar button.sidebar-item')) {
+        closeSidebar();
+    }
+}, {passive:true,capture:true});
 
 window.addEventListener('resize', function() {
     if (window.innerWidth > 900) closeSidebar();
