@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+<head><style>.case-detail-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:4px 0 20px;border-bottom:1px solid #d6e9df;margin-bottom:20px}.case-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;color:#08785a}.case-detail-head h1{margin:3px 0;color:#022c22;font-size:28px}.case-detail-head p{margin:0;color:#61736d;font-size:13px}@media(max-width:600px){.case-detail-head{align-items:flex-start;flex-direction:column}.case-detail-head h1{font-size:22px}}</style>
     <meta charset="UTF-8">
     <title>Case Detail - Cyber Forensics</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/theme.css(v=20261004)}">
 </head>
 <body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
@@ -13,7 +13,7 @@
     </div>
 </div>
 
-<main class="app-main"><div class="app-container">
+<main class="app-main"><div class="app-container"><header class="case-detail-head"><div><div class="case-kicker">FORENSIC CASE FILE</div><h1 th:text="${caseFile.caseNumber}"></h1><p th:text="${caseFile.title}"></p></div><a th:href="@{/cases}" class="app-btn app-btn-outline">← Cases</a></header>
     <div class="app-card">
         <h1 th:text="'📁 ' + ${caseFile.caseNumber}"></h1>
         <a th:href="@{'/reports/case/{id}/pdf'(id=${caseFile.id})}" class="app-btn app-btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
