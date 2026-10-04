@@ -58,3 +58,43 @@ input,select,textarea{max-width:100%}
   .app-main .app-stat-box .label{font-size:11px}
   .header-profile .profile-btn{min-height:40px}
 }
+
+/* ===== CYBER FORENSICS TZ — DEEP GREEN SYSTEM THEME ===== */
+:root{
+  --forest-950:#022c22;
+  --forest-900:#064e3b;
+  --forest-800:#065f46;
+  --forest-700:#047857;
+  --green:#16a34a;
+  --green-dark:#15803d;
+  --green-bright:#22c55e;
+  --mint:#ecfdf5;
+  --cyan:#10b981;
+  --ink:#10251f;
+  --muted:#5f756c;
+  --line:#d6e9df;
+  --bg:#f4faf6;
+  --white:#fff;
+  --danger:#dc2626;
+  --warning:#ca8a04;
+  --shadow:0 10px 28px rgba(2,44,34,.09);
+}
+html,body{background:var(--bg);color:var(--ink)}
+.app-header{background:linear-gradient(100deg,#022c22 0%,#064e3b 55%,#087443 100%)}
+.app-sidebar{background:linear-gradient(180deg,#064e3b 0%,#022c22 100%)}
+.sidebar-item:hover,.sidebar-item.active{background:linear-gradient(90deg,rgba(22,163,74,.30),rgba(34,197,94,.12))}
+.sidebar-item.active{box-shadow:inset 3px 0 var(--green-bright)}
+.sidebar-section{color:#86efac}
+.app-main{background:radial-gradient(circle at 85% 0%,#e2f8ea 0,#f4faf6 30%,#f4faf6 100%)}
+.app-card{border-color:var(--line);box-shadow:var(--shadow)}
+.app-card h2{color:var(--forest-950)}
+.app-btn-primary{background:linear-gradient(135deg,#065f46,#16a34a)}
+.app-btn-cyan{background:linear-gradient(135deg,#047857,#10b981)}
+.app-btn-outline{color:#065f46;border-color:#9bd2b4}
+.profile-avatar{background:linear-gradient(135deg,#16a34a,#22c55e)}
+.ai-floating-label{background:linear-gradient(135deg,#064e3b,#16a34a)}
+.clock-time{color:#86efac}
+.app-stat-box{border-top-color:#16a34a!important}
+.app-stat-box .value{color:#15803d!important}
+.app-stat-box:hover{border-color:#a7d9bd;box-shadow:0 12px 30px rgba(2,44,34,.10)}
+a:hover{color:#047857}
