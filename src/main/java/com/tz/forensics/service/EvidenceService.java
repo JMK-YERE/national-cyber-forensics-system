@@ -44,6 +44,7 @@ public class EvidenceService {
     public Evidence uploadEvidence(Long incidentId, MultipartFile file,
                                    EvidenceDto dto, String username, Long uploadedBy) throws IOException {
         if (file == null || file.isEmpty()) throw new IllegalArgumentException("Evidence file is empty.");
+        if (file.getSize() > 50L * 1024L * 1024L) throw new IllegalArgumentException("Evidence file exceeds the 50 MB limit.");
 
         byte[] fileBytes = file.getBytes();
         String sha256 = hashService.sha256(fileBytes);
@@ -54,7 +55,12 @@ public class EvidenceService {
         if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
 
         String storedFilename = UUID.randomUUID() + ".enc";
-        Files.write(uploadPath.resolve(storedFilename), encrypted);
+        Path storedPath = uploadPath.resolve(storedFilename);
+        try {
+            Files.write(storedPath, encrypted);
+        } catch (IOException e) {
+            throw new IOException("Unable to persist encrypted evidence file.", e);
+        }
 
         Evidence evidence = new Evidence();
         evidence.setIncidentId(incidentId);
@@ -83,14 +89,26 @@ public class EvidenceService {
         evidence.setUploadedBy(uploadedBy);
         evidence.setUploadedAt(LocalDateTime.now());
 
-        Evidence saved = evidenceRepository.save(evidence);
+        Evidence saved;
+        try {
+            saved = evidenceRepository.save(evidence);
+        } catch (RuntimeException e) {
+            try { Files.deleteIfExists(storedPath); } catch (IOException ignored) { }
+            throw e;
+        }
 
         ChainOfCustody uploadedEvent = new ChainOfCustody(
                 saved.getId(), "UPLOADED", uploadedBy, username, getClientIp(),
                 "Initial evidence upload: " + dto.getDescription()
         );
         uploadedEvent.setHashAtAction(sha256);
-        custodyRepository.save(uploadedEvent);
+        try {
+            custodyRepository.save(uploadedEvent);
+        } catch (RuntimeException e) {
+            try { evidenceRepository.delete(saved); } catch (RuntimeException ignored) { }
+            try { Files.deleteIfExists(storedPath); } catch (IOException ignored) { }
+            throw e;
+        }
         return saved;
     }
 
