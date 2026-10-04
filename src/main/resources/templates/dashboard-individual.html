@@ -6,17 +6,17 @@
     <title>My Security Dashboard | Cyber Forensics TZ</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 <style>
-.section-mark{display:inline-flex;align-items:center;justify-content:center;padding:4px 7px;border-radius:6px;background:#e8f6f2;color:#087d68;font-size:9px;letter-spacing:.05em;font-weight:900;vertical-align:middle;margin-right:5px}
+.section-mark{display:inline-flex;align-items:center;justify-content:center;padding:4px 7px;border-radius:6px;background:#e8f6f2;color:#15803d;font-size:9px;letter-spacing:.05em;font-weight:900;vertical-align:middle;margin-right:5px}
 .report-type{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:#eef6ff;color:#1769aa;font-size:10px;font-weight:800;vertical-align:middle}
 .app-list-item{transition:.18s;border-radius:12px}.app-list-item:hover{background:#f7fcfa;box-shadow:0 5px 16px rgba(4,70,55,.07);transform:translateY(-1px)}
-</style></head>
+</style><style id="deep-green-dashboard-polish">.app-main{background:radial-gradient(circle at 90% 0%,#e2f8ea 0,#f4faf6 32%,#f4faf6 100%)}.app-card,.db-card,.fc,.pc,.a-card{border-color:#d6e9df;box-shadow:0 8px 24px rgba(2,44,34,.06)}.app-stat-box{border-top-color:#16a34a!important}.app-stat-box .value{color:#15803d!important}.app-btn-primary{background:linear-gradient(135deg,#065f46,#16a34a)!important}.fc a,.pc a{background:#15803d!important}.fc a:hover,.pc a:hover{background:#166534!important}</style></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main">
     <div class="app-container">
-        <div style="background:linear-gradient(135deg, #063b2c, #087d68 55%, #1476c9); color:white; padding:30px; border-radius:16px; margin-bottom:20px; box-shadow:0 10px 30px rgba(6,78,59,0.3);">
+        <div style="background:linear-gradient(135deg, #063b2c, #15803d 55%, #15803d); color:white; padding:30px; border-radius:16px; margin-bottom:20px; box-shadow:0 10px 30px rgba(6,78,59,0.3);">
             <h1 style="color:white; margin:0; font-size:28px;">Karibu, <span th:text="${username}">User</span>!</h1>
             <p style="color:rgba(255,255,255,0.9); margin-top:8px;">Dashibodi yako ya usalama wa mtandao</p>
         </div>
@@ -26,12 +26,12 @@
                 <div class="value" style="color:#16A34A;" th:text="${user != null && user.securityScore != null ? user.securityScore : 0}">0</div>
                 <div class="label">Security Score</div>
             </div>
-            <div class="app-stat-box" style="border-top-color:#06B6D4;">
-                <div class="value" style="color:#06B6D4;" th:text="${user != null ? user.countSocialAccounts() : 0}">0</div>
+            <div class="app-stat-box" style="border-top-color:#16A34A;">
+                <div class="value" style="color:#16A34A;" th:text="${user != null ? user.countSocialAccounts() : 0}">0</div>
                 <div class="label">Social Accounts</div>
             </div>
-            <div class="app-stat-box" style="border-top-color:#EAB308;">
-                <div class="value" style="color:#EAB308;" th:text="${user != null && user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
+            <div class="app-stat-box" style="border-top-color:#16A34A;">
+                <div class="value" style="color:#16A34A;" th:text="${user != null && user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
                 <div class="label">2FA</div>
             </div>
             <div class="app-stat-box" style="border-top-color:#16A34A;">
