@@ -54,27 +54,32 @@
 <section class="stats-strip"><div><strong>10,000+</strong><span>Users target</span></div><div><strong>5,000+</strong><span>Reports target</span></div><div><strong>24/7</strong><span>Digital readiness</span></div><div><strong>4</strong><span>Access languages</span></div></section>
 
 <section class="announcement-section" id="announcements"><div class="section-heading"><span class="eyebrow green">ANNOUNCEMENTS</span><h2>Latest security updates</h2></div>
-<div class="announcement-grid"><article th:each="a,stat : ${announcements}" th:if="${stat.index < 10}" class="announcement-card"><span th:text="${a.priorityLabel}">🟡 MEDIUM</span><h3 th:text="${a.title}">Security Update</h3><p th:text="${a.content}">Stay alert and follow official guidance.</p></article>
-<div th:if="${#lists.isEmpty(announcements)}" class="announcement-card"><span>🟢 READY</span><h3>Cyber Security Awareness</h3><p>Check your account security regularly and report suspicious activity.</p></div></div></section>
+<div class="announcement-marquee" aria-label="Latest security announcements">
+<div class="announcement-track" th:if="${announcements != null && !announcements.isEmpty()}">
+<article th:each="a,stat : ${announcements}" th:if="${stat.index < 10}" class="announcement-card">
+<div class="announcement-media" th:if="${a.imageUrl != null && !#strings.isEmpty(a.imageUrl)}" th:style="'background-image:url(' + a.imageUrl + ')'"></div>
+<div class="announcement-content"><div class="announcement-meta"><span th:text="${a.priorityLabel}">🟡 MEDIUM</span><span class="new-badge" th:if="${a.createdAt != null && a.createdAt.isAfter(T(java.time.LocalDateTime).now().minusDays(7))}">NEW</span></div><h3 th:text="${a.title}">Security Update</h3><p th:text="${a.content}">Stay alert and follow official guidance.</p><small th:if="${a.createdAt != null}" th:text="${#temporals.format(a.createdAt, 'dd MMM yyyy')}"></small></div>
+</article></div>
+<div th:if="${announcements == null || announcements.isEmpty()}" class="announcement-card announcement-empty"><span>🟢 READY</span><h3>Cyber Security Awareness</h3><p>Check your account security regularly and report suspicious activity.</p></div></div></section>
 
 <section class="education"><div class="section-heading"><span class="eyebrow green">EDUCATION WORDS</span><h2>Know the language of cyber security</h2></div><div class="word-grid"><span>Phishing</span><span>Malware</span><span>Ransomware</span><span>Firewall</span><span>Encryption</span><span>Digital Evidence</span><span>IOC</span><span>Two-Factor Authentication</span></div></section>
 
 <section class="emergency"><div><span class="eyebrow">EMERGENCY</span><h2>What to do when you suspect an attack</h2><p>Disconnect affected devices where appropriate, preserve evidence, avoid deleting suspicious messages/files, change compromised credentials from a trusted device and report the incident.</p></div><a th:href="@{/whistleblower}" class="btn-light btn-large">🚨 Report Anonymously →</a></section>
 
-<section class="feature-grid four" id="features">
-<article><div class="feature-body"><span>01</span><h3>Secure Reporting</h3><p>Structured incident intake and status tracking.</p></div></article>
-<article><div class="feature-body"><span>02</span><h3>Forensic Evidence</h3><p>Hashing, evidence workflows and controlled access.</p></div></article>
-<article><div class="feature-body"><span>03</span><h3>Threat Map</h3><p>Authorized staff can inspect incident locations.</p></div></article>
-<article><div class="feature-body"><span>04</span><h3>AI Assistant</h3><p>Ask the AI assistant for security guidance.</p></div></article>
-<article><div class="feature-body"><span>05</span><h3>Notifications</h3><p>Keep users informed about important activity.</p></div></article>
-<article><div class="feature-body"><span>06</span><h3>Compliance</h3><p>Compliance workflows for authorized teams.</p></div></article>
-<article><div class="feature-body"><span>07</span><h3>Audit Trail</h3><p>Track important system actions.</p></div></article>
-<article><div class="feature-body"><span>08</span><h3>Downloads</h3><p>Access authorized reports and files.</p></div></article>
+<section class="feature-grid four image-feature-grid" id="features">
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>01</span><h3>Secure Reporting</h3><p>Structured incident intake and status tracking.</p></div></article>
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>02</span><h3>Forensic Evidence</h3><p>Hashing, evidence workflows and controlled access.</p></div></article>
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>03</span><h3>Threat Map</h3><p>Authorized staff can inspect incident locations.</p></div></article>
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>04</span><h3>AI Assistant</h3><p>Ask the AI assistant for security guidance.</p></div></article>
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>05</span><h3>Notifications</h3><p>Keep users informed about important activity.</p></div></article>
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>06</span><h3>Compliance</h3><p>Compliance workflows for authorized teams.</p></div></article>
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>07</span><h3>Audit Trail</h3><p>Track important system actions.</p></div></article>
+<article><div class="feature-image" style="background-image:url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&amp;fit=crop&amp;w=900&amp;q=80')"></div><div class="feature-body"><span>08</span><h3>Downloads</h3><p>Access authorized reports and files.</p></div></article>
 </section>
 
 <section class="map-cta" id="map"><div><span class="eyebrow green">AUTHORIZED STAFF</span><h2>Cyber incident intelligence</h2><p>The incident map and professional investigation workspace are restricted to authorized staff roles. Public users can report incidents after signing in.</p></div><a th:href="@{/login}" class="btn-main">Staff Login →</a></section>
 
 <section class="contact" id="contact"><div><span class="eyebrow green">CONTACT</span><h2>Cyber Forensics TZ</h2><p>For platform support, reporting guidance and authorized cyber response workflows, use the official contact channels configured by the organization.</p></div><div class="contact-box"><strong>Cyber Security &amp; Digital Forensics</strong><span>Tanzania 🇹🇿</span><a th:href="@{/whistleblower}">Whistleblower — Report Confidentially</a></div></section>
 <footer><div>🛡 Cyber Forensics TZ · Cyber Security &amp; Digital Forensics</div><div>© 2026 · Security awareness, incident reporting &amp; digital forensics</div></footer>
-<script th:src="@{/js/slideshow.js}"></script>
+<script th:src="@{/js/slideshow.js}"></script><script>(function(){const track=document.querySelector(".announcement-track");if(track&&track.children.length>1){track.insertAdjacentHTML("beforeend",track.innerHTML);}})();</script>
 </body></html>
