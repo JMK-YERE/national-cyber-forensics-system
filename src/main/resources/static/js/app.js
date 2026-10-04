@@ -50,25 +50,31 @@ document.addEventListener('click', function(e) {
 });
 
 document.addEventListener('click', function(e) {
-    // Mobile: every sidebar destination closes the drawer BEFORE navigation.
+    // Mobile: close the drawer, then explicitly continue to the selected destination.
+    // This avoids a race where CSS/overlay state changes before the browser completes navigation.
     if (window.innerWidth <= 900) {
-        const link=e.target.closest('.app-sidebar a,.app-sidebar button.sidebar-item');
-        if(link){
-            closeSidebar();
-            requestAnimationFrame(closeSidebar);
-            setTimeout(closeSidebar, 0);
+        const link = e.target.closest('.app-sidebar a.sidebar-item');
+        if (link) {
+            const href = link.href;
+            if (href && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey && e.button !== 1) {
+                e.preventDefault();
+                closeSidebar();
+                window.setTimeout(function(){ window.location.assign(href); }, 40);
+            } else {
+                closeSidebar();
+            }
         }
     }
 }, true);
 
 document.addEventListener('pointerdown', function(e) {
-    if (window.innerWidth <= 900 && e.target.closest('.app-sidebar a,.app-sidebar button.sidebar-item')) {
+    if (window.innerWidth <= 900 && e.target.closest('.app-sidebar a.sidebar-item')) {
         closeSidebar();
     }
 }, true);
 
 document.addEventListener('touchstart', function(e) {
-    if (window.innerWidth <= 900 && e.target.closest('.app-sidebar a,.app-sidebar button.sidebar-item')) {
+    if (window.innerWidth <= 900 && e.target.closest('.app-sidebar a.sidebar-item')) {
         closeSidebar();
     }
 }, {passive:true,capture:true});
