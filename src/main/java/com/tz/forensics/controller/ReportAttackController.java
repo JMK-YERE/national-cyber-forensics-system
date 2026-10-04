@@ -74,8 +74,7 @@ public class ReportAttackController {
         if (user == null) return false;
         String role = user.getRole();
         if (role == null) return false;
-        return "ADMIN".equalsIgnoreCase(role) || "CYBER_PRO".equalsIgnoreCase(role)
-                || "FORENSICS".equalsIgnoreCase(role) || "ANALYST".equalsIgnoreCase(role);
+        return "ADMIN".equalsIgnoreCase(role);
     }
 
     private boolean canInteractWithReport(User user, ReportAttack report) {
