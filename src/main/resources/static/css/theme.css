@@ -98,3 +98,13 @@ html,body{background:var(--bg);color:var(--ink)}
 .app-stat-box .value{color:#15803d!important}
 .app-stat-box:hover{border-color:#a7d9bd;box-shadow:0 12px 30px rgba(2,44,34,.10)}
 a:hover{color:#047857}
+
+/* ===== GLOBAL FLAT / FORENSICS UI ===== */
+.app-card{background:transparent;border:0;border-radius:0;box-shadow:none;padding:8px 0;margin-bottom:24px}
+.app-card h2{padding-bottom:9px;border-bottom:1px solid rgba(6,95,70,.16)}
+.app-list-item{border-bottom:1px solid rgba(6,95,70,.12);border-radius:0!important;padding:13px 2px}
+.app-list-item:last-child{border-bottom:0}
+.app-stat-box{background:transparent!important;border:0!important;border-top:0!important;border-bottom:2px solid #b8dfcb!important;border-radius:0!important;box-shadow:none!important;padding:14px 8px}
+.app-stat-box .value{font-size:30px!important;font-weight:900}
+.app-stat-box .label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#657b72}
+.app-stats-grid{gap:18px}
