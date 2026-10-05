@@ -85,6 +85,9 @@ public class SecurityConfig {
                 .requestMatchers("/cases", "/cases/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
+                .requestMatchers("/case-tasks", "/case-tasks/**")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
+
                 .requestMatchers("/evidence/**")
                     .authenticated()
 
