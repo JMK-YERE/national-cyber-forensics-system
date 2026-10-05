@@ -25,3 +25,22 @@ footer{padding:28px 5vw;background:var(--f);color:#dcfce7;display:flex;justify-c
 /* Desktop/laptop image sizing: keep the hero visually strong without letting imagery dominate the whole screen. */
 @media(min-width:901px){.hero-slider{height:min(540px,56svh);min-height:430px}.hero-slide{background-size:cover}.feature-image{height:165px}.image-feature-grid .feature-image{height:135px}}
 @media(max-width:900px){.hero-slider{height:min(560px,calc(100svh - 62px));min-height:440px}}
+
+
+/* ===== INSTITUTION-NEUTRAL LANDING OVERRIDE ===== */
+:root{--f:#0f172a;--g:#2563eb;--c:#2563eb;--ink:#1f2937;--bg:#f6f8fb;--line:#e2e8f0}
+.public-nav{background:#fff;border-bottom:1px solid #e2e8f0}
+.brand{color:#0f172a}.public-links{color:#64748b}.public-links a:hover{color:#2563eb}
+.btn-main{background:#2563eb;box-shadow:none}.btn-ghost{border-color:#cbd5e1;color:#334155}
+.hero-slider{background:#0f172a}.hero-overlay{background:linear-gradient(90deg,rgba(15,23,42,.76),rgba(30,41,59,.42),rgba(37,99,235,.12))}
+.eyebrow{color:#dbeafe}.hero-copy h1 strong{color:#bfdbfe}.slider-dots button.active{background:#60a5fa}
+.intro h2,.workflow h2,.map-cta h2{color:#0f172a}.intro p,.map-cta p{color:#64748b}
+.feature-grid article,.announcement-card{border-color:#e2e8f0;box-shadow:0 3px 12px rgba(15,23,42,.04)}
+.feature-body span,.announcement-meta{color:#2563eb}.feature-body h3,.announcement-card h3{color:#0f172a}.feature-body p,.announcement-card p{color:#64748b}
+.workflow{background:#f1f5f9}.steps div{background:#fff;border-color:#e2e8f0}.steps b{color:#2563eb}.steps span{color:#334155}
+.stats-strip{background:#0f172a}.stats-strip div{border-top-color:#3b82f6}.stats-strip span{color:#cbd5e1}
+.announcement-section,.education,.contact{background:#fff}.announcement-card{background:#fff}
+.new-badge{background:#dbeafe;color:#1d4ed8}
+.emergency{background:linear-gradient(120deg,#0f172a,#1e293b)}footer{background:#0f172a}
+.word-grid span{background:#fff;border-color:#cbd5e1;color:#334155}
+.contact-box{background:#f8fafc;border-color:#e2e8f0}.contact-box a{color:#2563eb}
