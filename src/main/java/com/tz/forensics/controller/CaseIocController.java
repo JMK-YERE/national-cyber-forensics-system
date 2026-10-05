@@ -36,7 +36,7 @@ public class CaseIocController {
     @PostMapping("/{caseId}/iocs/{iocId}/delete")
     public String delete(@PathVariable Long caseId,@PathVariable Long iocId,Authentication auth){
         User u=user(auth); CaseFile c=caseFileService.getById(caseId); if(!allowed(u,c)) return "redirect:/access-denied";
-        if(iocService.delete(iocId)){auditService.log("DELETE_IOC","CaseFile",c.getCaseNumber(),"IOC "+iocId+" deleted");caseFileService.addTimeline(caseId,"IOC_REMOVED","Indicator removed","IOC ID "+iocId,u.getId(),auth.getName(),u.getRole());}
+        if(iocService.delete(iocId, caseId)){auditService.log("DELETE_IOC","CaseFile",c.getCaseNumber(),"IOC "+iocId+" deleted");caseFileService.addTimeline(caseId,"IOC_REMOVED","Indicator removed","IOC ID "+iocId,u.getId(),auth.getName(),u.getRole());}
         return "redirect:/cases/"+caseId;
     }
     private LocalDateTime parse(String s){try{return s==null||s.isBlank()?null:LocalDateTime.parse(s);}catch(Exception e){return null;}}
