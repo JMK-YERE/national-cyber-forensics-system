@@ -374,3 +374,17 @@ table td{border-color:#e2e8f0!important}
   .app-main{padding:14px 11px!important}
   .app-card{padding:14px!important}
 }
+
+
+/* ===== Enterprise action feedback ===== */
+.cftz-action-overlay{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.78);backdrop-filter:blur(8px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,visibility .18s ease}
+.cftz-action-overlay.show{opacity:1;visibility:visible;pointer-events:auto}
+.cftz-action-panel{width:min(440px,calc(100vw - 34px));background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.3);overflow:hidden;text-align:center}
+.cftz-action-visual{position:relative;height:145px;background:#0f172a;overflow:hidden}
+.cftz-action-visual img{width:100%;height:100%;object-fit:cover;opacity:.88}
+.cftz-action-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,.05),rgba(15,23,42,.68))}
+.cftz-scan-line{position:absolute;left:0;right:0;top:8%;height:2px;background:#38bdf8;box-shadow:0 0 14px #38bdf8;animation:cftzScan 1.35s linear infinite}
+.cftz-action-title{padding:20px 20px 5px;font-size:20px;font-weight:800;color:#0f172a}
+.cftz-action-subtitle{padding:0 24px;color:#64748b;font-size:13px;line-height:1.55}
+.cftz-action-spinner{width:30px;height:30px;margin:18px auto 22px;border:3px solid #dbeafe;border-top-color:#2563eb;border-radius:50%;animation:cftzSpin .75s linear infinite}
+@keyframes cftzSpin{to{transform:rotate(360deg)}}@keyframes cftzScan{0%{transform:translateY(0)}100%{transform:translateY(128px)}}
