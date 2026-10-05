@@ -18,13 +18,16 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oauth2UserService;
     private final OAuth2LoginSuccessHandler oauth2Handler;
     private final ClientRegistrationRepository clientRegistrationRepository;
+    private final LoginAuthenticationFailureHandler loginFailureHandler;
 
     public SecurityConfig(CustomOAuth2UserService oauth2UserService,
                           OAuth2LoginSuccessHandler oauth2Handler,
-                          ClientRegistrationRepository clientRegistrationRepository) {
+                          ClientRegistrationRepository clientRegistrationRepository,
+                          LoginAuthenticationFailureHandler loginFailureHandler) {
         this.oauth2UserService = oauth2UserService;
         this.oauth2Handler = oauth2Handler;
         this.clientRegistrationRepository = clientRegistrationRepository;
+        this.loginFailureHandler = loginFailureHandler;
     }
 
     @Bean
@@ -100,7 +103,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/dashboard", true)
-                .failureUrl("/login?error")
+                .failureHandler(loginFailureHandler)
                 .permitAll()
             )
             .oauth2Login(oauth -> oauth
