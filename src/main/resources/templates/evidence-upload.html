@@ -90,6 +90,7 @@
                     <span th:unless="${ev.verified}">⏳ Pending verification</span>
                 </td>
                 <td>
+                    <a th:href="@{/evidence/custody/{id}(id=${ev.id})}" class="app-btn app-btn-outline">Custody</a>
                     <a th:href="@{/evidence/download/{id}(id=${ev.id})}" class="app-btn app-btn-secondary">Download</a>
                     <form sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')"
                           th:action="@{/evidence/verify/{id}(id=${ev.id})}" method="post" style="display:inline;">
