@@ -3,6 +3,7 @@ package com.tz.forensics.controller;
 import com.tz.forensics.entity.CaseFile;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
+import com.tz.forensics.repository.CaseFileRepository;
 import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.CaseFileService;
 import com.tz.forensics.service.CaseIocService;
@@ -10,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/cases")
@@ -19,14 +22,16 @@ public class CaseFileController {
     private final UserRepository userRepository;
     private final AuditService auditService;
     private final CaseIocService caseIocService;
+    private final CaseFileRepository caseFileRepository;
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
-                              AuditService auditService, CaseIocService caseIocService) {
+                              AuditService auditService, CaseIocService caseIocService, CaseFileRepository caseFileRepository) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.caseIocService = caseIocService;
+        this.caseFileRepository = caseFileRepository;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -36,6 +41,10 @@ public class CaseFileController {
     private boolean canManageCases(User user) {
         return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics()
                 || "ANALYST".equalsIgnoreCase(user.getRole()));
+    }
+
+    private boolean canAssignCases(User user) {
+        return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
     }
 
     private boolean canViewCase(CaseFile cf, User user) {
@@ -100,9 +109,65 @@ public class CaseFileController {
         model.addAttribute("caseFile", cf);
         model.addAttribute("timeline", caseFileService.getTimeline(cf.getId()));
         model.addAttribute("iocs", caseIocService.findByCaseId(cf.getId()));
+        if (canAssignCases(user)) {
+            model.addAttribute("eligibleInvestigators", userRepository.findByRoleInAndEnabledTrueAndApprovalStatusIgnoreCase(
+                    List.of("ANALYST", "FORENSICS", "CYBER_PRO"), "APPROVED"));
+        }
         return "case-detail";
     }
 
+    @PostMapping("/{id}/assign")
+    public String assignCase(@PathVariable Long id, @RequestParam Long investigatorId,
+                             @RequestParam(required = false) Long leadInvestigatorId,
+                             @RequestParam(required = false) String dueDate, Authentication auth) {
+        User actor = getCurrentUser(auth);
+        if (!canAssignCases(actor)) return "redirect:/access-denied";
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, actor)) return "redirect:/access-denied";
+        String current = cf.getStatus() == null ? "OPEN" : cf.getStatus().trim().toUpperCase();
+        if ("CLOSED".equals(current) || "ARCHIVED".equals(current)) return "redirect:/cases/" + id;
+        if (!"TRIAGED".equals(current) && !"ASSIGNED".equals(current) && !"INVESTIGATING".equals(current)
+                && !"EXAMINATION".equals(current) && !"REVIEW".equals(current)) return "redirect:/cases/" + id;
+        User investigator = userRepository.findById(investigatorId).orElse(null);
+        if (investigator == null || !Boolean.TRUE.equals(investigator.getEnabled()) || !investigator.isApproved()
+                || !(investigator.isAnalyst() || investigator.isForensics() || investigator.isProfessional())) {
+            auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Invalid investigator: " + investigatorId);
+            return "redirect:/cases/" + id;
+        }
+        User lead = leadInvestigatorId == null ? investigator : userRepository.findById(leadInvestigatorId).orElse(null);
+        if (lead == null || !Boolean.TRUE.equals(lead.getEnabled()) || !lead.isApproved()
+                || !(lead.isAnalyst() || lead.isForensics() || lead.isProfessional())) {
+            auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Invalid lead investigator: " + leadInvestigatorId);
+            return "redirect:/cases/" + id;
+        }
+        LocalDateTime deadline = null;
+        try { if (dueDate != null && !dueDate.isBlank()) deadline = LocalDateTime.parse(dueDate); }
+        catch (Exception e) { auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Invalid due date"); return "redirect:/cases/" + id; }
+        if (deadline != null && deadline.isBefore(LocalDateTime.now())) {
+            auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Due date is in the past");
+            return "redirect:/cases/" + id;
+        }
+        String previousAssignee = cf.getAssignedToName();
+        cf.setAssignedTo(investigator.getId());
+        cf.setAssignedToName(investigator.getFullName() != null ? investigator.getFullName() : investigator.getUsername());
+        cf.setLeadInvestigator(lead.getId());
+        cf.setLeadInvestigatorName(lead.getFullName() != null ? lead.getFullName() : lead.getUsername());
+        cf.setDueDate(deadline);
+        cf.setUpdatedAt(LocalDateTime.now());
+        if ("TRIAGED".equals(current)) {
+            caseFileService.updateStatus(id, "ASSIGNED", null, actor.getId(), auth.getName(), actor.getRole());
+        } else {
+            caseFileRepository.save(cf);
+        }
+        auditService.log(previousAssignee == null ? "ASSIGN_CASE" : "REASSIGN_CASE", "CaseFile", cf.getCaseNumber(),
+                "Assigned to " + cf.getAssignedToName() + "; lead " + cf.getLeadInvestigatorName()
+                        + (deadline != null ? "; due " + deadline : "") + " by " + auth.getName());
+        caseFileService.addTimeline(id, previousAssignee == null ? "CASE_ASSIGNED" : "CASE_REASSIGNED",
+                previousAssignee == null ? "Case assigned" : "Case reassigned",
+                "Investigator: " + cf.getAssignedToName() + " | Lead: " + cf.getLeadInvestigatorName()
+                        + (deadline != null ? " | Due: " + deadline : ""), actor.getId(), auth.getName(), actor.getRole());
+        return "redirect:/cases/" + id;
+    }
     @PostMapping("/{id}/status")
     public String transitionStatus(@PathVariable Long id, @RequestParam String status,
                                     @RequestParam(required = false) String reason,
