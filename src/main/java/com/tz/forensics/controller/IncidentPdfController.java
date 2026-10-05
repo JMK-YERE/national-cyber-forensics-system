@@ -41,7 +41,7 @@ public class IncidentPdfController {
                 + "Title: " + safe(incident.getTitle()) + "\\n"
                 + "Severity: " + safe(incident.getSeverity()) + "\\n"
                 + "Workflow Status: " + safe(incident.getWorkflowStatus()) + "\\n"
-                + "Reporter: " + safe(incident.getReporterName()) + "\\n"
+                + "Reporter: " + safe(incident.getReporter()) + "\\n"
                 + "Reported: " + safe(String.valueOf(incident.getDateReported())) + "\\n\\n"
                 + "Description\\n" + safe(incident.getDescription()) + "\\n\\n"
                 + "Evidence items: " + evidenceService.getEvidenceByIncident(id).size();
@@ -68,10 +68,10 @@ public class IncidentPdfController {
     }
 
     private byte[] buildPdf(String text) {
-        String[] lines = text.split("\\\\n");
-        StringBuilder stream = new StringBuilder("BT\\n/F1 10 Tf\\n50 780 Td\\n");
+        String[] lines = text.split("\\\\R");
+        StringBuilder stream = new StringBuilder("BT\n/F1 10 Tf\n50 780 Td\n");
         for (String line : lines) {
-            stream.append("(").append(safe(line)).append(") Tj\\n0 -16 Td\\n");
+            stream.append("(").append(safe(line)).append(") Tj\n0 -16 Td\n");
         }
         stream.append("ET");
         String body = stream.toString();
@@ -81,21 +81,21 @@ public class IncidentPdfController {
             "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
             "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
             "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-            "<< /Length " + body.getBytes(StandardCharsets.US_ASCII).length + " >>\\nstream\\n" + body + "\\nendstream"
+            "<< /Length " + body.getBytes(StandardCharsets.US_ASCII).length + " >>\nstream\n" + body + "\nendstream"
         };
 
-        StringBuilder pdf = new StringBuilder("%PDF-1.4\\n");
+        StringBuilder pdf = new StringBuilder("%PDF-1.4\n");
         int[] offsets = new int[objects.length + 1];
         for (int i = 0; i < objects.length; i++) {
             offsets[i + 1] = pdf.toString().getBytes(StandardCharsets.US_ASCII).length;
-            pdf.append(i + 1).append(" 0 obj\\n").append(objects[i]).append("\\nendobj\\n");
+            pdf.append(i + 1).append(" 0 obj\n").append(objects[i]).append("\nendobj\n");
         }
         int xref = pdf.toString().getBytes(StandardCharsets.US_ASCII).length;
-        pdf.append("xref\\n0 ").append(objects.length + 1).append("\\n0000000000 65535 f \\n");
+        pdf.append("xref\n0 ").append(objects.length + 1).append("\n0000000000 65535 f \n");
         for (int i = 1; i <= objects.length; i++) {
-            pdf.append(String.format("%010d 00000 n \\n", offsets[i]));
+            pdf.append(String.format("%010d 00000 n \n", offsets[i]));
         }
-        pdf.append("trailer\\n<< /Size ").append(objects.length + 1).append(" /Root 1 0 R >>\\nstartxref\\n")
+        pdf.append("trailer\n<< /Size ").append(objects.length + 1).append(" /Root 1 0 R >>\nstartxref\n")
                 .append(xref).append("\\n%%EOF");
         return pdf.toString().getBytes(StandardCharsets.US_ASCII);
     }
