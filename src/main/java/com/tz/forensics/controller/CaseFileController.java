@@ -99,6 +99,29 @@ public class CaseFileController {
         return "case-detail";
     }
 
+    @PostMapping("/{id}/status")
+    public String transitionStatus(@PathVariable Long id, @RequestParam String status,
+                                    @RequestParam(required = false) String reason,
+                                    Authentication auth) {
+        User user = getCurrentUser(auth);
+        if (!canManageCases(user)) return "redirect:/access-denied";
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, user)) return "redirect:/access-denied";
+
+        String from = cf.getStatus() == null ? "OPEN" : cf.getStatus().trim().toUpperCase();
+        String to = status == null ? "" : status.trim().toUpperCase();
+        if ("CLOSED".equals(from) || "ARCHIVED".equals(from)) return "redirect:/cases/" + id;
+
+        if (!caseFileService.updateStatus(id, to, reason, user.getId(), auth.getName(), user.getRole())) {
+            auditService.log("REJECT_CASE_STATUS", "CaseFile", cf.getCaseNumber(),
+                    "Rejected lifecycle transition " + from + " → " + to);
+            return "redirect:/cases/" + id;
+        }
+        auditService.log("CHANGE_CASE_STATUS", "CaseFile", cf.getCaseNumber(),
+                from + " → " + to + " by " + auth.getName());
+        return "redirect:/cases/" + id;
+    }
+
     @PostMapping("/{id}/close")
     public String closeCase(@PathVariable Long id, @RequestParam String reason, Authentication auth) {
         User user = getCurrentUser(auth);
