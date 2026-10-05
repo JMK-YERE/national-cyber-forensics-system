@@ -46,7 +46,7 @@ public class EvidenceController {
 
     private boolean canAccessIncident(Incident incident, User user) {
         if (incident == null || user == null) return false;
-        return user.isAdmin()
+        return user.isAdmin() || user.isProfessional() || user.isForensics()
                 || user.getId().equals(incident.getReporterUserId())
                 || user.getId().equals(incident.getAssignedTo());
     }
@@ -97,9 +97,61 @@ public class EvidenceController {
         model.addAttribute("evidence", evidence);
         model.addAttribute("incident", incident);
         model.addAttribute("custodyEvents", evidenceService.getChainOfCustody(id));
+        model.addAttribute("custodians", userRepository.findAll().stream()
+                .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics() || u.isAnalyst())
+                .toList());
+        model.addAttribute("canOperateCustody", isStaff(user) && canAccessIncident(incident, user));
         auditService.log("VIEW_CHAIN_OF_CUSTODY", "Evidence", String.valueOf(id),
                 "Viewed chain of custody | SHA-256: " + evidence.getSha256Hash());
         return "evidence-custody";
+    }
+
+
+    @PostMapping("/custody/{id}/transfer")
+    public String transferCustody(@PathVariable Long id,
+                                  @RequestParam("recipientId") Long recipientId,
+                                  @RequestParam(value = "purpose", required = false) String purpose,
+                                  @RequestParam(value = "notes", required = false) String notes,
+                                  Authentication auth) {
+        User actor = currentUser(auth);
+        Evidence evidence = evidenceService.getById(id);
+        if (evidence == null) return "redirect:/incidents";
+        Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if (!isStaff(actor) || !canAccessIncident(incident, actor)) return "redirect:/access-denied";
+
+        User recipient = userRepository.findById(recipientId).orElse(null);
+        if (recipient == null || (!recipient.isAdmin() && !recipient.isProfessional()
+                && !recipient.isForensics() && !recipient.isAnalyst())) return "redirect:/access-denied";
+
+        boolean ok = evidenceService.transferCustody(id, actor.getId(), auth.getName(), actor.getRole(),
+                recipient.getId(), recipient.getFullName() == null ? recipient.getUsername() : recipient.getFullName(),
+                recipient.getRole(), purpose, notes);
+        auditService.log(ok ? "TRANSFER_EVIDENCE" : "FAILED_TRANSFER_EVIDENCE", "Evidence", String.valueOf(id),
+                "Transfer to user " + recipient.getUsername() + " | purpose=" + (purpose == null ? "" : purpose));
+        return "redirect:/evidence/custody/" + id;
+    }
+
+    @PostMapping("/custody/{id}/advance")
+    public String advanceCustody(@PathVariable Long id,
+                                 @RequestParam("action") String action,
+                                 @RequestParam(value = "purpose", required = false) String purpose,
+                                 @RequestParam(value = "notes", required = false) String notes,
+                                 Authentication auth) {
+        User actor = currentUser(auth);
+        Evidence evidence = evidenceService.getById(id);
+        if (evidence == null) return "redirect:/incidents";
+        Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if (!isStaff(actor) || !canAccessIncident(incident, actor)) return "redirect:/access-denied";
+
+        String normalized = action == null ? "" : action.trim().toUpperCase();
+        if (!java.util.Set.of("ACCEPTED", "UNDER_EXAMINATION", "EXAMINED", "REPORT_GENERATED").contains(normalized)) {
+            return "redirect:/access-denied";
+        }
+        boolean ok = evidenceService.advanceCustody(id, normalized, actor.getId(), auth.getName(),
+                actor.getRole(), purpose, notes);
+        auditService.log(ok ? normalized + "_EVIDENCE" : "FAILED_" + normalized + "_EVIDENCE",
+                "Evidence", String.valueOf(id), "Custody transition | from=" + evidence.getCustodyStatus());
+        return "redirect:/evidence/custody/" + id;
     }
 
     @GetMapping("/download/{id}")
