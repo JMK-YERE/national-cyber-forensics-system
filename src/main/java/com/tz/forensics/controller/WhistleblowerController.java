@@ -230,7 +230,7 @@ public class WhistleblowerController {
             String filename = "whistleblower-evidence-" + id;
             if (report.getEvidenceFileType() != null && report.getEvidenceFileType().equalsIgnoreCase("PHOTO")) filename += ".bin";
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\\"" + filename + "\\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .contentLength(data.length)
                     .body(data);
