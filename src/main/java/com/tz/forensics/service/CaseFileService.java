@@ -46,6 +46,11 @@ public class CaseFileService {
         return caseFileRepository.findByAssignedToOrderByCreatedAtDesc(userId);
     }
 
+    public List<CaseFile> getCasesByIncident(Long incidentId) {
+        if (incidentId == null) return List.of();
+        return caseFileRepository.findByIncidentIdOrderByCreatedAtDesc(incidentId);
+    }
+
     public CaseFile getById(Long id) {
         return caseFileRepository.findById(id).orElse(null);
     }
