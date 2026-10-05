@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chain of Custody | Cyber Forensics TZ</title><link rel="stylesheet" th:href="@{/css/theme.css}">
+<style>
+.custody-head{border-bottom:1px solid #e2e8f0;padding:4px 0 18px;margin-bottom:18px}.custody-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;color:#2563eb}.custody-head h1{margin:4px 0;font-size:26px;color:#0f172a}.meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}.meta-item{padding:10px 0;border-bottom:1px solid #e2e8f0}.meta-label{display:block;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase}.meta-value{display:block;margin-top:3px;font-size:13px;word-break:break-word}.custody-table{width:100%;border-collapse:collapse}.custody-table th,.custody-table td{padding:11px 9px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}.custody-table th{font-size:10px;text-transform:uppercase;color:#64748b;background:#f8fafc}.hash{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;word-break:break-all}.integrity{display:inline-flex;padding:4px 8px;border-radius:999px;background:#ecfdf5;color:#047857;font-weight:800;font-size:11px}@media(max-width:700px){.meta-grid{grid-template-columns:1fr}.custody-table{min-width:820px}.table-responsive{overflow-x:auto}}
+</style></head>
+<body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main"><div class="app-container">
+<header class="custody-head"><div class="custody-kicker">FORENSIC EVIDENCE CONTROL</div><h1>Chain of Custody</h1><p th:text="${evidence.originalFilename}"></p></header>
+<div class="app-card"><div class="meta-grid">
+<div class="meta-item"><span class="meta-label">Evidence ID</span><span class="meta-value" th:text="${evidence.id}"></span></div>
+<div class="meta-item"><span class="meta-label">Incident</span><span class="meta-value" th:text="${incident.incidentId}"></span></div>
+<div class="meta-item"><span class="meta-label">Integrity</span><span class="meta-value"><span class="integrity" th:if="${evidence.verified}">SHA-256 VERIFIED</span><span th:unless="${evidence.verified}">Pending verification</span></span></div>
+<div class="meta-item" style="grid-column:1/-1"><span class="meta-label">SHA-256</span><span class="meta-value hash" th:text="${evidence.sha256Hash}"></span></div>
+</div><a th:href="@{/incidents/{id}(id=${incident.id})}" class="app-btn app-btn-outline">← Back to Incident</a></div>
+<div class="app-card"><h2>Custody Events</h2><div class="table-responsive"><table class="custody-table"><thead><tr><th>Time</th><th>Action</th><th>Actor</th><th>Role</th><th>IP</th><th>Purpose / Notes</th><th>Hash at Action</th></tr></thead>
+<tbody><tr th:each="event : ${custodyEvents}"><td th:text="${#temporals.format(event.timestamp,'yyyy-MM-dd HH:mm:ss')}"></td><td><strong th:text="${event.action}"></strong></td><td th:text="${event.performedByName}"></td><td th:text="${event.performedByRole}"></td><td th:text="${event.ipAddress}"></td><td th:text="${event.purpose}"></td><td class="hash" th:text="${event.hashAtAction}"></td></tr>
+<tr th:if="${custodyEvents == null or custodyEvents.isEmpty()}"><td colspan="7">No custody events recorded.</td></tr></tbody></table></div></div>
+</div></main><script th:src="@{/js/app.js}"></script></body></html>
