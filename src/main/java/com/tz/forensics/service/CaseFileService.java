@@ -50,17 +50,32 @@ public class CaseFileService {
         return caseFileRepository.findById(id).orElse(null);
     }
 
-    public void updateStatus(Long caseId, String status, String closureReason) {
+    public boolean updateStatus(Long caseId, String status, String closureReason) {
         CaseFile cf = caseFileRepository.findById(caseId).orElse(null);
-        if (cf != null) {
-            cf.setStatus(status);
-            cf.setUpdatedAt(LocalDateTime.now());
-            if ("CLOSED".equals(status)) {
-                cf.setClosedAt(LocalDateTime.now());
-                cf.setClosureReason(closureReason);
-            }
-            caseFileRepository.save(cf);
+        if (cf == null || status == null) return false;
+
+        String from = cf.getStatus() == null ? "OPEN" : cf.getStatus().trim().toUpperCase();
+        String to = status.trim().toUpperCase();
+
+        // Keep the case lifecycle deterministic; callers cannot jump backwards
+        // or reopen a closed/archived forensic case through a crafted request.
+        boolean valid = switch (from) {
+            case "OPEN" -> "INVESTIGATING".equals(to) || "CLOSED".equals(to);
+            case "INVESTIGATING" -> "CLOSED".equals(to);
+            case "CLOSED" -> "ARCHIVED".equals(to);
+            case "ARCHIVED" -> false;
+            default -> false;
+        };
+        if (!valid) return false;
+
+        cf.setStatus(to);
+        cf.setUpdatedAt(LocalDateTime.now());
+        if ("CLOSED".equals(to)) {
+            cf.setClosedAt(LocalDateTime.now());
+            cf.setClosureReason(closureReason);
         }
+        caseFileRepository.save(cf);
+        return true;
     }
 
     public long countOpen() { return caseFileRepository.countByStatus("OPEN"); }
