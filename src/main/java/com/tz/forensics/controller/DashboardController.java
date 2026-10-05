@@ -89,15 +89,17 @@ public class DashboardController {
                 if (recent.size() > 5) recent = recent.subList(0, 5);
                 model.addAttribute("recentReports", recent);
 
-                // Role-aware geographic intelligence: aggregate regions only; no reporter identity.
+                // Role-aware geographic intelligence: one map point per report, without reporter identity.
+                // Reports without a region are retained as "Unknown location" instead of disappearing.
                 List<Map<String,Object>> mapPoints = new ArrayList<>();
                 for (ReportAttack r : allReports) {
-                    if (r.getRegion() == null || r.getRegion().isBlank()) continue;
                     Map<String,Object> point = new LinkedHashMap<>();
-                    point.put("region", r.getRegion().trim());
+                    String region = r.getRegion() == null ? "" : r.getRegion().trim();
+                    point.put("region", region.isBlank() ? "Unknown location" : region);
                     point.put("priority", r.getPriority() == null ? "MEDIUM" : r.getPriority());
                     point.put("type", r.getAttackTypeLabel() == null ? "Other" : r.getAttackTypeLabel());
                     point.put("status", r.getStatus() == null ? "NEW" : r.getStatus());
+                    point.put("reportId", r.getReportId() == null ? "" : r.getReportId());
                     mapPoints.add(point);
                 }
                 model.addAttribute("mapPoints", mapPoints);
@@ -124,12 +126,13 @@ public class DashboardController {
                 // Personal map scope: only this user's reported incidents are exposed.
                 List<Map<String,Object>> mapPoints = new ArrayList<>();
                 for (ReportAttack r : my) {
-                    if (r.getRegion() == null || r.getRegion().isBlank()) continue;
                     Map<String,Object> point = new LinkedHashMap<>();
-                    point.put("region", r.getRegion().trim());
+                    String region = r.getRegion() == null ? "" : r.getRegion().trim();
+                    point.put("region", region.isBlank() ? "Unknown location" : region);
                     point.put("priority", r.getPriority() == null ? "MEDIUM" : r.getPriority());
                     point.put("type", r.getAttackTypeLabel() == null ? "Other" : r.getAttackTypeLabel());
                     point.put("status", r.getStatus() == null ? "NEW" : r.getStatus());
+                    point.put("reportId", r.getReportId() == null ? "" : r.getReportId());
                     mapPoints.add(point);
                 }
                 model.addAttribute("mapPoints", mapPoints);
