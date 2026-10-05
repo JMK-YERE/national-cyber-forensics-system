@@ -19,5 +19,10 @@ public class CaseIocService {
         i.setFirstSeen(firstSeen); i.setLastSeen(lastSeen); i.setNotes(notes);
         i.setCreatedBy(userId); i.setCreatedByName(userName); return repository.save(i);
     }
-    public boolean delete(Long id, Long caseId){\n        if(id==null || caseId==null) return false;\n        CaseIoc i=repository.findById(id).orElse(null);\n        if(i==null || !caseId.equals(i.getCaseId())) return false;\n        repository.delete(i); return true;\n    }
+    public boolean delete(Long id, Long caseId){
+        if(id==null || caseId==null) return false;
+        CaseIoc i=repository.findById(id).orElse(null);
+        if(i==null || !caseId.equals(i.getCaseId())) return false;
+        repository.delete(i); return true;
+    }
 }
