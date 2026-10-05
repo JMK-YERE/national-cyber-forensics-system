@@ -5,6 +5,7 @@ import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.CaseFileService;
+import com.tz.forensics.service.CaseIocService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,13 +18,15 @@ public class CaseFileController {
     private final CaseFileService caseFileService;
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final CaseIocService caseIocService;
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
-                              AuditService auditService) {
+                              AuditService auditService, CaseIocService caseIocService) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
+        this.caseIocService = caseIocService;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -96,6 +99,7 @@ public class CaseFileController {
         if (!canViewCase(cf, user)) return "redirect:/access-denied";
         model.addAttribute("caseFile", cf);
         model.addAttribute("timeline", caseFileService.getTimeline(cf.getId()));
+        model.addAttribute("iocs", caseIocService.findByCaseId(cf.getId()));
         return "case-detail";
     }
 
