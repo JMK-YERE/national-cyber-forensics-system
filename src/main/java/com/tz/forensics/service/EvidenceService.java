@@ -101,6 +101,7 @@ public class EvidenceService {
                 saved.getId(), "UPLOADED", uploadedBy, username, getClientIp(),
                 "Initial evidence upload: " + dto.getDescription()
         );
+        uploadedEvent.setPerformedByRole("EVIDENCE_CUSTODIAN");
         uploadedEvent.setHashAtAction(sha256);
         try {
             custodyRepository.save(uploadedEvent);
@@ -125,7 +126,12 @@ public class EvidenceService {
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
         Path filePath = Paths.get(uploadDir, evidence.getStoredFilename());
         if (!Files.exists(filePath)) throw new IOException("Stored evidence file not found.");
-        return encryptionService.decrypt(Files.readAllBytes(filePath));
+        byte[] decrypted = encryptionService.decrypt(Files.readAllBytes(filePath));
+        String actualSha256 = hashService.sha256(decrypted);
+        if (!actualSha256.equalsIgnoreCase(evidence.getSha256Hash())) {
+            throw new IOException("Evidence integrity check failed: SHA-256 mismatch.");
+        }
+        return decrypted;
     }
  
     private String getClientIp() {
@@ -147,6 +153,7 @@ public class EvidenceService {
     public void verifyEvidence(Long evidenceId, String username, Long verifiedBy) {
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
+        if (Boolean.TRUE.equals(evidence.getVerified())) return;
         evidence.setVerified(true);
         evidence.setVerifiedBy(verifiedBy);
         evidence.setVerifiedAt(LocalDateTime.now());
@@ -156,6 +163,7 @@ public class EvidenceService {
                 evidenceId, "VERIFIED", verifiedBy, username, getClientIp(),
                 "Evidence verified by " + username + " | SHA-256: " + evidence.getSha256Hash()
         );
+        verifiedEvent.setPerformedByRole("VERIFIER");
         verifiedEvent.setHashAtAction(evidence.getSha256Hash());
         custodyRepository.save(verifiedEvent);
     }
