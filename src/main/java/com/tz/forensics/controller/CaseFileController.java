@@ -111,7 +111,11 @@ public class CaseFileController {
             return "redirect:/cases/" + id;
         }
 
-        caseFileService.updateStatus(id, "CLOSED", reason);
+        if (!caseFileService.updateStatus(id, "CLOSED", reason)) {
+            auditService.log("REJECT_CASE_STATUS", "CaseFile", cf.getCaseNumber(),
+                    "Rejected invalid case lifecycle transition from " + currentStatus + " to CLOSED");
+            return "redirect:/cases/" + id;
+        }
         auditService.log("CLOSE_CASE", "CaseFile", cf.getCaseNumber(),
                 "Case closed by " + auth.getName());
         return "redirect:/cases/" + id;
