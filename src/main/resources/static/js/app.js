@@ -54,14 +54,9 @@ document.addEventListener('click', function(e) {
 });
 
 document.addEventListener('click', function(e) {
-    // On mobile, close the drawer after the link click is dispatched.
-    // Never cancel the browser's normal navigation: cancelling it can make
-    // the drawer disappear while the selected page never opens.
     if (window.innerWidth <= 900) {
-        const link = e.target.closest('.app-sidebar a.sidebar-item');
-        if (link) {
-            closeSidebar();
-        }
+        const link = e.target.closest('#appSidebar a.sidebar-item');
+        if (link) window.setTimeout(closeSidebar, 80);
     }
 }, false);
 window.addEventListener('resize', function() {
@@ -119,7 +114,7 @@ function forceMobileSidebarClosed(){
 }
 window.addEventListener('pageshow',forceMobileSidebarClosed);
 window.addEventListener('popstate',forceMobileSidebarClosed);
-document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')forceMobileSidebarClosed();});
+document.addEventListener('visibilitychange',function(){});
 document.addEventListener('DOMContentLoaded',function(){
     forceMobileSidebarClosed();
     const t=document.querySelector('.mobile-toggle');
