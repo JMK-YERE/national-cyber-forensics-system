@@ -122,6 +122,22 @@ public class CaseFileController {
         return "redirect:/cases/" + id;
     }
 
+    @PostMapping("/{id}/archive")
+    public String archiveCase(@PathVariable Long id, Authentication auth) {
+        User user = getCurrentUser(auth);
+        if (!canManageCases(user)) return "redirect:/access-denied";
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, user)) return "redirect:/access-denied";
+        String current = cf.getStatus() == null ? "OPEN" : cf.getStatus().trim().toUpperCase();
+        if (!"CLOSED".equals(current)) return "redirect:/cases/" + id;
+        if (!caseFileService.updateStatus(id, "ARCHIVED", null, user.getId(), auth.getName(), user.getRole())) {
+            auditService.log("REJECT_CASE_STATUS", "CaseFile", cf.getCaseNumber(), "Rejected CLOSED → ARCHIVED");
+            return "redirect:/cases/" + id;
+        }
+        auditService.log("ARCHIVE_CASE", "CaseFile", cf.getCaseNumber(), "Case archived by " + auth.getName());
+        return "redirect:/cases/" + id;
+    }
+
     @PostMapping("/{id}/close")
     public String closeCase(@PathVariable Long id, @RequestParam String reason, Authentication auth) {
         User user = getCurrentUser(auth);
@@ -135,7 +151,7 @@ public class CaseFileController {
             return "redirect:/cases/" + id;
         }
 
-        if (!caseFileService.updateStatus(id, "CLOSED", reason)) {
+        if (!caseFileService.updateStatus(id, "CLOSED", reason, user.getId(), auth.getName(), user.getRole())) {
             auditService.log("REJECT_CASE_STATUS", "CaseFile", cf.getCaseNumber(),
                     "Rejected invalid case lifecycle transition from " + currentStatus + " to CLOSED");
             return "redirect:/cases/" + id;
