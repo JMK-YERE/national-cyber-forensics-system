@@ -57,7 +57,8 @@ public class SecurityConfig {
                     "/favicon.ico", "/webjars/**",
                     "/announcements", "/announcements/**",
                     "/oauth2/**", "/login/oauth2/**",
-                    "/oauth2/verify", "/oauth2/verify/**"
+                    "/oauth2/verify", "/oauth2/verify/**",
+                    "/lang"
                 ).permitAll()
 
                 .requestMatchers("/admin/audit", "/admin/audit/**")
