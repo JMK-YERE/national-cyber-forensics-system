@@ -8,9 +8,9 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
     boolean existsByIncidentId(String incidentId);
     List<Incident> findAllByOrderByDateReportedDesc();
     List<Incident> findByIncidentIdContainingIgnoreCase(String incidentId);
-    List<Incident> findByAssignedToOrderByDateReportedDesc(Long assignedTo);
+    List<Incident> findByReporterUserIdOrAssignedToOrderByDateReportedDesc(Long reporterUserId, Long assignedTo);
     List<Incident> findByWorkflowStatusOrderByDateReportedDesc(String workflowStatus);
     long countByAssignedTo(Long assignedTo);
     long countByWorkflowStatus(String workflowStatus);
-    List<Incident> findByAssignedToAndWorkflowStatusNotOrderByDateReportedDesc(Long assignedTo, String workflowStatus);
+    List<Incident> findByReporterUserIdOrAssignedToAndWorkflowStatusNotOrderByDateReportedDesc(Long reporterUserId, Long assignedTo, String workflowStatus);
 }
