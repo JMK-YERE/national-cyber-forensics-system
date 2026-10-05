@@ -111,7 +111,8 @@ public class PasswordController {
                         || cleanToken.equals(u.getPasswordResetToken()))
                 .findFirst().orElse(null);
 
-        if (user == null || user.getPasswordResetExpiresAt() == null ||
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled()) || !user.isApproved() ||
+                user.getPasswordResetExpiresAt() == null ||
                 user.getPasswordResetExpiresAt().isBefore(LocalDateTime.now())) {
             model.addAttribute("error", "OTP si sahihi au ime-expire. Omba OTP mpya.");
             model.addAttribute("emailOtp", true);
@@ -134,6 +135,9 @@ public class PasswordController {
         }
 
         user.setPassword(passwordEncoder.encode(password));
+        user.setFailedAttempts(0);
+        user.setAccountLocked(false);
+        user.setLastLogin(LocalDateTime.now());
         user.setPasswordResetToken(null);
         user.setPasswordResetExpiresAt(null);
         user.setPasswordResetAttempts(0);
