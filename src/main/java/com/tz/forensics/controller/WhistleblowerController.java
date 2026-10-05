@@ -7,13 +7,18 @@ import com.tz.forensics.entity.WhistleblowerReport;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.NotificationService;
-import com.tz.forensics.service.WhistleblowerService;\nimport com.tz.forensics.service.EncryptionService;
+import com.tz.forensics.service.WhistleblowerService;
+import com.tz.forensics.service.EncryptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;\nimport org.springframework.http.HttpHeaders;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.MediaType;\nimport org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +42,8 @@ public class WhistleblowerController {
     private final WhistleblowerService service;
     private final UserRepository userRepository;
     private final AuditService auditService;
-    private final NotificationService notificationService;\n    private final EncryptionService encryptionService;
+    private final NotificationService notificationService;
+    private final EncryptionService encryptionService;
 
     @Value("${app.upload.dir:uploads/whistleblower}")
     private String uploadDir;
@@ -45,11 +51,13 @@ public class WhistleblowerController {
     public WhistleblowerController(WhistleblowerService service,
                                     UserRepository userRepository,
                                     AuditService auditService,
-                                    NotificationService notificationService,\n                                   EncryptionService encryptionService) {
+                                    NotificationService notificationService,
+                                   EncryptionService encryptionService) {
         this.service = service;
         this.userRepository = userRepository;
         this.auditService = auditService;
-        this.notificationService = notificationService;\n        this.encryptionService = encryptionService;
+        this.notificationService = notificationService;
+        this.encryptionService = encryptionService;
     }
 
     @GetMapping
@@ -148,7 +156,16 @@ public class WhistleblowerController {
                                  @RequestParam String message,
                                  @RequestParam String code,
                                  RedirectAttributes ra) {
-        WhistleblowerReport target = service.getById(id);\n        if (target == null || code == null || !code.trim().equalsIgnoreCase(target.getTrackingCode())) {\n            ra.addFlashAttribute("error", "Tracking code si sahihi.");\n            return "redirect:/whistleblower/track";\n        }\n        if (message == null || message.isBlank() || message.length() > 4000) {\n            ra.addFlashAttribute("error", "Ujumbe lazima uwe na herufi 1 hadi 4000.");\n            return "redirect:/whistleblower/track?code=" + java.net.URLEncoder.encode(code.trim(), java.nio.charset.StandardCharsets.UTF_8);\n        }\n        service.addMessage(id, "REPORTER", message.trim());
+        WhistleblowerReport target = service.getById(id);
+        if (target == null || code == null || !code.trim().equalsIgnoreCase(target.getTrackingCode())) {
+            ra.addFlashAttribute("error", "Tracking code si sahihi.");
+            return "redirect:/whistleblower/track";
+        }
+        if (message == null || message.isBlank() || message.length() > 4000) {
+            ra.addFlashAttribute("error", "Ujumbe lazima uwe na herufi 1 hadi 4000.");
+            return "redirect:/whistleblower/track?code=" + java.net.URLEncoder.encode(code.trim(), java.nio.charset.StandardCharsets.UTF_8);
+        }
+        service.addMessage(id, "REPORTER", message.trim());
         try {
             WhistleblowerReport r = service.getById(id);
             List<User> admins = userRepository.findAll().stream()
