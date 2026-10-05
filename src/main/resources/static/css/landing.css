@@ -23,5 +23,5 @@ footer{padding:28px 5vw;background:var(--f);color:#dcfce7;display:flex;justify-c
 @media(max-width:600px){.announcement-track{animation-duration:90s!important}.announcement-card{width:86vw}.announcement-content{padding:15px}.announcement-card h3{font-size:15px}.announcement-card p{font-size:12px;line-height:1.55}}
 
 /* Desktop/laptop image sizing: keep the hero visually strong without letting imagery dominate the whole screen. */
-@media(min-width:901px){.hero-slider{height:min(690px,72svh);min-height:500px}.hero-slide{background-size:cover}.feature-image{height:165px}.image-feature-grid .feature-image{height:135px}}
-@media(max-width:900px){.hero-slider{height:min(620px,calc(100svh - 62px));min-height:500px}}
+@media(min-width:901px){.hero-slider{height:min(540px,56svh);min-height:430px}.hero-slide{background-size:cover}.feature-image{height:165px}.image-feature-grid .feature-image{height:135px}}
+@media(max-width:900px){.hero-slider{height:min(560px,calc(100svh - 62px));min-height:440px}}
