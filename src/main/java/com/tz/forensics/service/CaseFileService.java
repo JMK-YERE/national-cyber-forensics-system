@@ -2,6 +2,8 @@ package com.tz.forensics.service;
 
 import com.tz.forensics.entity.CaseFile;
 import com.tz.forensics.repository.CaseFileRepository;
+import com.tz.forensics.repository.CaseTimelineRepository;
+import com.tz.forensics.entity.CaseTimeline;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,9 +15,20 @@ import java.util.UUID;
 public class CaseFileService {
 
     private final CaseFileRepository caseFileRepository;
+    private final CaseTimelineRepository timelineRepository;
 
-    public CaseFileService(CaseFileRepository caseFileRepository) {
+    public CaseFileService(CaseFileRepository caseFileRepository, CaseTimelineRepository timelineRepository) {
         this.caseFileRepository = caseFileRepository;
+        this.timelineRepository = timelineRepository;
+    }
+
+    public List<CaseTimeline> getTimeline(Long caseId) {
+        return timelineRepository.findByCaseIdOrderByCreatedAtDesc(caseId);
+    }
+
+    public void addTimeline(Long caseId, String eventType, String title, String details,
+                            Long actorId, String actorName, String actorRole) {
+        timelineRepository.save(new CaseTimeline(caseId, eventType, title, details, actorId, actorName, actorRole));
     }
 
     public CaseFile createCase(Long incidentId, String title, String description,
@@ -31,7 +44,10 @@ public class CaseFileService {
         caseFile.setStatus("OPEN");
         caseFile.setCreatedBy(createdBy);
         caseFile.setCreatedByName(createdByName);
-        return caseFileRepository.save(caseFile);
+        CaseFile saved = caseFileRepository.save(caseFile);
+        addTimeline(saved.getId(), "CASE_CREATED", "Forensic case opened",
+                "Case created from incident " + incidentId, createdBy, createdByName, "CASE_CREATOR");
+        return saved;
     }
 
     public List<CaseFile> getAllCases() {
@@ -80,6 +96,9 @@ public class CaseFileService {
             cf.setClosureReason(closureReason);
         }
         caseFileRepository.save(cf);
+        addTimeline(cf.getId(), "STATUS_CHANGED", "Case status changed",
+                from + " → " + to + (closureReason != null && !closureReason.isBlank() ? " | " + closureReason : ""),
+                null, "System", "WORKFLOW");
         return true;
     }
 
