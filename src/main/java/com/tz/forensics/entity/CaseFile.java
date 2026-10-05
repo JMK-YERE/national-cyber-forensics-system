@@ -68,10 +68,11 @@ public class CaseFile {
     public CaseFile() {}
 
     public String getStatusClass() {
-        return switch (status) {
-            case "OPEN" -> "status-critical";
-            case "INVESTIGATING" -> "status-investigation";
-            case "CLOSED" -> "status-resolved";
+        String current = status == null ? "OPEN" : status.trim().toUpperCase();
+        return switch (current) {
+            case "OPEN", "TRIAGED" -> "status-critical";
+            case "ASSIGNED", "INVESTIGATING", "EXAMINATION", "REVIEW" -> "status-investigation";
+            case "CLOSED", "ARCHIVED" -> "status-resolved";
             default -> "";
         };
     }
