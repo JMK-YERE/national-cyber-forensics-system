@@ -82,7 +82,7 @@ public class SecurityConfig {
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
                 .requestMatchers("/evidence/**")
-                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
+                    .authenticated()
 
                 .requestMatchers("/threat-map", "/threat-map/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
