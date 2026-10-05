@@ -26,6 +26,28 @@
         </div>
     </div>
 
+    <div class="app-card" th:if="${caseFile.status != 'CLOSED' and caseFile.status != 'ARCHIVED'}">
+        <h3>Case Workflow</h3>
+        <p style="color:#64748b">Controlled progression: OPEN → TRIAGED → ASSIGNED → INVESTIGATING → EXAMINATION → REVIEW → CLOSED → ARCHIVED.</p>
+        <form th:action="@{/cases/{id}/status(id=${caseFile.id})}" method="post" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div><label>Next Stage</label>
+                <select name="status" required>
+                    <option value="TRIAGED" th:if="${caseFile.status == 'OPEN'}">TRIAGED — Triage complete</option>
+                    <option value="ASSIGNED" th:if="${caseFile.status == 'TRIAGED'}">ASSIGNED — Investigator assigned</option>
+                    <option value="INVESTIGATING" th:if="${caseFile.status == 'ASSIGNED'}">INVESTIGATING — Investigation started</option>
+                    <option value="EXAMINATION" th:if="${caseFile.status == 'INVESTIGATING'}">EXAMINATION — Evidence examination</option>
+                    <option value="REVIEW" th:if="${caseFile.status == 'EXAMINATION'}">REVIEW — Findings under review</option>
+                    <option value="CLOSED" th:if="${caseFile.status == 'REVIEW'}">CLOSED — Close case</option>
+                </select>
+            </div>
+            <div style="min-width:260px;flex:1"><label>Transition note</label>
+                <input name="reason" type="text" placeholder="Required when closing; useful for every transition">
+            </div>
+            <button type="submit" class="app-btn app-btn-primary">Advance Case</button>
+        </form>
+    </div>
+
     <div class="app-card case-summary">
         <a th:href="@{'/reports/case/{id}/pdf'(id=${caseFile.id})}" class="app-btn app-btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
         <p><strong>Title:</strong> <span th:text="${caseFile.title}"></span></p>
@@ -37,7 +59,7 @@
         <p th:text="${caseFile.description}"></p>
     </div>
 
-    <div class="app-card" th:if="${caseFile.status != 'CLOSED'}">
+    <div class="app-card" th:if="${caseFile.status == 'REVIEW'}">
         <h3>Close Case</h3>
         <form th:action="@{/cases/{value}/close(value=${caseFile.id})}" method="post">
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
