@@ -35,12 +35,24 @@ public class CaseFileController {
                 || "ANALYST".equalsIgnoreCase(user.getRole()));
     }
 
+    private boolean canViewCase(CaseFile cf, User user) {
+        if (cf == null || user == null) return false;
+        if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
+        return "ANALYST".equalsIgnoreCase(user.getRole())
+                && (user.getId().equals(cf.getCreatedBy())
+                    || user.getId().equals(cf.getAssignedTo())
+                    || user.getId().equals(cf.getLeadInvestigator()));
+    }
+
     @GetMapping
     public String listCases(Model model, Authentication auth) {
         User user = getCurrentUser(auth);
         if (!canManageCases(user)) return "redirect:/access-denied";
 
-        model.addAttribute("cases", caseFileService.getAllCases());
+        var visibleCases = caseFileService.getAllCases().stream()
+                .filter(cf -> canViewCase(cf, user))
+                .toList();
+        model.addAttribute("cases", visibleCases);
         model.addAttribute("openCount", caseFileService.countOpen());
         model.addAttribute("investigatingCount", caseFileService.countInvestigating());
         model.addAttribute("closedCount", caseFileService.countClosed());
@@ -81,7 +93,7 @@ public class CaseFileController {
         if (!canManageCases(user)) return "redirect:/access-denied";
 
         CaseFile cf = caseFileService.getById(id);
-        if (cf == null) return "redirect:/cases";
+        if (!canViewCase(cf, user)) return "redirect:/access-denied";
         model.addAttribute("caseFile", cf);
         return "case-detail";
     }
