@@ -18,11 +18,11 @@
         <div class="app-stats-grid">
             <div class="app-stat-box" style="border-top-color:#2563EB;">
                 <div class="value" style="color:#2563EB;" th:text="${user != null && user.securityScore != null ? user.securityScore : 0}">0</div>
-                <div class="label">Security Score</div>
+                <div class="label" th:text="#{dashboard.securityScore}">Security Score</div>
             </div>
             <div class="app-stat-box" style="border-top-color:#2563EB;">
                 <div class="value" style="color:#2563EB;" th:text="${user != null ? user.countSocialAccounts() : 0}">0</div>
-                <div class="label">Social Accounts</div>
+                <div class="label" th:text="#{dashboard.socialAccounts}">Social Accounts</div>
             </div>
             <div class="app-stat-box" style="border-top-color:#2563EB;">
                 <div class="value" style="color:#2563EB;" th:text="${user != null && user.has2fa != null && user.has2fa ? '✅' : '❌'}">❌</div>
@@ -30,15 +30,15 @@
             </div>
             <div class="app-stat-box" style="border-top-color:#2563EB;">
                 <div class="value" style="color:#2563EB;" th:text="${user != null && user.breachChecked != null && user.breachChecked ? '✅' : '❌'}">❌</div>
-                <div class="label">Breach</div>
+                <div class="label" th:text="#{dashboard.breachChecked}">Breach</div>
             </div>
         </div>
 
         <div class="app-card">
             <h2><span class="section-mark">REPORTS</span> Ripoti Zangu</h2>
             <div th:if="${myReports == null || myReports.isEmpty()}" style="text-align:center; padding:30px; color:#64748B;">
-                <p>Hakuna ripoti bado.</p>
-                <a th:href="@{/report-attack}" class="app-btn app-btn-primary" style="margin-top:15px;">Report Incident</a>
+                <p th:text="#{dashboard.noReports}">Hakuna ripoti bado.</p>
+                <a th:href="@{/report-attack}" class="app-btn app-btn-primary" style="margin-top:15px;" th:text="#{nav.report}">Report Incident</a>
             </div>
             <div th:each="r : ${myReports}" class="app-list-item">
                 <div>
@@ -50,7 +50,7 @@
                         <strong th:text="${r.status}"></strong>
                     </small>
                 </div>
-                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="app-btn app-btn-primary">Open Report</a>
+                <a th:href="@{'/report-attack/view/' + ${r.id}}" class="app-btn app-btn-primary" th:text="#{general.openReport}">Open Report</a>
             </div>
         </div>
     </div>
