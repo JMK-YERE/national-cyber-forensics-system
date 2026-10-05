@@ -1,8 +1,5 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<body>
-<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar">
-<nav class="sidebar-nav">
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"><body>
+<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar"><nav class="sidebar-nav">
 <a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label" th:text="#{nav.dashboard}">Dashboard</span></a>
 <div class="sidebar-section" th:text="#{nav.workspace}">Workspace</div>
 <a th:href="@{/notifications}" class="sidebar-item"><span class="icon">♢</span><span class="label" th:text="#{nav.notifications}">Notifications</span></a>
@@ -10,45 +7,23 @@
 <div sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')">
 <a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label" th:text="#{nav.report}">Report Incident</span></a>
 <a th:href="@{/report-attack/my-reports}" class="sidebar-item"><span class="icon">📋</span><span class="label" th:text="#{nav.myReports}">My Reports</span></a>
+<a th:href="@{/tools/security-center}" class="sidebar-item"><span class="icon">⌘</span><span class="label" th:text="#{nav.securityCenter}">Security Tools</span></a></div>
+<div sec:authorize="hasAnyAuthority('ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" class="sidebar-section" th:text="#{nav.investigations}">Operations</div>
+<div sec:authorize="hasAnyAuthority('ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')">
+<a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">▣</span><span class="label" th:text="#{nav.allIncidents}">Incidents</span></a>
+<a th:href="@{/incidents}" class="sidebar-item"><span class="icon">🔎</span><span class="label" th:text="#{nav.investigations}">Investigations</span></a>
+<a th:href="@{/incidents/my-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label" th:text="#{nav.responseTasks}">Tasks</span></a>
+<a th:href="@{/cases}" sec:authorize="hasAnyAuthority('ROLE_CYBER_PRO','ROLE_FORENSICS')" class="sidebar-item"><span class="icon">🧪</span><span class="label" th:text="#{nav.forensicsCases}">Cases</span></a>
+<a th:href="@{/evidence}" class="sidebar-item"><span class="icon">🔐</span><span class="label">Evidence</span></a>
+<a th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label" th:text="#{nav.incidentMap}">Incident Intelligence</span></a>
+<a th:href="@{/analytics}" class="sidebar-item"><span class="icon">▥</span><span class="label" th:text="#{nav.analytics}">Analytics</span></a>
 </div>
 <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="sidebar-section" th:text="#{nav.administration}">Administration</div>
 <div sec:authorize="hasAuthority('ROLE_ADMIN')">
-<a th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label" th:text="#{nav.usersAccess}">Users & Access</span></a>
-<a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">▣</span><span class="label" th:text="#{nav.allIncidents}">All Incidents & Reports</span></a>
+<a th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label" th:text="#{nav.usersAccess}">Users &amp; Access</span></a>
 <a th:href="@{/whistleblower/admin}" class="sidebar-item"><span class="icon">🕵</span><span class="label" th:text="#{nav.anonymousReports}">Anonymous Reports</span></a>
-<a th:href="@{/admin/analytics}" class="sidebar-item"><span class="icon">📊</span><span class="label" th:text="#{nav.systemAnalytics}">System Analytics</span></a>
-<a th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label" th:text="#{nav.auditSecurity}">Audit & Security Log</span></a>
+<a th:href="@{/admin/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label" th:text="#{nav.auditSecurity}">Audit &amp; Security</span></a>
 <a th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label" th:text="#{nav.compliance}">Compliance</span></a>
 <a th:href="@{/admin/announcements}" class="sidebar-item"><span class="icon">✦</span><span class="label" th:text="#{nav.announcements}">Announcements</span></a>
 <a th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label" th:text="#{nav.systemSettings}">System Settings</span></a>
-</div>
-<div sec:authorize="hasAuthority('ROLE_CYBER_PRO')" class="sidebar-section" th:text="#{nav.cyberResponse}">Cyber Response</div>
-<div sec:authorize="hasAuthority('ROLE_CYBER_PRO')">
-<a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label" th:text="#{nav.triageReview}">Triage & Review</span></a>
-<a th:href="@{/incidents}" class="sidebar-item"><span class="icon">🔎</span><span class="label" th:text="#{nav.investigations}">Case Investigations</span></a>
-<a th:href="@{/incidents/my-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label" th:text="#{nav.responseTasks}">Response Tasks</span></a>
-<a th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label" th:text="#{nav.threatMap}">Threat Map</span></a>
-<a th:href="@{/whistleblower/admin}" class="sidebar-item"><span class="icon">🕵</span><span class="label" th:text="#{nav.confidentialReports}">Confidential Reports</span></a>
-<a th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label" th:text="#{nav.responseCompliance}">Response Compliance</span></a>
-</div>
-<div sec:authorize="hasAuthority('ROLE_FORENSICS')" class="sidebar-section" th:text="#{nav.digitalForensics}">Digital Forensics</div>
-<div sec:authorize="hasAuthority('ROLE_FORENSICS')">
-<a th:href="@{/cases}" class="sidebar-item"><span class="icon">🧪</span><span class="label" th:text="#{nav.forensicsCases}">Forensic Cases</span></a>
-<a th:href="@{/incidents}" class="sidebar-item"><span class="icon">🔬</span><span class="label" th:text="#{nav.investigations}">Investigations</span></a>
-<a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">📋</span><span class="label" th:text="#{nav.reportsForExamination}">Reports for Examination</span></a>
-<a th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label" th:text="#{nav.incidentMap}">Incident Map</span></a>
-<a th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label" th:text="#{nav.forensicCompliance}">Forensic Compliance</span></a>
-<a th:href="@{/analytics}" class="sidebar-item"><span class="icon">▥</span><span class="label" th:text="#{nav.analytics}">Forensic Data Analytics</span></a>
-</div>
-<div sec:authorize="hasAuthority('ROLE_ANALYST')" class="sidebar-section" th:text="#{nav.cyberAnalysis}">Cyber Analysis</div>
-<div sec:authorize="hasAuthority('ROLE_ANALYST')">
-<a th:href="@{/incidents/my-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label" th:text="#{nav.myAnalysisTasks}">My Analysis Tasks</span></a>
-<a th:href="@{/incidents}" class="sidebar-item"><span class="icon">🔎</span><span class="label" th:text="#{nav.permittedCases}">Permitted Cases</span></a>
-<a th:href="@{/threat-map}" class="sidebar-item"><span class="icon">◉</span><span class="label" th:text="#{nav.threatIntelligenceMap}">Threat Intelligence Map</span></a>
-<a th:href="@{/analytics}" class="sidebar-item"><span class="icon">▥</span><span class="label" th:text="#{nav.analytics}">Data Analytics</span></a>
-</div>
-<div class="sidebar-section" th:text="#{nav.securityTools}">Security Tools</div>
-<a th:href="@{/tools/security-center}" class="sidebar-item"><span class="icon">⌘</span><span class="label" th:text="#{nav.securityCenter}">Security Center</span></a>
-</nav>
-</aside>
-</body></html>
+</div></nav></aside></body></html>
