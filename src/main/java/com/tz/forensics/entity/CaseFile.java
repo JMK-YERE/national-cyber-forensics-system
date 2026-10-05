@@ -24,7 +24,7 @@ public class CaseFile {
     private String description;
 
     @Column(length = 30)
-    private String status = "OPEN"; // OPEN, INVESTIGATING, CLOSED, ARCHIVED
+    private String status = "OPEN"; // OPEN, TRIAGED, ASSIGNED, INVESTIGATING, EXAMINATION, REVIEW, CLOSED, ARCHIVED
 
     @Column(length = 30)
     private String priority = "MEDIUM"; // LOW, MEDIUM, HIGH, CRITICAL
