@@ -47,12 +47,19 @@ public class CaseTaskController {
  @PostMapping("/{id}/status")
  public String status(@PathVariable Long id,@RequestParam String status,Authentication a){
   User actor=current(a);CaseTask t=taskService.get(id);CaseFile c=t==null?null:caseService.getById(t.getCaseId());
-  if(!staff(actor)||!canView(c,actor))return "redirect:/access-denied";
+  if(!staff(actor)||t==null||c==null||!canView(c,actor))return "redirect:/access-denied";
   boolean assignee=actor.getId().equals(t.getAssignedTo());boolean privileged=manager(actor);
   if(!assignee&&!privileged)return "redirect:/access-denied";
-  if(taskService.transition(t,status,actor.getId(),a.getName())){
-   audit.log("CHANGE_CASE_TASK_STATUS","CaseTask",""+id,t.getStatus()+" by "+a.getName());
-   caseService.addTimeline(c.getId(),"TASK_STATUS_CHANGED","Task status changed",t.getTitle()+" → "+t.getStatus(),actor.getId(),a.getName(),actor.getRole());
+  String from=t.getStatus()==null?"OPEN":t.getStatus().trim().toUpperCase();
+  String requested=status==null?"":status.trim().toUpperCase();
+  if(taskService.transition(t,requested,actor.getId(),a.getName())){
+   audit.log("CHANGE_CASE_TASK_STATUS","CaseTask",""+id,from+" → "+t.getStatus()+" by "+a.getName());
+   caseService.addTimeline(c.getId(),"TASK_STATUS_CHANGED","Task status changed",t.getTitle()+" | "+from+" → "+t.getStatus(),actor.getId(),a.getName(),actor.getRole());
+   if(t.getAssignedTo()!=null){
+    notifications.createNotification(t.getAssignedTo(),"Case task updated","Case "+c.getCaseNumber()+" — "+t.getTitle()+" | "+from+" → "+t.getStatus(),"TASK_STATUS","/case-tasks");
+   }
+  } else {
+   audit.log("REJECT_CASE_TASK_STATUS","CaseTask",""+id,from+" → "+requested+" by "+a.getName());
   }
   return "redirect:/cases/"+c.getId();
  }
