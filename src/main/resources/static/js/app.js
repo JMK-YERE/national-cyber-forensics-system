@@ -21,6 +21,8 @@ function toggleSidebar() {
     if(o)o.classList.toggle('show',open);
     document.body.classList.toggle('sidebar-open',open);
     document.documentElement.classList.toggle('sidebar-open',open);
+    const t=document.querySelector('.mobile-toggle');
+    if(t)t.setAttribute('aria-expanded',String(open));
 }
 function closeSidebar(){
     const s=document.getElementById('appSidebar'),o=document.getElementById('sidebarOverlay');
@@ -28,6 +30,8 @@ function closeSidebar(){
     if(o)o.classList.remove('show');
     document.body.classList.remove('sidebar-open');
     document.documentElement.classList.remove('sidebar-open');
+    const t=document.querySelector('.mobile-toggle');
+    if(t)t.setAttribute('aria-expanded','false');
 }
 
 function toggleSubmenu(id, btn) {
@@ -117,3 +121,25 @@ function toggleTheme(){
 }
 document.addEventListener('DOMContentLoaded',applyTheme);
 applyTheme();
+
+
+/* Global mobile drawer hardening: never persist an open sidebar across navigation, resize, or bfcache restores. */
+function forceMobileSidebarClosed(){
+    if(window.innerWidth<=900){
+        closeSidebar();
+        const s=document.getElementById('appSidebar');
+        const o=document.getElementById('sidebarOverlay');
+        const t=document.querySelector('.mobile-toggle');
+        if(s)s.setAttribute('aria-hidden','true');
+        if(o)o.setAttribute('aria-hidden','true');
+        if(t)t.setAttribute('aria-expanded','false');
+    }
+}
+window.addEventListener('pageshow',forceMobileSidebarClosed);
+window.addEventListener('popstate',forceMobileSidebarClosed);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')forceMobileSidebarClosed();});
+document.addEventListener('DOMContentLoaded',function(){
+    forceMobileSidebarClosed();
+    const t=document.querySelector('.mobile-toggle');
+    if(t)t.setAttribute('aria-expanded','false');
+});
