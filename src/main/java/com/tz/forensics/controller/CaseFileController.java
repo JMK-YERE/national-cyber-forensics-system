@@ -103,7 +103,17 @@ public class CaseFileController {
         User user = getCurrentUser(auth);
         if (!canManageCases(user)) return "redirect:/access-denied";
 
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, user)) return "redirect:/access-denied";
+
+        String currentStatus = cf.getStatus() == null ? "OPEN" : cf.getStatus().toUpperCase();
+        if ("CLOSED".equals(currentStatus) || "ARCHIVED".equals(currentStatus)) {
+            return "redirect:/cases/" + id;
+        }
+
         caseFileService.updateStatus(id, "CLOSED", reason);
-        return "redirect:/cases";
+        auditService.log("CLOSE_CASE", "CaseFile", cf.getCaseNumber(),
+                "Case closed by " + auth.getName());
+        return "redirect:/cases/" + id;
     }
 }
