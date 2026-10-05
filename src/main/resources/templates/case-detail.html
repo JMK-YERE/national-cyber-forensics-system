@@ -8,6 +8,24 @@
 <body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main"><div class="app-container"><header class="case-detail-head"><div><div class="case-kicker">FORENSIC CASE FILE</div><h1 th:text="${caseFile.caseNumber}"></h1><p th:text="${caseFile.title}"></p></div><a th:href="@{/cases}" class="app-btn app-btn-outline">← Cases</a></header>
+    <div class="app-card">
+        <h3>Investigation Timeline</h3>
+        <p style="color:#64748b">Audited events for this case, newest first.</p>
+        <div th:if="${timeline == null or timeline.isEmpty()}" style="color:#64748b">No investigation events recorded yet.</div>
+        <div th:each="event : ${timeline}" style="display:grid;grid-template-columns:150px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid #e2e8f0">
+            <div>
+                <strong th:text="${#temporals.format(event.createdAt,'yyyy-MM-dd HH:mm')}"></strong>
+                <div style="font-size:11px;color:#64748b" th:text="${event.eventType}"></div>
+            </div>
+            <div>
+                <strong th:text="${event.title}"></strong>
+                <div th:if="${event.details != null}" style="margin-top:4px;color:#475569" th:text="${event.details}"></div>
+                <div style="margin-top:5px;font-size:11px;color:#64748b"
+                     th:text="${event.actorName != null ? event.actorName + ' · ' + event.actorRole : 'System · WORKFLOW'}"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="app-card case-summary">
         <a th:href="@{'/reports/case/{id}/pdf'(id=${caseFile.id})}" class="app-btn app-btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
         <p><strong>Title:</strong> <span th:text="${caseFile.title}"></span></p>
