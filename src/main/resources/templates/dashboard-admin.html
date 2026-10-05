@@ -7,7 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <style>
         .welcome-banner {
-            background: linear-gradient(135deg, #064E3B, #16A34A);
+            background: linear-gradient(135deg, #0F172A, #2563EB);
             color: white; padding: 30px; border-radius: 16px;
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(6,78,59,0.3);
@@ -15,7 +15,7 @@
         .welcome-banner h1 { color: white; margin: 0; font-size: 28px; }
         .welcome-banner p { color: rgba(255,255,255,0.9); margin-top: 8px; }
     
-</style><style id="deep-green-dashboard-polish">.app-main{background:radial-gradient(circle at 90% 0%,#e2f8ea 0,#f4faf6 32%,#f4faf6 100%)}.app-card,.db-card,.fc,.pc,.a-card{border-color:#d6e9df;box-shadow:0 8px 24px rgba(2,44,34,.06)}.app-stat-box{border-top-color:#16a34a!important}.app-stat-box .value{color:#15803d!important}.app-btn-primary{background:linear-gradient(135deg,#065f46,#16a34a)!important}.fc a,.pc a{background:#15803d!important}.fc a:hover,.pc a:hover{background:#166534!important}</style></head>
+</style><style id="deep-green-dashboard-polish">.app-main{background:radial-gradient(circle at 90% 0%,#eff6ff 0,#f6f8fb 32%,#f6f8fb 100%)}.app-card,.db-card,.fc,.pc,.a-card{border-color:#e2e8f0;box-shadow:0 8px 24px rgba(2,44,34,.06)}.app-stat-box{border-top-color:#2563EB!important}.app-stat-box .value{color:#2563EB!important}.app-btn-primary{background:linear-gradient(135deg,#1D4ED8,#2563EB)!important}.fc a,.pc a{background:#2563EB!important}.fc a:hover,.pc a:hover{background:#1D4ED8!important}</style></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
@@ -29,20 +29,20 @@
         <div th:replace="~{fragments/incident-map :: incidentMap}"></div>
 
         <div class="app-stats-grid">
-            <div class="app-stat-box" style="border-top-color:#16A34A;">
-                <div class="value" style="color:#16A34A;" th:text="${totalReports != null ? totalReports : 0}">0</div>
+            <div class="app-stat-box" style="border-top-color:#2563EB;">
+                <div class="value" style="color:#2563EB;" th:text="${totalReports != null ? totalReports : 0}">0</div>
                 <div class="label">Total Reports</div>
             </div>
             <div class="app-stat-box" style="border-top-color:#DC2626;">
                 <div class="value" style="color:#DC2626;" th:text="${newReports != null ? newReports : 0}">0</div>
                 <div class="label">New Reports</div>
             </div>
-            <div class="app-stat-box" style="border-top-color:#16A34A;">
-                <div class="value" style="color:#16A34A;" th:text="${totalWb != null ? totalWb : 0}">0</div>
+            <div class="app-stat-box" style="border-top-color:#2563EB;">
+                <div class="value" style="color:#2563EB;" th:text="${totalWb != null ? totalWb : 0}">0</div>
                 <div class="label">Whistleblower</div>
             </div>
-            <div class="app-stat-box" style="border-top-color:#16A34A;">
-                <div class="value" style="color:#16A34A;" th:text="${totalUsers != null ? totalUsers : 0}">0</div>
+            <div class="app-stat-box" style="border-top-color:#2563EB;">
+                <div class="value" style="color:#2563EB;" th:text="${totalUsers != null ? totalUsers : 0}">0</div>
                 <div class="label">Total Users</div>
             </div>
         </div>
@@ -51,8 +51,8 @@
             <h2>📋 Recent Reports</h2>
             <div th:each="r : ${recentReports}" class="app-list-item">
                 <div>
-                    <strong style="color:#064E3B; font-family:monospace;" th:text="${r.reportId}"></strong>
-                    <span style="margin-left:10px; color:#16A34A; font-weight:600;" th:text="${r.attackTypeLabel}"></span>
+                    <strong style="color:#0F172A; font-family:monospace;" th:text="${r.reportId}"></strong>
+                    <span style="margin-left:10px; color:#2563EB; font-weight:600;" th:text="${r.attackTypeLabel}"></span>
                     <br>
                     <span style="font-size:13px;" th:text="${r.title}"></span>
                     <br>
