@@ -66,6 +66,20 @@
         </form>
     </div>
 
+    <div class="app-card" th:if="${caseFile.status != 'ARCHIVED' and eligibleInvestigators != null}">
+        <h3>Case Tasks</h3><p style="color:#64748b">Create controlled work items linked to this case. Assignees can update their own tasks.</p>
+        <form th:action="@{/case-tasks/create}" method="post"><input type="hidden" name="caseId" th:value="${caseFile.id}"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <div><label>Task</label><input name="title" maxlength="200" required placeholder="e.g. Acquire workstation image"></div>
+        <div><label>Assignee</label><select name="assignedTo" required><option value="">Select assignee</option><option th:each="u : ${eligibleInvestigators}" th:value="${u.id}" th:text="${(u.fullName != null ? u.fullName : u.username) + ' · ' + u.role}"></option></select></div>
+        <div><label>Priority</label><select name="priority"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></div>
+        <div><label>Due Date</label><input name="dueDate" type="datetime-local"></div>
+        <textarea name="description" placeholder="Task instructions / expected output"></textarea><button class="app-btn app-btn-primary">Create Task</button></form>
+        <div style="overflow-x:auto;margin-top:18px"><table><thead><tr><th>Task</th><th>Assignee</th><th>Priority</th><th>Status</th><th>Due</th><th>Action</th></tr></thead><tbody>
+        <tr th:each="task : ${caseTasks}"><td><strong th:text="${task.title}"></strong></td><td th:text="${task.assignedToName}"></td><td th:text="${task.priority}"></td><td th:text="${task.status}"></td><td th:text="${task.dueDate != null ? #temporals.format(task.dueDate,'yyyy-MM-dd HH:mm') : 'No deadline'}"></td>
+        <td><form th:if="${task.status == 'OPEN'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="IN_PROGRESS"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Start</button></form>
+        <form th:if="${task.status == 'IN_PROGRESS'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="COMPLETED"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-primary">Complete</button></form></td></tr>
+        <tr th:if="${caseTasks == null or caseTasks.isEmpty()}"><td colspan="6">No tasks recorded for this case.</td></tr></tbody></table></div></div>
+
     <div class="app-card" th:if="${caseFile.status != 'ARCHIVED'}">
         <h3>Indicators of Compromise (IOCs)</h3>
         <p style="color:#64748b">Track IPs, domains, URLs, hashes, emails and malware indicators linked to this case.</p>
