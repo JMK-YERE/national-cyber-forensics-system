@@ -86,6 +86,22 @@ public class EvidenceController {
         return "evidence-upload";
     }
 
+    @GetMapping("/custody/{id}")
+    public String custody(@PathVariable Long id, Authentication auth, Model model) {
+        User user = currentUser(auth);
+        Evidence evidence = evidenceService.getById(id);
+        if (evidence == null) return "redirect:/incidents";
+        Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if (!canAccessIncident(incident, user)) return "redirect:/access-denied";
+
+        model.addAttribute("evidence", evidence);
+        model.addAttribute("incident", incident);
+        model.addAttribute("custodyEvents", evidenceService.getChainOfCustody(id));
+        auditService.log("VIEW_CHAIN_OF_CUSTODY", "Evidence", String.valueOf(id),
+                "Viewed chain of custody | SHA-256: " + evidence.getSha256Hash());
+        return "evidence-custody";
+    }
+
     @GetMapping("/download/{id}")
     public ResponseEntity<byte[]> downloadEvidence(@PathVariable Long id, Authentication auth) throws IOException {
         User user = currentUser(auth);
