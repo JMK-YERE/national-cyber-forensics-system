@@ -7,6 +7,7 @@ import com.tz.forensics.repository.CaseFileRepository;
 import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.CaseFileService;
 import com.tz.forensics.service.CaseIocService;
+import com.tz.forensics.service.NotificationService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,15 +24,18 @@ public class CaseFileController {
     private final AuditService auditService;
     private final CaseIocService caseIocService;
     private final CaseFileRepository caseFileRepository;
+    private final NotificationService notificationService;
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
-                              AuditService auditService, CaseIocService caseIocService, CaseFileRepository caseFileRepository) {
+                              AuditService auditService, CaseIocService caseIocService, CaseFileRepository caseFileRepository,
+                              NotificationService notificationService) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.caseIocService = caseIocService;
         this.caseFileRepository = caseFileRepository;
+        this.notificationService = notificationService;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -168,6 +172,20 @@ public class CaseFileController {
                 previousAssignee == null ? "Case assigned" : "Case reassigned",
                 "Investigator: " + cf.getAssignedToName() + " | Lead: " + cf.getLeadInvestigatorName()
                         + (deadline != null ? " | Due: " + deadline : ""), actor.getId(), auth.getName(), actor.getRole());
+
+        String notificationTitle = previousAssignee == null ? "Case assigned to you" : "Case assignment updated";
+        String notificationMessage = "Case " + cf.getCaseNumber() + " — " + cf.getTitle()
+                + " | Priority: " + cf.getPriority()
+                + (deadline != null ? " | Due: " + deadline : "");
+        notificationService.createNotification(investigator.getId(), notificationTitle, notificationMessage,
+                "CASE_ASSIGNMENT", "/cases/" + id);
+        if (!investigator.getId().equals(lead.getId())) {
+            notificationService.createNotification(lead.getId(), "You are lead investigator",
+                    "Case " + cf.getCaseNumber() + " — " + cf.getTitle()
+                            + " | Investigator: " + cf.getAssignedToName()
+                            + (deadline != null ? " | Due: " + deadline : ""),
+                    "CASE_LEAD", "/cases/" + id);
+        }
         return "redirect:/cases/" + id;
     }
     @PostMapping("/{id}/status")
