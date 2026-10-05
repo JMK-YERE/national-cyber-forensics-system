@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}"><style id="deep-green-dashboard-polish">.app-main{background:radial-gradient(circle at 90% 0%,#eff6ff 0,#f6f8fb 32%,#f6f8fb 100%)}.app-card,.db-card,.fc,.pc,.a-card{border-color:#e2e8f0;box-shadow:0 8px 24px rgba(2,44,34,.06)}.app-stat-box{border-top-color:#2563EB!important}.app-stat-box .value{color:#2563EB!important}.app-btn-primary{background:linear-gradient(135deg,#1D4ED8,#2563EB)!important}.fc a,.pc a{background:#2563EB!important}.fc a:hover,.pc a:hover{background:#1D4ED8!important}</style></head>
+    <link rel="stylesheet" th:href="@{/css/theme.css}"><style id="deep-green-dashboard-polish">.app-main{background:radial-gradient(circle at 90% 0%,#eff6ff 0,#f6f8fb 32%,#f6f8fb 100%)}.app-card,.db-card,.fc,.pc,.a-card{border-color:#e2e8f0;box-shadow:0 8px 24px rgba(2,44,34,.06)}.app-stat-box{border-top-color:#2563EB!important}.app-stat-box .value{color:#2563EB!important}.app-btn-primary{background:linear-gradient(135deg,#1D4ED8,#2563EB)!important}.fc a,.pc a{background:#2563EB!important}.fc a:hover,.pc a:hover{background:#1D4ED8!important}</style><style>.dashboard-identity{margin:0 0 14px;padding:0 2px;color:#64748b;font-size:13px;line-height:1.5}.dashboard-identity strong{color:#334155;font-weight:700}@media(max-width:600px){.dashboard-identity{font-size:12px;margin-bottom:11px}}</style></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-<main class="app-main"><div class="app-container"><div th:replace="~{fragments/incident-map :: incidentMap}"></div>
+<main class="app-main"><div class="app-container"><div class="dashboard-identity" aria-label="Current signed-in user">Umeingia kama <strong th:text="${role}">ADMIN</strong><span th:if="${username != null}"> · <span th:text="${username}"></span></span></div><div th:replace="~{fragments/incident-map :: incidentMap}"></div>
 
         <div class="app-stats-grid">
             <div class="app-stat-box" style="border-top-color:#2563EB;">
