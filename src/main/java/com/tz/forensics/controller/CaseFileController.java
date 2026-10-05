@@ -95,6 +95,7 @@ public class CaseFileController {
         CaseFile cf = caseFileService.getById(id);
         if (!canViewCase(cf, user)) return "redirect:/access-denied";
         model.addAttribute("caseFile", cf);
+        model.addAttribute("timeline", caseFileService.getTimeline(cf.getId()));
         return "case-detail";
     }
 
