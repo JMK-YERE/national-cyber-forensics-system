@@ -64,7 +64,7 @@ public class SecurityConfig {
                     .hasAuthority("ROLE_ADMIN")
 
                 .requestMatchers("/whistleblower/admin/**")
-                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
                 .requestMatchers("/compliance", "/compliance/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS")
