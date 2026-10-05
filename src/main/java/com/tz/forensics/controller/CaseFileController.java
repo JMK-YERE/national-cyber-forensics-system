@@ -154,10 +154,12 @@ public class CaseFileController {
         cf.setLeadInvestigatorName(lead.getFullName() != null ? lead.getFullName() : lead.getUsername());
         cf.setDueDate(deadline);
         cf.setUpdatedAt(LocalDateTime.now());
+        caseFileRepository.save(cf);
         if ("TRIAGED".equals(current)) {
-            caseFileService.updateStatus(id, "ASSIGNED", null, actor.getId(), auth.getName(), actor.getRole());
-        } else {
-            caseFileRepository.save(cf);
+            if (!caseFileService.updateStatus(id, "ASSIGNED", null, actor.getId(), auth.getName(), actor.getRole())) {
+                auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Failed TRIAGED → ASSIGNED transition");
+                return "redirect:/cases/" + id;
+            }
         }
         auditService.log(previousAssignee == null ? "ASSIGN_CASE" : "REASSIGN_CASE", "CaseFile", cf.getCaseNumber(),
                 "Assigned to " + cf.getAssignedToName() + "; lead " + cf.getLeadInvestigatorName()
