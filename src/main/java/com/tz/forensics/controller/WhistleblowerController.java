@@ -148,7 +148,7 @@ public class WhistleblowerController {
                                  @RequestParam String message,
                                  @RequestParam String code,
                                  RedirectAttributes ra) {
-        service.addMessage(id, "REPORTER", message);
+        WhistleblowerReport target = service.getById(id);\n        if (target == null || code == null || !code.trim().equalsIgnoreCase(target.getTrackingCode())) {\n            ra.addFlashAttribute("error", "Tracking code si sahihi.");\n            return "redirect:/whistleblower/track";\n        }\n        if (message == null || message.isBlank() || message.length() > 4000) {\n            ra.addFlashAttribute("error", "Ujumbe lazima uwe na herufi 1 hadi 4000.");\n            return "redirect:/whistleblower/track?code=" + java.net.URLEncoder.encode(code.trim(), java.nio.charset.StandardCharsets.UTF_8);\n        }\n        service.addMessage(id, "REPORTER", message.trim());
         try {
             WhistleblowerReport r = service.getById(id);
             List<User> admins = userRepository.findAll().stream()
