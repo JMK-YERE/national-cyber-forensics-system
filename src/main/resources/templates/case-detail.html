@@ -48,6 +48,24 @@
         </form>
     </div>
 
+    <div class="app-card" th:if="${caseFile.status != 'ARCHIVED'}">
+        <h3>Indicators of Compromise (IOCs)</h3>
+        <p style="color:#64748b">Track IPs, domains, URLs, hashes, emails and malware indicators linked to this case.</p>
+        <form th:action="@{/cases/{id}/iocs(id=${caseFile.id})}" method="post" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <select name="iocType" required><option value="IP">IP Address</option><option value="DOMAIN">Domain</option><option value="URL">URL</option><option value="HASH">Hash</option><option value="EMAIL">Email</option><option value="MALWARE">Malware</option><option value="OTHER">Other</option></select>
+            <input name="value" required maxlength="500" placeholder="Indicator value">
+            <select name="confidence"><option value="HIGH">HIGH</option><option value="MEDIUM" selected>MEDIUM</option><option value="LOW">LOW</option></select>
+            <input name="source" maxlength="120" placeholder="Source / tool">
+            <input name="firstSeen" type="datetime-local"><input name="lastSeen" type="datetime-local">
+            <textarea name="notes" placeholder="Analyst notes" style="grid-column:1/-1"></textarea>
+            <button class="app-btn app-btn-primary" type="submit">Add IOC</button>
+        </form>
+        <div style="overflow-x:auto;margin-top:18px"><table><thead><tr><th>Type</th><th>Indicator</th><th>Confidence</th><th>Source</th><th>First Seen</th><th>Action</th></tr></thead>
+        <tbody><tr th:each="ioc : ${iocs}"><td th:text="${ioc.iocType}"></td><td th:text="${ioc.value}"></td><td th:text="${ioc.confidence}"></td><td th:text="${ioc.source}"></td><td th:text="${ioc.firstSeen}"></td><td><form th:action="@{/cases/{c}/iocs/{i}/delete(c=${caseFile.id},i=${ioc.id})}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline" type="submit">Remove</button></form></td></tr>
+        <tr th:if="${iocs == null or iocs.isEmpty()}"><td colspan="6">No indicators recorded.</td></tr></tbody></table></div>
+    </div>
+
     <div class="app-card case-summary">
         <a th:href="@{'/reports/case/{id}/pdf'(id=${caseFile.id})}" class="app-btn app-btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
         <p><strong>Title:</strong> <span th:text="${caseFile.title}"></span></p>
