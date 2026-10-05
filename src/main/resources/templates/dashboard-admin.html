@@ -9,7 +9,7 @@
 <div th:replace="~{fragments/header :: header}"></div>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-<main class="app-main"><div class="app-container"><div class="dashboard-identity" aria-label="Current signed-in user">Umeingia kama <strong th:text="${role}">ADMIN</strong><span th:if="${username != null}"> · <span th:text="${username}"></span></span></div><div th:replace="~{fragments/incident-map :: incidentMap}"></div>
+<main class="app-main"><div class="app-container"><div class="dashboard-identity" aria-label="Current signed-in user"><span th:text="#{nav.signedInAs}">Signed in as</span> <strong th:text="${role}">ADMIN</strong><span th:if="${username != null}"> · <span th:text="${username}"></span></span></div><div th:replace="~{fragments/incident-map :: incidentMap}"></div>
 
         <div class="app-stats-grid">
             <div class="app-stat-box" style="border-top-color:#2563EB;">
