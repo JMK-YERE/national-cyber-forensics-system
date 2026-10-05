@@ -156,8 +156,11 @@ document.addEventListener('DOMContentLoaded',function(){
         showAction(form.dataset.actionTitle||'Processing request…',form.dataset.actionSubtitle||'Please wait while the forensic operation is completed securely.');
     },true);
     document.addEventListener('click',function(e){
-        const link=e.target.closest('a[data-action-feedback]');
+        const link=e.target.closest('a');
         if(!link || link.target==='_blank' || e.ctrlKey || e.metaKey || e.shiftKey || e.defaultPrevented)return;
+        if(link.closest('.app-sidebar') || link.closest('.language-menu')) return;
+        const href=link.getAttribute('href')||'';
+        if(!href || href.startsWith('#') || href.startsWith('javascript:') || link.hasAttribute('download')) return;
         showAction(link.dataset.actionTitle||'Opening secure workspace…',link.dataset.actionSubtitle||'Loading Cyber Forensics TZ securely.');
     },true);
 })();
