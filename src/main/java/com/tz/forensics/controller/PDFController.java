@@ -75,8 +75,8 @@ public class PDFController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        // Case reports are restricted to authorized forensic/response staff.
-        if (!isStaff(user)) {
+        // Case reports require object-level authorization, not only a staff role.
+        if (!canAccessCase(caseFile, user)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -102,6 +102,15 @@ public class PDFController {
                 || "CYBER_PRO".equalsIgnoreCase(role)
                 || "FORENSICS".equalsIgnoreCase(role)
                 || "ANALYST".equalsIgnoreCase(role);
+    }
+
+    private boolean canAccessCase(CaseFile caseFile, User user) {
+        if (caseFile == null || user == null) return false;
+        if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
+        return "ANALYST".equalsIgnoreCase(user.getRole())
+                && (user.getId().equals(caseFile.getCreatedBy())
+                    || user.getId().equals(caseFile.getAssignedTo())
+                    || user.getId().equals(caseFile.getLeadInvestigator()));
     }
 
     private boolean canAccessIncident(Incident incident, User user) {
