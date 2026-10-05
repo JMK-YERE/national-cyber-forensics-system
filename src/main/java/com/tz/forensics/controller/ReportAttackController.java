@@ -74,7 +74,7 @@ public class ReportAttackController {
         if (user == null) return false;
         String role = user.getRole();
         if (role == null) return false;
-        return "ADMIN".equalsIgnoreCase(role);
+        return "ADMIN".equalsIgnoreCase(role) || "CYBER_PRO".equalsIgnoreCase(role) || "FORENSICS".equalsIgnoreCase(role) || "ANALYST".equalsIgnoreCase(role);
     }
 
     private boolean canInteractWithReport(User user, ReportAttack report) {
@@ -235,11 +235,12 @@ public class ReportAttackController {
         ReportAttack r = service.getById(id);
         if (user == null || r == null) return "redirect:/report-attack";
 
-        boolean isAdmin = canSeeAllReports(user);
+        boolean isAdmin = user.isAdmin();
+        boolean canSeeAll = canSeeAllReports(user);
         boolean isOwner = r.getUserId() != null && r.getUserId().equals(user.getId());
         boolean isAssignee = r.getAssignedTo() != null && r.getAssignedTo().equals(user.getId());
 
-        if (!isAdmin && !isOwner && !isAssignee) return "redirect:/access-denied";
+        if (!canSeeAll && !isOwner && !isAssignee) return "redirect:/access-denied";
 
         List<ReportMessage> messages = messageRepo.findByReportIdOrderByCreatedAtAsc(id);
         auditService.log("VIEW_REPORT", "ReportAttack", String.valueOf(id), "Viewed report " + r.getReportId());
@@ -270,7 +271,7 @@ public class ReportAttackController {
 
         model.addAttribute("report", r);
         model.addAttribute("user", user);
-        model.addAttribute("canSeeAll", isAdmin);
+        model.addAttribute("canSeeAll", canSeeAll);
         model.addAttribute("isOwner", isOwner);
         model.addAttribute("isAssignee", isAssignee);
         model.addAttribute("messages", messages);
@@ -329,7 +330,7 @@ public class ReportAttackController {
         if (!canInteractWithReport(user, r)) return "redirect:/access-denied";
         if (message == null || message.isBlank() || message.length() > 4000) return "redirect:/report-attack/view/" + id;
 
-        String senderType = canSeeAllReports(user) ? "ADMIN" : (r.getAssignedTo() != null && r.getAssignedTo().equals(user.getId()) ? "STAFF" : "USER");
+        String senderType = user.isAdmin() ? "ADMIN" : (canSeeAllReports(user) ? "STAFF" : (r.getAssignedTo() != null && r.getAssignedTo().equals(user.getId()) ? "STAFF" : "USER"));
         messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
         auditService.log("REPORT_REPLY", "ReportAttack", String.valueOf(id), "Reply sent by " + user.getUsername());
 
