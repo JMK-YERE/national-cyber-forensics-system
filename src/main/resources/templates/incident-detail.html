@@ -78,6 +78,25 @@
         </form>
     </div>
 
+    <!-- CASE SECTION -->
+    <div class="app-card">
+        <h2>🗂️ Forensic Case</h2>
+        <div th:if="${linkedCases != null and !linkedCases.isEmpty()}">
+            <p th:each="cf : ${linkedCases}" style="margin:8px 0;">
+                <a th:href="@{/cases/{id}(id=${cf.id})}" class="app-btn app-btn-outline">
+                    <span th:text="${cf.caseNumber}"></span>
+                </a>
+                <span th:text="' · ' + ${cf.title} + ' · ' + ${cf.status}"></span>
+            </p>
+        </div>
+        <div th:if="${linkedCases == null or linkedCases.isEmpty()}">
+            <p>No forensic case has been opened for this incident yet.</p>
+            <a th:if="${canManageWorkflow}" th:href="@{/cases/new(incidentId=${incident.id})}" class="app-btn app-btn-primary">
+                ➕ Create Forensic Case
+            </a>
+        </div>
+    </div>
+
     <!-- EVIDENCE SECTION -->
     <div class="app-card">
         <h2>🔬 Digital Evidence</h2>
