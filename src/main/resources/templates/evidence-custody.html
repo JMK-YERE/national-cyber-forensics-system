@@ -3,7 +3,7 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chain of Custody | Cyber Forensics TZ</title><link rel="stylesheet" th:href="@{/css/theme.css}">
 <style>
-.custody-head{border-bottom:1px solid #e2e8f0;padding:4px 0 18px;margin-bottom:18px}.custody-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;color:#2563eb}.custody-head h1{margin:4px 0;font-size:26px;color:#0f172a}.meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}.meta-item{padding:10px 0;border-bottom:1px solid #e2e8f0}.meta-label{display:block;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase}.meta-value{display:block;margin-top:3px;font-size:13px;word-break:break-word}.custody-table{width:100%;border-collapse:collapse}.custody-table th,.custody-table td{padding:11px 9px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}.custody-table th{font-size:10px;text-transform:uppercase;color:#64748b;background:#f8fafc}.hash{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;word-break:break-all}.integrity{display:inline-flex;padding:4px 8px;border-radius:999px;background:#ecfdf5;color:#047857;font-weight:800;font-size:11px}@media(max-width:700px){.meta-grid{grid-template-columns:1fr}.custody-table{min-width:820px}.table-responsive{overflow-x:auto}}
+.custody-head{border-bottom:1px solid #e2e8f0;padding:4px 0 18px;margin-bottom:18px}.custody-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;color:#2563eb}.custody-head h1{margin:4px 0;font-size:26px;color:#0f172a}.meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}.meta-item{padding:10px 0;border-bottom:1px solid #e2e8f0}.meta-label{display:block;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase}.meta-value{display:block;margin-top:3px;font-size:13px;word-break:break-word}.custody-table{width:100%;border-collapse:collapse}.custody-table th,.custody-table td{padding:11px 9px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}.custody-table th{font-size:10px;text-transform:uppercase;color:#64748b;background:#f8fafc}.hash{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;word-break:break-all}.app-card form{display:flex;flex-direction:column;gap:8px}.app-card form label{font-size:11px;font-weight:800;color:#475569}.app-card form select,.app-card form input{min-height:38px;border:1px solid #cbd5e1;border-radius:7px;padding:7px 9px;background:#fff}.integrity{display:inline-flex;padding:4px 8px;border-radius:999px;background:#ecfdf5;color:#047857;font-weight:800;font-size:11px}@media(max-width:700px){.meta-grid{grid-template-columns:1fr}.custody-table{min-width:820px}.table-responsive{overflow-x:auto}}
 </style></head>
 <body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 <main class="app-main"><div class="app-container">
@@ -11,9 +11,43 @@
 <div class="app-card"><div class="meta-grid">
 <div class="meta-item"><span class="meta-label">Evidence ID</span><span class="meta-value" th:text="${evidence.id}"></span></div>
 <div class="meta-item"><span class="meta-label">Incident</span><span class="meta-value" th:text="${incident.incidentId}"></span></div>
+<div class="meta-item"><span class="meta-label">Custody status</span><span class="meta-value"><strong th:text="${evidence.custodyStatus}"></strong></span></div>
+<div class="meta-item"><span class="meta-label">Current custodian</span><span class="meta-value" th:text="${evidence.custodianName != null ? evidence.custodianName + ' · ' + evidence.custodianRole : 'Not assigned'}"></span></div>
 <div class="meta-item"><span class="meta-label">Integrity</span><span class="meta-value"><span class="integrity" th:if="${evidence.verified}">SHA-256 VERIFIED</span><span th:unless="${evidence.verified}">Pending verification</span></span></div>
 <div class="meta-item" style="grid-column:1/-1"><span class="meta-label">SHA-256</span><span class="meta-value hash" th:text="${evidence.sha256Hash}"></span></div>
 </div><a th:href="@{/incidents/{id}(id=${incident.id})}" class="app-btn app-btn-outline">← Back to Incident</a></div>
+<div class="app-card" th:if="${canOperateCustody}">
+<h2>Custody Operations</h2>
+<p style="color:#64748b;margin-top:0">Every transition is authorization-checked, timestamped, IP logged and bound to the evidence SHA-256.</p>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px">
+<form th:if="${evidence.custodyStatus == 'VERIFIED' or evidence.custodyStatus == 'ACCEPTED' or evidence.custodyStatus == 'EXAMINED'}"
+      th:action="@{/evidence/custody/{id}/transfer(id=${evidence.id})}" method="post">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<label>Transfer custody to</label>
+<select name="recipientId" required>
+<option value="">Select authorized custodian</option>
+<option th:each="u : ${custodians}" th:value="${u.id}" th:text="${(u.fullName != null ? u.fullName : u.username) + ' · ' + u.role}"></option>
+</select>
+<input name="purpose" maxlength="500" placeholder="Purpose of transfer" required>
+<input name="notes" maxlength="500" placeholder="Notes (optional)">
+<button class="app-btn app-btn-secondary" type="submit">Transfer Custody</button>
+</form>
+<form th:if="${evidence.custodyStatus == 'TRANSFERRED' or evidence.custodyStatus == 'ACCEPTED' or evidence.custodyStatus == 'UNDER_EXAMINATION' or evidence.custodyStatus == 'EXAMINED'}"
+      th:action="@{/evidence/custody/{id}/advance(id=${evidence.id})}" method="post">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<label>Advance custody stage</label>
+<select name="action" required>
+<option th:if="${evidence.custodyStatus == 'TRANSFERRED'}" value="ACCEPTED">ACCEPTED — receive evidence</option>
+<option th:if="${evidence.custodyStatus == 'ACCEPTED'}" value="UNDER_EXAMINATION">UNDER EXAMINATION — begin examination</option>
+<option th:if="${evidence.custodyStatus == 'UNDER_EXAMINATION'}" value="EXAMINED">EXAMINED — complete examination</option>
+<option th:if="${evidence.custodyStatus == 'EXAMINED'}" value="REPORT_GENERATED">REPORT GENERATED — finalize forensic report</option>
+</select>
+<input name="purpose" maxlength="500" placeholder="Purpose / examination note" required>
+<input name="notes" maxlength="500" placeholder="Notes (optional)">
+<button class="app-btn app-btn-primary" type="submit">Record Stage</button>
+</form>
+</div>
+</div>
 <div class="app-card"><h2>Custody Events</h2><div class="table-responsive"><table class="custody-table"><thead><tr><th>Time</th><th>Action</th><th>Actor</th><th>Role</th><th>IP</th><th>Purpose / Notes</th><th>Hash at Action</th></tr></thead>
 <tbody><tr th:each="event : ${custodyEvents}"><td th:text="${#temporals.format(event.timestamp,'yyyy-MM-dd HH:mm:ss')}"></td><td><strong th:text="${event.action}"></strong></td><td th:text="${event.performedByName}"></td><td th:text="${event.performedByRole}"></td><td th:text="${event.ipAddress}"></td><td th:text="${event.purpose}"></td><td class="hash" th:text="${event.hashAtAction}"></td></tr>
 <tr th:if="${custodyEvents == null or custodyEvents.isEmpty()}"><td colspan="7">No custody events recorded.</td></tr></tbody></table></div></div>
