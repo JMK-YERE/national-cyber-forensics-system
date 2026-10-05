@@ -89,6 +89,18 @@ public class Evidence {
     @Column(name = "verified_at")
     private LocalDateTime verifiedAt;
 
+    @Column(name = "custody_status", length = 40)
+    private String custodyStatus = "UPLOADED";
+
+    @Column(name = "custodian_id")
+    private Long custodianId;
+
+    @Column(name = "custodian_name", length = 100)
+    private String custodianName;
+
+    @Column(name = "custodian_role", length = 50)
+    private String custodianRole;
+
     public Evidence() {}
 
     public String getReadableSize() {
@@ -127,4 +139,9 @@ public class Evidence {
     public Boolean getVerified(){return verified;} public void setVerified(Boolean v){verified=v;}
     public Long getVerifiedBy(){return verifiedBy;} public void setVerifiedBy(Long v){verifiedBy=v;}
     public LocalDateTime getVerifiedAt(){return verifiedAt;} public void setVerifiedAt(LocalDateTime v){verifiedAt=v;}
+    public String getCustodyStatus(){return custodyStatus == null ? "UPLOADED" : custodyStatus;}
+    public void setCustodyStatus(String v){custodyStatus=v;}
+    public Long getCustodianId(){return custodianId;} public void setCustodianId(Long v){custodianId=v;}
+    public String getCustodianName(){return custodianName;} public void setCustodianName(String v){custodianName=v;}
+    public String getCustodianRole(){return custodianRole;} public void setCustodianRole(String v){custodianRole=v;}
 }
