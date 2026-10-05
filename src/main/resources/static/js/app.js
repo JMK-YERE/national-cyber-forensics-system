@@ -57,7 +57,7 @@ document.addEventListener('click', function(e) {
     // Mobile: close the drawer, then explicitly continue to the selected destination.
     // This avoids a race where CSS/overlay state changes before the browser completes navigation.
     if (window.innerWidth <= 900) {
-        const link = e.target.closest('.app-sidebar a.sidebar-item');
+        const link = e.target.closest('.app-sidebar a.sidebar-item, .app-sidebar button.sidebar-item');
         if (link) {
             const href = link.href;
             if (href && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey && e.button !== 1) {
@@ -85,6 +85,7 @@ document.addEventListener('touchstart', function(e) {
 
 window.addEventListener('resize', function() {
     if (window.innerWidth > 900) closeSidebar();
+    else forceMobileSidebarClosed();
 });
 
 function markActiveNavigation() {
