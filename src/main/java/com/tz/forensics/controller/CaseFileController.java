@@ -8,6 +8,7 @@ import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.CaseFileService;
 import com.tz.forensics.service.CaseIocService;
 import com.tz.forensics.service.NotificationService;
+import com.tz.forensics.service.CaseTaskService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,17 +26,19 @@ public class CaseFileController {
     private final CaseIocService caseIocService;
     private final CaseFileRepository caseFileRepository;
     private final NotificationService notificationService;
+    private final CaseTaskService caseTaskService;
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
                               AuditService auditService, CaseIocService caseIocService, CaseFileRepository caseFileRepository,
-                              NotificationService notificationService) {
+                              NotificationService notificationService, CaseTaskService caseTaskService) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.caseIocService = caseIocService;
         this.caseFileRepository = caseFileRepository;
         this.notificationService = notificationService;
+        this.caseTaskService = caseTaskService;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -113,6 +116,7 @@ public class CaseFileController {
         model.addAttribute("caseFile", cf);
         model.addAttribute("timeline", caseFileService.getTimeline(cf.getId()));
         model.addAttribute("iocs", caseIocService.findByCaseId(cf.getId()));
+        model.addAttribute("caseTasks", caseTaskService.findByCaseId(cf.getId()));
         if (canAssignCases(user)) {
             model.addAttribute("eligibleInvestigators", userRepository.findByRoleInAndEnabledTrueAndApprovalStatusIgnoreCase(
                     List.of("ANALYST", "FORENSICS", "CYBER_PRO"), "APPROVED"));
