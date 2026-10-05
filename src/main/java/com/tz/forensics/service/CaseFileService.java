@@ -71,35 +71,43 @@ public class CaseFileService {
         return caseFileRepository.findById(id).orElse(null);
     }
 
-    public boolean updateStatus(Long caseId, String status, String closureReason) {
+    public boolean updateStatus(Long caseId, String status, String closureReason,
+                                Long actorId, String actorName, String actorRole) {
         CaseFile cf = caseFileRepository.findById(caseId).orElse(null);
         if (cf == null || status == null) return false;
-
         String from = cf.getStatus() == null ? "OPEN" : cf.getStatus().trim().toUpperCase();
         String to = status.trim().toUpperCase();
 
-        // Keep the case lifecycle deterministic; callers cannot jump backwards
-        // or reopen a closed/archived forensic case through a crafted request.
         boolean valid = switch (from) {
-            case "OPEN" -> "INVESTIGATING".equals(to) || "CLOSED".equals(to);
-            case "INVESTIGATING" -> "CLOSED".equals(to);
+            case "OPEN" -> "TRIAGED".equals(to);
+            case "TRIAGED" -> "ASSIGNED".equals(to);
+            case "ASSIGNED" -> "INVESTIGATING".equals(to);
+            case "INVESTIGATING" -> "EXAMINATION".equals(to);
+            case "EXAMINATION" -> "REVIEW".equals(to);
+            case "REVIEW" -> "CLOSED".equals(to);
             case "CLOSED" -> "ARCHIVED".equals(to);
             case "ARCHIVED" -> false;
             default -> false;
         };
         if (!valid) return false;
+        if ("ASSIGNED".equals(to) && cf.getAssignedTo() == null) return false;
+        if ("CLOSED".equals(to) && (closureReason == null || closureReason.isBlank())) return false;
 
         cf.setStatus(to);
         cf.setUpdatedAt(LocalDateTime.now());
         if ("CLOSED".equals(to)) {
             cf.setClosedAt(LocalDateTime.now());
-            cf.setClosureReason(closureReason);
+            cf.setClosureReason(closureReason.trim());
         }
         caseFileRepository.save(cf);
         addTimeline(cf.getId(), "STATUS_CHANGED", "Case status changed",
-                from + " → " + to + (closureReason != null && !closureReason.isBlank() ? " | " + closureReason : ""),
-                null, "System", "WORKFLOW");
+                from + " → " + to + (closureReason != null && !closureReason.isBlank() ? " | " + closureReason.trim() : ""),
+                actorId, actorName, actorRole);
         return true;
+    }
+
+    public boolean updateStatus(Long caseId, String status, String closureReason) {
+        return updateStatus(caseId, status, closureReason, null, "System", "WORKFLOW");
     }
 
     public long countOpen() { return caseFileRepository.countByStatus("OPEN"); }
