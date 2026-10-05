@@ -54,35 +54,16 @@ document.addEventListener('click', function(e) {
 });
 
 document.addEventListener('click', function(e) {
-    // Mobile: close the drawer, then explicitly continue to the selected destination.
-    // This avoids a race where CSS/overlay state changes before the browser completes navigation.
+    // On mobile, close the drawer after the link click is dispatched.
+    // Never cancel the browser's normal navigation: cancelling it can make
+    // the drawer disappear while the selected page never opens.
     if (window.innerWidth <= 900) {
-        const link = e.target.closest('.app-sidebar a.sidebar-item, .app-sidebar button.sidebar-item');
+        const link = e.target.closest('.app-sidebar a.sidebar-item');
         if (link) {
-            const href = link.href;
-            if (href && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey && e.button !== 1) {
-                e.preventDefault();
-                closeSidebar();
-                window.setTimeout(function(){ window.location.assign(href); }, 40);
-            } else {
-                closeSidebar();
-            }
+            closeSidebar();
         }
     }
-}, true);
-
-document.addEventListener('pointerdown', function(e) {
-    if (window.innerWidth <= 900 && e.target.closest('.app-sidebar a.sidebar-item')) {
-        closeSidebar();
-    }
-}, true);
-
-document.addEventListener('touchstart', function(e) {
-    if (window.innerWidth <= 900 && e.target.closest('.app-sidebar a.sidebar-item')) {
-        closeSidebar();
-    }
-}, {passive:true,capture:true});
-
+}, false);
 window.addEventListener('resize', function() {
     if (window.innerWidth > 900) closeSidebar();
     else forceMobileSidebarClosed();
