@@ -14,19 +14,19 @@
         <div class="app-stats-grid">
             <div class="app-stat-box" style="border-top-color:#2563EB;">
                 <div class="value" style="color:#2563EB;" th:text="${totalReports != null ? totalReports : 0}">0</div>
-                <div class="label">Total Reports</div>
+                <div class="label" th:text="#{dashboard.totalReports}">Total Reports</div>
             </div>
             <div class="app-stat-box" style="border-top-color:#DC2626;">
                 <div class="value" style="color:#DC2626;" th:text="${newReports != null ? newReports : 0}">0</div>
-                <div class="label">New Reports</div>
+                <div class="label" th:text="#{dashboard.newReports}">New Reports</div>
             </div>
             <div class="app-stat-box" style="border-top-color:#2563EB;">
                 <div class="value" style="color:#2563EB;" th:text="${totalWb != null ? totalWb : 0}">0</div>
-                <div class="label">Whistleblower</div>
+                <div class="label" th:text="#{dashboard.whistleblower}">Whistleblower</div>
             </div>
             <div class="app-stat-box" style="border-top-color:#2563EB;">
                 <div class="value" style="color:#2563EB;" th:text="${totalUsers != null ? totalUsers : 0}">0</div>
-                <div class="label">Total Users</div>
+                <div class="label" th:text="#{dashboard.totalUsers}">Total Users</div>
             </div>
         </div>
 
