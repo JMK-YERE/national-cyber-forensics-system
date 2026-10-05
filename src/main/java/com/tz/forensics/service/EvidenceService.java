@@ -86,6 +86,10 @@ public class EvidenceService {
         evidence.setAcquisitionStartedAt(LocalDateTime.now());
         evidence.setAcquisitionCompletedAt(LocalDateTime.now());
         evidence.setVerified(false);
+        evidence.setCustodyStatus("UPLOADED");
+        evidence.setCustodianId(uploadedBy);
+        evidence.setCustodianName(username);
+        evidence.setCustodianRole("EVIDENCE_CUSTODIAN");
         evidence.setUploadedBy(uploadedBy);
         evidence.setUploadedAt(LocalDateTime.now());
 
@@ -150,11 +154,79 @@ public class EvidenceService {
         return custodyRepository.findByEvidenceIdOrderByTimestampDesc(evidenceId);
     }
 
+
+    public boolean transferCustody(Long evidenceId, Long actorId, String actorName, String actorRole,
+                                   Long recipientId, String recipientName, String recipientRole,
+                                   String purpose, String notes) {
+        Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
+        if (evidence == null || actorId == null || recipientId == null) return false;
+        String status = evidence.getCustodyStatus();
+        if (!"VERIFIED".equals(status) && !"ACCEPTED".equals(status) && !"EXAMINED".equals(status)
+                && !"REPORT_GENERATED".equals(status)) return false;
+        if (recipientId.equals(actorId)) return false;
+
+        evidence.setCustodyStatus("TRANSFERRED");
+        evidence.setCustodianId(recipientId);
+        evidence.setCustodianName(recipientName);
+        evidence.setCustodianRole(recipientRole);
+        evidenceRepository.save(evidence);
+
+        ChainOfCustody event = new ChainOfCustody(
+                evidenceId, "TRANSFERRED", actorId, actorName, getClientIp(),
+                purpose == null || purpose.isBlank() ? "Evidence custody transferred" : purpose
+        );
+        event.setPerformedByRole(actorRole);
+        event.setNotes(notes);
+        event.setHashAtAction(evidence.getSha256Hash());
+        custodyRepository.save(event);
+        return true;
+    }
+
+    public boolean advanceCustody(Long evidenceId, String action, Long actorId, String actorName,
+                                  String actorRole, String purpose, String notes) {
+        Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
+        if (evidence == null || actorId == null || action == null) return false;
+
+        String from = evidence.getCustodyStatus();
+        String to = action.trim().toUpperCase();
+        boolean actorIsCustodian = actorId.equals(evidence.getCustodianId());
+        boolean allowed = switch (from) {
+            case "UPLOADED" -> "VERIFIED".equals(to);
+            case "TRANSFERRED" -> "ACCEPTED".equals(to);
+            case "ACCEPTED" -> "UNDER_EXAMINATION".equals(to);
+            case "UNDER_EXAMINATION" -> "EXAMINED".equals(to);
+            case "EXAMINED" -> "REPORT_GENERATED".equals(to);
+            case "VERIFIED" -> false;
+            case "REPORT_GENERATED" -> false;
+            default -> false;
+        };
+        if (!allowed) return false;
+
+        if ("ACCEPTED".equals(to) && !actorIsCustodian) return false;
+        if ("UNDER_EXAMINATION".equals(to) || "EXAMINED".equals(to)) {
+            if (!actorIsCustodian) return false;
+        }
+
+        evidence.setCustodyStatus(to);
+        evidenceRepository.save(evidence);
+
+        ChainOfCustody event = new ChainOfCustody(
+                evidenceId, to, actorId, actorName, getClientIp(),
+                purpose == null || purpose.isBlank() ? "Evidence custody action: " + to : purpose
+        );
+        event.setPerformedByRole(actorRole);
+        event.setNotes(notes);
+        event.setHashAtAction(evidence.getSha256Hash());
+        custodyRepository.save(event);
+        return true;
+    }
+
     public void verifyEvidence(Long evidenceId, String username, Long verifiedBy) {
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
         if (Boolean.TRUE.equals(evidence.getVerified())) return;
         evidence.setVerified(true);
+        evidence.setCustodyStatus("VERIFIED");
         evidence.setVerifiedBy(verifiedBy);
         evidence.setVerifiedAt(LocalDateTime.now());
         evidenceRepository.save(evidence);
