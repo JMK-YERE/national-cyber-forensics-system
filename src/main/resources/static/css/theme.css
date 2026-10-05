@@ -351,3 +351,26 @@ table td{border-color:#e2e8f0!important}
 .pc,.fc,.a{border-color:transparent transparent #e2e8f0 transparent!important}
 .pc a,.fc a,.actions a{color:#2563eb!important;background:transparent!important}
 .pc a:hover,.fc a:hover,.actions a:hover{color:#1d4ed8!important;background:transparent!important;transform:translateX(2px)}
+
+
+/* ===== FINAL MOBILE UX: LARGE READABLE MENU + RELIABLE DRAWER ===== */
+@media(max-width:900px){
+  .app-sidebar{z-index:1200!important;top:60px!important;bottom:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
+  .app-sidebar.show{visibility:visible!important;pointer-events:auto!important}
+  .sidebar-overlay{z-index:1100!important;top:60px!important}
+  .app-header{z-index:1300!important}
+  .sidebar-item{font-size:15px!important;min-height:48px!important;padding:12px 13px!important;line-height:1.35!important}
+  .sidebar-section{font-size:11px!important;padding:17px 12px 7px!important}
+  .sidebar-item .icon{width:24px!important;min-width:24px!important;font-size:17px!important}
+  .app-main{font-size:15px!important}
+  .app-main p,.app-main li{font-size:15px!important;line-height:1.65!important}
+  .app-main .app-btn,.app-main button,.app-main input,.app-main select,.app-main textarea{font-size:14px!important}
+}
+@media(max-width:600px){
+  .app-header{height:60px!important;padding:0 9px!important;gap:7px!important}
+  .mobile-toggle{font-size:25px!important;min-width:40px!important;min-height:40px!important}
+  .header-clock{font-size:10px!important}
+  .header-profile .profile-btn{min-height:40px!important}
+  .app-main{padding:14px 11px!important}
+  .app-card{padding:14px!important}
+}
