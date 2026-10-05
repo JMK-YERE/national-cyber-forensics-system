@@ -24,11 +24,13 @@ public class IncidentController {
     private final EmailService emailService;
     private final WhatsAppService whatsAppService;
     private final UserRepository userRepository;
+    private final CaseFileService caseFileService;
 
     public IncidentController(IncidentService incidentService, EvidenceService evidenceService,
                               AuditService auditService, NotificationService notificationService,
                               EmailService emailService, WhatsAppService whatsAppService,
-                              UserRepository userRepository) {
+                              UserRepository userRepository,
+                              CaseFileService caseFileService) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.auditService = auditService;
@@ -36,6 +38,7 @@ public class IncidentController {
         this.emailService = emailService;
         this.whatsAppService = whatsAppService;
         this.userRepository = userRepository;
+        this.caseFileService = caseFileService;
     }
 
     private boolean isAdmin(User u) { return u != null && u.isAdmin(); }
@@ -107,6 +110,7 @@ public class IncidentController {
 
         model.addAttribute("incident", incident);
         model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(id));
+        model.addAttribute("linkedCases", caseFileService.getCasesByIncident(id));
         model.addAttribute("canAssign", canAssign(currentUser));
         model.addAttribute("canManageWorkflow", canManageWorkflow(currentUser));
 
