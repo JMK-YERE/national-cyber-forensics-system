@@ -72,7 +72,7 @@ public class AIChatService {
             if (response.statusCode() == 200) {
                 String text = extractContent(response.body());
                 if (text != null && !text.trim().isEmpty()) {
-                    return text;
+                    return cleanAiText(text);
                 }
             }
 
@@ -95,7 +95,7 @@ public class AIChatService {
             + "Be professional, clear, concise, and helpful. "
             + "For cybersecurity and digital-forensics questions, prioritize safe, lawful defensive guidance and explain risks clearly. "
             + "You can help with cybersecurity, digital forensics, incident response, evidence handling, account security, education, technology, and general productivity. "
-            + "Use structured bullets when useful and avoid unnecessary emojis. "
+            + "Use simple readable formatting only. Do not use Markdown bold, asterisks, hash headings, or decorative symbols. Use short paragraphs or numbered lists when useful. "
             + "User context: " + (context != null ? context : "None");
     }
 
@@ -152,6 +152,13 @@ public class AIChatService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private String cleanAiText(String text) {
+        if (text == null) return "";
+        return text.replace("**", "")
+                .replace("* ", "• ")
+                .replace("*", "");
     }
 
     private String escapeJson(String s) {
