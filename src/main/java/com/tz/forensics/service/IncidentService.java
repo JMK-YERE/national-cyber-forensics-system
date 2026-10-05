@@ -76,10 +76,10 @@ public class IncidentService {
         return incidentRepository.findByIncidentIdContainingIgnoreCase(incidentId);
     }
     public List<Incident> getMyIncidents(Long userId) {
-        return incidentRepository.findByAssignedToOrderByDateReportedDesc(userId);
+        return incidentRepository.findByReporterUserIdOrAssignedToOrderByDateReportedDesc(userId, userId);
     }
     public List<Incident> getMyActiveIncidents(Long userId) {
-        return incidentRepository.findByAssignedToAndWorkflowStatusNotOrderByDateReportedDesc(userId, "COMPLETED");
+        return incidentRepository.findByReporterUserIdOrAssignedToAndWorkflowStatusNotOrderByDateReportedDesc(userId, userId, "CLOSED");
     }
 
     public void assignIncident(Long incidentId, Long assignedTo, String assignedToName,
