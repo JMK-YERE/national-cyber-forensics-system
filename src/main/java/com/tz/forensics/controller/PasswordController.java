@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,7 +42,7 @@ public class PasswordController {
     public String forgotForm() { return "forgot-password"; }
 
     @PostMapping("/forgot-password")
-    public String forgotSubmit(@RequestParam String email, RedirectAttributes ra) {
+    public String forgotSubmit(@RequestParam String email, HttpSession session, RedirectAttributes ra) {
         User user = userRepository.findByEmail(email.trim()).orElse(null);
 
         // Do not reveal whether an account exists.
@@ -68,15 +69,18 @@ public class PasswordController {
     }
 
     @PostMapping("/forgot-password/sms")
-    public String forgotSms(@RequestParam String phone, RedirectAttributes ra) {
+    public String forgotSms(@RequestParam String phone, HttpSession session, RedirectAttributes ra) {
         User user = userRepository.findAll().stream()
                 .filter(u -> phone.trim().equals(u.getPhone()))
                 .findFirst().orElse(null);
         if (user != null) {
             String otp = String.valueOf(100000 + new SecureRandom().nextInt(900000));
-            user.setPasswordResetToken(otp);
-            user.setPasswordResetExpiresAt(LocalDateTime.now().plusMinutes(10));
+            user.setPasswordResetToken(passwordEncoder.encode(otp));
+            user.setPasswordResetExpiresAt(LocalDateTime.now().plusSeconds(60));
+            user.setPasswordResetAttempts(0);
             userRepository.save(user);
+            session.setAttribute("PASSWORD_RESET_USER_ID", user.getId());
+            session.setAttribute("PASSWORD_RESET_MODE", "SMS");
             smsService.sendSms(user.getPhone(),
                     "Cyber Forensics TZ: OTP ya reset password ni " + otp + ". Inaisha ndani ya dakika 10.");
         }
@@ -105,16 +109,15 @@ public class PasswordController {
                               HttpServletRequest request,
                               HttpServletResponse response) {
         String cleanToken = token.trim();
-        User user = userRepository.findAll().stream()
-                .filter(u -> u.getPasswordResetToken() != null)
-                .filter(u -> passwordEncoder.matches(cleanToken, u.getPasswordResetToken())
-                        || cleanToken.equals(u.getPasswordResetToken()))
-                .findFirst().orElse(null);
+        HttpSession session = request.getSession(false);
+        Long resetUserId = session == null ? null : (Long) session.getAttribute("PASSWORD_RESET_USER_ID");
+        User user = resetUserId == null ? null : userRepository.findById(resetUserId).orElse(null);
 
         if (user == null || !Boolean.TRUE.equals(user.getEnabled()) || !user.isApproved() ||
+                user.getPasswordResetToken() == null || !passwordEncoder.matches(cleanToken, user.getPasswordResetToken()) ||
                 user.getPasswordResetExpiresAt() == null ||
                 user.getPasswordResetExpiresAt().isBefore(LocalDateTime.now())) {
-            model.addAttribute("error", "OTP si sahihi au ime-expire. Omba OTP mpya.");
+            model.addAttribute("error", "OTP si sahihi, ime-expire, au session ya reset haipo. Omba OTP mpya.");
             model.addAttribute("emailOtp", true);
             return "reset-password";
         }
@@ -142,6 +145,10 @@ public class PasswordController {
         user.setPasswordResetExpiresAt(null);
         user.setPasswordResetAttempts(0);
         userRepository.save(user);
+        if (session != null) {
+            session.removeAttribute("PASSWORD_RESET_USER_ID");
+            session.removeAttribute("PASSWORD_RESET_MODE");
+        }
 
         // The password-reset flow is already a verified identity flow.
         // Establish a normal authenticated session so the user goes straight
