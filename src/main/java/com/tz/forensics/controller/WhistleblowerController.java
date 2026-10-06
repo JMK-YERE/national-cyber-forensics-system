@@ -107,7 +107,7 @@ public class WhistleblowerController {
                 Files.write(targetPath, encryptionService.encrypt(originalBytes));
                 report.setEvidenceFilePath(storedName);
                 report.setEvidenceFileType(detectFileType(tika.detect(originalBytes, original)));
-                report.setEvidenceFileSize(originalBytes.length);
+                report.setEvidenceFileSize((long) originalBytes.length);
             } catch (IOException e) { log.error("File: {}", e.getMessage()); }
         }
 
