@@ -65,8 +65,21 @@ public class OAuth2VerificationController {
     public String sendOtp(HttpSession session, Model model) {
         if (!challengeExists(session)) return "redirect:/login";
 
+        Object sentAt = session.getAttribute("OAUTH_OTP_SENT_AT");
+        if (sentAt instanceof Long && System.currentTimeMillis() - (Long) sentAt < RESEND_COOLDOWN_MS) {
+            model.addAttribute("error", "Subiri sekunde chache kabla ya kuomba OTP nyingine.");
+            model.addAttribute("emailMasked", maskEmail((String) session.getAttribute(EMAIL)));
+            model.addAttribute("name", session.getAttribute(NAME));
+            model.addAttribute("sent", true);
+            model.addAttribute("expired", false);
+            return "oauth2-verify";
+        }
+
         User user = userRepository.findById((Long) session.getAttribute(USER_ID)).orElse(null);
-        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled()) || !user.isApproved() || !user.isEmailVerified()) {
+            clearChallenge(session);
+            return "redirect:/login?error=oauth_account_unavailable";
+        }
             clearChallenge(session);
             return "redirect:/login?error=oauth_account_unavailable";
         }
