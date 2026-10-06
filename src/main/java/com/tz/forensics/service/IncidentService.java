@@ -5,6 +5,10 @@ import com.tz.forensics.entity.Incident;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.IncidentRepository;
 import com.tz.forensics.repository.UserRepository;
+import com.tz.forensics.repository.CaseFileRepository;
+import com.tz.forensics.repository.EvidenceRepository;
+import com.tz.forensics.entity.CaseFile;
+import com.tz.forensics.entity.Evidence;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -19,11 +23,16 @@ import java.security.SecureRandom;
 public class IncidentService {
     private final IncidentRepository incidentRepository;
     private final UserRepository userRepository;
+    private final CaseFileRepository caseFileRepository;
+    private final EvidenceRepository evidenceRepository;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public IncidentService(IncidentRepository incidentRepository, UserRepository userRepository) {
+    public IncidentService(IncidentRepository incidentRepository, UserRepository userRepository,
+                           CaseFileRepository caseFileRepository, EvidenceRepository evidenceRepository) {
         this.incidentRepository = incidentRepository;
         this.userRepository = userRepository;
+        this.caseFileRepository = caseFileRepository;
+        this.evidenceRepository = evidenceRepository;
     }
 
     @Transactional
@@ -164,6 +173,7 @@ public class IncidentService {
         incidentRepository.save(incident);
     }
 
+    @Transactional
     public void updateWorkflowStatus(Long incidentId, String status) {
         if (incidentId == null) throw new IllegalArgumentException("Incident id is required.");
         String requested = normalizeWorkflow(status);
@@ -181,6 +191,26 @@ public class IncidentService {
         }
         if ("ASSIGNED".equals(requested) && incident.getAssignedTo() == null) {
             throw new IllegalStateException("Incident must have an assignee before entering ASSIGNED.");
+        }
+
+        if ("CLOSED".equals(requested)) {
+            List<CaseFile> linkedCases = caseFileRepository.findByIncidentIdOrderByCreatedAtDesc(incidentId);
+            boolean hasOpenCase = linkedCases.stream().anyMatch(cf -> {
+                String caseStatus = cf.getStatus() == null ? "OPEN" : cf.getStatus().trim().toUpperCase();
+                return !"CLOSED".equals(caseStatus) && !"ARCHIVED".equals(caseStatus);
+            });
+            if (hasOpenCase) {
+                throw new IllegalStateException("Incident cannot be closed while a linked forensic case is still open.");
+            }
+
+            List<Evidence> evidence = evidenceRepository.findByIncidentIdOrderByUploadedAtDesc(incidentId);
+            boolean hasUnresolvedEvidence = evidence.stream().anyMatch(e -> {
+                String custody = e.getCustodyStatus();
+                return !"EXAMINED".equalsIgnoreCase(custody) && !"REPORT_GENERATED".equalsIgnoreCase(custody);
+            });
+            if (hasUnresolvedEvidence) {
+                throw new IllegalStateException("Incident cannot be closed while evidence is not fully examined.");
+            }
         }
 
         incident.setWorkflowStatus(requested);
