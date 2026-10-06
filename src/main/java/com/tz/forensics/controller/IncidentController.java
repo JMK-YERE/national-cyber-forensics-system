@@ -120,8 +120,12 @@ public class IncidentController {
         // Evidence access must remain case-scoped/staff-scoped through EvidenceController.
         boolean canViewForensicData = isAdmin(currentUser) || isCyberPro(currentUser)
                 || isForensics(currentUser) || isAnalyst(currentUser);
-        model.addAttribute("canViewForensicData", canViewForensicData);
-        if (canViewForensicData) {
+        // Analysts may view forensic metadata only when they are the incident assignee.
+        // Other reporters must use the incident/report workflow, not the forensic vault.
+        boolean analystIncidentAccess = !isAnalyst(currentUser)
+                || (incident.getAssignedTo() != null && currentUser.getId().equals(incident.getAssignedTo()));
+        model.addAttribute("canViewForensicData", canViewForensicData && analystIncidentAccess);
+        if (canViewForensicData && analystIncidentAccess) {
             // Never expose forensic evidence to an Analyst merely because they can
             // view an incident. EvidenceController applies the stricter incident+
             // case object-level authorization boundary.
