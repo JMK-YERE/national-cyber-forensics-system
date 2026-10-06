@@ -35,11 +35,19 @@ public class ComplianceService {
 
     // ===== GENERATE COMPLIANCE REPORT =====
     public ComplianceReport generateReport(String type, Long userId, String userName) {
+        String normalizedType = type == null ? "" : type.trim().toUpperCase();
+        if (!java.util.Set.of("TCRA", "ISO27001", "DATA_PROTECTION", "ANNUAL").contains(normalizedType)) {
+            throw new IllegalArgumentException("Unsupported compliance report type.");
+        }
+        if (userId == null || userName == null || userName.isBlank()) {
+            throw new IllegalArgumentException("Authenticated report generator is required.");
+        }
+
         ComplianceReport report = new ComplianceReport();
         String reportId = "CMP-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 + "-" + String.format("%03d", reportRepo.count() + 1);
         report.setReportId(reportId);
-        report.setReportType(type);
+        report.setReportType(normalizedType);
         report.setGeneratedBy(userId);
         report.setGeneratedByName(userName);
         report.setStatus("DRAFT");
@@ -47,17 +55,17 @@ public class ComplianceService {
         report.setPeriodEnd(LocalDateTime.now());
 
         // Calculate compliance score
-        int totalControls = getTotalControls(type);
-        int passedControls = calculatePassedControls(type);
+        int totalControls = getTotalControls(normalizedType);
+        int passedControls = calculatePassedControls(normalizedType);
 
         report.setTotalControls(totalControls);
         report.setPassedControls(passedControls);
         report.setFailedControls(totalControls - passedControls);
         report.setComplianceScore((passedControls * 100) / totalControls);
-        report.setTitle(getReportTitle(type));
-        report.setSummary(generateSummary(type, passedControls, totalControls));
-        report.setFindings(generateFindings(type));
-        report.setRecommendations(generateRecommendations(type));
+        report.setTitle(getReportTitle(normalizedType));
+        report.setSummary(generateSummary(normalizedType, passedControls, totalControls));
+        report.setFindings(generateFindings(normalizedType));
+        report.setRecommendations(generateRecommendations(normalizedType));
 
         return reportRepo.save(report);
     }
@@ -71,11 +79,16 @@ public class ComplianceService {
     }
 
     public void updateStatus(Long id, String status) {
-        ComplianceReport r = reportRepo.findById(id).orElse(null);
-        if (r != null) {
-            r.setStatus(status);
-            reportRepo.save(r);
+        String normalizedStatus = status == null ? "" : status.trim().toUpperCase();
+        if (!java.util.Set.of("DRAFT", "REVIEW", "FINAL", "ARCHIVED").contains(normalizedStatus)) {
+            throw new IllegalArgumentException("Unsupported compliance report status.");
         }
+        ComplianceReport r = reportRepo.findById(id).orElse(null);
+        if (r == null) {
+            throw new IllegalArgumentException("Compliance report not found.");
+        }
+        r.setStatus(normalizedStatus);
+        reportRepo.save(r);
     }
 
     // ===== STATISTICS =====
@@ -111,7 +124,7 @@ public class ComplianceService {
     }
 
     private int calculatePassedControls(String type) {
-        // Calculate based on actual system state
+        // Baseline control model for internal readiness assessment; this is not evidence of certification.
         int base = switch (type) {
             case "TCRA" -> 20;
             case "ISO27001" -> 85;
