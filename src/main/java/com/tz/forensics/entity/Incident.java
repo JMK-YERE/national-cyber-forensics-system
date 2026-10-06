@@ -108,7 +108,8 @@ public class Incident {
 
     // ===== HELPER METHODS =====
     public String getStatusClass() {
-        return switch (status) {
+        String current = status == null ? "" : status.trim();
+        return switch (current) {
             case "Critical" -> "status-critical";
             case "Under Investigation" -> "status-investigation";
             case "Resolved" -> "status-resolved";
