@@ -238,6 +238,9 @@ public class CaseFileController {
         }
         auditService.log("CHANGE_CASE_STATUS", "CaseFile", cf.getCaseNumber(),
                 from + " → " + to + " by " + auth.getName());
+        if ("CLOSED".equals(to)) {
+            notifyCaseClosed(caseFileService.getById(id), user);
+        }
         return "redirect:/cases/" + id;
     }
 
