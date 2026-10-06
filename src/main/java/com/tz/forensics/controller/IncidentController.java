@@ -174,7 +174,7 @@ public class IncidentController {
             return "redirect:/incidents/" + id;
         }
         try {
-            incidentService.updateWorkflowStatus(id, normalizedStatus);
+            incidentService.updateWorkflowStatus(id, normalizedStatus, currentUser.getId(), currentUser.getUsername(), currentUser.getRole());
         } catch (IllegalArgumentException | IllegalStateException e) {
             auditService.log("REJECT_WORKFLOW", "Incident", String.valueOf(id), e.getMessage());
             return "redirect:/incidents/" + id;
