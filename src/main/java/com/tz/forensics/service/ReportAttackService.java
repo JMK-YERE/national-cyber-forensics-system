@@ -78,6 +78,11 @@ public class ReportAttackService {
 
     @org.springframework.transaction.annotation.Transactional
     public void updateStatus(Long id, String status, String adminResponse, Long assignedTo, String assignedName) {
+        updateStatus(id, status, adminResponse, assignedTo, assignedName, null);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void updateStatus(Long id, String status, String adminResponse, Long assignedTo, String assignedName, String policeCaseNumber) {
         ReportAttack r = repo.findById(id).orElse(null);
         if (r != null) {
             String normalizedStatus = status == null ? null : status.trim().toUpperCase();
@@ -109,6 +114,16 @@ public class ReportAttackService {
             if (assignedTo != null) {
                 r.setAssignedTo(assignedTo);
                 r.setAssignedToName(assignedName);
+            }
+            if (policeCaseNumber != null && !policeCaseNumber.isBlank()) {
+                if ("CLOSED".equals(from)) {
+                    throw new IllegalStateException("Closed reports cannot be modified.");
+                }
+                String normalizedPoliceCase = policeCaseNumber.trim();
+                if (normalizedPoliceCase.length() > 100) {
+                    throw new IllegalArgumentException("Police case number is too long.");
+                }
+                r.setPoliceCaseNumber(normalizedPoliceCase);
             }
             r.setUpdatedAt(LocalDateTime.now());
             repo.save(r);
