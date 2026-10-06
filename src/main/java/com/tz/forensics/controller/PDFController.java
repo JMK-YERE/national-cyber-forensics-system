@@ -183,7 +183,8 @@ public class PDFController {
     }
 
     private boolean canAccessIncident(Incident incident, User user) {
-        return user.isAdmin()
+        if (incident == null || user == null || user.getId() == null) return false;
+        return user.isAdmin() || user.isProfessional() || user.isForensics()
                 || (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
                 || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
     }
