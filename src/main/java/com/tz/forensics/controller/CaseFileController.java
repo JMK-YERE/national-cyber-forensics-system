@@ -62,10 +62,19 @@ public class CaseFileController {
     private boolean canViewCase(CaseFile cf, User user) {
         if (cf == null || user == null) return false;
         if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
-        return "ANALYST".equalsIgnoreCase(user.getRole())
-                && (user.getId().equals(cf.getCreatedBy())
-                    || user.getId().equals(cf.getAssignedTo())
-                    || user.getId().equals(cf.getLeadInvestigator()));
+        if (!"ANALYST".equalsIgnoreCase(user.getRole())) return false;
+
+        // Analyst case access must remain tied to the underlying incident as well.
+        Incident incident = cf.getIncidentId() == null ? null : incidentService.getById(cf.getIncidentId());
+        if (incident == null) return false;
+        boolean incidentAccess =
+                (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
+                || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
+        if (!incidentAccess) return false;
+
+        return (cf.getCreatedBy() != null && user.getId().equals(cf.getCreatedBy()))
+                || (cf.getAssignedTo() != null && user.getId().equals(cf.getAssignedTo()))
+                || (cf.getLeadInvestigator() != null && user.getId().equals(cf.getLeadInvestigator()));
     }
 
     @GetMapping
