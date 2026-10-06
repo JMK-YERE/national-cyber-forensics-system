@@ -94,6 +94,24 @@ public class IncidentService {
             throw new IllegalStateException("Closed incidents cannot be assigned.");
         }
 
+        User assignee = userRepository.findById(assignedTo).orElse(null);
+        if (assignee == null
+                || !Boolean.TRUE.equals(assignee.getEnabled())
+                || !assignee.isApproved()
+                || !(assignee.isAdmin() || assignee.isProfessional() || assignee.isForensics() || assignee.isAnalyst())) {
+            throw new IllegalArgumentException("Assignee is inactive, unapproved, or not authorized.");
+        }
+        if (dueDate != null && dueDate.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Due date cannot be in the past.");
+        }
+        if (priority != null && !priority.isBlank()) {
+            String normalizedPriority = priority.trim().toUpperCase();
+            if (!Set.of("LOW", "MEDIUM", "HIGH", "CRITICAL").contains(normalizedPriority)) {
+                throw new IllegalArgumentException("Unsupported incident priority.");
+            }
+            priority = normalizedPriority;
+        }
+
         incident.setAssignedTo(assignedTo);
         incident.setAssignedToName(assignedToName);
         incident.setAssignedBy(assignedBy);
