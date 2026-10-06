@@ -42,7 +42,7 @@ public class PDFReportService {
             Document doc = new Document(pdfDoc);
 
             // ===== HEADER =====
-            Paragraph header = new Paragraph("🇹🇿 NATIONAL CYBER FORENSICS SYSTEM")
+            Paragraph header = new Paragraph("CYBER FORENSICS TZ")
                     .setFontSize(18).setBold()
                     .setFontColor(CYBER_DARK)
                     .setTextAlignment(TextAlignment.CENTER);
@@ -129,7 +129,7 @@ public class PDFReportService {
             doc.add(new Paragraph("━".repeat(60)).setFontColor(CYBER_GREEN));
             doc.add(new Paragraph("Generated: " + java.time.LocalDateTime.now().format(FMT))
                     .setFontSize(9).setItalic());
-            doc.add(new Paragraph("National Cyber Forensics System - Tanzania 🇹🇿")
+            doc.add(new Paragraph("Cyber Forensics TZ")
                     .setFontSize(9).setItalic().setTextAlignment(TextAlignment.CENTER));
             doc.add(new Paragraph("Confidential — For Official Use Only")
                     .setFontSize(8).setItalic().setFontColor(CYBER_RED).setTextAlignment(TextAlignment.CENTER));
