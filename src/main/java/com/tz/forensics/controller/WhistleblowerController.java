@@ -142,12 +142,27 @@ public class WhistleblowerController {
     public String trackForm() { return "whistleblower-track"; }
 
     @PostMapping("/track")
-    public String trackReport(@RequestParam String code, Model model) {
+    public String trackReport(@RequestParam String code, Model model, HttpSession session) {
+        Integer attempts = (Integer) session.getAttribute("WB_TRACK_ATTEMPTS");
+        Long windowStart = (Long) session.getAttribute("WB_TRACK_WINDOW_START");
+        long now = System.currentTimeMillis();
+        if (windowStart == null || now - windowStart > 600_000L) {
+            attempts = 0;
+            session.setAttribute("WB_TRACK_WINDOW_START", now);
+        }
+        attempts = attempts == null ? 0 : attempts;
+        if (attempts >= 5) {
+            model.addAttribute("error", "Too many attempts. Please wait 10 minutes before trying again.");
+            return "whistleblower-track";
+        }
+        session.setAttribute("WB_TRACK_ATTEMPTS", attempts + 1);
         WhistleblowerReport report = service.findByTrackingCode(code);
         if (report == null) {
             model.addAttribute("error", "Tracking code haipo au si sahihi.");
             return "whistleblower-track";
         }
+        session.removeAttribute("WB_TRACK_ATTEMPTS");
+        session.removeAttribute("WB_TRACK_WINDOW_START");
         List<WhistleblowerMessage> messages = service.getMessages(report.getId());
         model.addAttribute("report", report);
         model.addAttribute("messages", messages);
@@ -163,6 +178,10 @@ public class WhistleblowerController {
         if (target == null || code == null || !code.trim().equalsIgnoreCase(target.getTrackingCode())) {
             ra.addFlashAttribute("error", "Tracking code si sahihi.");
             return "redirect:/whistleblower/track";
+        }
+        if ("CLOSED".equalsIgnoreCase(target.getStatus())) {
+            ra.addFlashAttribute("error", "Taarifa iliyofungwa haiwezi kupokea ujumbe mpya.");
+            return "redirect:/whistleblower/track?code=" + java.net.URLEncoder.encode(code.trim(), java.nio.charset.StandardCharsets.UTF_8);
         }
         if (message == null || message.isBlank() || message.length() > 4000) {
             ra.addFlashAttribute("error", "Ujumbe lazima uwe na herufi 1 hadi 4000.");
@@ -195,8 +214,8 @@ public class WhistleblowerController {
             return "redirect:/access-denied";
         boolean privileged = user.isAdmin() || user.isProfessional() || user.isForensics();
         model.addAttribute("reports", privileged ? service.getAll() : service.getAssignedTo(user.getId()));
-        model.addAttribute("newCount", service.countNew());
-        model.addAttribute("todayCount", service.countToday());
+        model.addAttribute("newCount", privileged ? service.countNew() : service.countNewAssignedTo(user.getId()));
+        model.addAttribute("todayCount", privileged ? service.countToday() : service.countTodayAssignedTo(user.getId()));
         model.addAttribute("user", user);
         return "whistleblower-admin";
     }
