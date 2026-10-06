@@ -97,27 +97,29 @@ public class SecurityConfig {
                 .requestMatchers("/threat-map", "/threat-map/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
-                .requestMatchers("/tools/password-check", "/tools/url-check", "/tools/url-check-api").authenticated()
+                // Basic security tools are available to every authenticated role.
+                .requestMatchers("/tools/security-center", "/tools/password-check", "/tools/url-check",
+                                 "/tools/url-check-api", "/tools/hash-check")
+                    .authenticated()
 
-                .requestMatchers("/tools/ssl-check", "/tools/dns-lookup", "/tools/headers-check", "/tools/hash-check", "/tools/password-breach", "/tools/domain-age", "/tools/ip-check", "/tools/vt-url", "/tools/vt-hash", "/tools/vt-ip", "/tools/vt-domain")
+                // Network/reputation integrations remain staff-only.
+                .requestMatchers("/tools/ssl-check", "/tools/dns-lookup", "/tools/headers-check",
+                                 "/tools/password-breach", "/tools/domain-age", "/tools/ip-check",
+                                 "/tools/vt-url", "/tools/vt-hash", "/tools/vt-ip", "/tools/vt-domain")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
                 .requestMatchers("/ai/debug", "/ai/test-models")
                     .hasAuthority("ROLE_ADMIN")
 
-                // Threat intelligence dashboards expose aggregate operational data and are staff-only.
                 .requestMatchers("/ai/threat-detection", "/ai/analyze-incident", "/ai/analysis-api", "/ai/prediction-api")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
-                // Administrative diagnostic endpoint must never expose global users/reports to ordinary users.
                 .requestMatchers("/admin/check")
                     .hasAuthority("ROLE_ADMIN")
 
                 .requestMatchers("/ai/**", "/report-attack/**", "/notifications/**", "/downloads/**", "/change-password")
                     .authenticated()
 
-                // Advanced security tools are restricted to professional/staff roles.
-                // Basic tools above remain available to authenticated users.
                 .requestMatchers("/tools/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
