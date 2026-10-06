@@ -260,6 +260,8 @@ public class EvidenceService {
         Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
         if (evidence == null || actorId == null || action == null) return false;
         if (!isEvidenceStaffRole(actorRole)) return false;
+        com.tz.forensics.entity.Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if (incident == null || Boolean.TRUE.equals(incident.getIsClosed()) || "CLOSED".equalsIgnoreCase(incident.getWorkflowStatus())) return false;
         if (evidence.getCaseId() != null) {
             com.tz.forensics.entity.CaseFile cf = caseFileRepository.findById(evidence.getCaseId()).orElse(null);
             if (cf == null || "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())) return false;
@@ -311,6 +313,10 @@ public class EvidenceService {
         }
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
+        com.tz.forensics.entity.Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if (incident == null || Boolean.TRUE.equals(incident.getIsClosed()) || "CLOSED".equalsIgnoreCase(incident.getWorkflowStatus())) {
+            throw new IllegalStateException("Evidence in a closed incident cannot be verified.");
+        }
         if (evidence.getCaseId() != null) {
             com.tz.forensics.entity.CaseFile cf = caseFileRepository.findById(evidence.getCaseId()).orElse(null);
             if (cf == null || "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())) {
