@@ -116,7 +116,9 @@ public class ComplianceService {
         stats.put("totalEvidence", evidenceRepo.count());
 
         // Resolved incidents
-        long resolved = incidents.stream().filter(i -> "Resolved".equals(i.getStatus())).count();
+        long resolved = incidents.stream()
+                .filter(i -> i.getStatus() != null && "RESOLVED".equalsIgnoreCase(i.getStatus().trim()))
+                .count();
         stats.put("resolvedIncidents", resolved);
 
         // Compliance score (overall)
