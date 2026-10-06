@@ -332,7 +332,8 @@ public class EvidenceService {
 
     private String sanitizeOriginalFilename(String filename) {
         String safe = filename == null ? "evidence.bin" : filename.trim();
-        safe = safe.replace('/', '_').replace('\\\\', '_').replace('\\r', '_').replace('\\n', '_').replace('\\t', '_');
+        safe = safe.replace((char) 47, '_').replace((char) 92, '_')
+                .replace((char) 13, '_').replace((char) 10, '_').replace((char) 9, '_');
         if (safe.isBlank()) safe = "evidence.bin";
         return safe.length() > 255 ? safe.substring(0, 255) : safe;
     }
