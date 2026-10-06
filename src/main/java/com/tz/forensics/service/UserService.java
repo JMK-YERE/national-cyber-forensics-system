@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.security.SecureRandom;
+import java.security.MessageDigest;
 
 @Service
 public class UserService {
@@ -59,10 +60,11 @@ public class UserService {
         String setupToken = "SMS".equals(channel)
                 ? String.valueOf(100000 + new SecureRandom().nextInt(900000))
                 : UUID.randomUUID().toString();
-        user.setPasswordSetupToken(setupToken);
+        user.setPasswordSetupToken(sha256(setupToken));
+        user.setPasswordSetupAttempts(0);
         user.setPasswordSetupExpiresAt(LocalDateTime.now().plusMinutes("SMS".equals(channel) ? 10 : 60 * 24));
         user.setPasswordSetupChannel(channel);
-        user.setVerificationToken(setupToken);
+        user.setVerificationToken(sha256(setupToken));
         user.setVerificationTokenExpiresAt(user.getPasswordSetupExpiresAt());
 
         userRepository.save(user);
@@ -108,5 +110,16 @@ public class UserService {
         }
 
         return "SMS".equals(channel) ? (smsSent ? "SMS_SENT" : "SMS_NOT_SENT") : "SUCCESS";
+    }
+
+    private String sha256(String value) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder out = new StringBuilder(64);
+            for (byte b : digest) out.append(String.format("%02x", b));
+            return out.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 is unavailable", e);
+        }
     }
 }
