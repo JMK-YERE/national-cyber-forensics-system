@@ -56,6 +56,8 @@ public class DownloadsController {
         ByteArrayResource resource = new ByteArrayResource(csv.toString().getBytes(StandardCharsets.UTF_8));
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"cyber-reports.csv\"")
+                .header(HttpHeaders.CACHE_CONTROL, "no-store, no-cache, must-revalidate, max-age=0")
+                .header("Pragma", "no-cache")
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .body(resource);
     }
