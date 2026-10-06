@@ -8,6 +8,8 @@ import com.tz.forensics.entity.Incident;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.CaseFileService;
+import com.tz.forensics.service.CaseIocService;
+import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.EvidenceService;
 import com.tz.forensics.service.IncidentService;
 import com.tz.forensics.service.PDFReportService;
@@ -32,17 +34,23 @@ public class PDFController {
     private final CaseFileService caseFileService;
     private final PDFReportService pdfReportService;
     private final UserRepository userRepository;
+    private final CaseIocService caseIocService;
+    private final AuditService auditService;
 
     public PDFController(IncidentService incidentService,
                          EvidenceService evidenceService,
                          CaseFileService caseFileService,
                          PDFReportService pdfReportService,
-                         UserRepository userRepository) {
+                         UserRepository userRepository,
+                         CaseIocService caseIocService,
+                         AuditService auditService) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.caseFileService = caseFileService;
         this.pdfReportService = pdfReportService;
         this.userRepository = userRepository;
+        this.caseIocService = caseIocService;
+        this.auditService = auditService;
     }
 
     @GetMapping("/incident/{id}/pdf")
@@ -108,14 +116,31 @@ public class PDFController {
     }
 
     private ResponseEntity<byte[]> caseReport(Long id, Authentication auth, String type) {
-        User user=authenticatedUser(auth); CaseFile cf=caseFileService.getById(id);
-        if(user==null||cf==null||!canAccessCase(cf,user)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        List<CaseTimeline> timeline=caseFileService.getTimeline(id);
-        List<CaseIoc> iocs=com.tz.forensics.service.CaseIocService.class.cast(null)==null?List.of():List.of();
-        // IOC and evidence are intentionally fetched through their scoped services in the standard case endpoint.
-        List<Evidence> evidence=evidenceService.getEvidenceByIncident(cf.getIncidentId());
-        byte[] pdf=switch(type){case "executive"->pdfReportService.generateExecutiveCaseReport(cf,timeline,iocs,evidence);case "technical"->pdfReportService.generateTechnicalCaseReport(cf,timeline,iocs,evidence);default->pdfReportService.generateForensicCaseReport(cf,timeline,iocs,evidence);};
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+type+"-"+cf.getCaseNumber()+".pdf\"").contentType(MediaType.APPLICATION_PDF).contentLength(pdf.length).body(pdf);
+        User user = authenticatedUser(auth);
+        CaseFile cf = caseFileService.getById(id);
+        if (user == null || cf == null || !canAccessCase(cf, user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<CaseTimeline> timeline = caseFileService.getTimeline(id);
+        List<CaseIoc> iocs = caseIocService.findByCaseId(id);
+        List<Evidence> evidence = evidenceService.getEvidenceByIncident(cf.getIncidentId());
+
+        byte[] pdf = switch (type) {
+            case "executive" -> pdfReportService.generateExecutiveCaseReport(cf, timeline, iocs, evidence);
+            case "technical" -> pdfReportService.generateTechnicalCaseReport(cf, timeline, iocs, evidence);
+            default -> pdfReportService.generateForensicCaseReport(cf, timeline, iocs, evidence);
+        };
+
+        auditService.log("EXPORT_CASE_REPORT", "CASE",
+                String.valueOf(id), "Report type=" + type + " | Case=" + cf.getCaseNumber());
+
+        String filename = type + "-" + cf.getCaseNumber() + ".pdf";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(pdf.length)
+                .body(pdf);
     }
 
     private User authenticatedUser(Authentication auth) {
