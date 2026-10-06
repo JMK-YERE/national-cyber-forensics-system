@@ -18,7 +18,9 @@ function toggleSidebar() {
     if(!s)return;
     const open=!s.classList.contains('show');
     s.classList.toggle('show',open);
+    s.setAttribute('aria-hidden',String(!open));
     if(o)o.classList.toggle('show',open);
+    if(o)o.setAttribute('aria-hidden',String(!open));
     document.body.classList.toggle('sidebar-open',open);
     document.documentElement.classList.toggle('sidebar-open',open);
     const t=document.querySelector('.mobile-toggle');
@@ -26,8 +28,8 @@ function toggleSidebar() {
 }
 function closeSidebar(){
     const s=document.getElementById('appSidebar'),o=document.getElementById('sidebarOverlay');
-    if(s)s.classList.remove('show');
-    if(o)o.classList.remove('show');
+    if(s){s.classList.remove('show');s.setAttribute('aria-hidden','true');}
+    if(o){o.classList.remove('show');o.setAttribute('aria-hidden','true');}
     document.body.classList.remove('sidebar-open');
     document.documentElement.classList.remove('sidebar-open');
     const t=document.querySelector('.mobile-toggle');
