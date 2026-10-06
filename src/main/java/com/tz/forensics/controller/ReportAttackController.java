@@ -192,7 +192,7 @@ public class ReportAttackController {
                 byte[] evidenceBytes = evidenceFile.getBytes();
                 String originalName = evidenceFile.getOriginalFilename() == null ? "evidence.bin" : java.nio.file.Paths.get(evidenceFile.getOriginalFilename()).getFileName().toString();
                 originalName = originalName.replaceAll("[^A-Za-z0-9._-]", "_");
-                if (originalName.length() > 120) originalName = originalName.substring(originalName.length() - 120);
+                if (originalName.length() > 120) originalName = originalName.substring(0, 120);
                 String storedName = UUID.randomUUID() + "_" + originalName;
                 evidenceStorage.write(storedName, encryptionService.encrypt(evidenceBytes));
                 writtenEvidenceKey = storedName;
@@ -361,7 +361,7 @@ public class ReportAttackController {
         ReportAttack r = service.getById(id);
         if (!canInteractWithReport(user, r)) return "redirect:/access-denied";
         if ("CLOSED".equalsIgnoreCase(r.getStatus())) return "redirect:/access-denied";
-        if (message == null || message.isBlank() || message.length() > 4000) return "redirect:/report-attack/view/" + id;
+        if (message == null || message.isBlank() || message.length() > 5000) return "redirect:/report-attack/view/" + id;
 
         String senderType = user.isAdmin() ? "ADMIN" : (canSeeAllReports(user) ? "STAFF" : (r.getAssignedTo() != null && r.getAssignedTo().equals(user.getId()) ? "STAFF" : "USER"));
         messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), senderType, message));
