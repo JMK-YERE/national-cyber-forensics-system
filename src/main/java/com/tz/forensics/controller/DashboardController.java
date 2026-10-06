@@ -52,31 +52,44 @@ public class DashboardController {
         boolean isPro = "CYBER_PRO".equalsIgnoreCase(role);
         boolean isForensics = "FORENSICS".equalsIgnoreCase(role);
         boolean isAnalyst = "ANALYST".equalsIgnoreCase(role);
-        boolean isStaff = isAdmin || isPro || isForensics || isAnalyst;
+        boolean isPrivilegedStaff = isAdmin || isPro || isForensics;
+        boolean isStaff = isPrivilegedStaff || isAnalyst;
 
         try {
             if (isStaff) {
-                long totalReports = reportRepo.count();
-                long newReports = reportRepo.countByStatus("NEW");
+                // Analysts must never receive the global report population. Their dashboard,
+                // map and analytics are limited to reports assigned to them.
+                List<ReportAttack> visibleReports = isPrivilegedStaff
+                        ? reportRepo.findAllByOrderByCreatedAtDesc()
+                        : reportRepo.findByAssignedToOrderByCreatedAtDesc(user.getId());
+
+                long totalReports = visibleReports.size();
+                long newReports = visibleReports.stream()
+                        .filter(r -> "NEW".equalsIgnoreCase(r.getStatus()))
+                        .count();
+
                 model.addAttribute("totalReports", totalReports);
                 model.addAttribute("newReports", newReports);
-                model.addAttribute("totalWb", wbRepo.count());
-                model.addAttribute("totalUsers", userRepository.count());
+                model.addAttribute("totalWb", isPrivilegedStaff ? wbRepo.count() : 0L);
+                model.addAttribute("totalUsers", isPrivilegedStaff ? userRepository.count() : 0L);
+
                 List<com.tz.forensics.entity.CaseTask> myTasks = caseTaskService.findMyTasks(user.getId());
                 model.addAttribute("myTaskCount", myTasks.size());
-                model.addAttribute("myOverdueTaskCount", myTasks.stream().filter(com.tz.forensics.entity.CaseTask::isOverdue).count());
-                model.addAttribute("myOpenTaskCount", myTasks.stream().filter(t -> t.getStatus() != null && !Set.of("COMPLETED","CANCELLED").contains(t.getStatus().toUpperCase())).count());
+                model.addAttribute("myOverdueTaskCount",
+                        myTasks.stream().filter(com.tz.forensics.entity.CaseTask::isOverdue).count());
+                model.addAttribute("myOpenTaskCount",
+                        myTasks.stream().filter(t -> t.getStatus() != null
+                                && !Set.of("COMPLETED", "CANCELLED").contains(t.getStatus().toUpperCase())).count());
 
                 model.addAttribute("newCount", newReports);
-                model.addAttribute("triagedCount", reportRepo.countByStatus("TRIAGED"));
-                model.addAttribute("assignedCount", reportRepo.countByStatus("ASSIGNED"));
-                model.addAttribute("investigatingCount", reportRepo.countByStatus("INVESTIGATING"));
-                model.addAttribute("containmentCount", reportRepo.countByStatus("CONTAINMENT"));
-                model.addAttribute("eradicationCount", reportRepo.countByStatus("ERADICATION"));
-                model.addAttribute("recoveryCount", reportRepo.countByStatus("RECOVERY"));
-                model.addAttribute("closedCount", reportRepo.countByStatus("CLOSED"));
+                model.addAttribute("triagedCount", countStatus(visibleReports, "TRIAGED"));
+                model.addAttribute("assignedCount", countStatus(visibleReports, "ASSIGNED"));
+                model.addAttribute("investigatingCount", countStatus(visibleReports, "INVESTIGATING"));
+                model.addAttribute("containmentCount", countStatus(visibleReports, "CONTAINMENT"));
+                model.addAttribute("eradicationCount", countStatus(visibleReports, "ERADICATION"));
+                model.addAttribute("recoveryCount", countStatus(visibleReports, "RECOVERY"));
+                model.addAttribute("closedCount", countStatus(visibleReports, "CLOSED"));
 
-                List<ReportAttack> allReports = reportRepo.findAllByOrderByCreatedAtDesc();
                 List<Integer> dailyCounts = new ArrayList<>();
                 List<String> dailyLabels = new ArrayList<>();
                 LocalDate today = LocalDate.now();
@@ -84,7 +97,7 @@ public class DashboardController {
                     LocalDate day = today.minusDays(i);
                     LocalDateTime start = day.atStartOfDay();
                     LocalDateTime end = day.plusDays(1).atStartOfDay();
-                    long count = allReports.stream().filter(r -> r.getCreatedAt() != null
+                    long count = visibleReports.stream().filter(r -> r.getCreatedAt() != null
                             && !r.getCreatedAt().isBefore(start)
                             && r.getCreatedAt().isBefore(end)).count();
                     dailyCounts.add((int) count);
@@ -93,14 +106,15 @@ public class DashboardController {
                 model.addAttribute("dailyCounts", dailyCounts);
                 model.addAttribute("dailyLabels", dailyLabels);
 
-                List<ReportAttack> recent = allReports;
-                if (recent.size() > 5) recent = recent.subList(0, 5);
+                List<ReportAttack> recent = visibleReports.size() > 5
+                        ? new ArrayList<>(visibleReports.subList(0, 5))
+                        : new ArrayList<>(visibleReports);
                 model.addAttribute("recentReports", recent);
 
-                // Role-aware geographic intelligence: one map point per report, without reporter identity.
-                // Reports without a region are retained as "Unknown location" instead of disappearing.
+                // Geographic intelligence is scoped to the same report population as the dashboard.
+                // Reporter identity is never exposed in map points.
                 List<Map<String,Object>> mapPoints = new ArrayList<>();
-                for (ReportAttack r : allReports) {
+                for (ReportAttack r : visibleReports) {
                     Map<String,Object> point = new LinkedHashMap<>();
                     String region = r.getRegion() == null ? "" : r.getRegion().trim();
                     point.put("region", region.isBlank() ? "Unknown location" : region);
@@ -111,14 +125,19 @@ public class DashboardController {
                     mapPoints.add(point);
                 }
                 model.addAttribute("mapPoints", mapPoints);
-                model.addAttribute("analyticsTotal", allReports.size());
-                model.addAttribute("analyticsHigh", allReports.stream().filter(r -> "HIGH".equalsIgnoreCase(r.getPriority()) || "CRITICAL".equalsIgnoreCase(r.getPriority())).count());
-                model.addAttribute("analyticsOpen", allReports.stream().filter(r -> r.getStatus() == null || !"CLOSED".equalsIgnoreCase(r.getStatus())).count());
-                model.addAttribute("analyticsClosed", allReports.stream().filter(r -> "CLOSED".equalsIgnoreCase(r.getStatus())).count());
+                model.addAttribute("analyticsTotal", visibleReports.size());
+                model.addAttribute("analyticsHigh", visibleReports.stream()
+                        .filter(r -> "HIGH".equalsIgnoreCase(r.getPriority()) || "CRITICAL".equalsIgnoreCase(r.getPriority())).count());
+                model.addAttribute("analyticsOpen", visibleReports.stream()
+                        .filter(r -> r.getStatus() == null || !"CLOSED".equalsIgnoreCase(r.getStatus())).count());
+                model.addAttribute("analyticsClosed", countStatus(visibleReports, "CLOSED"));
+
                 Map<String,Integer> regionCounts = new LinkedHashMap<>();
                 Map<String,Integer> typeCounts = new LinkedHashMap<>();
-                allReports.forEach(r -> {
-                    if (r.getRegion() != null && !r.getRegion().isBlank()) regionCounts.merge(r.getRegion().trim(), 1, Integer::sum);
+                visibleReports.forEach(r -> {
+                    if (r.getRegion() != null && !r.getRegion().isBlank()) {
+                        regionCounts.merge(r.getRegion().trim(), 1, Integer::sum);
+                    }
                     String type = r.getAttackTypeLabel() == null ? "Other" : r.getAttackTypeLabel();
                     typeCounts.merge(type, 1, Integer::sum);
                 });
@@ -131,7 +150,6 @@ public class DashboardController {
                 model.addAttribute("myReports", my);
                 model.addAttribute("personalReportCount", my.size());
 
-                // Personal map scope: only this user's reported incidents are exposed.
                 List<Map<String,Object>> mapPoints = new ArrayList<>();
                 for (ReportAttack r : my) {
                     Map<String,Object> point = new LinkedHashMap<>();
@@ -159,10 +177,14 @@ public class DashboardController {
         model.addAttribute("isAnalyst", isAnalyst);
         model.addAttribute("isStaff", isStaff);
         if (isAdmin) return "dashboard-admin";
-         if (isPro) return "dashboard-professional";
-         if (isForensics) return "dashboard-forensics";
-         if (isAnalyst) return "dashboard-analyst";
-         return "dashboard-individual";
+        if (isPro) return "dashboard-professional";
+        if (isForensics) return "dashboard-forensics";
+        if (isAnalyst) return "dashboard-analyst";
+        return "dashboard-individual";
+    }
+
+    private long countStatus(List<ReportAttack> reports, String status) {
+        return reports.stream().filter(r -> status.equalsIgnoreCase(r.getStatus())).count();
     }
 
     @GetMapping("/access-denied")
