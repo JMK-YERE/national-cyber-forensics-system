@@ -49,7 +49,7 @@ public class AuditLog {
         this.ipAddress = ipAddress;
     }
 
-    public Long getId() { return id; }
+    @PreUpdate\n    private void preventUpdate() { throw new IllegalStateException("Audit log records are immutable."); }\n\n    @PreRemove\n    private void preventDelete() { throw new IllegalStateException("Audit log records cannot be deleted."); }\n\n    public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
