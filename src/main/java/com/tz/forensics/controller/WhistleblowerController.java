@@ -157,6 +157,9 @@ public class WhistleblowerController {
         }
         session.removeAttribute("WB_TRACK_ATTEMPTS");
         session.removeAttribute("WB_TRACK_WINDOW_START");
+        // Bind subsequent reporter replies to this verified tracking session and exact report.
+        session.setAttribute("WB_VERIFIED_TRACKING_CODE", report.getTrackingCode().trim().toUpperCase(Locale.ROOT));
+        session.setAttribute("WB_VERIFIED_REPORT_ID", report.getId());
         List<WhistleblowerMessage> messages = service.getMessages(report.getId());
         model.addAttribute("report", report);
         model.addAttribute("messages", messages);
