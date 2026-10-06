@@ -8,6 +8,7 @@ import com.tz.forensics.repository.EvidenceRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.tika.Tika;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,6 +28,7 @@ public class EvidenceService {
     private final ChainOfCustodyRepository custodyRepository;
     private final HashService hashService;
     private final EncryptionService encryptionService;
+    private final Tika tika = new Tika();
 
     @Value("$" + "{app.upload.dir}")
     private String uploadDir;
@@ -54,13 +56,16 @@ public class EvidenceService {
         byte[] fileBytes = file.getBytes();
         String sha256 = hashService.sha256(fileBytes);
         String md5 = hashService.md5(fileBytes);
+        String detectedFileType = tika.detect(fileBytes, file.getOriginalFilename());
+        if (detectedFileType == null || detectedFileType.isBlank()) detectedFileType = "application/octet-stream";
         byte[] encrypted = encryptionService.encrypt(fileBytes);
 
-        Path uploadPath = Paths.get(uploadDir);
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
 
         String storedFilename = UUID.randomUUID() + ".enc";
-        Path storedPath = uploadPath.resolve(storedFilename);
+        Path storedPath = uploadPath.resolve(storedFilename).normalize();
+        if (!storedPath.startsWith(uploadPath)) throw new IOException("Invalid evidence storage path.");
         try {
             Files.write(storedPath, encrypted);
         } catch (IOException e) {
@@ -72,7 +77,7 @@ public class EvidenceService {
         evidence.setCaseId(caseId);
         evidence.setOriginalFilename(file.getOriginalFilename() == null ? "evidence.bin" : file.getOriginalFilename());
         evidence.setStoredFilename(storedFilename);
-        evidence.setFileType(file.getContentType());
+        evidence.setFileType(detectedFileType);
         evidence.setFileSize(file.getSize());
         evidence.setSha256Hash(sha256);
         evidence.setMd5Hash(md5);
