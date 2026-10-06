@@ -88,14 +88,22 @@ public class ReportAttackService {
     }
 
     @org.springframework.transaction.annotation.Transactional
-    public void updateStatus(Long id, String status, String adminResponse, Long assignedTo, String assignedName) {
-        updateStatus(id, status, adminResponse, assignedTo, assignedName, null);
-    }
-
-    @org.springframework.transaction.annotation.Transactional
-    public void updateStatus(Long id, String status, String adminResponse, Long assignedTo, String assignedName, String policeCaseNumber) {
+    public void updateStatus(Long id, String status, String adminResponse, Long assignedTo, String assignedName,
+                             String policeCaseNumber, Long actorId, String actorRole) {
         ReportAttack r = repo.findById(id).orElse(null);
         if (r != null) {
+            if (actorId == null || actorRole == null) {
+                throw new IllegalArgumentException("Authenticated actor is required.");
+            }
+            String role = actorRole.trim().toUpperCase();
+            boolean privileged = Set.of("ADMIN", "CYBER_PRO", "FORENSICS").contains(role);
+            boolean assigned = r.getAssignedTo() != null && r.getAssignedTo().equals(actorId);
+            if (!privileged && !("ANALYST".equals(role) && assigned)) {
+                throw new SecurityException("User is not authorized to update this report.");
+            }
+            if (!privileged && assignedTo != null && !assignedTo.equals(r.getAssignedTo())) {
+                throw new SecurityException("Analysts cannot reassign reports.");
+            }
             String normalizedStatus = status == null ? null : status.trim().toUpperCase();
             if (normalizedStatus == null || normalizedStatus.isBlank()) {
                 throw new IllegalArgumentException("Report status is required.");
