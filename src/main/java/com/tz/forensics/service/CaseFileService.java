@@ -3,6 +3,10 @@ package com.tz.forensics.service;
 import com.tz.forensics.entity.CaseFile;
 import com.tz.forensics.repository.CaseFileRepository;
 import com.tz.forensics.repository.CaseTimelineRepository;
+import com.tz.forensics.repository.CaseTaskRepository;
+import com.tz.forensics.repository.EvidenceRepository;
+import com.tz.forensics.entity.CaseTask;
+import com.tz.forensics.entity.Evidence;
 import com.tz.forensics.entity.CaseTimeline;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +20,15 @@ public class CaseFileService {
 
     private final CaseFileRepository caseFileRepository;
     private final CaseTimelineRepository timelineRepository;
+    private final CaseTaskRepository caseTaskRepository;
+    private final EvidenceRepository evidenceRepository;
 
-    public CaseFileService(CaseFileRepository caseFileRepository, CaseTimelineRepository timelineRepository) {
+    public CaseFileService(CaseFileRepository caseFileRepository, CaseTimelineRepository timelineRepository,
+                          CaseTaskRepository caseTaskRepository, EvidenceRepository evidenceRepository) {
         this.caseFileRepository = caseFileRepository;
         this.timelineRepository = timelineRepository;
+        this.caseTaskRepository = caseTaskRepository;
+        this.evidenceRepository = evidenceRepository;
     }
 
     public List<CaseTimeline> getTimeline(Long caseId) {
@@ -92,6 +101,22 @@ public class CaseFileService {
         if (!valid) return false;
         if ("ASSIGNED".equals(to) && cf.getAssignedTo() == null) return false;
         if ("CLOSED".equals(to) && (closureReason == null || closureReason.isBlank())) return false;
+
+        if ("CLOSED".equals(to)) {
+            List<CaseTask> tasks = caseTaskRepository.findByCaseIdOrderByCreatedAtDesc(cf.getId());
+            boolean hasOpenTask = tasks.stream().anyMatch(t -> {
+                String taskStatus = t.getStatus() == null ? "OPEN" : t.getStatus().trim().toUpperCase();
+                return !"COMPLETED".equals(taskStatus) && !"CANCELLED".equals(taskStatus);
+            });
+            if (hasOpenTask) return false;
+
+            List<Evidence> evidence = evidenceRepository.findByCaseIdOrderByUploadedAtDesc(cf.getId());
+            boolean hasUnresolvedEvidence = evidence.stream().anyMatch(e -> {
+                String custody = e.getCustodyStatus();
+                return !"EXAMINED".equalsIgnoreCase(custody) && !"REPORT_GENERATED".equalsIgnoreCase(custody);
+            });
+            if (hasUnresolvedEvidence) return false;
+        }
 
         cf.setStatus(to);
         cf.setUpdatedAt(LocalDateTime.now());
