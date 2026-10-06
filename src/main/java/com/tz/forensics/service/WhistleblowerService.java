@@ -11,6 +11,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.Locale;
 
 @Service
 public class WhistleblowerService {
@@ -62,7 +63,7 @@ public class WhistleblowerService {
 
     public WhistleblowerReport findByTrackingCode(String code) {
         if (code == null || code.isBlank()) return null;
-        return reportRepo.findByTrackingCode(code.trim().toUpperCase()).orElse(null);
+        return reportRepo.findByTrackingCode(code.trim().toUpperCase(Locale.ROOT)).orElse(null);
     }
 
     public List<WhistleblowerReport> getAll() {
@@ -82,10 +83,14 @@ public class WhistleblowerService {
     public void addMessage(Long reportId, String senderType, String message) {
         if (reportId == null) throw new IllegalArgumentException("Report is required.");
         if (reportRepo.findById(reportId).isEmpty()) throw new IllegalArgumentException("Report not found.");
+        String normalizedSender = senderType == null ? "" : senderType.trim().toUpperCase(Locale.ROOT);
+        if (!Set.of("SYSTEM", "ADMIN", "REPORTER").contains(normalizedSender)) {
+            throw new IllegalArgumentException("Unsupported message sender type.");
+        }
         requireLength(senderType, "Sender type", 30);
         requireLength(message, "Message", 4000);
         if (message == null || message.isBlank()) throw new IllegalArgumentException("Message is required.");
-        messageRepo.save(new WhistleblowerMessage(reportId, senderType.trim().toUpperCase(), message.trim()));
+        messageRepo.save(new WhistleblowerMessage(reportId, normalizedSender, message.trim()));
     }
 
     @Transactional
