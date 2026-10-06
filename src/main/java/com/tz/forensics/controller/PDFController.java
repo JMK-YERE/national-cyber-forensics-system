@@ -51,8 +51,7 @@ public class PDFController {
                          UserRepository userRepository,
                          CaseIocService caseIocService,
                          AuditService auditService,
-                         ChainOfCustodyRepository custodyRepository,
-                         AuditService auditService) {
+                         ChainOfCustodyRepository custodyRepository) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.caseFileService = caseFileService;
@@ -61,7 +60,6 @@ public class PDFController {
         this.caseIocService = caseIocService;
         this.auditService = auditService;
         this.custodyRepository = custodyRepository;
-        this.auditService = auditService;
     }
 
     @GetMapping("/incident/{id}/pdf")
