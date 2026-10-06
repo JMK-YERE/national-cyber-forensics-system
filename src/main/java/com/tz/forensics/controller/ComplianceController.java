@@ -57,11 +57,16 @@ public class ComplianceController {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (!canAccess(user)) return "redirect:/access-denied";
 
-        ComplianceReport report = service.generateReport(type, user.getId(), user.getUsername());
-        auditService.log("COMPLIANCE_REPORT", "Compliance", report.getReportId(), "Generated " + type);
-
-        ra.addFlashAttribute("success", "✅ Compliance report imeundwa: " + report.getReportId());
-        return "redirect:/compliance/view/" + report.getId();
+        try {
+            ComplianceReport report = service.generateReport(type, user.getId(), user.getUsername());
+            auditService.log("COMPLIANCE_REPORT", "Compliance", report.getReportId(), "Generated " + report.getReportType());
+            ra.addFlashAttribute("success", "✅ Compliance report imeundwa: " + report.getReportId());
+            return "redirect:/compliance/view/" + report.getId();
+        } catch (IllegalArgumentException e) {
+            auditService.log("REJECT_COMPLIANCE_REPORT", "Compliance", type == null ? "" : type, e.getMessage());
+            ra.addFlashAttribute("error", "❌ Aina ya compliance report si sahihi.");
+            return "redirect:/compliance";
+        }
     }
 
     @GetMapping("/view/{id}")
@@ -98,8 +103,14 @@ public class ComplianceController {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (!canAccess(user)) return "redirect:/access-denied";
 
-        service.updateStatus(id, status);
-        ra.addFlashAttribute("success", "✅ Status imebadilishwa");
+        try {
+            service.updateStatus(id, status);
+            auditService.log("COMPLIANCE_STATUS", "Compliance", String.valueOf(id), "Status=" + status);
+            ra.addFlashAttribute("success", "✅ Status imebadilishwa");
+        } catch (IllegalArgumentException e) {
+            auditService.log("REJECT_COMPLIANCE_STATUS", "Compliance", String.valueOf(id), e.getMessage());
+            ra.addFlashAttribute("error", "❌ Status ya compliance si sahihi.");
+        }
         return "redirect:/compliance/view/" + id;
     }
 }
