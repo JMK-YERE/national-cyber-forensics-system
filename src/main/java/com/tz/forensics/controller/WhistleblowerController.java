@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -38,6 +39,7 @@ import java.util.Locale;
 public class WhistleblowerController {
 
     private static final Logger log = LoggerFactory.getLogger(WhistleblowerController.class);
+    private final Tika tika = new Tika();
 
     private final WhistleblowerService service;
     private final UserRepository userRepository;
@@ -103,7 +105,7 @@ public class WhistleblowerController {
                 if (!targetPath.startsWith(uploadPath)) throw new IOException("Invalid upload path.");
                 Files.write(targetPath, encryptionService.encrypt(evidenceFile.getBytes()));
                 report.setEvidenceFilePath(storedName);
-                report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
+                report.setEvidenceFileType(detectFileType(tika.detect(evidenceFile.getBytes(), original)));
                 report.setEvidenceFileSize(evidenceFile.getSize());
             } catch (IOException e) { log.error("File: {}", e.getMessage()); }
         }
