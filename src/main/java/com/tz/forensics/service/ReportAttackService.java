@@ -31,9 +31,6 @@ public class ReportAttackService {
         return repo.save(report);
     }
 
-    public ReportAttack save(ReportAttack report) {
-        return repo.save(report);
-    }
 
     public ReportAttack getById(Long id) {
         return repo.findById(id).orElse(null);
