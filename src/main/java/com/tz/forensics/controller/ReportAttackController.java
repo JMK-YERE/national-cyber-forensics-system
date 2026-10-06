@@ -456,7 +456,7 @@ public class ReportAttackController {
 
         try {
             service.updateStatus(id, status, adminResponse, assignedTo, assignedName, policeCaseNumber, user.getId(), user.getRole());
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
             auditService.log("REJECT_UPDATE_REPORT", "ReportAttack", String.valueOf(id), e.getMessage());
             return "redirect:/report-attack/admin";
         }
