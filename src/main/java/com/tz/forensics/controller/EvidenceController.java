@@ -3,6 +3,8 @@ package com.tz.forensics.controller;
 import com.tz.forensics.dto.EvidenceDto;
 import com.tz.forensics.entity.Evidence;
 import com.tz.forensics.entity.Incident;
+import com.tz.forensics.entity.CaseFile;
+import com.tz.forensics.service.CaseFileService;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.repository.IncidentRepository;
@@ -26,13 +28,16 @@ public class EvidenceController {
     private final AuditService auditService;
     private final UserRepository userRepository;
     private final IncidentRepository incidentRepository;
+    private final CaseFileService caseFileService;
 
     public EvidenceController(EvidenceService evidenceService, AuditService auditService,
-                              UserRepository userRepository, IncidentRepository incidentRepository) {
+                              UserRepository userRepository, IncidentRepository incidentRepository,
+                              CaseFileService caseFileService) {
         this.evidenceService = evidenceService;
         this.auditService = auditService;
         this.userRepository = userRepository;
         this.incidentRepository = incidentRepository;
+        this.caseFileService = caseFileService;
     }
 
     private User currentUser(Authentication auth) {
@@ -51,29 +56,61 @@ public class EvidenceController {
                 || user.getId().equals(incident.getAssignedTo());
     }
 
+
+    private boolean canAccessCase(CaseFile caseFile, User user) {
+        if (caseFile == null || user == null) return false;
+        if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
+        return "ANALYST".equalsIgnoreCase(user.getRole())
+                && (user.getId().equals(caseFile.getCreatedBy())
+                    || user.getId().equals(caseFile.getAssignedTo())
+                    || user.getId().equals(caseFile.getLeadInvestigator()));
+    }
+
     @GetMapping("/upload/{incidentId}")
-    public String uploadForm(@PathVariable Long incidentId, Authentication auth, Model model) {
+    public String uploadForm(@PathVariable Long incidentId,\n                              @RequestParam(value = "caseId", required = false) Long caseId,\n                              Authentication auth, Model model) {
         User user = currentUser(auth);
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (!canAccessIncident(incident, user)) return "redirect:/access-denied";
+        CaseFile caseFile = null;
+        if (caseId != null) {
+            caseFile = caseFileService.getById(caseId);
+            if (caseFile == null || !incidentId.equals(caseFile.getIncidentId()) || !canAccessCase(caseFile, user)) {
+                return "redirect:/access-denied";
+            }
+        }
         model.addAttribute("incidentId", incidentId);
+        model.addAttribute("caseId", caseId);
+        model.addAttribute("caseFile", caseFile);
         model.addAttribute("evidence", new EvidenceDto());
-        model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(incidentId));
+        model.addAttribute("evidenceList", caseId == null
+                ? evidenceService.getEvidenceByIncident(incidentId)
+                : evidenceService.getEvidenceByCase(caseId));
         return "evidence-upload";
     }
 
     @PostMapping("/upload/{incidentId}")
     public String uploadEvidence(@PathVariable Long incidentId,
+                                 @RequestParam(value = "caseId", required = false) Long caseId,
                                  @RequestParam("file") MultipartFile file,
                                  @ModelAttribute("evidence") EvidenceDto dto,
                                  Authentication auth, Model model) {
         User user = currentUser(auth);
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (!canAccessIncident(incident, user)) return "redirect:/access-denied";
+        CaseFile caseFile = null;
+        if (caseId != null) {
+            caseFile = caseFileService.getById(caseId);
+            if (caseFile == null || !incidentId.equals(caseFile.getIncidentId()) || !canAccessCase(caseFile, user)) {
+                return "redirect:/access-denied";
+            }
+            if ("CLOSED".equalsIgnoreCase(caseFile.getStatus()) || "ARCHIVED".equalsIgnoreCase(caseFile.getStatus())) {
+                return "redirect:/access-denied";
+            }
+        }
 
         try {
             if (file == null || file.isEmpty()) throw new IllegalArgumentException("Chagua evidence file kwanza.");
-            Evidence saved = evidenceService.uploadEvidence(incidentId, file, dto, auth.getName(), user.getId());
+            Evidence saved = evidenceService.uploadEvidence(incidentId, caseId, file, dto, auth.getName(), user.getId());
             auditService.log("UPLOAD_EVIDENCE", "Evidence", String.valueOf(saved.getId()),
                     "Uploaded: " + saved.getOriginalFilename() + " | SHA-256: " + saved.getSha256Hash());
             model.addAttribute("success", "Evidence imepakiwa! SHA-256: " + saved.getSha256Hash());
@@ -81,8 +118,12 @@ public class EvidenceController {
             model.addAttribute("error", "Hitilafu: " + e.getMessage());
         }
         model.addAttribute("incidentId", incidentId);
+        model.addAttribute("caseId", caseId);
+        model.addAttribute("caseFile", caseFile);
         model.addAttribute("evidence", new EvidenceDto());
-        model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(incidentId));
+        model.addAttribute("evidenceList", caseId == null
+                ? evidenceService.getEvidenceByIncident(incidentId)
+                : evidenceService.getEvidenceByCase(caseId));
         return "evidence-upload";
     }
 
