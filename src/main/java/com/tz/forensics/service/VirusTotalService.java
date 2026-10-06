@@ -193,11 +193,18 @@ public class VirusTotalService {
         if (uri.getUserInfo() != null || uri.getHost() == null) throw new IllegalArgumentException("URL si salama.");
         int port = uri.getPort();
         if (port != -1 && port != 80 && port != 443) throw new IllegalArgumentException("Port hairuhusiwi.");
-        try { for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
-            if (address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress() || address.isSiteLocalAddress() || address.isMulticastAddress()) {
-                throw new IllegalArgumentException("Private/local host hairuhusiwi.");
+        try {
+            for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
+                if (address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress()
+                        || address.isSiteLocalAddress() || address.isMulticastAddress()) {
+                    throw new IllegalArgumentException("Private/local host hairuhusiwi.");
+                }
             }
-        } catch (Exception e) { throw new IllegalArgumentException("Host haiwezi kuthibitishwa."); }
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Host haiwezi kuthibitishwa.");
+        }
         return uri.toString();
     }
 
