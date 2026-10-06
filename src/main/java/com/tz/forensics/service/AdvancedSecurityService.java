@@ -328,57 +328,60 @@ public class AdvancedSecurityService {
 
         try {
             String original = url;
-            if (!url.startsWith("http")) url = "https://" + url;
-
-            URI uri = URI.create(url);
+            URI uri = validatePublicHttpUrl(url);
+            String normalizedUrl = uri.toString();
             String host = uri.getHost();
 
             result.put("url", original);
             result.put("host", host);
 
-            if (original.startsWith("http://")) {
+            if ("http".equalsIgnoreCase(uri.getScheme())) {
                 riskScore += 30;
                 warnings.add("🔴 HTTP (not HTTPS) — encryption haipo");
-            } else safe.add("✅ HTTPS inatumika");
+            } else {
+                safe.add("✅ HTTPS inatumika");
+            }
 
             if (host != null && host.matches("\\d+\\.\\d+\\.\\d+\\.\\d+")) {
                 riskScore += 40;
                 warnings.add("🔴 Inatumia IP address badala ya domain");
             }
 
-            if (!isPublicHost(host)) {
-                riskScore += 50;
-                warnings.add("🔴 Host haionekani kuwa public; inaweza kuwa private/local network.");
-            }
+            // validatePublicHttpUrl() resolves every address and rejects loopback,
+            // link-local, site-local, multicast and unspecified addresses. This
+            // prevents the reputation checker from accepting private/local targets.
+            safe.add("✅ Host imehakikiwa kuwa public");
 
             String[] riskyTlds = {".tk", ".ml", ".ga", ".cf", ".gq", ".top", ".work", ".click", ".zip"};
-            if (host != null) {
-                for (String tld : riskyTlds) {
-                    if (host.toLowerCase().endsWith(tld)) {
-                        riskScore += 30;
-                        warnings.add("🔴 TLD ya kutiliwa shaka: " + tld);
-                        break;
-                    }
+            for (String tld : riskyTlds) {
+                if (host.toLowerCase(Locale.ROOT).endsWith(tld)) {
+                    riskScore += 30;
+                    warnings.add("🔴 TLD ya kutiliwa shaka: " + tld);
+                    break;
                 }
             }
 
-            String lower = url.toLowerCase();
-            if (lower.contains("@") && !lower.startsWith("mailto:")) {
+            String lower = normalizedUrl.toLowerCase(Locale.ROOT);
+            if (lower.contains("@")) {
                 riskScore += 35;
-                warnings.add("🔴 Ina alama @ — inaweza kufanya redirect");
+                warnings.add("🔴 Ina alama @ — URL yenye user-info hairuhusiwi");
             }
 
-            if (url.length() > 150) { riskScore += 15; warnings.add("🟠 URL ni ndefu sana"); }
+            if (normalizedUrl.length() > 150) {
+                riskScore += 15;
+                warnings.add("🟠 URL ni ndefu sana");
+            }
 
             try {
-                InetAddress.getByName(host);
-                safe.add("✅ Domain inatafsiriwa");
+                InetAddress.getAllByName(host);
+                safe.add("✅ DNS resolution imefanikiwa");
             } catch (Exception e) {
                 riskScore += 20;
                 warnings.add("🟠 Domain haiwezi kutafsiriwa (DNS)");
             }
 
             riskScore = Math.min(100, riskScore);
+            result.put("success", true);
             result.put("riskScore", riskScore);
             result.put("verdict", riskScore >= 60 ? "PHISHING/MALWARE" : riskScore >= 30 ? "SUSPICIOUS" : "SAFE");
             result.put("emoji", riskScore >= 60 ? "🚨" : riskScore >= 30 ? "⚠️" : "✅");
