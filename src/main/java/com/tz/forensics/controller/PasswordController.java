@@ -87,20 +87,39 @@ public class PasswordController {
 
     @PostMapping("/forgot-password/sms")
     public String forgotSms(@RequestParam String phone, HttpSession session, RedirectAttributes ra) {
-        User user = userRepository.findAll().stream()
-                .filter(u -> phone.trim().equals(u.getPhone()))
-                .findFirst().orElse(null);
-        if (user != null) {
+        String cleanPhone = phone == null ? "" : phone.trim();
+        User user = userRepository.findByPhone(cleanPhone).orElse(null);
+
+        Object lastSent = session.getAttribute("PASSWORD_RESET_OTP_SENT_AT");
+        Object previousUser = session.getAttribute("PASSWORD_RESET_USER_ID");
+        if (user != null && lastSent instanceof Long && previousUser instanceof Long
+                && user.getId().equals((Long) previousUser)
+                && System.currentTimeMillis() - (Long) lastSent < RESET_OTP_RESEND_COOLDOWN_MS) {
+            ra.addFlashAttribute("sent", true);
+            ra.addFlashAttribute("error", "Subiri sekunde chache kabla ya kuomba OTP nyingine.");
+            return "redirect:/reset-password?sms=true";
+        }
+
+        // Do not reveal whether a phone number belongs to an account.
+        if (user != null && Boolean.TRUE.equals(user.getEnabled()) && user.isApproved() && user.isEmailVerified()) {
             String otp = String.valueOf(100000 + new SecureRandom().nextInt(900000));
             user.setPasswordResetToken(passwordEncoder.encode(otp));
             user.setPasswordResetExpiresAt(LocalDateTime.now().plusSeconds(60));
             user.setPasswordResetAttempts(0);
             userRepository.save(user);
-            session.setAttribute("PASSWORD_RESET_USER_ID", user.getId());
-            session.setAttribute("PASSWORD_RESET_MODE", "SMS");
-            session.setAttribute("PASSWORD_RESET_OTP_SENT_AT", System.currentTimeMillis());
-            smsService.sendSms(user.getPhone(),
+
+            boolean sent = smsService.sendSms(user.getPhone(),
                     "Cyber Forensics TZ: OTP ya reset password ni " + otp + ". Inaisha ndani ya sekunde 60.");
+            if (sent) {
+                session.setAttribute("PASSWORD_RESET_USER_ID", user.getId());
+                session.setAttribute("PASSWORD_RESET_MODE", "SMS");
+                session.setAttribute("PASSWORD_RESET_OTP_SENT_AT", System.currentTimeMillis());
+            } else {
+                user.setPasswordResetToken(null);
+                user.setPasswordResetExpiresAt(null);
+                user.setPasswordResetAttempts(0);
+                userRepository.save(user);
+            }
         }
         ra.addFlashAttribute("sent", true);
         return "redirect:/reset-password?sms=true";
