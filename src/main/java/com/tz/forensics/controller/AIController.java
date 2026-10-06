@@ -32,12 +32,12 @@ public class AIController {
     }
 
     @GetMapping("/assistant")
-    public String assistant(Model model, Authentication auth) {
+    public String assistant(Model model, Authentication auth, HttpSession session) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
 
         model.addAttribute("user", user);
-        model.addAttribute("history", getHistory(model, auth));
+        model.addAttribute("history", getSessionHistory(session));
         model.addAttribute("isConfigured", aiChatService.isConfigured());
         model.addAttribute("currentLang", LocaleContextHolder.getLocale().getLanguage());
         return "ai-assistant";
@@ -89,9 +89,6 @@ public class AIController {
         return new ArrayList<>();
     }
 
-    private List<Map<String, String>> getHistory(Model model, Authentication auth) {
-        return new ArrayList<>();
-    }
 
     private Map<String, String> createChatEntry(String type, String text) {
         Map<String, String> entry = new HashMap<>();
