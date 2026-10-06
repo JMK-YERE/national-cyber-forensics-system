@@ -10,6 +10,7 @@ import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.repository.IncidentRepository;
 import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.EvidenceService;
+import com.tz.forensics.service.NotificationService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,15 +31,18 @@ public class EvidenceController {
     private final UserRepository userRepository;
     private final IncidentRepository incidentRepository;
     private final CaseFileService caseFileService;
+    private final NotificationService notificationService;
 
     public EvidenceController(EvidenceService evidenceService, AuditService auditService,
                               UserRepository userRepository, IncidentRepository incidentRepository,
-                              CaseFileService caseFileService) {
+                              CaseFileService caseFileService,
+                              NotificationService notificationService) {
         this.evidenceService = evidenceService;
         this.auditService = auditService;
         this.userRepository = userRepository;
         this.incidentRepository = incidentRepository;
         this.caseFileService = caseFileService;
+        this.notificationService = notificationService;
     }
 
     private User currentUser(Authentication auth) {
@@ -176,6 +180,18 @@ public class EvidenceController {
                 recipient.getFullName()==null?recipient.getUsername():recipient.getFullName(),recipient.getRole(),purpose,notes);
         auditService.log(ok?"TRANSFER_EVIDENCE":"FAILED_TRANSFER_EVIDENCE","Evidence",String.valueOf(id),
                 "Transfer to user "+recipient.getUsername()+" | purpose="+(purpose==null?"":purpose));
+        if (ok) {
+            String incidentRef = incident.getIncidentId() == null ? String.valueOf(incident.getId()) : incident.getIncidentId();
+            notificationService.createNotification(
+                    recipient.getId(),
+                    "Evidence custody transferred to you",
+                    "Evidence #" + id + " from incident " + incidentRef
+                            + " is now assigned to you as custodian."
+                            + (purpose != null && !purpose.isBlank() ? " Purpose: " + purpose.trim() : ""),
+                    "EVIDENCE_TRANSFER",
+                    "/evidence/custody/" + id
+            );
+        }
         return "redirect:/evidence/custody/"+id;
     }
 
