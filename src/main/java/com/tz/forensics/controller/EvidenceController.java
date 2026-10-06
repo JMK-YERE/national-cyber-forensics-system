@@ -90,6 +90,22 @@ public class EvidenceController {
         return true;
     }
 
+    @GetMapping
+    public String evidenceIndex(Authentication auth, Model model) {
+        User user = currentUser(auth);
+        if (!isStaff(user)) return "redirect:/access-denied";
+
+        java.util.List<Evidence> visibleEvidence = incidentRepository.findAll().stream()
+                .filter(incident -> canAccessIncident(incident, user))
+                .flatMap(incident -> evidenceService.getEvidenceByIncident(incident.getId()).stream()
+                        .filter(evidence -> canAccessEvidence(evidence, incident, user)))
+                .toList();
+
+        model.addAttribute("evidenceList", visibleEvidence);
+        model.addAttribute("currentUser", user);
+        return "evidence";
+    }
+
     @GetMapping("/upload/{incidentId}")
     public String uploadForm(@PathVariable Long incidentId,
                              @RequestParam(value = "caseId", required = false) Long caseId,
