@@ -21,7 +21,14 @@ public class AuditService {
     }
 
     public void log(String action, String entityType, String entityId, String details) {
+        log(null, null, action, entityType, entityId, details);
+    }
+
+    /** Records an auditable action with an explicit actor when the caller already resolved it. */
+    public void log(Long actorId, String actorName, String action, String entityType, String entityId, String details) {
         AuditLog log = new AuditLog();
+        log.setUserId(actorId);
+        log.setUsername(actorName);
         log.setAction(action);
         log.setEntityType(entityType);
         log.setEntityId(entityId);
@@ -31,8 +38,13 @@ public class AuditService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
-                log.setUsername(auth.getName());
+                if (log.getUsername() == null || log.getUsername().isBlank()) log.setUsername(auth.getName());
             }
+        } catch (Exception ignored) {}
+
+        try {
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attrs != null) log.setUserAgent(attrs.getRequest().getHeader("User-Agent"));
         } catch (Exception ignored) {}
 
         auditLogRepository.save(log);
