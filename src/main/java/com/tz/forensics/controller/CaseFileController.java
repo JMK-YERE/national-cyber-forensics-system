@@ -10,6 +10,7 @@ import com.tz.forensics.service.CaseIocService;
 import com.tz.forensics.service.NotificationService;
 import com.tz.forensics.service.CaseTaskService;
 import com.tz.forensics.service.IncidentService;
+import com.tz.forensics.service.EvidenceService;
 import com.tz.forensics.entity.Incident;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -30,12 +31,13 @@ public class CaseFileController {
     private final NotificationService notificationService;
     private final CaseTaskService caseTaskService;
     private final IncidentService incidentService;
+    private final EvidenceService evidenceService;
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
                               AuditService auditService, CaseIocService caseIocService, CaseFileRepository caseFileRepository,
                               NotificationService notificationService, CaseTaskService caseTaskService,
-                              IncidentService incidentService) {
+                              IncidentService incidentService, EvidenceService evidenceService) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -44,6 +46,7 @@ public class CaseFileController {
         this.notificationService = notificationService;
         this.caseTaskService = caseTaskService;
         this.incidentService = incidentService;
+        this.evidenceService = evidenceService;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -133,6 +136,7 @@ public class CaseFileController {
         model.addAttribute("timeline", caseFileService.getTimeline(cf.getId()));
         model.addAttribute("iocs", caseIocService.findByCaseId(cf.getId()));
         model.addAttribute("caseTasks", caseTaskService.findByCaseId(cf.getId()));
+        model.addAttribute("caseEvidence", evidenceService.getEvidenceByCase(cf.getId()));
         if (canAssignCases(user)) {
             model.addAttribute("eligibleInvestigators", userRepository.findByRoleInAndEnabledTrueAndApprovalStatusIgnoreCase(
                     List.of("ANALYST", "FORENSICS", "CYBER_PRO"), "APPROVED"));
