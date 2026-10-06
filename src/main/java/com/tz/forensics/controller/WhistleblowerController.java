@@ -105,7 +105,23 @@ public class WhistleblowerController {
             } catch (IOException e) { log.error("File: {}", e.getMessage()); }
         }
 
-        WhistleblowerReport saved = service.createReport(report);
+        WhistleblowerReport saved;
+        try {
+            saved = service.createReport(report);
+        } catch (RuntimeException e) {
+            // The encrypted object is written before the DB transaction. If validation
+            // or persistence fails, remove it so failed submissions cannot leak orphaned
+            // evidence objects into the production evidence store.
+            if (report.getEvidenceFilePath() != null && !report.getEvidenceFilePath().isBlank()) {
+                try {
+                    evidenceStorage.delete(report.getEvidenceFilePath());
+                } catch (Exception cleanup) {
+                    log.error("Failed to clean orphan whistleblower evidence: {}", cleanup.getMessage());
+                }
+            }
+            log.warn("Whistleblower submission rejected: {}", e.getMessage());
+            throw e;
+        }
 
         // ===== NOTIFY ADMINS =====
         try {
