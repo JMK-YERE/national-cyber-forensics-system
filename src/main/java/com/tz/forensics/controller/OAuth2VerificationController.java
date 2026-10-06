@@ -35,6 +35,7 @@ public class OAuth2VerificationController {
     private static final String NAME = "OAUTH_VERIFY_NAME";
     private static final String CHALLENGE_EXPIRES = "OAUTH_VERIFY_EXPIRES";
     private static final SecureRandom RANDOM = new SecureRandom();
+    private static final long RESEND_COOLDOWN_MS = 30_000L;
 
     private final UserRepository userRepository;
     private final EmailService emailService;
@@ -144,6 +145,7 @@ public class OAuth2VerificationController {
         }
 
         clearOtp(user);
+        request.changeSessionId();
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
 
@@ -166,6 +168,16 @@ public class OAuth2VerificationController {
     @PostMapping("/resend")
     public String resend(HttpSession session, Model model) {
         if (!challengeExists(session)) return "redirect:/login";
+
+        Object sentAt = session.getAttribute("OAUTH_OTP_SENT_AT");
+        if (sentAt instanceof Long && System.currentTimeMillis() - (Long) sentAt < RESEND_COOLDOWN_MS) {
+            model.addAttribute("error", "Subiri sekunde chache kabla ya kuomba OTP nyingine.");
+            model.addAttribute("emailMasked", maskEmail((String) session.getAttribute(EMAIL)));
+            model.addAttribute("name", session.getAttribute(NAME));
+            model.addAttribute("sent", true);
+            model.addAttribute("expired", false);
+            return "oauth2-verify";
+        }
 
         User user = userRepository.findById((Long) session.getAttribute(USER_ID)).orElse(null);
         if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
