@@ -25,6 +25,7 @@ import java.security.SecureRandom;
 
 @Controller
 public class PasswordController {
+    private static final long RESET_OTP_RESEND_COOLDOWN_MS = 30_000L;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
@@ -45,6 +46,16 @@ public class PasswordController {
     public String forgotSubmit(@RequestParam String email, HttpSession session, RedirectAttributes ra) {
         User user = userRepository.findByEmail(email.trim().toLowerCase()).orElse(null);
 
+        Object lastSent = session.getAttribute("PASSWORD_RESET_OTP_SENT_AT");
+        Object previousUser = session.getAttribute("PASSWORD_RESET_USER_ID");
+        if (user != null && lastSent instanceof Long && previousUser instanceof Long
+                && user.getId().equals((Long) previousUser)
+                && System.currentTimeMillis() - (Long) lastSent < RESET_OTP_RESEND_COOLDOWN_MS) {
+            ra.addFlashAttribute("sent", true);
+            ra.addFlashAttribute("error", "Subiri sekunde chache kabla ya kuomba OTP nyingine.");
+            return "redirect:/reset-password?emailOtp=true";
+        }
+
         // Do not reveal whether an account exists.
         if (user != null && user.getEmail() != null && !user.getEmail().isBlank()) {
             String otp = String.valueOf(100000 + new SecureRandom().nextInt(900000));
@@ -54,6 +65,7 @@ public class PasswordController {
             userRepository.save(user);
             session.setAttribute("PASSWORD_RESET_USER_ID", user.getId());
             session.setAttribute("PASSWORD_RESET_MODE", "EMAIL");
+            session.setAttribute("PASSWORD_RESET_OTP_SENT_AT", System.currentTimeMillis());
 
             boolean sent = emailService.sendPasswordResetOtp(user.getEmail(), user.getUsername(), otp);
             if (!sent) {
@@ -63,6 +75,7 @@ public class PasswordController {
                 userRepository.save(user);
                 session.removeAttribute("PASSWORD_RESET_USER_ID");
                 session.removeAttribute("PASSWORD_RESET_MODE");
+                session.removeAttribute("PASSWORD_RESET_OTP_SENT_AT");
                 ra.addFlashAttribute("error", "Email ya uthibitisho haikutumwa. Tafadhali jaribu tena.");
                 return "redirect:/forgot-password";
             }
@@ -85,6 +98,7 @@ public class PasswordController {
             userRepository.save(user);
             session.setAttribute("PASSWORD_RESET_USER_ID", user.getId());
             session.setAttribute("PASSWORD_RESET_MODE", "SMS");
+            session.setAttribute("PASSWORD_RESET_OTP_SENT_AT", System.currentTimeMillis());
             smsService.sendSms(user.getPhone(),
                     "Cyber Forensics TZ: OTP ya reset password ni " + otp + ". Inaisha ndani ya sekunde 60.");
         }
