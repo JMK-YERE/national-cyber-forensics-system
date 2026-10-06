@@ -18,7 +18,6 @@ public class EncryptionService {
     private static final int IV_LENGTH = 12;
     private static final int TAG_BITS = 128;
     private static final int MIN_KEY_LENGTH = 32;
-    private static final String LEGACY_DEFAULT_KEY = "TanzaniaCyberSecurityKey2024!!!";
 
     @Value("${app.encryption.key:}")
     private String encryptionKey;
@@ -38,10 +37,6 @@ public class EncryptionService {
         if (encryptionKey == null || encryptionKey.isBlank()) {
             throw new IllegalStateException(
                     "Evidence encryption is not configured. Set the ENCRYPTION_KEY environment variable.");
-        }
-        if (LEGACY_DEFAULT_KEY.equals(encryptionKey)) {
-            throw new IllegalStateException(
-                    "The insecure default evidence encryption key is not permitted. Set a unique ENCRYPTION_KEY.");
         }
         if (encryptionKey.getBytes(StandardCharsets.UTF_8).length < MIN_KEY_LENGTH) {
             throw new IllegalStateException(
