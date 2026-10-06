@@ -118,12 +118,12 @@ public class IncidentController {
 
         // Do not expose forensic evidence from the incident page to an individual reporter.
         // Evidence access must remain case-scoped/staff-scoped through EvidenceController.
-        if (isAdmin(currentUser) || isCyberPro(currentUser) || isForensics(currentUser) || isAnalyst(currentUser)) {
+        boolean canViewForensicData = isAdmin(currentUser) || isCyberPro(currentUser)
+                || isForensics(currentUser) || isAnalyst(currentUser);
+        model.addAttribute("canViewForensicData", canViewForensicData);
+        if (canViewForensicData) {
             model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(id));
             model.addAttribute("linkedCases", caseFileService.getCasesByIncident(id));
-        } else {
-            model.addAttribute("evidenceList", java.util.List.of());
-            model.addAttribute("linkedCases", java.util.List.of());
         }
 
         model.addAttribute("canAssign", canAssign(currentUser));
