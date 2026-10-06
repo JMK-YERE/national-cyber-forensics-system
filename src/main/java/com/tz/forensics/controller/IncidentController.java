@@ -113,7 +113,8 @@ public class IncidentController {
 
         if (canAssign(currentUser)) {
             List<User> assignableUsers = userRepository.findAll().stream()
-                    .filter(u -> u.isProfessional() || u.isForensics() || u.isAdmin() || u.isAnalyst())
+                    .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
+                            && (u.isProfessional() || u.isForensics() || u.isAdmin() || u.isAnalyst()))
                     .toList();
             model.addAttribute("assignableUsers", assignableUsers);
         }
