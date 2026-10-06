@@ -127,13 +127,23 @@ public class EvidenceController {
         return "evidence-upload";
     }
 
+
+    private boolean canAccessEvidence(Evidence evidence, Incident incident, User user) {
+        if (evidence == null || user == null || !canAccessIncident(incident, user)) return false;
+        if (evidence.getCaseId() != null) {
+            CaseFile cf = caseFileService.getById(evidence.getCaseId());
+            if (cf == null || !incident.getId().equals(cf.getIncidentId()) || !canAccessCase(cf, user)) return false;
+        }
+        return isStaff(user) || (evidence.getUploadedBy() != null && evidence.getUploadedBy().equals(user.getId()));
+    }
+
     @GetMapping("/custody/{id}")
     public String custody(@PathVariable Long id, Authentication auth, Model model) {
         User user = currentUser(auth);
         Evidence evidence = evidenceService.getById(id);
         if (evidence == null) return "redirect:/incidents";
         Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!canAccessIncident(incident, user)) return "redirect:/access-denied";
+        if (!canAccessEvidence(evidence, incident, user) || !isStaff(user)) return "redirect:/access-denied";
 
         model.addAttribute("evidence", evidence);
         model.addAttribute("incident", incident);
@@ -208,7 +218,7 @@ public class EvidenceController {
         if (evidence == null) return ResponseEntity.notFound().build();
 
         Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!canAccessIncident(incident, user)) return ResponseEntity.status(403).build();
+        if (!canAccessEvidence(evidence, incident, user)) return ResponseEntity.status(403).build();
 
         byte[] data;
         try { data = evidenceService.downloadEvidence(id); }
