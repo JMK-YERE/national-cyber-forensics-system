@@ -14,107 +14,197 @@ import java.util.List;
 public class NotificationService {
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
-
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final AuditService auditService;
 
     public NotificationService(NotificationRepository notificationRepository,
-                                UserRepository userRepository) {
+                                UserRepository userRepository,
+                                AuditService auditService) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.auditService = auditService;
     }
 
-    // ===== MAIN METHOD — with userId =====
+    /**
+     * Creates a notification for exactly one user.
+     * Notification ownership is always tied to the target userId; callers must
+     * never use this method as an unscoped broadcast primitive.
+     */
     public void createNotification(Long userId, String title, String message, String type, String linkUrl) {
         if (userId == null) {
             log.warn("Notification skipped: userId is null | title={}", title);
             return;
         }
-        Notification n = new Notification(userId, title, message, type, linkUrl);
-        notificationRepository.save(n);
+
+        String safeTitle = normalizeRequired(title, 200, "Notification title");
+        String safeMessage = normalizeOptional(message, 5000);
+        String safeType = normalizeType(type);
+        String safeLink = normalizeLink(linkUrl);
+
+        Notification n = new Notification(userId, safeTitle, safeMessage, safeType, safeLink);
+        Notification saved = notificationRepository.save(n);
+
+        auditService.log("CREATE_NOTIFICATION", "Notification", String.valueOf(saved.getId()),
+                "Target userId=" + userId + " | type=" + safeType);
     }
 
-    // ===== BACKWARD COMPAT — without userId — sends to all admins =====
+    /**
+     * Backward-compatible broadcast for legacy callers.
+     * It is intentionally limited to operational staff and does not include
+     * INDIVIDUAL users.
+     */
     public void createNotification(String title, String message, String type, String linkUrl) {
         try {
-            List<User> admins = userRepository.findAll().stream()
-                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics() || "ANALYST".equalsIgnoreCase(u.getRole()))
+            List<User> staff = userRepository.findAll().stream()
+                    .filter(u -> u.getId() != null
+                            && Boolean.TRUE.equals(u.getEnabled())
+                            && u.isApproved()
+                            && (u.isAdmin() || u.isProfessional() || u.isForensics()
+                                || "ANALYST".equalsIgnoreCase(u.getRole())))
                     .toList();
-            for (User admin : admins) {
-                createNotification(admin.getId(), title, message, type, linkUrl);
+            for (User user : staff) {
+                createNotification(user.getId(), title, message, type, linkUrl);
             }
         } catch (Exception e) {
             log.error("createNotification (broadcast) failed: {}", e.getMessage());
+            auditService.log("FAILED_CREATE_NOTIFICATION", "Notification", "BROADCAST",
+                    e.getMessage() == null ? "Broadcast notification failed" : e.getMessage());
         }
     }
 
-    // ===== BACKWARD COMPAT — createIncidentNotification =====
     public void createIncidentNotification(String incidentId, String title, String severity) {
         try {
-            String emoji;
-            if ("CRITICAL".equalsIgnoreCase(severity)) emoji = "🚨";
-            else if ("HIGH".equalsIgnoreCase(severity)) emoji = "⚠️";
-            else if ("MEDIUM".equalsIgnoreCase(severity)) emoji = "📌";
-            else emoji = "ℹ️";
+            String normalizedSeverity = severity == null ? "INFO" : severity.trim().toUpperCase();
+            String notifTitle = "Incident: " + (incidentId == null ? "unknown" : incidentId);
+            String notifMessage = (title == null ? "New incident reported." : title.trim())
+                    + " (Severity: " + normalizedSeverity + ")";
 
-            String notifTitle = emoji + " Tukio: " + incidentId;
-            String notifMessage = title + " (Severity: " + severity + ")";
-            String notifType = (severity != null) ? severity.toUpperCase() : "INFO";
-
-            // Send to all admins
-            List<User> admins = userRepository.findAll().stream()
-                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics())
+            List<User> staff = userRepository.findAll().stream()
+                    .filter(u -> u.getId() != null
+                            && Boolean.TRUE.equals(u.getEnabled())
+                            && u.isApproved()
+                            && (u.isAdmin() || u.isProfessional() || u.isForensics()))
                     .toList();
-            for (User admin : admins) {
-                createNotification(admin.getId(), notifTitle, notifMessage, notifType, "/report-attack");
+            for (User user : staff) {
+                createNotification(user.getId(), notifTitle, notifMessage,
+                        normalizedSeverity, "/incidents");
             }
         } catch (Exception e) {
             log.error("createIncidentNotification failed: {}", e.getMessage());
+            auditService.log("FAILED_CREATE_NOTIFICATION", "Notification",
+                    incidentId == null ? "unknown" : incidentId,
+                    e.getMessage() == null ? "Incident notification failed" : e.getMessage());
         }
     }
 
-    // ===== CREATE REPORT NOTIFICATION (convenience) =====
-    public void createReportNotification(String reportId, String title, String severity, Long userId, String linkUrl) {
-        String emoji;
-        if ("CRITICAL".equalsIgnoreCase(severity)) emoji = "🚨";
-        else if ("HIGH".equalsIgnoreCase(severity)) emoji = "⚠️";
-        else emoji = "📌";
-
-        createNotification(userId, emoji + " Report " + reportId, title,
-                severity != null ? severity.toUpperCase() : "INFO", linkUrl);
+    public void createReportNotification(String reportId, String title, String severity,
+                                         Long userId, String linkUrl) {
+        String normalizedSeverity = severity == null ? "INFO" : severity.trim().toUpperCase();
+        createNotification(userId,
+                "Report " + (reportId == null ? "unknown" : reportId),
+                title,
+                normalizedSeverity,
+                linkUrl);
     }
 
-    // ===== GETTERS =====
     public List<Notification> getNotificationsForUser(Long userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return userId == null ? List.of()
+                : notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     public List<Notification> getUnreadNotifications(Long userId) {
-        return notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
+        return userId == null ? List.of()
+                : notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
     }
 
     public long getUnreadCount(Long userId) {
-        return notificationRepository.countByUserIdAndIsReadFalse(userId);
+        return userId == null ? 0
+                : notificationRepository.countByUserIdAndIsReadFalse(userId);
     }
 
-    // ===== MARK AS READ =====
-    public void markAsReadForUser(Long id, Long userId) {
-        notificationRepository.findById(id).filter(n -> userId != null && userId.equals(n.getUserId())).ifPresent(n -> {
-            n.setIsRead(true);
-            notificationRepository.save(n);
-        });
+    public boolean markAsReadForUser(Long id, Long userId) {
+        if (id == null || userId == null) return false;
+        return notificationRepository.findById(id)
+                .filter(n -> userId.equals(n.getUserId()))
+                .map(n -> {
+                    if (!Boolean.TRUE.equals(n.getIsRead())) {
+                        n.setIsRead(true);
+                        notificationRepository.save(n);
+                        auditService.log("READ_NOTIFICATION", "Notification", String.valueOf(id),
+                                "Notification marked read");
+                    }
+                    return true;
+                })
+                .orElse(false);
     }
 
-    public void markAsRead(Long id) {
-        notificationRepository.findById(id).ifPresent(n -> {
-            n.setIsRead(true);
-            notificationRepository.save(n);
-        });
+    /**
+     * Legacy method retained for internal compatibility, but intentionally
+     * does nothing without an owner. This prevents IDOR through an unscoped
+     * notification id.
+     */
+    public boolean markAsRead(Long id) {
+        log.warn("Unscoped markAsRead rejected for notificationId={}", id);
+        return false;
     }
 
-    public void markAllAsRead(Long userId) {
-        List<Notification> unread = notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
+    public int markAllAsRead(Long userId) {
+        if (userId == null) return 0;
+        List<Notification> unread =
+                notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
         unread.forEach(n -> n.setIsRead(true));
-        notificationRepository.saveAll(unread);
+        if (!unread.isEmpty()) {
+            notificationRepository.saveAll(unread);
+            auditService.log("READ_ALL_NOTIFICATIONS", "Notification", String.valueOf(userId),
+                    "Marked " + unread.size() + " notification(s) read");
+        }
+        return unread.size();
+    }
+
+    public boolean deleteForUser(Long id, Long userId) {
+        if (id == null || userId == null) return false;
+        return notificationRepository.findById(id)
+                .filter(n -> userId.equals(n.getUserId()))
+                .map(n -> {
+                    notificationRepository.delete(n);
+                    auditService.log("DELETE_NOTIFICATION", "Notification", String.valueOf(id),
+                            "Notification deleted by owner");
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    private String normalizeRequired(String value, int maxLength, String field) {
+        String normalized = value == null ? "" : value.trim();
+        if (normalized.isBlank()) throw new IllegalArgumentException(field + " is required.");
+        if (normalized.length() > maxLength) {
+            throw new IllegalArgumentException(field + " exceeds " + maxLength + " characters.");
+        }
+        return normalized;
+    }
+
+    private String normalizeOptional(String value, int maxLength) {
+        if (value == null) return "";
+        String normalized = value.trim();
+        if (normalized.length() > maxLength) {
+            throw new IllegalArgumentException("Notification message exceeds " + maxLength + " characters.");
+        }
+        return normalized;
+    }
+
+    private String normalizeType(String type) {
+        String normalized = type == null || type.isBlank() ? "INFO" : type.trim().toUpperCase();
+        return normalized.length() > 30 ? normalized.substring(0, 30) : normalized;
+    }
+
+    private String normalizeLink(String linkUrl) {
+        if (linkUrl == null || linkUrl.isBlank()) return null;
+        String link = linkUrl.trim();
+        if (link.length() > 500) throw new IllegalArgumentException("Notification link is too long.");
+        if (!link.startsWith("/") || link.startsWith("//")) {
+            throw new IllegalArgumentException("Notification links must be local application paths.");
+        }
+        return link;
     }
 }
