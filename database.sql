@@ -137,73 +137,9 @@ CREATE INDEX IF NOT EXISTS idx_ioc_incident ON iocs(incident_id);
 CREATE INDEX IF NOT EXISTS idx_ioc_type ON iocs(ioc_type);
 
 -- ============================================
--- STEP 4: DEFAULT ADMIN USER
--- Username: admin
--- Password: Admin@123
+-- STEP 4: INITIAL ADMINISTRATION
 -- ============================================
-
-INSERT INTO users (username, email, password, full_name, role, organization, enabled)
-VALUES (
-    'admin',
-    'admin@cyber.go.tz',
-    '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi',
-    'System Administrator',
-    'ADMIN',
-    'National Cyber Security - Tanzania',
-    TRUE
-)
-ON CONFLICT (username) DO NOTHING;
-
--- ============================================
--- STEP 5: SAMPLE INCIDENTS (Optional - kwa demo)
--- ============================================
-
-INSERT INTO incidents (
-    incident_id, title, description, reporter, date_reported,
-    status, severity, cvss_score, category, region, organization,
-    financial_loss_tzs
-) VALUES
-(
-    'SEC-20250101-001',
-    'Data Breach - Bank Customer Records',
-    'Unauthorized access to customer database with approximately 50,000 records. Attacker used SQL injection vulnerability.',
-    'Baharia Nkasi',
-    NOW(),
-    'Critical',
-    'CRITICAL',
-    9.5,
-    'Data Breach',
-    'Dar es Salaam',
-    'CRDB Bank',
-    50000000.00
-),
-(
-    'SEC-20250101-002',
-    'Phishing Campaign - Government Employees',
-    'Spear-phishing emails targeting government accounts in Dodoma. Fake login page detected.',
-    'Jackline Mushi',
-    NOW(),
-    'Under Investigation',
-    'HIGH',
-    7.8,
-    'Phishing',
-    'Dodoma',
-    'Government Portal',
-    5000000.00
-),
-(
-    'SEC-20250101-003',
-    'Ransomware Attempt - Hospital',
-    'Ransomware detected and blocked before encryption. No data loss reported.',
-    'Dominick Mkapa',
-    NOW(),
-    'Resolved',
-    'HIGH',
-    8.0,
-    'Ransomware',
-    'Mwanza',
-    'Bugando Medical Centre',
-    0.00
-)
-ON CONFLICT (incident_id) DO NOTHING;
-
+-- No default credentials are created by this schema.
+-- Create the first administrator only through controlled deployment
+-- configuration (app.initial-admin-username / app.initial-admin-password)
+-- or an existing administrative provisioning process.
