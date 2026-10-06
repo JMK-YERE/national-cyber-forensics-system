@@ -151,7 +151,7 @@ public class PasswordController {
         User user = resetUserId == null ? null : userRepository.findById(resetUserId).orElse(null);
 
         if (user == null || !Boolean.TRUE.equals(user.getEnabled()) || !user.isApproved() || !user.isEmailVerified() ||
-                user.getPasswordResetToken() == null || !passwordEncoder.matches(cleanToken, user.getPasswordResetToken()) ||
+                user.getPasswordResetToken() == null ||
                 user.getPasswordResetExpiresAt() == null ||
                 user.getPasswordResetExpiresAt().isBefore(LocalDateTime.now())) {
             model.addAttribute("error", "OTP si sahihi, ime-expire, au session ya reset haipo. Omba OTP mpya.");
@@ -160,12 +160,41 @@ public class PasswordController {
         }
 
         if (user.getPasswordResetAttempts() >= 5) {
+            clearPasswordResetOtp(user);
             model.addAttribute("error", "Umefikia kikomo cha majaribio. Omba OTP mpya.");
             model.addAttribute("emailOtp", true);
             return "reset-password";
         }
 
+        // Count every OTP verification attempt, including incorrect OTPs.
+        // The previous flow incremented only after a successful token match,
+        // which allowed unlimited guesses during the 60-second validity window.
+        String normalizedOtp = cleanToken;
+        if (!normalizedOtp.matches("\\d{6}")) {
+            user.setPasswordResetAttempts(user.getPasswordResetAttempts() + 1);
+            if (user.getPasswordResetAttempts() >= 5) {
+                clearPasswordResetOtp(user);
+            } else {
+                userRepository.save(user);
+            }
+            model.addAttribute("error", "OTP lazima iwe na tarakimu 6.");
+            model.addAttribute("emailOtp", true);
+            return "reset-password";
+        }
+
         user.setPasswordResetAttempts(user.getPasswordResetAttempts() + 1);
+        boolean otpValid = passwordEncoder.matches(normalizedOtp, user.getPasswordResetToken());
+        if (!otpValid) {
+            if (user.getPasswordResetAttempts() >= 5) {
+                clearPasswordResetOtp(user);
+                model.addAttribute("error", "OTP si sahihi. Umefikia kikomo cha majaribio; omba OTP mpya.");
+            } else {
+                userRepository.save(user);
+                model.addAttribute("error", "OTP si sahihi.");
+            }
+            model.addAttribute("emailOtp", true);
+            return "reset-password";
+        }
 
         if (password.length() < 6 || !password.equals(confirmPassword)) {
             userRepository.save(user);
@@ -206,6 +235,13 @@ public class PasswordController {
         new HttpSessionSecurityContextRepository().saveContext(context, request, response);
 
         return "redirect:/dashboard";
+    }
+
+    private void clearPasswordResetOtp(User user) {
+        user.setPasswordResetToken(null);
+        user.setPasswordResetExpiresAt(null);
+        user.setPasswordResetAttempts(0);
+        userRepository.save(user);
     }
 
     @GetMapping("/change-password")
