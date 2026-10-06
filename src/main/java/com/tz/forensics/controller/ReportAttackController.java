@@ -180,6 +180,8 @@ public class ReportAttackController {
             }
         }
 
+        Path writtenEvidencePath = null;
+
         try {
             report.setDynamicDetails(objectMapper.writeValueAsString(dynamicDetails));
         } catch (Exception e) { log.error("JSON serialize: {}", e.getMessage()); }
@@ -198,6 +200,7 @@ public class ReportAttackController {
                 Path targetPath = uploadPath.resolve(storedName).normalize();
                 if (!targetPath.getParent().equals(uploadPath.toAbsolutePath().normalize())) throw new IllegalArgumentException("Invalid evidence filename.");
                 Files.write(targetPath, encryptionService.encrypt(evidenceBytes));
+                writtenEvidencePath = targetPath;
 
                 report.setEvidenceFilePath(storedName);
                 report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
@@ -207,7 +210,17 @@ public class ReportAttackController {
             } catch (IOException | IllegalArgumentException e) { log.error("File: {}", e.getMessage()); } catch (Exception e) { log.error("Evidence encryption failed: {}", e.getMessage()); }
         }
 
-        ReportAttack saved = service.create(report);
+        ReportAttack saved;
+        try {
+            saved = service.create(report);
+        } catch (Exception e) {
+            if (writtenEvidencePath != null) {
+                try { Files.deleteIfExists(writtenEvidencePath); }
+                catch (Exception cleanup) { log.warn("Failed to clean orphan evidence file: {}", cleanup.getMessage()); }
+            }
+            log.error("Report creation failed: {}", e.getMessage(), e);
+            return "redirect:/report-attack?error=save";
+        }
         auditService.log("CREATE_REPORT", "ReportAttack", String.valueOf(saved.getId()),
                 "Created report " + saved.getReportId() + " | type=" + saved.getAttackType() + " | severity=" + saved.getSeverity());
         if (saved.getHasEvidence() != null && saved.getHasEvidence()) {
