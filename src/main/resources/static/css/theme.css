@@ -486,3 +486,37 @@ html[data-theme="dark"] .app-main h1,html[data-theme="dark"] .app-main h2,html[d
 html[data-theme="dark"] .app-main small,html[data-theme="dark"] .app-main .muted,html[data-theme="dark"] .app-main .text-muted{color:#9fc5b6!important}
 html[data-theme="dark"] .app-main a:not(.app-btn){color:#67e8f9!important}
 html[data-theme="dark"] .app-main input::placeholder,html[data-theme="dark"] .app-main textarea::placeholder{color:#9fc5b6!important}
+
+
+/* ===== PRODUCTION RESPONSIVE HARDENING 2026-10-06 =====
+   Prevent horizontal drift while preserving intentional wide-data tables.
+*/
+html,body{max-width:100%;overflow-x:hidden}
+img,svg,video,canvas{max-width:100%;height:auto}
+button,input,select,textarea{max-width:100%;font:inherit}
+.app-main{min-width:0;overflow-wrap:anywhere}
+.app-main .app-card,.app-main .chart-card,.app-main .reports-card,.app-main .personal-box,.app-main .card{min-width:0}
+.app-main table{max-width:100%}
+.app-main .table-responsive,.app-main .table-wrap,.app-main .table-container{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.app-main pre,.app-main code{max-width:100%;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.app-main .actions,.app-main .button-row,.app-main .form-actions{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:900px){
+  .app-main{width:100%;min-width:0}
+  .app-main .grid,.app-main .dashboard-grid,.app-main .form-grid{grid-template-columns:minmax(0,1fr)!important}
+  .app-main .page-heading{max-width:100%}
+  .app-main .page-heading p{max-width:100%}
+  .app-main .modal,.app-main .dialog{width:min(94vw,720px);max-width:94vw}
+}
+@media(max-width:600px){
+  .app-main .app-card,.app-main .chart-card,.app-main .reports-card,.app-main .personal-box,.app-main .card{max-width:100%;margin-left:0;margin-right:0}
+  .app-main .actions,.app-main .button-row,.app-main .form-actions{align-items:stretch}
+  .app-main .actions>* ,.app-main .button-row>* ,.app-main .form-actions>*{max-width:100%}
+  .app-main .btn,.app-main .app-btn{white-space:normal;line-height:1.25}
+  .app-main .modal,.app-main .dialog{width:calc(100vw - 24px);max-width:calc(100vw - 24px)}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+html[data-theme="dark"] .app-main table th{color:#d5e8df!important}
+html[data-theme="dark"] .app-main table td{color:#d5e8df!important}
+html[data-theme="dark"] .app-main .muted,html[data-theme="dark"] .app-main .text-muted{color:#9fc5b6!important}
