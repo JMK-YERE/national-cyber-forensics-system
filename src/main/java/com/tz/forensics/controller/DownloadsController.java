@@ -62,6 +62,13 @@ public class DownloadsController {
 
     private String csv(String value) {
         if (value == null) return "\"\"";
-        return "\"" + value.replace("\"", "\"\"") + "\"";
+        String safe = value;
+        if (!safe.isEmpty()) {
+            char first = safe.charAt(0);
+            if (first == '=' || first == '+' || first == '-' || first == '@') {
+                safe = "'" + safe;
+            }
+        }
+        return "\"" + safe.replace("\"", "\"\"") + "\"";
     }
 }
