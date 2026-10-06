@@ -174,6 +174,7 @@ public class WhistleblowerController {
     public String reporterReply(@PathVariable Long id,
                                  @RequestParam String message,
                                  @RequestParam String code,
+                                 HttpSession session,
                                  RedirectAttributes ra) {
         WhistleblowerReport target = service.getById(id);
         if (target == null || code == null || !code.trim().equalsIgnoreCase(target.getTrackingCode())) {
@@ -187,6 +188,13 @@ public class WhistleblowerController {
         if (message == null || message.isBlank() || message.length() > 4000) {
             ra.addFlashAttribute("error", "Ujumbe lazima uwe na herufi 1 hadi 4000.");
             return "redirect:/whistleblower/track?code=" + java.net.URLEncoder.encode(code.trim(), java.nio.charset.StandardCharsets.UTF_8);
+        }
+        String normalizedCode = code.trim().toUpperCase(Locale.ROOT);
+        String sessionCode = (String) session.getAttribute("WB_VERIFIED_TRACKING_CODE");
+        Long sessionReportId = (Long) session.getAttribute("WB_VERIFIED_REPORT_ID");
+        if (sessionCode == null || !normalizedCode.equals(sessionCode) || sessionReportId == null || !id.equals(sessionReportId)) {
+            ra.addFlashAttribute("error", "Tracking session imekwisha. Tafadhali thibitisha tracking code tena.");
+            return "redirect:/whistleblower/track";
         }
         service.addMessage(id, "REPORTER", message.trim());
         try {
