@@ -179,7 +179,7 @@ public class IncidentController {
             auditService.log("REJECT_WORKFLOW", "Incident", String.valueOf(id), e.getMessage());
             return "redirect:/incidents/" + id;
         }
-        auditService.log("UPDATE_WORKFLOW", "Incident", String.valueOf(id), "Workflow: " + normalizedStatus);
+
         try {
             String message = incident.getIncidentId() + " — workflow changed to " + normalizedStatus;
             if (incident.getReporterUserId() != null) {
