@@ -1,1 +1,50 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Security Workspace | Cyber Forensics TZ</title><link rel="stylesheet" th:href="@{/css/theme.css}"></head><body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div><main class="app-main"><div class="app-container"><header class="cftz-page-head"><div><span class="cftz-eyebrow">CYBER FORENSICS TZ / INDIVIDUAL</span><h1>My Security Workspace</h1><p>Report an incident, track your reports and use the security tools available to your account.</p></div><span class="cftz-role" th:text="${role}">INDIVIDUAL</span></header><section class="cftz-stat-grid"><div class="cftz-stat"><span>Security score</span><b th:text="${user != null && user.securityScore != null ? user.securityScore : 0}">0</b></div><div class="cftz-stat"><span>Social accounts</span><b th:text="${user != null ? user.countSocialAccounts() : 0}">0</b></div><div class="cftz-stat"><span>Two-factor</span><b th:text="${user != null && user.has2fa != null && user.has2fa ? 'ON' : 'OFF'}">OFF</b></div><div class="cftz-stat"><span>Breach check</span><b th:text="${user != null && user.breachChecked != null && user.breachChecked ? 'DONE' : 'PENDING'}">PENDING</b></div></section><section class="cftz-section"><div class="cftz-section-title"><div><span class="cftz-eyebrow">YOUR REPORTS</span><h2>Incident history</h2></div><a th:href="@{/report-attack}" class="app-btn app-btn-primary">Report incident</a></div><div th:if="${myReports == null || myReports.isEmpty()}" class="cftz-empty">You have not submitted an incident report yet.</div><div th:each="r : ${myReports${" class="cftz-row"><div><strong class="mono" th:text="${r.reportId}">CFTZ-0001</strong><span class="cftz-tag" th:text="${r.attackTypeLabel}">Incident</span><p th:text="${r.title}">Report title</p><small>Status: <span th:text="${r.status}">NEW</span></small></div><a th:href="@{'/report-attack/view/' + ${r.id}}" class="app-btn app-btn-outline">Open</a></div></section></div></main><script th:src="@{/js/app.js}"></script></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Security Workspace | Cyber Forensics TZ</title>
+<link rel="stylesheet" th:href="@{/css/theme.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main"><div class="app-container">
+<header class="cftz-page-head">
+  <div>
+    <span class="cftz-eyebrow">CYBER FORENSICS TZ / INDIVIDUAL</span>
+    <h1>My Security Workspace</h1>
+    <p>Report security incidents, follow your submissions and access the security services available to your account.</p>
+  </div>
+  <span class="cftz-role" th:text="${role}">INDIVIDUAL</span>
+</header>
+
+<section class="cftz-section">
+  <div class="cftz-section-title">
+    <div><span class="cftz-eyebrow">SECURITY OPERATIONS</span><h2>What do you need to do?</h2></div>
+  </div>
+  <div class="cftz-action-grid">
+    <a th:href="@{/report-attack}">
+      <b>Report a security incident</b><span>Submit a cyber incident and provide the information needed for review.</span>
+    </a>
+    <a th:href="@{/report-attack/my-reports}">
+      <b>My reports</b><span>Track the incidents you have submitted and view their current status.</span>
+    </a>
+    <a th:href="@{/notifications}">
+      <b>Notifications</b><span>Review updates, assignments and messages related to your reports.</span>
+    </a>
+    <a th:href="@{/tools/password-check}">
+      <b>Security tools</b><span>Use the basic security checks available to authenticated users.</span>
+    </a>
+    <a th:href="@{/ai}">
+      <b>AI security assistant</b><span>Get guidance on common cyber-security questions and safe next steps.</span>
+    </a>
+  </div>
+</section>
+
+<section class="cftz-workline">
+  <div><strong>Privacy first</strong><span>Your personal reports remain subject to role-based access controls.</span></div>
+  <a th:href="@{/report-attack}" class="app-btn app-btn-primary">Report incident</a>
+</section>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
+</body></html>
