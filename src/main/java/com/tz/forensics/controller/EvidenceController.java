@@ -160,7 +160,7 @@ public class EvidenceController {
         model.addAttribute("custodians", userRepository.findAll().stream()
                 .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
                         && (u.isAdmin() || u.isProfessional() || u.isForensics() || u.isAnalyst())).toList());
-        model.addAttribute("canOperateCustody", true);
+        model.addAttribute("canOperateCustody", canAcquireEvidence(user)\n                || (evidence.getCustodianId() != null && evidence.getCustodianId().equals(user.getId())));
         auditService.log("VIEW_CHAIN_OF_CUSTODY", "Evidence", String.valueOf(id),
                 "Viewed chain of custody | SHA-256: " + evidence.getSha256Hash());
         return "evidence-custody";
