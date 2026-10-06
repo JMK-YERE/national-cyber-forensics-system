@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface EvidenceRepository extends JpaRepository<Evidence, Long> {
     List<Evidence> findByIncidentIdOrderByUploadedAtDesc(Long incidentId);
+    List<Evidence> findByCaseIdOrderByUploadedAtDesc(Long caseId);
 }
