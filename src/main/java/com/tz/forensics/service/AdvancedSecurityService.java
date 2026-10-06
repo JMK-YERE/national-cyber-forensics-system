@@ -97,7 +97,8 @@ public class AdvancedSecurityService {
     public Map<String, Object> dnsLookup(String domain) {
         Map<String, Object> result = new HashMap<>();
         try {
-            domain = domain.replace("https://", "").replace("http://", "").split("/")[0];
+            domain = normalizeHost(domain);
+            if (!isPublicHost(domain)) throw new IllegalArgumentException("Host ya private/local network hairuhusiwi.");
             InetAddress[] addresses = InetAddress.getAllByName(domain);
 
             List<String> ips = new ArrayList<>();
@@ -122,20 +123,16 @@ public class AdvancedSecurityService {
     public Map<String, Object> checkIPReputation(String ip) {
         Map<String, Object> result = new HashMap<>();
         try {
-            result.put("ip", ip);
-
-            // Check private IP
-            String[] parts = ip.split("\\.");
-            if (parts.length == 4) {
-                int first = Integer.parseInt(parts[0]);
-                int second = Integer.parseInt(parts[1]);
-                if (first == 10 || first == 127 || (first == 172 && second >= 16 && second <= 31)
-                        || (first == 192 && second == 168)) {
-                    result.put("private", true);
-                    result.put("message", "Hii ni private IP (bila hatari)");
-                    return result;
-                }
+            if (ip == null || ip.isBlank()) throw new IllegalArgumentException("IP haipo.");
+            InetAddress parsed = InetAddress.getByName(ip.trim());
+            if (!isPublicAddress(parsed)) {
+                result.put("ip", ip);
+                result.put("private", true);
+                result.put("message", "Hii ni IP ya private/local/reserved network.");
+                return result;
             }
+            ip = ip.trim();
+            result.put("ip", ip);
 
             // Reverse DNS
             try {
@@ -400,7 +397,8 @@ public class AdvancedSecurityService {
     public Map<String, Object> checkDomainAge(String domain) {
         Map<String, Object> result = new HashMap<>();
         try {
-            domain = domain.replace("https://", "").replace("http://", "").split("/")[0];
+            domain = normalizeHost(domain);
+            if (!isPublicHost(domain)) throw new IllegalArgumentException("Host ya private/local network hairuhusiwi.");
             InetAddress address = InetAddress.getByName(domain);
             result.put("resolved", true);
             result.put("ip", address.getHostAddress());
@@ -419,6 +417,25 @@ public class AdvancedSecurityService {
             result.put("error", e.getMessage());
         }
         return result;
+    }
+
+    private String normalizeHost(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("Domain haipo.");
+        String host = value.trim();
+        if (host.matches("^[a-zA-Z][a-zA-Z0-9+.-]*://.*$")) {
+            URI uri = URI.create(host);
+            if (uri.getUserInfo() != null || uri.getHost() == null) throw new IllegalArgumentException("Domain si sahihi.");
+            host = uri.getHost();
+        } else {
+            host = host.split("/")[0].split(":")[0].trim();
+        }
+        if (host.length() > 253 || host.isBlank()) throw new IllegalArgumentException("Domain si sahihi.");
+        return host;
+    }
+
+    private boolean isPublicAddress(InetAddress address) {
+        return address != null && !address.isAnyLocalAddress() && !address.isLoopbackAddress()
+                && !address.isLinkLocalAddress() && !address.isSiteLocalAddress() && !address.isMulticastAddress();
     }
 
     // ========== 10. SSL EXPIRY CHECK ==========
