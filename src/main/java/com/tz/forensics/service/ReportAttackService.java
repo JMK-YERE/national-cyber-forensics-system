@@ -20,6 +20,7 @@ public class ReportAttackService {
         this.repo = repo;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public ReportAttack create(ReportAttack report) {
         if (report.getReportId() == null) {
             report.setReportId(generateReportId());
@@ -63,6 +64,7 @@ public class ReportAttackService {
         return repo.count();
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void updateStatus(Long id, String status, String adminResponse, Long assignedTo, String assignedName) {
         ReportAttack r = repo.findById(id).orElse(null);
         if (r != null) {
@@ -74,8 +76,19 @@ public class ReportAttackService {
             if (!allowed.contains(normalizedStatus)) {
                 throw new IllegalArgumentException("Unsupported report status: " + status);
             }
-            if ("CLOSED".equalsIgnoreCase(r.getStatus()) && !"CLOSED".equals(normalizedStatus)) {
+            String from = r.getStatus() == null ? "NEW" : r.getStatus().trim().toUpperCase();
+            if ("CLOSED".equals(from)) {
                 throw new IllegalStateException("Closed reports cannot be reopened.");
+            }
+            boolean validTransition = switch (from) {
+                case "NEW" -> "UNDER_REVIEW".equals(normalizedStatus) || "REJECTED".equals(normalizedStatus);
+                case "UNDER_REVIEW" -> "INVESTIGATING".equals(normalizedStatus) || "REJECTED".equals(normalizedStatus);
+                case "INVESTIGATING" -> "RESOLVED".equals(normalizedStatus) || "REJECTED".equals(normalizedStatus);
+                case "RESOLVED", "REJECTED" -> "CLOSED".equals(normalizedStatus);
+                default -> false;
+            };
+            if (!validTransition) {
+                throw new IllegalStateException("Invalid report workflow transition: " + from + " -> " + normalizedStatus);
             }
             r.setStatus(normalizedStatus);
             if (adminResponse != null && !adminResponse.isEmpty()) {
