@@ -74,38 +74,8 @@ public class PDFReportService {
             doc.add(table);
 
             // ===== DESCRIPTION =====
-            doc.add(new Paragraph(""));
-            doc.add(new Paragraph(reportTitle).setFontSize(11).setItalic().setTextAlignment(TextAlignment.CENTER));
-            doc.add(new Paragraph("Timeline").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
-            if(timeline != null && !timeline.isEmpty()){
-                Table tt=new Table(UnitValue.createPercentArray(new float[]{22,24,54})).setWidth(UnitValue.createPercentValue(100));
-                tt.addHeaderCell(new Cell().add(new Paragraph("Time").setBold()));
-                tt.addHeaderCell(new Cell().add(new Paragraph("Event").setBold()));
-                tt.addHeaderCell(new Cell().add(new Paragraph("Details").setBold()));
-                for(CaseTimeline t:timeline){
-                    tt.addCell(new Paragraph(t.getCreatedAt()!=null?t.getCreatedAt().format(FMT):"N/A"));
-                    tt.addCell(new Paragraph(t.getTitle()!=null?t.getTitle():"N/A"));
-                    tt.addCell(new Paragraph(t.getDetails()!=null?t.getDetails():"N/A"));
-                }
-                doc.add(tt);
-            } else doc.add(new Paragraph("No timeline events recorded."));
-            doc.add(new Paragraph("Indicators of Compromise (IOCs)").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(14));
-            if(iocs != null && !iocs.isEmpty()){
-                Table it=new Table(UnitValue.createPercentArray(new float[]{15,40,20,25})).setWidth(UnitValue.createPercentValue(100));
-                it.addHeaderCell(new Paragraph("Type").setBold()); it.addHeaderCell(new Paragraph("Value").setBold()); it.addHeaderCell(new Paragraph("Confidence").setBold()); it.addHeaderCell(new Paragraph("Source").setBold());
-                for(CaseIoc i:iocs){it.addCell(new Paragraph(i.getIocType()));it.addCell(new Paragraph(i.getValue()));it.addCell(new Paragraph(i.getConfidence()!=null?i.getConfidence():"N/A"));it.addCell(new Paragraph(i.getSource()!=null?i.getSource():"N/A"));}
-                doc.add(it);
-            } else doc.add(new Paragraph("No IOCs recorded."));
-            doc.add(new Paragraph("Evidence Integrity").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(14));
-            if(evidence != null && !evidence.isEmpty()){
-                Table et=new Table(UnitValue.createPercentArray(new float[]{28,18,18,36})).setWidth(UnitValue.createPercentValue(100));
-                et.addHeaderCell(new Paragraph("File").setBold());et.addHeaderCell(new Paragraph("Custody").setBold());et.addHeaderCell(new Paragraph("Verified").setBold());et.addHeaderCell(new Paragraph("SHA-256").setBold());
-                for(Evidence e:evidence){et.addCell(new Paragraph(e.getOriginalFilename()));et.addCell(new Paragraph(e.getCustodyStatus()!=null?e.getCustodyStatus():"N/A"));et.addCell(new Paragraph(Boolean.TRUE.equals(e.getVerified())?"VERIFIED":"PENDING"));et.addCell(new Paragraph(e.getSha256Hash()!=null?e.getSha256Hash():"N/A"));}
-                doc.add(et);
-            } else doc.add(new Paragraph("No evidence attached."));
             doc.add(new Paragraph("📝 DESCRIPTION").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
-            doc.add(new Paragraph(incident.getDescription() != null ? incident.getDescription() : "N/A")
-                    .setFontSize(10));
+            doc.add(new Paragraph(incident.getDescription() != null ? incident.getDescription() : "N/A").setFontSize(10));
 
             // ===== FINANCIAL LOSS =====
             if (incident.getTotalLossTzs() != null && incident.getTotalLossTzs().doubleValue() > 0) {
@@ -201,6 +171,10 @@ public class PDFReportService {
         }
     }
 
+    public byte[] generateCaseReport(CaseFile caseFile) {
+        return generateDetailedCaseReport(caseFile, List.of(), List.of(), List.of(), "Case File Report");
+    }
+
     // ===== CASE FILE PDF =====
     public byte[] generateExecutiveCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
         return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, "Executive Case Report");
@@ -218,47 +192,88 @@ public class PDFReportService {
 
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PdfWriter writer = new PdfWriter(baos);
-            PdfDocument pdfDoc = new PdfDocument(writer);
+            PdfDocument pdfDoc = new PdfDocument(new PdfWriter(baos));
             Document doc = new Document(pdfDoc);
 
-            doc.add(new Paragraph("🇹🇿 NATIONAL CYBER FORENSICS SYSTEM")
-                    .setFontSize(18).setBold().setFontColor(CYBER_DARK).setTextAlignment(TextAlignment.CENTER));
-            doc.add(new Paragraph("Case File Report").setFontSize(11).setItalic().setTextAlignment(TextAlignment.CENTER).setMarginBottom(20));
-            doc.add(new Paragraph("━".repeat(60)).setFontColor(CYBER_GREEN));
+            doc.add(new Paragraph("CYBER FORENSICS TZ").setFontSize(18).setBold().setFontColor(CYBER_DARK).setTextAlignment(TextAlignment.CENTER));
+            doc.add(new Paragraph(reportTitle).setFontSize(14).setBold().setTextAlignment(TextAlignment.CENTER));
+            doc.add(new Paragraph("Case Investigation Report").setFontSize(10).setItalic().setTextAlignment(TextAlignment.CENTER).setMarginBottom(16));
 
-            doc.add(new Paragraph("📁 CASE DETAILS").setBold().setFontSize(14).setFontColor(CYBER_GREEN));
+            doc.add(new Paragraph("CASE OVERVIEW").setBold().setFontSize(13).setFontColor(CYBER_GREEN));
+            Table overview = new Table(UnitValue.createPercentArray(new float[]{30,70})).setWidth(UnitValue.createPercentValue(100));
+            addRow(overview, "Case Number", caseFile.getCaseNumber());
+            addRow(overview, "Title", caseFile.getTitle());
+            addRow(overview, "Status", caseFile.getStatus());
+            addRow(overview, "Priority", caseFile.getPriority());
+            addRow(overview, "Created By", caseFile.getCreatedByName());
+            addRow(overview, "Assigned Investigator", caseFile.getAssignedToName());
+            addRow(overview, "Lead Investigator", caseFile.getLeadInvestigatorName());
+            addRow(overview, "Due Date", caseFile.getDueDate() != null ? caseFile.getDueDate().format(FMT) : "N/A");
+            addRow(overview, "Created At", caseFile.getCreatedAt() != null ? caseFile.getCreatedAt().format(FMT) : "N/A");
+            addRow(overview, "Closed At", caseFile.getClosedAt() != null ? caseFile.getClosedAt().format(FMT) : "Pending");
+            doc.add(overview);
 
-            Table table = new Table(UnitValue.createPercentArray(new float[]{30, 70}))
-                    .setWidth(UnitValue.createPercentValue(100));
-            addRow(table, "Case Number", caseFile.getCaseNumber());
-            addRow(table, "Title", caseFile.getTitle());
-            addRow(table, "Status", caseFile.getStatus());
-            addRow(table, "Priority", caseFile.getPriority());
-            addRow(table, "Created By", caseFile.getCreatedByName());
-            addRow(table, "Created At", caseFile.getCreatedAt() != null ? caseFile.getCreatedAt().format(FMT) : "N/A");
-            addRow(table, "Closed At", caseFile.getClosedAt() != null ? caseFile.getClosedAt().format(FMT) : "Pending");
-            doc.add(table);
-
-            doc.add(new Paragraph(""));
-            doc.add(new Paragraph("📝 DESCRIPTION").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
+            doc.add(new Paragraph("DESCRIPTION").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(14));
             doc.add(new Paragraph(caseFile.getDescription() != null ? caseFile.getDescription() : "N/A").setFontSize(10));
-
-            if (caseFile.getClosureReason() != null) {
-                doc.add(new Paragraph(""));
-                doc.add(new Paragraph("🔒 CLOSURE REASON").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
+            if (caseFile.getClosureReason() != null && !caseFile.getClosureReason().isBlank()) {
+                doc.add(new Paragraph("CLOSURE REASON").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(14));
                 doc.add(new Paragraph(caseFile.getClosureReason()).setFontSize(10));
             }
 
-            doc.add(new Paragraph(""));
-            doc.add(new Paragraph("━".repeat(60)).setFontColor(CYBER_GREEN));
-            doc.add(new Paragraph("Generated: " + java.time.LocalDateTime.now().format(FMT)).setFontSize(9).setItalic());
-            doc.add(new Paragraph("Confidential — For Official Use Only").setFontSize(8).setItalic().setFontColor(CYBER_RED).setTextAlignment(TextAlignment.CENTER));
+            doc.add(new Paragraph("INVESTIGATION TIMELINE").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(16));
+            if (timeline != null && !timeline.isEmpty()) {
+                Table tt = new Table(UnitValue.createPercentArray(new float[]{22,23,55})).setWidth(UnitValue.createPercentValue(100));
+                tt.addHeaderCell(new Cell().add(new Paragraph("Time").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                tt.addHeaderCell(new Cell().add(new Paragraph("Event").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                tt.addHeaderCell(new Cell().add(new Paragraph("Details").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                for (CaseTimeline item : timeline) {
+                    tt.addCell(new Paragraph(item.getCreatedAt() != null ? item.getCreatedAt().format(FMT) : "N/A"));
+                    tt.addCell(new Paragraph(item.getTitle() != null ? item.getTitle() : "N/A"));
+                    tt.addCell(new Paragraph(item.getDetails() != null ? item.getDetails() : "N/A"));
+                }
+                doc.add(tt);
+            } else doc.add(new Paragraph("No timeline events recorded."));
 
+            doc.add(new Paragraph("INDICATORS OF COMPROMISE (IOCs)").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(16));
+            if (iocs != null && !iocs.isEmpty()) {
+                Table it = new Table(UnitValue.createPercentArray(new float[]{14,42,18,26})).setWidth(UnitValue.createPercentValue(100));
+                it.addHeaderCell(new Cell().add(new Paragraph("Type").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                it.addHeaderCell(new Cell().add(new Paragraph("Value").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                it.addHeaderCell(new Cell().add(new Paragraph("Confidence").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                it.addHeaderCell(new Cell().add(new Paragraph("Source").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                for (CaseIoc item : iocs) {
+                    it.addCell(new Paragraph(item.getIocType() != null ? item.getIocType() : "N/A"));
+                    it.addCell(new Paragraph(item.getValue() != null ? item.getValue() : "N/A"));
+                    it.addCell(new Paragraph(item.getConfidence() != null ? item.getConfidence() : "N/A"));
+                    it.addCell(new Paragraph(item.getSource() != null ? item.getSource() : "N/A"));
+                }
+                doc.add(it);
+            } else doc.add(new Paragraph("No IOCs recorded."));
+
+            doc.add(new Paragraph("DIGITAL EVIDENCE & INTEGRITY").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(16));
+            if (evidence != null && !evidence.isEmpty()) {
+                Table et = new Table(UnitValue.createPercentArray(new float[]{25,15,16,44})).setWidth(UnitValue.createPercentValue(100));
+                et.addHeaderCell(new Cell().add(new Paragraph("File").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                et.addHeaderCell(new Cell().add(new Paragraph("Custody").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                et.addHeaderCell(new Cell().add(new Paragraph("Integrity").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                et.addHeaderCell(new Cell().add(new Paragraph("SHA-256").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                for (Evidence item : evidence) {
+                    et.addCell(new Paragraph(item.getOriginalFilename() != null ? item.getOriginalFilename() : "N/A"));
+                    et.addCell(new Paragraph(item.getCustodyStatus()));
+                    et.addCell(new Paragraph(Boolean.TRUE.equals(item.getVerified()) ? "VERIFIED" : "PENDING"));
+                    et.addCell(new Paragraph(item.getSha256Hash() != null ? item.getSha256Hash() : "N/A"));
+                }
+                doc.add(et);
+            } else doc.add(new Paragraph("No evidence attached to this incident."));
+
+            doc.add(new Paragraph("CHAIN OF CUSTODY").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(16));
+            doc.add(new Paragraph("Custody status and custodian are recorded for each evidence item. Detailed custody events remain available from the evidence custody view.").setFontSize(9));
+            doc.add(new Paragraph("Generated: " + java.time.LocalDateTime.now().format(FMT)).setFontSize(9).setItalic().setMarginTop(14));
+            doc.add(new Paragraph("Confidential — For Official Use Only").setFontSize(8).setItalic().setFontColor(CYBER_RED).setTextAlignment(TextAlignment.CENTER));
             doc.close();
             return baos.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("PDF generation failed", e);
+        } catch (Exception ex) {
+            throw new RuntimeException("PDF generation failed", ex);
         }
     }
 
