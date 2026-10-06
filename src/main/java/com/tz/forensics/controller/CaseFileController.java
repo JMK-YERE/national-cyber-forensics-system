@@ -80,9 +80,12 @@ public class CaseFileController {
                 .filter(cf -> canViewCase(cf, user))
                 .toList();
         model.addAttribute("cases", visibleCases);
-        model.addAttribute("openCount", caseFileService.countOpen());
-        model.addAttribute("investigatingCount", caseFileService.countInvestigating());
-        model.addAttribute("closedCount", caseFileService.countClosed());
+        long openCount = visibleCases.stream().filter(cf -> "OPEN".equalsIgnoreCase(cf.getStatus()) || "TRIAGED".equalsIgnoreCase(cf.getStatus()) || "ASSIGNED".equalsIgnoreCase(cf.getStatus())).count();
+        long investigatingCount = visibleCases.stream().filter(cf -> "INVESTIGATING".equalsIgnoreCase(cf.getStatus()) || "EXAMINATION".equalsIgnoreCase(cf.getStatus()) || "REVIEW".equalsIgnoreCase(cf.getStatus())).count();
+        long closedCount = visibleCases.stream().filter(cf -> "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())).count();
+        model.addAttribute("openCount", openCount);
+        model.addAttribute("investigatingCount", investigatingCount);
+        model.addAttribute("closedCount", closedCount);
         return "cases";
     }
 
