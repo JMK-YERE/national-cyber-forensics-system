@@ -144,9 +144,25 @@ public class OAuth2VerificationController {
             return "oauth2-verify";
         }
 
+        String submittedOtp = otp == null ? "" : otp.trim();
+        if (!submittedOtp.matches("\\d{6}")) {
+            user.setOauthOtpAttempts(user.getOauthOtpAttempts() + 1);
+            if (user.getOauthOtpAttempts() >= 5) {
+                clearOtp(user);
+                model.addAttribute("error", "Umefikia idadi ya juu ya majaribio. Omba OTP mpya.");
+            } else {
+                userRepository.save(user);
+                model.addAttribute("error", "OTP si sahihi.");
+            }
+            model.addAttribute("emailMasked", maskEmail(user.getEmail()));
+            model.addAttribute("name", user.getFullName());
+            model.addAttribute("sent", true);
+            return "oauth2-verify";
+        }
+
         user.setOauthOtpAttempts(user.getOauthOtpAttempts() + 1);
 
-        if (!passwordEncoder.matches(otp == null ? "" : otp.trim(), user.getOauthOtpHash())) {
+        if (!passwordEncoder.matches(submittedOtp, user.getOauthOtpHash())) {
             userRepository.save(user);
             model.addAttribute("error", "OTP si sahihi.");
             model.addAttribute("emailMasked", maskEmail(user.getEmail()));
