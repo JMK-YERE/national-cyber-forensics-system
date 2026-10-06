@@ -105,6 +105,14 @@ public class SecurityConfig {
                 .requestMatchers("/ai/debug", "/ai/test-models")
                     .hasAuthority("ROLE_ADMIN")
 
+                // Threat intelligence dashboards expose aggregate operational data and are staff-only.
+                .requestMatchers("/ai/threat-detection", "/ai/analyze-incident", "/ai/analysis-api", "/ai/prediction-api")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
+
+                // Administrative diagnostic endpoint must never expose global users/reports to ordinary users.
+                .requestMatchers("/admin/check")
+                    .hasAuthority("ROLE_ADMIN")
+
                 .requestMatchers("/ai/**", "/report-attack/**", "/notifications/**", "/downloads/**", "/change-password")
                     .authenticated()
 
