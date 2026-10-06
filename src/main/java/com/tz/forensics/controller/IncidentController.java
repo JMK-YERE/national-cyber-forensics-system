@@ -147,7 +147,7 @@ public class IncidentController {
             auditService.log("REJECT_ASSIGN_INCIDENT", "Incident", String.valueOf(id), e.getMessage());
             return "redirect:/incidents/" + id;
         }
-        auditService.log("ASSIGN_INCIDENT", "Incident", String.valueOf(id), "Assigned to: " + assignedUser.getUsername());
+
         try {
             notificationService.createNotification(
                     assignedUser.getId(),
