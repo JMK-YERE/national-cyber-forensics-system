@@ -11,7 +11,6 @@ import com.tz.forensics.service.WhistleblowerService;
 import com.tz.forensics.service.EncryptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -26,9 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -47,15 +43,14 @@ public class WhistleblowerController {
     private final AuditService auditService;
     private final NotificationService notificationService;
     private final EncryptionService encryptionService;
-
-    @Value("${app.upload.dir:uploads/whistleblower}")
-    private String uploadDir;
+    private final EvidenceStorage evidenceStorage;
 
     public WhistleblowerController(WhistleblowerService service,
                                     UserRepository userRepository,
                                     AuditService auditService,
                                     NotificationService notificationService,
-                                   EncryptionService encryptionService) {
+                                   EncryptionService encryptionService,
+                                   EvidenceStorage evidenceStorage) {
         this.service = service;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -95,17 +90,13 @@ public class WhistleblowerController {
         if (evidenceFile != null && !evidenceFile.isEmpty()) {
             try {
                 if (evidenceFile.getSize() > 10 * 1024 * 1024) throw new IOException("File exceeds 10 MB limit.");
-                Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
                 String original = evidenceFile.getOriginalFilename() == null ? "evidence.bin" : evidenceFile.getOriginalFilename();
                 String extension = "";
                 int dot = original.lastIndexOf(".");
                 if (dot >= 0 && dot < original.length() - 1) extension = original.substring(dot).replaceAll("[^A-Za-z0-9.]", "").toLowerCase(Locale.ROOT);
                 String storedName = UUID.randomUUID() + extension + ".enc";
-                Path targetPath = uploadPath.resolve(storedName).normalize();
-                if (!targetPath.startsWith(uploadPath)) throw new IOException("Invalid upload path.");
                 byte[] originalBytes = evidenceFile.getBytes();
-                Files.write(targetPath, encryptionService.encrypt(originalBytes));
+                evidenceStorage.write(storedName, encryptionService.encrypt(originalBytes));
                 report.setEvidenceFilePath(storedName);
                 report.setEvidenceFileType(detectFileType(tika.detect(originalBytes, original)));
                 report.setEvidenceFileSize((long) originalBytes.length);
@@ -258,10 +249,7 @@ public class WhistleblowerController {
             return ResponseEntity.notFound().build();
         }
         try {
-            Path base = Paths.get(uploadDir).toAbsolutePath().normalize();
-            Path file = base.resolve(report.getEvidenceFilePath()).normalize();
-            if (!file.startsWith(base) || !Files.isRegularFile(file)) return ResponseEntity.notFound().build();
-            byte[] stored = Files.readAllBytes(file);
+            byte[] stored = evidenceStorage.read(report.getEvidenceFilePath());
             byte[] data = report.getEvidenceFilePath().endsWith(".enc") ? encryptionService.decrypt(stored) : stored;
             auditService.log("DOWNLOAD_WHISTLEBLOWER_EVIDENCE", "Whistleblower", String.valueOf(id), "Evidence downloaded by authorized staff");
             String filename = "whistleblower-evidence-" + id;
