@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.security.SecureRandom;
 
 @Service
@@ -25,6 +26,7 @@ public class IncidentService {
     }
 
     public Incident createIncident(IncidentDto dto, String username) {
+        validateIncident(dto, username);
         User reporterUser = userRepository.findByUsername(username).orElse(null);
         Incident incident = new Incident();
 
@@ -59,6 +61,38 @@ public class IncidentService {
         incident.setTotalLossTzs(total);
 
         return incidentRepository.save(incident);
+    }
+
+    private void validateIncident(IncidentDto dto, String username) {
+        if (dto == null) throw new IllegalArgumentException("Incident data is required.");
+        if (username == null || username.isBlank()) throw new IllegalArgumentException("Authenticated reporter is required.");
+
+        String title = dto.getTitle() == null ? "" : dto.getTitle().trim();
+        String description = dto.getDescription() == null ? "" : dto.getDescription().trim();
+        if (title.length() < 3 || title.length() > 200) {
+            throw new IllegalArgumentException("Incident title must be between 3 and 200 characters.");
+        }
+        if (description.length() < 10 || description.length() > 10000) {
+            throw new IllegalArgumentException("Incident description must be between 10 and 10000 characters.");
+        }
+
+        String severity = dto.getSeverity() == null || dto.getSeverity().isBlank()
+                ? "MEDIUM" : dto.getSeverity().trim().toUpperCase();
+        if (!Set.of("LOW", "MEDIUM", "HIGH", "CRITICAL").contains(severity)) {
+            throw new IllegalArgumentException("Unsupported incident severity.");
+        }
+
+        validateNonNegative(dto.getDirectLossTzs(), "Direct loss");
+        validateNonNegative(dto.getRecoveryCostTzs(), "Recovery cost");
+        validateNonNegative(dto.getDowntimeCostTzs(), "Downtime cost");
+        validateNonNegative(dto.getLegalFeesTzs(), "Legal fees");
+        validateNonNegative(dto.getReputationDamageTzs(), "Reputation damage");
+    }
+
+    private void validateNonNegative(BigDecimal value, String field) {
+        if (value != null && value.signum() < 0) {
+            throw new IllegalArgumentException(field + " cannot be negative.");
+        }
     }
 
     private String generateIncidentId() {
