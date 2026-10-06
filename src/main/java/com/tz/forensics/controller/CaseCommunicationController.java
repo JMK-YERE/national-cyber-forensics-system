@@ -19,6 +19,7 @@ public class CaseCommunicationController{
  private User current(Authentication a){return a==null?null:users.findByUsername(a.getName()).orElse(null);}
  private boolean staff(User u){return u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics()||u.isAnalyst());}
  private boolean canView(CaseFile c,User u){return c!=null&&u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics()||("ANALYST".equalsIgnoreCase(u.getRole())&&(u.getId().equals(c.getCreatedBy())||u.getId().equals(c.getAssignedTo())||u.getId().equals(c.getLeadInvestigator()))));}
+ private boolean closed(CaseFile c){String s=c==null||c.getStatus()==null?"OPEN":c.getStatus().trim().toUpperCase(Locale.ROOT);return "CLOSED".equals(s)||"ARCHIVED".equals(s);}
  @GetMapping("/{caseId}")
  public String view(@PathVariable Long caseId,Model m,Authentication a){
   User u=current(a); CaseFile c=caseService.getById(caseId);
@@ -44,6 +45,7 @@ public class CaseCommunicationController{
  public String escalate(@PathVariable Long caseId,Authentication a){
   User u=current(a);CaseFile c=caseService.getById(caseId);
   if(!staff(u)||!canView(c,u))return "redirect:/access-denied";
+  if(closed(c)){audit.log("REJECT_CASE_ESCALATION","CaseFile",String.valueOf(caseId),"Escalation attempted after case closure");return "redirect:/case-communications/"+caseId;}
   String current=u.getRole()==null?"":u.getRole().toUpperCase(Locale.ROOT);
   String next=switch(current){case "ANALYST"->"FORENSICS";case "FORENSICS"->"CYBER_PRO";case "CYBER_PRO"->"ADMIN";default->null;};
   if(next!=null){
