@@ -172,24 +172,30 @@ public class WhistleblowerController {
                                  @RequestParam String code,
                                  HttpSession session,
                                  RedirectAttributes ra) {
+        // The verified session is the authorization boundary. Do not look up the
+        // report or compare the supplied code before this check; that would turn
+        // the endpoint into a tracking-code oracle and would permit unnecessary
+        // access to report metadata.
+        String normalizedCode = code == null ? "" : code.trim().toUpperCase(Locale.ROOT);
+        String sessionCode = (String) session.getAttribute("WB_VERIFIED_TRACKING_CODE");
+        Long sessionReportId = (Long) session.getAttribute("WB_VERIFIED_REPORT_ID");
+        if (sessionCode == null || !normalizedCode.equals(sessionCode)
+                || sessionReportId == null || !id.equals(sessionReportId)) {
+            ra.addFlashAttribute("error", "Tracking session imekwisha. Tafadhali thibitisha tracking code tena.");
+            return "redirect:/whistleblower/track";
+        }
+
         WhistleblowerReport target = service.getById(id);
-        if (target == null || code == null || !code.trim().equalsIgnoreCase(target.getTrackingCode())) {
-            ra.addFlashAttribute("error", "Tracking code si sahihi.");
+        if (target == null) {
+            ra.addFlashAttribute("error", "Taarifa haipatikani.");
             return "redirect:/whistleblower/track";
         }
         if ("CLOSED".equalsIgnoreCase(target.getStatus())) {
             ra.addFlashAttribute("error", "Taarifa iliyofungwa haiwezi kupokea ujumbe mpya.");
-            return "redirect:/whistleblower/track?code=" + java.net.URLEncoder.encode(code.trim(), java.nio.charset.StandardCharsets.UTF_8);
+            return "redirect:/whistleblower/track";
         }
         if (message == null || message.isBlank() || message.length() > 4000) {
             ra.addFlashAttribute("error", "Ujumbe lazima uwe na herufi 1 hadi 4000.");
-            return "redirect:/whistleblower/track?code=" + java.net.URLEncoder.encode(code.trim(), java.nio.charset.StandardCharsets.UTF_8);
-        }
-        String normalizedCode = code.trim().toUpperCase(Locale.ROOT);
-        String sessionCode = (String) session.getAttribute("WB_VERIFIED_TRACKING_CODE");
-        Long sessionReportId = (Long) session.getAttribute("WB_VERIFIED_REPORT_ID");
-        if (sessionCode == null || !normalizedCode.equals(sessionCode) || sessionReportId == null || !id.equals(sessionReportId)) {
-            ra.addFlashAttribute("error", "Tracking session imekwisha. Tafadhali thibitisha tracking code tena.");
             return "redirect:/whistleblower/track";
         }
         service.addMessage(id, "REPORTER", message.trim());
@@ -208,7 +214,7 @@ public class WhistleblowerController {
         } catch (Exception e) { log.error("Notif: {}", e.getMessage()); }
 
         ra.addFlashAttribute("success", "✅ Ujumbe wako umetumwa.");
-        return "redirect:/whistleblower/track?code=" + code;
+        return "redirect:/whistleblower/track";
     }
 
     @GetMapping("/admin")
