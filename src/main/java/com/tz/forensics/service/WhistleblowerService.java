@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class WhistleblowerService {
@@ -41,7 +42,8 @@ public class WhistleblowerService {
     }
 
     public WhistleblowerReport findByTrackingCode(String code) {
-        return reportRepo.findByTrackingCode(code.toUpperCase().trim()).orElse(null);
+        if (code == null || code.isBlank()) return null;
+        return reportRepo.findByTrackingCode(code.trim().toUpperCase()).orElse(null);
     }
 
     public List<WhistleblowerReport> getAll() {
@@ -64,7 +66,15 @@ public class WhistleblowerService {
     public void updateStatus(Long id, String status, String adminResponse, String internalNotes) {
         WhistleblowerReport r = reportRepo.findById(id).orElse(null);
         if (r != null) {
-            r.setStatus(status);
+            String normalized = status == null ? "" : status.trim().toUpperCase();
+            Set<String> allowed = Set.of("NEW", "UNDER_REVIEW", "INVESTIGATING", "RESOLVED", "REJECTED", "CLOSED");
+            if (!allowed.contains(normalized)) {
+                throw new IllegalArgumentException("Unsupported whistleblower status: " + status);
+            }
+            if ("CLOSED".equalsIgnoreCase(r.getStatus())) {
+                throw new IllegalStateException("Closed whistleblower reports cannot be reopened.");
+            }
+            r.setStatus(normalized);
             if (adminResponse != null && !adminResponse.isEmpty()) {
                 r.setAdminResponse(adminResponse);
                 messageRepo.save(new WhistleblowerMessage(id, "ADMIN", adminResponse));
