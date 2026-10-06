@@ -68,3 +68,11 @@ table{border-color:#e2e8f0!important}th{background:#f8fafc!important;color:#4755
 .legacy-nav-shell .app-sidebar{background:#fff!important;color:#334155!important;box-shadow:1px 0 5px rgba(15,23,42,.04)!important}
 .legacy-nav-shell .sidebar-item{color:#475569!important}.legacy-nav-shell .sidebar-item:hover{background:#f1f5f9!important;color:#1d4ed8!important}.legacy-nav-shell .sidebar-section{color:#64748b!important}
 .legacy-nav-shell .ai-floating{background:#2563eb!important;color:#fff!important;box-shadow:0 8px 18px rgba(37,99,235,.18)!important}
+
+
+/* ===== LEGACY READABILITY COMPATIBILITY 2026-10-06 ===== */
+.legacy-nav-shell,.legacy-nav-shell~.container{font-size:15px}
+.legacy-nav-shell~.container p,.legacy-nav-shell~.container li{color:#334155;line-height:1.6}
+.legacy-nav-shell~.container small,.legacy-nav-shell~.container .muted,.legacy-nav-shell~.container .text-muted{color:#64748b!important}
+.legacy-nav-shell~.container h1,.legacy-nav-shell~.container h2,.legacy-nav-shell~.container h3,.legacy-nav-shell~.container h4{color:#0f172a!important}
+@media(max-width:900px){.legacy-nav-shell~.container{font-size:15px}.legacy-nav-shell~.container p,.legacy-nav-shell~.container li{font-size:14px;line-height:1.6}.legacy-nav-shell~.container h1{font-size:24px}.legacy-nav-shell~.container h2{font-size:20px}}
