@@ -167,6 +167,7 @@ public class PasswordController {
         if (session != null) {
             session.removeAttribute("PASSWORD_RESET_USER_ID");
             session.removeAttribute("PASSWORD_RESET_MODE");
+            session.removeAttribute("PASSWORD_RESET_OTP_SENT_AT");
         }
 
         // The password-reset flow is already a verified identity flow.
