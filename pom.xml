@@ -23,6 +23,12 @@
     </properties>
 
     <dependencies>
+        <!-- S3-compatible object storage for production evidence vault -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.25.60</version>
+        </dependency>
         <!-- Web + Thymeleaf -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
