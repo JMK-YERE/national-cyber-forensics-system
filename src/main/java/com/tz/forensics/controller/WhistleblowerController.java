@@ -278,6 +278,11 @@ public class WhistleblowerController {
         try {
             byte[] stored = evidenceStorage.read(report.getEvidenceFilePath());
             byte[] data = report.getEvidenceFilePath().endsWith(".enc") ? encryptionService.decrypt(stored) : stored;
+            if (report.getEvidenceFileSize() != null && report.getEvidenceFileSize() != data.length) {
+                auditService.log("REJECT_WHISTLEBLOWER_EVIDENCE_INTEGRITY", "Whistleblower", String.valueOf(id),
+                        "Stored evidence size does not match recorded acquisition size");
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
             auditService.log("DOWNLOAD_WHISTLEBLOWER_EVIDENCE", "Whistleblower", String.valueOf(id), "Evidence downloaded by authorized staff");
             String filename = "whistleblower-evidence-" + id;
             if (report.getEvidenceFileType() != null && report.getEvidenceFileType().equalsIgnoreCase("PHOTO")) filename += ".bin";
