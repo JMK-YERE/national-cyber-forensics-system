@@ -190,7 +190,8 @@ public class WhistleblowerController {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null || (!user.isAdmin() && !user.isProfessional() && !user.isForensics() && !"ANALYST".equalsIgnoreCase(user.getRole())))
             return "redirect:/access-denied";
-        model.addAttribute("reports", service.getAll());
+        boolean privileged = user.isAdmin() || user.isProfessional() || user.isForensics();
+        model.addAttribute("reports", privileged ? service.getAll() : service.getAssignedTo(user.getId()));
         model.addAttribute("newCount", service.countNew());
         model.addAttribute("todayCount", service.countToday());
         model.addAttribute("user", user);
@@ -200,10 +201,12 @@ public class WhistleblowerController {
     @GetMapping("/admin/{id}")
     public String adminDetail(@PathVariable Long id, Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null || (!user.isAdmin() && !user.isProfessional() && !user.isForensics()))
+        if (user == null || (!user.isAdmin() && !user.isProfessional() && !user.isForensics() && !user.isAnalyst()))
             return "redirect:/access-denied";
         WhistleblowerReport report = service.getById(id);
         if (report == null) return "redirect:/whistleblower/admin";
+        if (user.isAnalyst() && (report.getAssignedTo() == null || !user.getId().equals(report.getAssignedTo())))
+            return "redirect:/access-denied";
         model.addAttribute("report", report);
         model.addAttribute("messages", service.getMessages(id));
         model.addAttribute("user", user);
@@ -217,6 +220,9 @@ public class WhistleblowerController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         WhistleblowerReport report = service.getById(id);
+        if (report != null && user.isAnalyst() && (report.getAssignedTo() == null || !user.getId().equals(report.getAssignedTo()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         if (report == null || report.getEvidenceFilePath() == null || report.getEvidenceFilePath().isBlank()) {
             return ResponseEntity.notFound().build();
         }
@@ -247,7 +253,11 @@ public class WhistleblowerController {
                                @RequestParam(required = false) String internalNotes,
                                Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null || (!user.isAdmin() && !user.isProfessional() && !user.isForensics()))
+        if (user == null || (!user.isAdmin() && !user.isProfessional() && !user.isForensics() && !user.isAnalyst()))
+            return "redirect:/access-denied";
+        WhistleblowerReport target = service.getById(id);
+        if (target == null) return "redirect:/whistleblower/admin";
+        if (user.isAnalyst() && (target.getAssignedTo() == null || !user.getId().equals(target.getAssignedTo())))
             return "redirect:/access-denied";
         service.updateStatus(id, status, adminResponse, internalNotes);
         auditService.log("WHISTLEBLOWER_UPDATE", "Whistleblower", String.valueOf(id), "Status: " + status);
