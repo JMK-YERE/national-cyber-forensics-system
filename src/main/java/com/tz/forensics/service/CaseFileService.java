@@ -80,6 +80,37 @@ public class CaseFileService {
         return caseFileRepository.findById(id).orElse(null);
     }
 
+    /**
+     * Atomically assigns a case and, when appropriate, advances TRIAGED -> ASSIGNED.
+     * Keeping the mutation and lifecycle transition in one transaction prevents a
+     * partially-assigned case when the workflow transition fails.
+     */
+    @org.springframework.transaction.annotation.Transactional
+    public boolean assignCase(Long caseId, Long investigatorId, String investigatorName,
+                              Long leadInvestigatorId, String leadInvestigatorName,
+                              LocalDateTime dueDate, Long actorId, String actorName, String actorRole) {
+        CaseFile cf = caseFileRepository.findById(caseId).orElse(null);
+        if (cf == null || investigatorId == null || leadInvestigatorId == null) return false;
+
+        String current = cf.getStatus() == null ? "OPEN" : cf.getStatus().trim().toUpperCase();
+        if ("CLOSED".equals(current) || "ARCHIVED".equals(current)) return false;
+        if (!Set.of("TRIAGED", "ASSIGNED", "INVESTIGATING", "EXAMINATION", "REVIEW").contains(current)) return false;
+        if (dueDate != null && dueDate.isBefore(LocalDateTime.now())) return false;
+
+        cf.setAssignedTo(investigatorId);
+        cf.setAssignedToName(investigatorName);
+        cf.setLeadInvestigator(leadInvestigatorId);
+        cf.setLeadInvestigatorName(leadInvestigatorName);
+        cf.setDueDate(dueDate);
+        cf.setUpdatedAt(LocalDateTime.now());
+        caseFileRepository.save(cf);
+
+        if ("TRIAGED".equals(current) && !updateStatus(caseId, "ASSIGNED", null, actorId, actorName, actorRole)) {
+            throw new IllegalStateException("Failed TRIAGED -> ASSIGNED transition.");
+        }
+        return true;
+    }
+
     public boolean updateStatus(Long caseId, String status, String closureReason,
                                 Long actorId, String actorName, String actorRole) {
         CaseFile cf = caseFileRepository.findById(caseId).orElse(null);
