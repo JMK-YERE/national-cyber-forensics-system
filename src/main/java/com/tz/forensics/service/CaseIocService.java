@@ -41,8 +41,12 @@ public class CaseIocService {
         if (!CONFIDENCE.contains(normalizedConfidence)) return null;
         String normalizedValue = value.trim();
         if (normalizedValue.length() > 2048) return null;
-        if (source != null && source.trim().length() > 500) return null;
-        if (notes != null && notes.trim().length() > 5000) return null;
+        String normalizedSource = source == null ? null : source.trim();
+        String normalizedNotes = notes == null ? null : notes.trim();
+        String normalizedUserName = userName == null ? null : userName.trim();
+        if (normalizedSource != null && normalizedSource.length() > 500) return null;
+        if (normalizedNotes != null && normalizedNotes.length() > 5000) return null;
+        if (normalizedUserName != null && normalizedUserName.length() > 200) return null;
         if (firstSeen != null && lastSeen != null && lastSeen.isBefore(firstSeen)) return null;
 
         CaseIoc i = new CaseIoc();
@@ -50,12 +54,12 @@ public class CaseIocService {
         i.setIocType(normalizedType);
         i.setValue(normalizedValue);
         i.setConfidence(normalizedConfidence);
-        i.setSource(source == null ? null : source.trim());
+        i.setSource(normalizedSource);
         i.setFirstSeen(firstSeen);
         i.setLastSeen(lastSeen);
-        i.setNotes(notes == null ? null : notes.trim());
+        i.setNotes(normalizedNotes);
         i.setCreatedBy(userId);
-        i.setCreatedByName(userName);
+        i.setCreatedByName(normalizedUserName);
         return repository.save(i);
     }
 
