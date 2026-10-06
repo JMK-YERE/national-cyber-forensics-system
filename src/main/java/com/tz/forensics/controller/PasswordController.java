@@ -43,7 +43,7 @@ public class PasswordController {
 
     @PostMapping("/forgot-password")
     public String forgotSubmit(@RequestParam String email, HttpSession session, RedirectAttributes ra) {
-        User user = userRepository.findByEmail(email.trim()).orElse(null);
+        User user = userRepository.findByEmail(email.trim().toLowerCase()).orElse(null);
 
         // Do not reveal whether an account exists.
         if (user != null && user.getEmail() != null && !user.getEmail().isBlank()) {
@@ -52,6 +52,8 @@ public class PasswordController {
             user.setPasswordResetExpiresAt(LocalDateTime.now().plusSeconds(60));
             user.setPasswordResetAttempts(0);
             userRepository.save(user);
+            session.setAttribute("PASSWORD_RESET_USER_ID", user.getId());
+            session.setAttribute("PASSWORD_RESET_MODE", "EMAIL");
 
             boolean sent = emailService.sendPasswordResetOtp(user.getEmail(), user.getUsername(), otp);
             if (!sent) {
@@ -59,6 +61,8 @@ public class PasswordController {
                 user.setPasswordResetExpiresAt(null);
                 user.setPasswordResetAttempts(0);
                 userRepository.save(user);
+                session.removeAttribute("PASSWORD_RESET_USER_ID");
+                session.removeAttribute("PASSWORD_RESET_MODE");
                 ra.addFlashAttribute("error", "Email ya uthibitisho haikutumwa. Tafadhali jaribu tena.");
                 return "redirect:/forgot-password";
             }
@@ -82,7 +86,7 @@ public class PasswordController {
             session.setAttribute("PASSWORD_RESET_USER_ID", user.getId());
             session.setAttribute("PASSWORD_RESET_MODE", "SMS");
             smsService.sendSms(user.getPhone(),
-                    "Cyber Forensics TZ: OTP ya reset password ni " + otp + ". Inaisha ndani ya dakika 10.");
+                    "Cyber Forensics TZ: OTP ya reset password ni " + otp + ". Inaisha ndani ya sekunde 60.");
         }
         ra.addFlashAttribute("sent", true);
         return "redirect:/reset-password?sms=true";
@@ -138,6 +142,7 @@ public class PasswordController {
         }
 
         user.setPassword(passwordEncoder.encode(password));
+        request.changeSessionId();
         user.setFailedAttempts(0);
         user.setAccountLocked(false);
         user.setLastLogin(LocalDateTime.now());
