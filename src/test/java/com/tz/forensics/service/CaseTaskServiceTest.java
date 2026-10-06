@@ -21,7 +21,7 @@ class CaseTaskServiceTest {
     @Test void illegalTaskTransitionIsRejected() {
         CaseTask task = new CaseTask(); task.setId(1L); task.setCaseId(10L); task.setStatus("OPEN");
         CaseFile cf = new CaseFile(); cf.setId(10L); cf.setStatus("OPEN");
-        when(caseFileRepository.findById(10L)).thenReturn(java.util.Optional.of(cf));
+        when(caseFileRepository.findById(anyLong())).thenReturn(java.util.Optional.of(cf));
         assertFalse(service.transition(task,"COMPLETED",1L,"tester"));
         verify(repository,never()).save(any());
     }
