@@ -193,11 +193,11 @@ public class VirusTotalService {
         if (uri.getUserInfo() != null || uri.getHost() == null) throw new IllegalArgumentException("URL si salama.");
         int port = uri.getPort();
         if (port != -1 && port != 80 && port != 443) throw new IllegalArgumentException("Port hairuhusiwi.");
-        for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
+        try { for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
             if (address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress() || address.isSiteLocalAddress() || address.isMulticastAddress()) {
                 throw new IllegalArgumentException("Private/local host hairuhusiwi.");
             }
-        }
+        } catch (Exception e) { throw new IllegalArgumentException("Host haiwezi kuthibitishwa."); }
         return uri.toString();
     }
 
@@ -206,14 +206,15 @@ public class VirusTotalService {
         return value.trim().toLowerCase(java.util.Locale.ROOT);
     }
 
-    private String validatePublicIp(String value) throws Exception {
+    private String validatePublicIp(String value) {
         if (value == null || value.isBlank() || value.length() > 45) throw new IllegalArgumentException("IP si sahihi.");
-        InetAddress address = InetAddress.getByName(value.trim());
+        InetAddress address;
+        try { address = InetAddress.getByName(value.trim()); } catch (Exception e) { throw new IllegalArgumentException("IP si sahihi."); }
         if (!address.getHostAddress().equalsIgnoreCase(value.trim()) || address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress() || address.isSiteLocalAddress() || address.isMulticastAddress()) throw new IllegalArgumentException("IP private/local/reserved hairuhusiwi.");
         return value.trim();
     }
 
-    private String validatePublicDomain(String value) throws Exception {
+    private String validatePublicDomain(String value) {
         if (value == null || value.isBlank() || value.length() > 253) throw new IllegalArgumentException("Domain si sahihi.");
         String domain = value.trim().toLowerCase(java.util.Locale.ROOT);
         if (domain.matches("^[a-z][a-z0-9+.-]*://.*$")) {
@@ -222,9 +223,10 @@ public class VirusTotalService {
             domain = uri.getHost().toLowerCase(java.util.Locale.ROOT);
         }
         if (!domain.matches("(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}")) throw new IllegalArgumentException("Domain si sahihi.");
-        for (InetAddress address : InetAddress.getAllByName(domain)) {
+        try { for (InetAddress address : InetAddress.getAllByName(domain)) {
             if (address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress() || address.isSiteLocalAddress() || address.isMulticastAddress()) throw new IllegalArgumentException("Private/local domain hairuhusiwi.");
         }
+        } catch (Exception e) { throw new IllegalArgumentException("Domain haiwezi kuthibitishwa."); }
         return domain;
     }
 
