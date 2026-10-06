@@ -85,8 +85,12 @@ public class EvidenceController {
         model.addAttribute("caseFile", caseFile);
         model.addAttribute("evidence", new EvidenceDto());
         model.addAttribute("evidenceList", caseId == null
-                ? evidenceService.getEvidenceByIncident(incidentId)
-                : evidenceService.getEvidenceByCase(caseId));
+                ? evidenceService.getEvidenceByIncident(incidentId).stream()
+                    .filter(e -> canAccessEvidence(e, incident, user))
+                    .toList()
+                : evidenceService.getEvidenceByCase(caseId).stream()
+                    .filter(e -> canAccessEvidence(e, incident, user))
+                    .toList());
         return "evidence-upload";
     }
 
@@ -124,8 +128,12 @@ public class EvidenceController {
         model.addAttribute("caseFile", caseFile);
         model.addAttribute("evidence", new EvidenceDto());
         model.addAttribute("evidenceList", caseId == null
-                ? evidenceService.getEvidenceByIncident(incidentId)
-                : evidenceService.getEvidenceByCase(caseId));
+                ? evidenceService.getEvidenceByIncident(incidentId).stream()
+                    .filter(e -> canAccessEvidence(e, incident, user))
+                    .toList()
+                : evidenceService.getEvidenceByCase(caseId).stream()
+                    .filter(e -> canAccessEvidence(e, incident, user))
+                    .toList());
         return "evidence-upload";
     }
 
