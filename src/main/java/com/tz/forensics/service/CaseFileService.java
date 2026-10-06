@@ -8,6 +8,8 @@ import com.tz.forensics.repository.CaseFileRepository;
 import com.tz.forensics.repository.CaseTimelineRepository;
 import com.tz.forensics.repository.CaseTaskRepository;
 import com.tz.forensics.repository.EvidenceRepository;
+import com.tz.forensics.repository.IncidentRepository;
+import com.tz.forensics.entity.Incident;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,9 +25,11 @@ public class CaseFileService {
     private final CaseTimelineRepository timelineRepository;
     private final CaseTaskRepository caseTaskRepository;
     private final EvidenceRepository evidenceRepository;
+    private final IncidentRepository incidentRepository;
 
     public CaseFileService(CaseFileRepository caseFileRepository, CaseTimelineRepository timelineRepository,
-                           CaseTaskRepository caseTaskRepository, EvidenceRepository evidenceRepository) {
+                           CaseTaskRepository caseTaskRepository, EvidenceRepository evidenceRepository,
+                           IncidentRepository incidentRepository) {
         this.caseFileRepository = caseFileRepository;
         this.timelineRepository = timelineRepository;
         this.caseTaskRepository = caseTaskRepository;
@@ -44,9 +48,23 @@ public class CaseFileService {
 
     @Transactional
     public CaseFile createCase(Long incidentId, String title, String description,
-                               String priority, Long createdBy, String createdByName) {
+                               String priority, Long createdBy, String createdByName, String creatorRole) {
         if (incidentId == null || createdBy == null) {
             throw new IllegalArgumentException("Incident and creator are required.");
+        }
+        Incident incident = incidentRepository.findById(incidentId).orElse(null);
+        if (incident == null) throw new IllegalArgumentException("Incident not found.");
+        String normalizedRole = creatorRole == null ? "" : creatorRole.trim().toUpperCase();
+        if (!Set.of("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST").contains(normalizedRole)) {
+            throw new IllegalArgumentException("User is not authorized to create a forensic case.");
+        }
+        if ("CLOSED".equalsIgnoreCase(incident.getWorkflowStatus())) {
+            throw new IllegalArgumentException("Cases cannot be created from a closed incident.");
+        }
+        if ("ANALYST".equals(normalizedRole)) {
+            boolean involved = (incident.getReporterUserId() != null && createdBy.equals(incident.getReporterUserId()))
+                    || (incident.getAssignedTo() != null && createdBy.equals(incident.getAssignedTo()));
+            if (!involved) throw new IllegalArgumentException("Analyst is not authorized for this incident.");
         }
         String normalizedTitle = title == null ? "" : title.trim();
         String normalizedDescription = description == null ? "" : description.trim();
