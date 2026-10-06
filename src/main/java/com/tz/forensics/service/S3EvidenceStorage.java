@@ -80,8 +80,9 @@ public class S3EvidenceStorage implements EvidenceStorage {
     }
 
     public boolean exists(String storageKey) throws IOException {
+        String objectKey = key(storageKey);
         try {
-            client.headObject(b -> b.bucket(bucket).key(key(storageKey)));
+            client.headObject(b -> b.bucket(bucket).key(objectKey));
             return true;
         } catch (S3Exception e) {
             if (e.statusCode() == 404) return false;
