@@ -257,6 +257,26 @@ public class CaseFileController {
         return "redirect:/cases/" + id;
     }
 
+    private void notifyCaseClosed(CaseFile cf, User actor) {
+        java.util.LinkedHashSet<Long> recipientIds = new java.util.LinkedHashSet<>();
+        if (cf.getAssignedTo() != null) recipientIds.add(cf.getAssignedTo());
+        if (cf.getLeadInvestigator() != null) recipientIds.add(cf.getLeadInvestigator());
+        if (cf.getCreatedBy() != null) recipientIds.add(cf.getCreatedBy());
+        recipientIds.remove(actor.getId());
+
+        String message = "Case " + cf.getCaseNumber() + " — " + cf.getTitle()
+                + " has been closed by " + actor.getUsername() + ".";
+        for (Long recipientId : recipientIds) {
+            notificationService.createNotification(
+                    recipientId,
+                    "Case closed",
+                    message,
+                    "CASE_CLOSED",
+                    "/cases/" + cf.getId()
+            );
+        }
+    }
+
     @PostMapping("/{id}/close")
     public String closeCase(@PathVariable Long id, @RequestParam String reason, Authentication auth) {
         User user = getCurrentUser(auth);
@@ -277,6 +297,8 @@ public class CaseFileController {
         }
         auditService.log("CLOSE_CASE", "CaseFile", cf.getCaseNumber(),
                 "Case closed by " + auth.getName());
+
+        notifyCaseClosed(cf, user);
         return "redirect:/cases/" + id;
     }
 }
