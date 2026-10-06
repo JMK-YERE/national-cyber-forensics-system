@@ -57,7 +57,7 @@ public class PDFReportService {
             doc.add(new Paragraph("━".repeat(60)).setFontColor(CYBER_GREEN));
 
             // ===== INCIDENT DETAILS =====
-            doc.add(new Paragraph("📋 INCIDENT DETAILS").setBold().setFontSize(14).setFontColor(CYBER_GREEN));
+            doc.add(new Paragraph("INCIDENT DETAILS").setBold().setFontSize(14).setFontColor(CYBER_GREEN));
             doc.add(new Paragraph(""));
 
             Table table = new Table(UnitValue.createPercentArray(new float[]{30, 70}))
@@ -76,13 +76,13 @@ public class PDFReportService {
             doc.add(table);
 
             // ===== DESCRIPTION =====
-            doc.add(new Paragraph("📝 DESCRIPTION").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
+            doc.add(new Paragraph("DESCRIPTION").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
             doc.add(new Paragraph(incident.getDescription() != null ? incident.getDescription() : "N/A").setFontSize(10));
 
             // ===== FINANCIAL LOSS =====
             if (incident.getTotalLossTzs() != null && incident.getTotalLossTzs().doubleValue() > 0) {
                 doc.add(new Paragraph(""));
-                doc.add(new Paragraph("💰 FINANCIAL LOSS").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
+                doc.add(new Paragraph("FINANCIAL LOSS").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
 
                 Table finTable = new Table(UnitValue.createPercentArray(new float[]{50, 50}))
                         .setWidth(UnitValue.createPercentValue(100));
@@ -99,7 +99,7 @@ public class PDFReportService {
 
             // ===== EVIDENCE =====
             doc.add(new Paragraph(""));
-            doc.add(new Paragraph("🔬 DIGITAL EVIDENCE (" + (evidenceList != null ? evidenceList.size() : 0) + ")").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
+            doc.add(new Paragraph("DIGITAL EVIDENCE (" + (evidenceList != null ? evidenceList.size() : 0) + ")").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
 
             if (evidenceList != null && !evidenceList.isEmpty()) {
                 Table evTable = new Table(UnitValue.createPercentArray(new float[]{25, 15, 15, 45}))
@@ -113,10 +113,8 @@ public class PDFReportService {
                 for (Evidence ev : evidenceList) {
                     evTable.addCell(new Cell().add(new Paragraph(ev.getOriginalFilename()).setFontSize(9)));
                     evTable.addCell(new Cell().add(new Paragraph(ev.getReadableSize()).setFontSize(9)));
-                    evTable.addCell(new Cell().add(new Paragraph(Boolean.TRUE.equals(ev.getVerified()) ? "✅ Yes" : "⏳ Pending").setFontSize(9)));
-                    String hash = ev.getSha256Hash() != null && ev.getSha256Hash().length() > 30
-                            ? ev.getSha256Hash().substring(0, 30) + "..."
-                            : ev.getSha256Hash();
+                    evTable.addCell(new Cell().add(new Paragraph(Boolean.TRUE.equals(ev.getVerified()) ? "Yes" : "Pending").setFontSize(9)));
+                    String hash = ev.getSha256Hash();
                     evTable.addCell(new Cell().add(new Paragraph(hash != null ? hash : "N/A").setFontSize(7)));
                 }
                 doc.add(evTable);
@@ -261,7 +259,7 @@ public class PDFReportService {
                 et.addHeaderCell(new Cell().add(new Paragraph("SHA-256").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
                 for (Evidence item : evidence) {
                     et.addCell(new Paragraph(item.getOriginalFilename() != null ? item.getOriginalFilename() : "N/A"));
-                    et.addCell(new Paragraph(item.getCustodyStatus()));
+                    et.addCell(new Paragraph(item.getCustodyStatus() != null ? item.getCustodyStatus() : "N/A"));
                     et.addCell(new Paragraph(Boolean.TRUE.equals(item.getVerified()) ? "VERIFIED" : "PENDING"));
                     et.addCell(new Paragraph(item.getSha256Hash() != null ? item.getSha256Hash() : "N/A"));
                 }
