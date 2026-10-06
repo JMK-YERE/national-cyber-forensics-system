@@ -411,11 +411,13 @@ public class ReportAttackController {
         boolean privileged = user.isAdmin() || user.isProfessional() || user.isForensics();
         model.addAttribute("reports", privileged ? service.getAll() : service.getAssignedTo(user.getId()));
         model.addAttribute("user", user);
-        model.addAttribute("newCount", service.countNew());
-        model.addAttribute("todayCount", service.countToday());
-        model.addAttribute("totalCount", service.countTotal());
-        model.addAttribute("assignableUsers", userRepository.findAll().stream()
-                .filter(u -> u.isProfessional() || u.isForensics() || u.isAnalyst()).toList());
+        model.addAttribute("newCount", privileged ? service.countNew() : service.countNewAssignedTo(user.getId()));
+        model.addAttribute("todayCount", privileged ? service.countToday() : service.countTodayAssignedTo(user.getId()));
+        model.addAttribute("totalCount", privileged ? service.countTotal() : service.countTotalAssignedTo(user.getId()));
+        model.addAttribute("assignableUsers", privileged ? userRepository.findAll().stream()
+                .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
+                        && (u.isProfessional() || u.isForensics() || u.isAnalyst())).toList()
+                : List.of());
         return "report-attack-admin";
     }
 
