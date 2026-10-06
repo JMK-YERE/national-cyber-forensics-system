@@ -5,6 +5,7 @@ import com.tz.forensics.entity.WhistleblowerReport;
 import com.tz.forensics.repository.WhistleblowerMessageRepository;
 import com.tz.forensics.repository.WhistleblowerReportRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public class WhistleblowerService {
         this.messageRepo = messageRepo;
     }
 
+    @Transactional
     public WhistleblowerReport createReport(WhistleblowerReport report) {
         report.setTrackingCode(generateTrackingCode());
         report.setCreatedAt(LocalDateTime.now());
@@ -63,6 +65,7 @@ public class WhistleblowerService {
         messageRepo.save(new WhistleblowerMessage(reportId, senderType, message));
     }
 
+    @Transactional
     public void updateStatus(Long id, String status, String adminResponse, String internalNotes) {
         WhistleblowerReport r = reportRepo.findById(id).orElse(null);
         if (r != null) {
@@ -71,8 +74,19 @@ public class WhistleblowerService {
             if (!allowed.contains(normalized)) {
                 throw new IllegalArgumentException("Unsupported whistleblower status: " + status);
             }
-            if ("CLOSED".equalsIgnoreCase(r.getStatus())) {
+            String from = r.getStatus() == null ? "NEW" : r.getStatus().trim().toUpperCase();
+            if ("CLOSED".equals(from)) {
                 throw new IllegalStateException("Closed whistleblower reports cannot be reopened.");
+            }
+            boolean validTransition = switch (from) {
+                case "NEW" -> "UNDER_REVIEW".equals(normalized) || "REJECTED".equals(normalized);
+                case "UNDER_REVIEW" -> "INVESTIGATING".equals(normalized) || "REJECTED".equals(normalized);
+                case "INVESTIGATING" -> "RESOLVED".equals(normalized) || "REJECTED".equals(normalized);
+                case "RESOLVED", "REJECTED" -> "CLOSED".equals(normalized);
+                default -> false;
+            };
+            if (!validTransition) {
+                throw new IllegalStateException("Invalid whistleblower workflow transition: " + from + " -> " + normalized);
             }
             r.setStatus(normalized);
             if (adminResponse != null && !adminResponse.isEmpty()) {
