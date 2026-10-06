@@ -6,6 +6,7 @@ import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.IncidentRepository;
 import com.tz.forensics.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +26,7 @@ public class IncidentService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public Incident createIncident(IncidentDto dto, String username) {
         validateIncident(dto, username);
         User reporterUser = userRepository.findByUsername(username).orElse(null);
@@ -39,7 +41,7 @@ public class IncidentService {
         incident.setReporter(reporterName);
         incident.setReporterUserId(reporterUser != null ? reporterUser.getId() : null);
         incident.setDateReported(LocalDateTime.now());
-        incident.setStatus("Under Investigation");
+        incident.setStatus("New");
         String normalizedSeverity = dto.getSeverity() == null || dto.getSeverity().isBlank()
                 ? "MEDIUM" : dto.getSeverity().trim().toUpperCase();
         incident.setSeverity(normalizedSeverity);
@@ -104,7 +106,7 @@ public class IncidentService {
             String candidate = "SEC-" + date + "-" + rand;
             if (!incidentRepository.existsByIncidentId(candidate)) return candidate;
         }
-        return "SEC-" + date + "-" + secureRandom.nextInt(900000);
+        throw new IllegalStateException("Unable to generate a unique incident ID.");
     }
 
     public List<Incident> getAllIncidents() { return incidentRepository.findAllByOrderByDateReportedDesc(); }
