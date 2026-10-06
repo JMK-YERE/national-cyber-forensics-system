@@ -188,6 +188,7 @@ public class ReportAttackController {
         if (evidenceFile != null && !evidenceFile.isEmpty()) {
             try {
                 if (evidenceFile.getSize() > 50L * 1024L * 1024L) throw new IllegalArgumentException("Evidence file exceeds 50 MB.");
+                if (evidenceFile.getSize() == 0) throw new IllegalArgumentException("Evidence file is empty.");
                 byte[] evidenceBytes = evidenceFile.getBytes();
                 String originalName = evidenceFile.getOriginalFilename() == null ? "evidence.bin" : java.nio.file.Paths.get(evidenceFile.getOriginalFilename()).getFileName().toString();
                 originalName = originalName.replaceAll("[^A-Za-z0-9._-]", "_");
@@ -201,7 +202,7 @@ public class ReportAttackController {
                 report.setEvidenceFileSize(evidenceFile.getSize());
                 report.setEvidenceSha256(sha256(evidenceBytes));
                 report.setHasEvidence(true);
-            } catch (IOException | IllegalArgumentException e) { log.error("File: {}", e.getMessage()); } catch (Exception e) { log.error("Evidence encryption failed: {}", e.getMessage()); }
+            } catch (IOException | IllegalArgumentException e) {\n                log.error("Evidence acquisition failed: {}", e.getMessage());\n                if (writtenEvidenceKey != null) { try { evidenceStorage.delete(writtenEvidenceKey); } catch (Exception cleanup) { log.warn("Evidence cleanup failed: {}", cleanup.getMessage()); } }\n                return "redirect:/report-attack?error=evidence";\n            } catch (Exception e) {\n                log.error("Evidence encryption failed: {}", e.getMessage(), e);\n                if (writtenEvidenceKey != null) { try { evidenceStorage.delete(writtenEvidenceKey); } catch (Exception cleanup) { log.warn("Evidence cleanup failed: {}", cleanup.getMessage()); } }\n                return "redirect:/report-attack?error=evidence";\n            }
         }
 
         ReportAttack saved;
