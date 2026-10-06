@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface WhistleblowerReportRepository extends JpaRepository<WhistleblowerReport, Long> {
     Optional<WhistleblowerReport> findByTrackingCode(String trackingCode);
+    boolean existsByTrackingCode(String trackingCode);
     List<WhistleblowerReport> findAllByOrderByCreatedAtDesc();
     List<WhistleblowerReport> findByAssignedToOrderByCreatedAtDesc(Long assignedTo);
     List<WhistleblowerReport> findByStatusOrderByCreatedAtDesc(String status);
