@@ -14,5 +14,7 @@ public interface WhistleblowerReportRepository extends JpaRepository<Whistleblow
     List<WhistleblowerReport> findByAssignedToOrderByCreatedAtDesc(Long assignedTo);
     List<WhistleblowerReport> findByStatusOrderByCreatedAtDesc(String status);
     long countByStatus(String status);
+    long countByAssignedToAndStatus(Long assignedTo, String status);
     long countByCreatedAtAfter(LocalDateTime date);
+    long countByAssignedToAndCreatedAtAfter(Long assignedTo, LocalDateTime date);
 }
