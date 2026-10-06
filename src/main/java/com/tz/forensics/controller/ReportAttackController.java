@@ -345,6 +345,8 @@ public class ReportAttackController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                    .header(HttpHeaders.CACHE_CONTROL, "no-store, no-cache, must-revalidate, max-age=0")
+                    .header("Pragma", "no-cache")
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .contentLength(data.length)
                     .body(data);
