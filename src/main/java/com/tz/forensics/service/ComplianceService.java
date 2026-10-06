@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class ComplianceService {
@@ -45,7 +46,7 @@ public class ComplianceService {
 
         ComplianceReport report = new ComplianceReport();
         String reportId = "CMP-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-                + "-" + String.format("%03d", reportRepo.count() + 1);
+                + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         report.setReportId(reportId);
         report.setReportType(normalizedType);
         report.setGeneratedBy(userId);
@@ -87,6 +88,19 @@ public class ComplianceService {
         if (r == null) {
             throw new IllegalArgumentException("Compliance report not found.");
         }
+
+        String from = r.getStatus() == null ? "DRAFT" : r.getStatus().trim().toUpperCase();
+        boolean valid = switch (from) {
+            case "DRAFT" -> "REVIEW".equals(normalizedStatus);
+            case "REVIEW" -> "FINAL".equals(normalizedStatus);
+            case "FINAL" -> "ARCHIVED".equals(normalizedStatus);
+            case "ARCHIVED" -> false;
+            default -> false;
+        };
+        if (!valid) {
+            throw new IllegalArgumentException("Invalid compliance workflow transition: " + from + " -> " + normalizedStatus);
+        }
+
         r.setStatus(normalizedStatus);
         reportRepo.save(r);
     }
