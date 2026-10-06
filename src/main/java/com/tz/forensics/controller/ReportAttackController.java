@@ -14,6 +14,7 @@ import com.tz.forensics.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.apache.tika.Tika;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,7 @@ public class ReportAttackController {
     private final AdvancedSecurityService advancedSecurityService;
     private final EncryptionService encryptionService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Tika tika = new Tika();
 
     @Value("${app.upload.dir:uploads/evidence}")
     private String uploadDir;
@@ -85,7 +87,7 @@ public class ReportAttackController {
     private void notifyAdmins(String title, String message, String type, String linkUrl) {
         try {
             List<User> admins = userRepository.findAll().stream()
-                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics() || "ANALYST".equalsIgnoreCase(u.getRole())).toList();
+                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
             for (User admin : admins) {
                 notificationService.createNotification(admin.getId(), title, message, type, linkUrl);
             }
@@ -203,7 +205,8 @@ public class ReportAttackController {
                 writtenEvidencePath = targetPath;
 
                 report.setEvidenceFilePath(storedName);
-                report.setEvidenceFileType(detectFileType(evidenceFile.getContentType()));
+                String detectedMime = tika.detect(evidenceBytes, originalName);
+                report.setEvidenceFileType(detectFileType(detectedMime));
                 report.setEvidenceFileSize(evidenceFile.getSize());
                 report.setEvidenceSha256(sha256(evidenceBytes));
                 report.setHasEvidence(true);
@@ -443,7 +446,15 @@ public class ReportAttackController {
         String assignedName = null;
         if (assignedTo != null) {
             User assignee = userRepository.findById(assignedTo).orElse(null);
-            if (assignee != null) assignedName = assignee.getUsername();
+            if (assignee == null
+                    || !Boolean.TRUE.equals(assignee.getEnabled())
+                    || !assignee.isApproved()
+                    || !(assignee.isProfessional() || assignee.isForensics() || assignee.isAnalyst())) {
+                auditService.log("REJECT_ASSIGN_REPORT", "ReportAttack", String.valueOf(id),
+                        "Attempted assignment to inactive, unapproved, or unauthorized user.");
+                return "redirect:/report-attack/admin";
+            }
+            assignedName = assignee.getUsername();
         }
 
         try {
