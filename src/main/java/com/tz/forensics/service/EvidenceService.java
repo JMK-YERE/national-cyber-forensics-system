@@ -183,8 +183,7 @@ public class EvidenceService {
         Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
         if (evidence == null || actorId == null || recipientId == null) return false;
         String status = evidence.getCustodyStatus();
-        if (!"VERIFIED".equals(status) && !"ACCEPTED".equals(status) && !"EXAMINED".equals(status)
-                && !"REPORT_GENERATED".equals(status)) return false;
+        if (!"VERIFIED".equals(status) && !"ACCEPTED".equals(status) && !"EXAMINED".equals(status)) return false;
         if (recipientId.equals(actorId)) return false;
         if (evidence.getCustodianId() == null || !actorId.equals(evidence.getCustodianId())) return false;
 
@@ -251,9 +250,12 @@ public class EvidenceService {
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
         if (Boolean.TRUE.equals(evidence.getVerified())) return;
         try {
-            byte[] encrypted = Files.readAllBytes(
-                    Paths.get(uploadDir).toAbsolutePath().normalize()
-                            .resolve(evidence.getStoredFilename()).normalize());
+            Path base = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Path storedPath = base.resolve(evidence.getStoredFilename()).normalize();
+            if (!storedPath.startsWith(base) || !Files.isRegularFile(storedPath)) {
+                throw new IOException("Stored evidence file not found.");
+            }
+            byte[] encrypted = Files.readAllBytes(storedPath);
             byte[] decrypted = encryptionService.decrypt(encrypted);
             String actualSha256 = hashService.sha256(decrypted);
             if (!actualSha256.equalsIgnoreCase(evidence.getSha256Hash())) {
