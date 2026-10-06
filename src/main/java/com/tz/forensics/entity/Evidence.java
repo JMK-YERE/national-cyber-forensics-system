@@ -10,6 +10,10 @@ public class Evidence {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
+
     @Column(name = "incident_id", nullable = false)
     private Long incidentId;
 
@@ -115,6 +119,7 @@ public class Evidence {
     }
 
     public Long getId(){return id;} public void setId(Long v){id=v;}
+    public Long getVersion(){return version;} public void setVersion(Long v){version=v;}
     public Long getIncidentId(){return incidentId;} public void setIncidentId(Long v){incidentId=v;}
     public Long getCaseId(){return caseId;} public void setCaseId(Long v){caseId=v;}
     public String getOriginalFilename(){return originalFilename;} public void setOriginalFilename(String v){originalFilename=v;}
