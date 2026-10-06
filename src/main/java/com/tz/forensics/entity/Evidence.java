@@ -11,7 +11,7 @@ public class Evidence {
     private Long id;
 
     @Version
-    @Column(name = "version", nullable = false)
+    @Column(name = "version", nullable = false, columnDefinition = "bigint default 0")
     private Long version = 0L;
 
     @Column(name = "incident_id", nullable = false)
