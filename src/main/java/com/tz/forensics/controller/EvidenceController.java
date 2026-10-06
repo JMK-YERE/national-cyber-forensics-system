@@ -68,10 +68,17 @@ public class EvidenceController {
     private boolean canAccessCase(CaseFile caseFile, User user) {
         if (caseFile == null || user == null) return false;
         if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
-        return "ANALYST".equalsIgnoreCase(user.getRole())
-                && (user.getId().equals(caseFile.getCreatedBy())
-                    || user.getId().equals(caseFile.getAssignedTo())
-                    || user.getId().equals(caseFile.getLeadInvestigator()));
+        if (!"ANALYST".equalsIgnoreCase(user.getRole()) || user.getId() == null) return false;
+        Incident incident = caseFile.getIncidentId() == null
+                ? null : incidentRepository.findById(caseFile.getIncidentId()).orElse(null);
+        if (incident == null) return false;
+        boolean incidentAccess =
+                (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()))
+                || (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()));
+        if (!incidentAccess) return false;
+        return (caseFile.getCreatedBy() != null && user.getId().equals(caseFile.getCreatedBy()))
+                || (caseFile.getAssignedTo() != null && user.getId().equals(caseFile.getAssignedTo()))
+                || (caseFile.getLeadInvestigator() != null && user.getId().equals(caseFile.getLeadInvestigator()));
     }
 
     private boolean canAccessEvidence(Evidence evidence, Incident incident, User user) {
