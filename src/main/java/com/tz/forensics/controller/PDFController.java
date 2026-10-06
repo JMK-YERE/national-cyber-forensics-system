@@ -2,11 +2,13 @@ package com.tz.forensics.controller;
 
 import com.tz.forensics.entity.CaseFile;
 import com.tz.forensics.entity.CaseIoc;
+import com.tz.forensics.entity.ChainOfCustody;
 import com.tz.forensics.entity.CaseTimeline;
 import com.tz.forensics.entity.Evidence;
 import com.tz.forensics.entity.Incident;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
+import com.tz.forensics.repository.ChainOfCustodyRepository;
 import com.tz.forensics.service.CaseFileService;
 import com.tz.forensics.service.CaseIocService;
 import com.tz.forensics.service.AuditService;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/reports")
@@ -36,6 +40,7 @@ public class PDFController {
     private final UserRepository userRepository;
     private final CaseIocService caseIocService;
     private final AuditService auditService;
+    private final ChainOfCustodyRepository custodyRepository;
 
     public PDFController(IncidentService incidentService,
                          EvidenceService evidenceService,
@@ -43,7 +48,8 @@ public class PDFController {
                          PDFReportService pdfReportService,
                          UserRepository userRepository,
                          CaseIocService caseIocService,
-                         AuditService auditService) {
+                         AuditService auditService,
+                         ChainOfCustodyRepository custodyRepository) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.caseFileService = caseFileService;
@@ -51,6 +57,7 @@ public class PDFController {
         this.userRepository = userRepository;
         this.caseIocService = caseIocService;
         this.auditService = auditService;
+        this.custodyRepository = custodyRepository;
     }
 
     @GetMapping("/incident/{id}/pdf")
@@ -125,11 +132,17 @@ public class PDFController {
         List<CaseTimeline> timeline = caseFileService.getTimeline(id);
         List<CaseIoc> iocs = caseIocService.findByCaseId(id);
         List<Evidence> evidence = evidenceService.getEvidenceByIncident(cf.getIncidentId());
+        Map<Long, List<ChainOfCustody>> custody = new HashMap<>();
+        for (Evidence item : evidence) {
+            if (item.getId() != null) {
+                custody.put(item.getId(), custodyRepository.findByEvidenceIdOrderByTimestampDesc(item.getId()));
+            }
+        }
 
         byte[] pdf = switch (type) {
-            case "executive" -> pdfReportService.generateExecutiveCaseReport(cf, timeline, iocs, evidence);
-            case "technical" -> pdfReportService.generateTechnicalCaseReport(cf, timeline, iocs, evidence);
-            default -> pdfReportService.generateForensicCaseReport(cf, timeline, iocs, evidence);
+            case "executive" -> pdfReportService.generateExecutiveCaseReport(cf, timeline, iocs, evidence, custody);
+            case "technical" -> pdfReportService.generateTechnicalCaseReport(cf, timeline, iocs, evidence, custody);
+            default -> pdfReportService.generateForensicCaseReport(cf, timeline, iocs, evidence, custody);
         };
 
         auditService.log("EXPORT_CASE_REPORT", "CASE",
