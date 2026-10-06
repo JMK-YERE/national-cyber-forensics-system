@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/evidence")
@@ -52,10 +53,9 @@ public class EvidenceController {
     private boolean canAccessIncident(Incident incident, User user) {
         if (incident == null || user == null) return false;
         return user.isAdmin() || user.isProfessional() || user.isForensics()
-                || user.getId().equals(incident.getReporterUserId())
-                || user.getId().equals(incident.getAssignedTo());
+                || (user.isAnalyst() && (user.getId().equals(incident.getAssignedTo())
+                    || user.getId().equals(incident.getReporterUserId())));
     }
-
 
     private boolean canAccessCase(CaseFile caseFile, User user) {
         if (caseFile == null || user == null) return false;
@@ -66,10 +66,19 @@ public class EvidenceController {
                     || user.getId().equals(caseFile.getLeadInvestigator()));
     }
 
+    private boolean canAccessEvidence(Evidence evidence, Incident incident, User user) {
+        if (evidence == null || user == null || !isStaff(user) || !canAccessIncident(incident, user)) return false;
+        if (evidence.getCaseId() != null) {
+            CaseFile cf = caseFileService.getById(evidence.getCaseId());
+            if (cf == null || !incident.getId().equals(cf.getIncidentId()) || !canAccessCase(cf, user)) return false;
+        }
+        return true;
+    }
+
     @GetMapping("/upload/{incidentId}")
     public String uploadForm(@PathVariable Long incidentId,
-                              @RequestParam(value = "caseId", required = false) Long caseId,
-                              Authentication auth, Model model) {
+                             @RequestParam(value = "caseId", required = false) Long caseId,
+                             Authentication auth, Model model) {
         User user = currentUser(auth);
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (!isStaff(user) || !canAccessIncident(incident, user)) return "redirect:/access-denied";
@@ -85,12 +94,8 @@ public class EvidenceController {
         model.addAttribute("caseFile", caseFile);
         model.addAttribute("evidence", new EvidenceDto());
         model.addAttribute("evidenceList", caseId == null
-                ? evidenceService.getEvidenceByIncident(incidentId).stream()
-                    .filter(e -> canAccessEvidence(e, incident, user))
-                    .toList()
-                : evidenceService.getEvidenceByCase(caseId).stream()
-                    .filter(e -> canAccessEvidence(e, incident, user))
-                    .toList());
+                ? evidenceService.getEvidenceByIncident(incidentId).stream().filter(e -> canAccessEvidence(e, incident, user)).toList()
+                : evidenceService.getEvidenceByCase(caseId).stream().filter(e -> canAccessEvidence(e, incident, user)).toList());
         return "evidence-upload";
     }
 
@@ -102,7 +107,7 @@ public class EvidenceController {
                                  Authentication auth, Model model) {
         User user = currentUser(auth);
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
-        if (!canAccessIncident(incident, user)) return "redirect:/access-denied";
+        if (!isStaff(user) || !canAccessIncident(incident, user)) return "redirect:/access-denied";
         CaseFile caseFile = null;
         if (caseId != null) {
             caseFile = caseFileService.getById(caseId);
@@ -128,23 +133,9 @@ public class EvidenceController {
         model.addAttribute("caseFile", caseFile);
         model.addAttribute("evidence", new EvidenceDto());
         model.addAttribute("evidenceList", caseId == null
-                ? evidenceService.getEvidenceByIncident(incidentId).stream()
-                    .filter(e -> canAccessEvidence(e, incident, user))
-                    .toList()
-                : evidenceService.getEvidenceByCase(caseId).stream()
-                    .filter(e -> canAccessEvidence(e, incident, user))
-                    .toList());
+                ? evidenceService.getEvidenceByIncident(incidentId).stream().filter(e -> canAccessEvidence(e, incident, user)).toList()
+                : evidenceService.getEvidenceByCase(caseId).stream().filter(e -> canAccessEvidence(e, incident, user)).toList());
         return "evidence-upload";
-    }
-
-
-    private boolean canAccessEvidence(Evidence evidence, Incident incident, User user) {
-        if (evidence == null || user == null || !isStaff(user) || !canAccessIncident(incident, user)) return false;
-        if (evidence.getCaseId() != null) {
-            CaseFile cf = caseFileService.getById(evidence.getCaseId());
-            if (cf == null || !incident.getId().equals(cf.getIncidentId()) || !canAccessCase(cf, user)) return false;
-        }
-        return isStaff(user) || (evidence.getUploadedBy() != null && evidence.getUploadedBy().equals(user.getId()));
     }
 
     @GetMapping("/custody/{id}")
@@ -153,110 +144,81 @@ public class EvidenceController {
         Evidence evidence = evidenceService.getById(id);
         if (evidence == null) return "redirect:/incidents";
         Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!canAccessEvidence(evidence, incident, user) || !isStaff(user)) return "redirect:/access-denied";
+        if (!canAccessEvidence(evidence, incident, user)) return "redirect:/access-denied";
 
         model.addAttribute("evidence", evidence);
         model.addAttribute("incident", incident);
         model.addAttribute("custodyEvents", evidenceService.getChainOfCustody(id));
         model.addAttribute("custodians", userRepository.findAll().stream()
                 .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
-                        && (u.isAdmin() || u.isProfessional() || u.isForensics() || u.isAnalyst()))
-                .toList());
-        model.addAttribute("canOperateCustody", isStaff(user) && canAccessEvidence(evidence, incident, user));
+                        && (u.isAdmin() || u.isProfessional() || u.isForensics() || u.isAnalyst())).toList());
+        model.addAttribute("canOperateCustody", true);
         auditService.log("VIEW_CHAIN_OF_CUSTODY", "Evidence", String.valueOf(id),
                 "Viewed chain of custody | SHA-256: " + evidence.getSha256Hash());
         return "evidence-custody";
     }
 
-
     @PostMapping("/custody/{id}/transfer")
-    public String transferCustody(@PathVariable Long id,
-                                  @RequestParam("recipientId") Long recipientId,
-                                  @RequestParam(value = "purpose", required = false) String purpose,
-                                  @RequestParam(value = "notes", required = false) String notes,
-                                  Authentication auth) {
-        User actor = currentUser(auth);
-        Evidence evidence = evidenceService.getById(id);
-        if (evidence == null) return "redirect:/incidents";
-        Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!isStaff(actor) || !canAccessEvidence(evidence, incident, actor)) return "redirect:/access-denied";
-
-        User recipient = userRepository.findById(recipientId).orElse(null);
-        if (recipient == null || !Boolean.TRUE.equals(recipient.getEnabled()) || !recipient.isApproved()
-                || (!recipient.isAdmin() && !recipient.isProfessional()
-                && !recipient.isForensics() && !recipient.isAnalyst())) {
-            auditService.log("REJECT_TRANSFER_EVIDENCE", "Evidence", String.valueOf(id),
-                    "Invalid or inactive recipient: " + recipientId);
+    public String transferCustody(@PathVariable Long id,@RequestParam("recipientId") Long recipientId,
+                                  @RequestParam(value="purpose",required=false) String purpose,
+                                  @RequestParam(value="notes",required=false) String notes,Authentication auth) {
+        User actor=currentUser(auth); Evidence evidence=evidenceService.getById(id);
+        if(evidence==null)return "redirect:/incidents";
+        Incident incident=incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if(!canAccessEvidence(evidence,incident,actor))return "redirect:/access-denied";
+        User recipient=userRepository.findById(recipientId).orElse(null);
+        if(recipient==null||!Boolean.TRUE.equals(recipient.getEnabled())||!recipient.isApproved()
+                ||(!recipient.isAdmin()&&!recipient.isProfessional()&&!recipient.isForensics()&&!recipient.isAnalyst())){
+            auditService.log("REJECT_TRANSFER_EVIDENCE","Evidence",String.valueOf(id),"Invalid or inactive recipient: "+recipientId);
             return "redirect:/access-denied";
         }
-
-        boolean ok = evidenceService.transferCustody(id, actor.getId(), auth.getName(), actor.getRole(),
-                recipient.getId(), recipient.getFullName() == null ? recipient.getUsername() : recipient.getFullName(),
-                recipient.getRole(), purpose, notes);
-        auditService.log(ok ? "TRANSFER_EVIDENCE" : "FAILED_TRANSFER_EVIDENCE", "Evidence", String.valueOf(id),
-                "Transfer to user " + recipient.getUsername() + " | purpose=" + (purpose == null ? "" : purpose));
-        return "redirect:/evidence/custody/" + id;
+        boolean ok=evidenceService.transferCustody(id,actor.getId(),auth.getName(),actor.getRole(),recipient.getId(),
+                recipient.getFullName()==null?recipient.getUsername():recipient.getFullName(),recipient.getRole(),purpose,notes);
+        auditService.log(ok?"TRANSFER_EVIDENCE":"FAILED_TRANSFER_EVIDENCE","Evidence",String.valueOf(id),
+                "Transfer to user "+recipient.getUsername()+" | purpose="+(purpose==null?"":purpose));
+        return "redirect:/evidence/custody/"+id;
     }
 
     @PostMapping("/custody/{id}/advance")
-    public String advanceCustody(@PathVariable Long id,
-                                 @RequestParam("action") String action,
-                                 @RequestParam(value = "purpose", required = false) String purpose,
-                                 @RequestParam(value = "notes", required = false) String notes,
-                                 Authentication auth) {
-        User actor = currentUser(auth);
-        Evidence evidence = evidenceService.getById(id);
-        if (evidence == null) return "redirect:/incidents";
-        Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!isStaff(actor) || !canAccessEvidence(evidence, incident, actor)) return "redirect:/access-denied";
-
-        String normalized = action == null ? "" : action.trim().toUpperCase();
-        if (!java.util.Set.of("ACCEPTED", "UNDER_EXAMINATION", "EXAMINED", "REPORT_GENERATED").contains(normalized)) {
+    public String advanceCustody(@PathVariable Long id,@RequestParam("action") String action,
+                                 @RequestParam(value="purpose",required=false) String purpose,
+                                 @RequestParam(value="notes",required=false) String notes,Authentication auth) {
+        User actor=currentUser(auth); Evidence evidence=evidenceService.getById(id);
+        if(evidence==null)return "redirect:/incidents";
+        Incident incident=incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if(!canAccessEvidence(evidence,incident,actor))return "redirect:/access-denied";
+        String normalized=action==null?"":action.trim().toUpperCase();
+        if(!Set.of("ACCEPTED","UNDER_EXAMINATION","EXAMINED","REPORT_GENERATED").contains(normalized)){
             return "redirect:/access-denied";
         }
-        boolean ok = evidenceService.advanceCustody(id, normalized, actor.getId(), auth.getName(),
-                actor.getRole(), purpose, notes);
-        auditService.log(ok ? normalized + "_EVIDENCE" : "FAILED_" + normalized + "_EVIDENCE",
-                "Evidence", String.valueOf(id), "Custody transition | from=" + evidence.getCustodyStatus());
-        return "redirect:/evidence/custody/" + id;
+        boolean ok=evidenceService.advanceCustody(id,normalized,actor.getId(),auth.getName(),actor.getRole(),purpose,notes);
+        auditService.log(ok?normalized+"_EVIDENCE":"FAILED_"+normalized+"_EVIDENCE","Evidence",String.valueOf(id),
+                "Custody transition | resulting status="+evidence.getCustodyStatus());
+        return "redirect:/evidence/custody/"+id;
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<byte[]> downloadEvidence(@PathVariable Long id, Authentication auth) throws IOException {
-        User user = currentUser(auth);
-        Evidence evidence = evidenceService.getById(id);
-        if (evidence == null) return ResponseEntity.notFound().build();
-
-        Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!canAccessEvidence(evidence, incident, user)) return ResponseEntity.status(403).build();
-
+    public ResponseEntity<byte[]> downloadEvidence(@PathVariable Long id,Authentication auth)throws IOException{
+        User user=currentUser(auth); Evidence evidence=evidenceService.getById(id);
+        if(evidence==null)return ResponseEntity.notFound().build();
+        Incident incident=incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if(!canAccessEvidence(evidence,incident,user))return ResponseEntity.status(403).build();
         byte[] data;
-        try { data = evidenceService.downloadEvidence(id); }
-        catch (IOException e) { return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); }
-        catch (RuntimeException e) { return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); }
-        auditService.log("DOWNLOAD_EVIDENCE", "Evidence", String.valueOf(id),
-                "Downloaded | SHA-256: " + evidence.getSha256Hash());
-
-        String filename = evidence.getOriginalFilename() == null ? "evidence.bin"
-                : evidence.getOriginalFilename().replace("\"", "_");
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(data);
+        try{data=evidenceService.downloadEvidence(id);}catch(IOException|RuntimeException e){return ResponseEntity.status(HttpStatus.NOT_FOUND).build();}
+        auditService.log("DOWNLOAD_EVIDENCE","Evidence",String.valueOf(id),"Downloaded | SHA-256: "+evidence.getSha256Hash());
+        String filename=evidence.getOriginalFilename()==null?"evidence.bin":evidence.getOriginalFilename().replace(""","_");
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=""+filename+""")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM).body(data);
     }
 
     @PostMapping("/verify/{id}")
-    public String verifyEvidence(@PathVariable Long id, Authentication auth) {
-        User user = currentUser(auth);
-        Evidence evidence = evidenceService.getById(id);
-        if (evidence == null) return "redirect:/incidents";
-        Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!isStaff(user) || !canAccessEvidence(evidence, incident, user)) return "redirect:/access-denied";
-
-        evidenceService.verifyEvidence(id, auth.getName(), user.getId());
-        auditService.log("VERIFY_EVIDENCE", "Evidence", String.valueOf(id),
-                "Verified | SHA-256: " + evidence.getSha256Hash());
-        return "redirect:/incidents/" + evidence.getIncidentId();
+    public String verifyEvidence(@PathVariable Long id,Authentication auth){
+        User user=currentUser(auth); Evidence evidence=evidenceService.getById(id);
+        if(evidence==null)return "redirect:/incidents";
+        Incident incident=incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if(!canAccessEvidence(evidence,incident,user))return "redirect:/access-denied";
+        evidenceService.verifyEvidence(id,auth.getName(),user.getId());
+        auditService.log("VERIFY_EVIDENCE","Evidence",String.valueOf(id),"Verified | SHA-256: "+evidence.getSha256Hash());
+        return "redirect:/incidents/"+evidence.getIncidentId();
     }
 }
