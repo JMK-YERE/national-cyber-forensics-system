@@ -98,6 +98,9 @@ public class User {
     @Column(name = "password_setup_token", length = 120)
     private String passwordSetupToken;
 
+    @Column(name = "password_setup_attempts")
+    private Integer passwordSetupAttempts = 0;
+
     @Column(name = "password_setup_expires_at")
     private LocalDateTime passwordSetupExpiresAt;
 
@@ -226,6 +229,8 @@ public class User {
     public void setVerificationTokenExpiresAt(LocalDateTime verificationTokenExpiresAt) { this.verificationTokenExpiresAt = verificationTokenExpiresAt; }
     public String getPasswordSetupToken() { return passwordSetupToken; }
     public void setPasswordSetupToken(String passwordSetupToken) { this.passwordSetupToken = passwordSetupToken; }
+    public Integer getPasswordSetupAttempts() { return passwordSetupAttempts == null ? 0 : passwordSetupAttempts; }
+    public void setPasswordSetupAttempts(Integer passwordSetupAttempts) { this.passwordSetupAttempts = passwordSetupAttempts; }
     public LocalDateTime getPasswordSetupExpiresAt() { return passwordSetupExpiresAt; }
     public void setPasswordSetupExpiresAt(LocalDateTime passwordSetupExpiresAt) { this.passwordSetupExpiresAt = passwordSetupExpiresAt; }
     public String getPasswordSetupChannel() { return passwordSetupChannel; }
