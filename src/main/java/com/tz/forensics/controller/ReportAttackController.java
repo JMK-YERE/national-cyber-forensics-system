@@ -202,7 +202,21 @@ public class ReportAttackController {
                 report.setEvidenceFileSize(evidenceFile.getSize());
                 report.setEvidenceSha256(sha256(evidenceBytes));
                 report.setHasEvidence(true);
-            } catch (IOException | IllegalArgumentException e) {\n                log.error("Evidence acquisition failed: {}", e.getMessage());\n                if (writtenEvidenceKey != null) { try { evidenceStorage.delete(writtenEvidenceKey); } catch (Exception cleanup) { log.warn("Evidence cleanup failed: {}", cleanup.getMessage()); } }\n                return "redirect:/report-attack?error=evidence";\n            } catch (Exception e) {\n                log.error("Evidence encryption failed: {}", e.getMessage(), e);\n                if (writtenEvidenceKey != null) { try { evidenceStorage.delete(writtenEvidenceKey); } catch (Exception cleanup) { log.warn("Evidence cleanup failed: {}", cleanup.getMessage()); } }\n                return "redirect:/report-attack?error=evidence";\n            }
+             } catch (IOException | IllegalArgumentException e) {
+                log.error("Evidence acquisition failed: {}", e.getMessage());
+                if (writtenEvidenceKey != null) {
+                    try { evidenceStorage.delete(writtenEvidenceKey); }
+                    catch (Exception cleanup) { log.warn("Evidence cleanup failed: {}", cleanup.getMessage()); }
+                }
+                return "redirect:/report-attack?error=evidence";
+            } catch (Exception e) {
+                log.error("Evidence encryption failed: {}", e.getMessage(), e);
+                if (writtenEvidenceKey != null) {
+                    try { evidenceStorage.delete(writtenEvidenceKey); }
+                    catch (Exception cleanup) { log.warn("Evidence cleanup failed: {}", cleanup.getMessage()); }
+                }
+                return "redirect:/report-attack?error=evidence";
+            }
         }
 
         ReportAttack saved;
