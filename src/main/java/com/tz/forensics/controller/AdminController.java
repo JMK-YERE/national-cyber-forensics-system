@@ -26,7 +26,7 @@ public class AdminController {
     // ===== LIST USERS =====
     @GetMapping("/users")
     public String listUsers(Model model, Authentication auth) {
-        User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
+        User currentUser = auth == null ? null : userRepository.findByUsername(auth.getName()).orElse(null);
         if (currentUser == null || !currentUser.isAdmin()) {
             return "redirect:/access-denied";
         }
