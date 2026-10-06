@@ -139,6 +139,14 @@ public class SecurityConfig {
                 .failureUrl("/login?error")
             )
             .exceptionHandling(exceptions -> exceptions.accessDeniedPage("/access-denied"))
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.deny())
+                .contentTypeOptions(contentType -> {})
+                .referrerPolicy(referrer -> referrer.policy(
+                        org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                .httpStrictTransportSecurity(hsts -> hsts
+                        .includeSubDomains(true)
+                        .maxAgeInSeconds(31536000)))
             .sessionManagement(session -> session.sessionFixation(fixation -> fixation.migrateSession()))
             .logout(logout -> logout
                 .logoutUrl("/logout")
