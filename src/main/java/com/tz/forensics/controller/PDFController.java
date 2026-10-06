@@ -15,7 +15,6 @@ import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.EvidenceService;
 import com.tz.forensics.service.IncidentService;
 import com.tz.forensics.service.PDFReportService;
-import com.tz.forensics.service.AuditService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
