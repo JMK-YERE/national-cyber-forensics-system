@@ -66,6 +66,24 @@
         </form>
     </div>
 
+    <div class="app-card" th:if="${caseFile.status != 'ARCHIVED'}" style="margin-bottom:14px">
+        <h3>Forensic Evidence</h3>
+        <p style="color:#64748b">Evidence registered here is explicitly linked to this case and remains traceable through SHA-256 and chain of custody.</p>
+        <a th:href="@{/evidence/upload/{incidentId}(incidentId=${caseFile.incidentId},caseId=${caseFile.id})}" class="app-btn app-btn-primary">🔐 Acquire Evidence for this Case</a>
+        <div style="overflow-x:auto;margin-top:18px">
+            <table><thead><tr><th>Evidence</th><th>SHA-256</th><th>Custody</th><th>Action</th></tr></thead>
+            <tbody>
+            <tr th:each="ev : ${caseEvidence}">
+                <td><strong th:text="${ev.originalFilename}"></strong><br><small th:text="${ev.readableSize}"></small></td>
+                <td style="font-family:ui-monospace,monospace;font-size:10px;word-break:break-all" th:text="${ev.sha256Hash}"></td>
+                <td><span th:text="${ev.custodyStatus}"></span></td>
+                <td><a th:href="@{/evidence/custody/{id}(id=${ev.id})}" class="app-btn app-btn-outline">Custody</a>
+                    <a th:href="@{/evidence/download/{id}(id=${ev.id})}" class="app-btn app-btn-secondary">Download</a></td>
+            </tr>
+            <tr th:if="${caseEvidence == null or caseEvidence.isEmpty()}"><td colspan="4">No evidence registered for this case yet.</td></tr>
+            </tbody></table>
+        </div>
+    </div>
     <div class="app-card" style="margin-bottom:14px">
         <h3>Case Communication</h3>
         <p style="color:#64748b">Secure case discussion, TLP handling and escalation are audited.</p>
