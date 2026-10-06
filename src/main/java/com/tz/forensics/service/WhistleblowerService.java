@@ -100,8 +100,14 @@ public class WhistleblowerService {
     }
 
     public long countNew() { return reportRepo.countByStatus("NEW"); }
+    public long countNewAssignedTo(Long userId) {
+        return userId == null ? 0L : reportRepo.countByAssignedToAndStatus(userId, "NEW");
+    }
     public long countToday() {
         return reportRepo.countByCreatedAtAfter(LocalDateTime.now().withHour(0).withMinute(0));
+    }
+    public long countTodayAssignedTo(Long userId) {
+        return userId == null ? 0L : reportRepo.countByAssignedToAndCreatedAtAfter(userId, LocalDateTime.now().withHour(0).withMinute(0));
     }
 
     private String generateTrackingCode() {
