@@ -89,3 +89,31 @@ footer{background:#0f172a!important}
 .public-links{color:#475569}
 @media(max-width:850px){.intro p,.feature-body p,.announcement-card p,.map-cta p{font-size:14px;line-height:1.65}.feature-body h3,.announcement-card h3{line-height:1.3}.public-actions{flex-wrap:wrap}}
 @media(max-width:600px){.hero-copy p{font-size:15px;line-height:1.65}.hero-copy h1{line-height:1.08}.feature-body p,.announcement-card p,.map-cta p{font-size:13px}.btn-main,.btn-ghost,.btn-light{min-height:42px;padding:10px 14px}}
+
+
+/* ===== FINAL CFTZ LANDING DESIGN — MATURE FOREST / CYBER INTELLIGENCE ===== */
+:root{--f:#031f18;--f2:#06382c;--g:#10a56f;--g2:#27d39a;--c:#20d6e5;--ink:#10241f;--muted:#60766e;--paper:#f5f9f7;--line:#d8e7e1}
+.public-nav{background:rgba(3,31,24,.96)!important;border-bottom:1px solid rgba(255,255,255,.10)!important;color:#fff!important;backdrop-filter:blur(12px)}
+.brand{color:#fff!important}.brand span{color:#7df0cf!important}.public-links a{color:#d5eee6!important}.public-links a:hover{color:#7df0cf!important}
+.btn-main{background:linear-gradient(135deg,#075a43,#10a56f)!important;border:1px solid rgba(255,255,255,.12)!important;color:#fff!important;box-shadow:0 8px 24px rgba(16,165,111,.20)!important}.btn-main:hover{background:linear-gradient(135deg,#08785a,#27d39a)!important;transform:translateY(-1px)}
+.btn-ghost{background:rgba(255,255,255,.06)!important;color:#fff!important;border:1px solid rgba(255,255,255,.25)!important}.btn-ghost:hover{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.hero-slider{background:#031f18!important}.hero-overlay{background:linear-gradient(90deg,rgba(3,31,24,.88),rgba(6,56,44,.54),rgba(3,31,24,.12))!important}
+.hero-copy .eyebrow{color:#7df0cf!important;letter-spacing:.16em}.hero-copy h1{color:#fff!important;text-shadow:0 2px 20px rgba(0,0,0,.22)}.hero-copy h1 strong{color:#7df0cf!important}.hero-copy p{color:#d8eee7!important;max-width:700px}
+.slider-dots button.active{background:#27d39a!important;box-shadow:0 0 0 4px rgba(39,211,154,.15)}
+.intro,.announcement-section,.contact{background:#fff!important}.intro h2,.workflow h2,.map-cta h2{color:#031f18!important}.intro p,.feature-body p,.announcement-card p,.map-cta p{color:#60766e!important}
+.feature-grid article,.announcement-card{background:#fff!important;border:1px solid var(--line)!important;box-shadow:0 6px 20px rgba(3,31,24,.055)!important;border-radius:12px!important}.feature-grid article:hover,.announcement-card:hover{border-color:#a8d5c5!important;box-shadow:0 12px 30px rgba(3,31,24,.09)!important;transform:translateY(-2px)}
+.feature-body span,.announcement-meta{color:#08785a!important}.feature-body h3,.announcement-card h3{color:#06382c!important}
+.workflow{background:#edf7f3!important}.steps div{background:#fff!important;border-color:#cfe3db!important;border-radius:10px!important}.steps b{color:#08785a!important}.steps span{color:#214d40!important}
+.stats-strip{background:linear-gradient(105deg,#031f18,#06382c)!important}.stats-strip div{border-top-color:#27d39a!important}.stats-strip span{color:#bfe9dc!important}
+.map-cta{background:#f5f9f7!important}.map-cta h2{color:#031f18!important}.emergency{background:linear-gradient(120deg,#031f18,#075a43)!important}.emergency h2{color:#fff!important}.emergency p{color:#d5eee6!important}
+.new-badge{background:#dcfaee!important;color:#075a43!important}.education{background:#f5f9f7!important}.word-grid span{background:#fff!important;border-color:#b9dccf!important;color:#075a43!important}
+.contact-box{background:#edf7f3!important;border-color:#cfe3db!important}.contact-box a{color:#08785a!important}.contact-box a:hover{color:#031f18!important}
+footer{background:#031f18!important;color:#c9e9df!important}
+@media(max-width:900px){.public-nav{padding:0 16px}.hero-slider{height:min(570px,calc(100svh - 60px))!important;min-height:450px!important}.hero-copy{padding:13vh 7vw!important}.hero-copy h1{font-size:clamp(36px,9vw,52px)!important}.hero-copy p{font-size:15px!important;line-height:1.65}.feature-grid.four{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.public-nav{padding:0 12px}.brand{font-size:12px}.hero-slider{min-height:480px!important}.hero-copy{padding:11vh 6vw!important}.hero-copy h1{font-size:36px!important}.hero-copy p{font-size:14px!important}.stats-strip{grid-template-columns:1fr 1fr!important;padding:24px 14px!important}.feature-grid.four{grid-template-columns:1fr!important}.announcement-section,.education,.contact{padding:45px 18px!important}.emergency{padding:42px 18px!important}}
+/* Public landing honors the same system-wide theme preference. */
+html[data-theme="dark"] .intro,html[data-theme="dark"] .announcement-section,html[data-theme="dark"] .contact,html[data-theme="dark"] .map-cta{background:#071a14!important;color:#e5f5ef!important}
+html[data-theme="dark"] .intro h2,html[data-theme="dark"] .workflow h2,html[data-theme="dark"] .map-cta h2,html[data-theme="dark"] .contact h2{color:#e5f5ef!important}
+html[data-theme="dark"] .feature-grid article,html[data-theme="dark"] .announcement-card,html[data-theme="dark"] .steps div,html[data-theme="dark"] .contact-box{background:#0b261e!important;border-color:#244d3f!important;color:#e5f5ef!important}
+html[data-theme="dark"] .feature-body h3,html[data-theme="dark"] .announcement-card h3{color:#dff7ee!important}html[data-theme="dark"] .feature-body p,html[data-theme="dark"] .announcement-card p,html[data-theme="dark"] .intro p,html[data-theme="dark"] .map-cta p{color:#a8c8bd!important}
+html[data-theme="dark"] .workflow,html[data-theme="dark"] .education{background:#061710!important}
