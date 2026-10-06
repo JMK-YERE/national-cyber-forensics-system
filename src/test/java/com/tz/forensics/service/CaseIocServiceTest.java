@@ -16,7 +16,7 @@ class CaseIocServiceTest {
     @InjectMocks CaseIocService service;
 
     @Test void crossCaseDeleteIsRejected() {
-        CaseIoc ioc = new CaseIoc(); ioc.setId(5L); ioc.setCaseId(10L);
+        CaseIoc ioc = new CaseIoc(); ioc.setCaseId(10L);
         when(repository.findById(5L)).thenReturn(java.util.Optional.of(ioc));
         assertFalse(service.delete(5L,11L));
         verify(repository,never()).delete(any());
