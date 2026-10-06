@@ -7,6 +7,7 @@ import com.tz.forensics.repository.ChainOfCustodyRepository;
 import com.tz.forensics.repository.EvidenceRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.tika.Tika;
 import java.io.IOException;
@@ -175,6 +176,7 @@ public class EvidenceService {
     }
 
 
+    @Transactional
     public boolean transferCustody(Long evidenceId, Long actorId, String actorName, String actorRole,
                                    Long recipientId, String recipientName, String recipientRole,
                                    String purpose, String notes) {
@@ -203,6 +205,7 @@ public class EvidenceService {
         return true;
     }
 
+    @Transactional
     public boolean advanceCustody(Long evidenceId, String action, Long actorId, String actorName,
                                   String actorRole, String purpose, String notes) {
         Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
@@ -242,6 +245,7 @@ public class EvidenceService {
         return true;
     }
 
+    @Transactional
     public void verifyEvidence(Long evidenceId, String username, Long verifiedBy) {
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
