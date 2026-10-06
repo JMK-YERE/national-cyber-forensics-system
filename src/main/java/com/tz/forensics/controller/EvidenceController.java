@@ -72,7 +72,7 @@ public class EvidenceController {
                               Authentication auth, Model model) {
         User user = currentUser(auth);
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
-        if (!canAccessIncident(incident, user)) return "redirect:/access-denied";
+        if (!isStaff(user) || !canAccessIncident(incident, user)) return "redirect:/access-denied";
         CaseFile caseFile = null;
         if (caseId != null) {
             caseFile = caseFileService.getById(caseId);
@@ -139,7 +139,7 @@ public class EvidenceController {
 
 
     private boolean canAccessEvidence(Evidence evidence, Incident incident, User user) {
-        if (evidence == null || user == null || !canAccessIncident(incident, user)) return false;
+        if (evidence == null || user == null || !isStaff(user) || !canAccessIncident(incident, user)) return false;
         if (evidence.getCaseId() != null) {
             CaseFile cf = caseFileService.getById(evidence.getCaseId());
             if (cf == null || !incident.getId().equals(cf.getIncidentId()) || !canAccessCase(cf, user)) return false;
