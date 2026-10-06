@@ -174,13 +174,16 @@ public class AdvancedSecurityService {
                     .connectTimeout(Duration.ofSeconds(10))
                     .build();
 
+            // Header analysis never needs page content. Use HEAD so an attacker-controlled
+            // target cannot make the service download an arbitrary response body.
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(safeUri)
                     .timeout(Duration.ofSeconds(10))
                     .header("User-Agent", "CyberForensicsSystem/1.0")
-                    .GET().build();
+                    .method("HEAD", HttpRequest.BodyPublishers.noBody())
+                    .build();
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
             response.headers().map().forEach((k, v) -> headers.put(k, String.join(", ", v)));
 
             Map<String, String> securityHeaders = Map.of(
