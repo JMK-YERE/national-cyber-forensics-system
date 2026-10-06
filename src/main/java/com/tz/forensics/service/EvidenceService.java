@@ -6,6 +6,7 @@ import com.tz.forensics.entity.Evidence;
 import com.tz.forensics.repository.ChainOfCustodyRepository;
 import com.tz.forensics.repository.EvidenceRepository;
 import com.tz.forensics.repository.CaseFileRepository;
+import com.tz.forensics.repository.IncidentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +26,7 @@ public class EvidenceService {
     private final EvidenceRepository evidenceRepository;
     private final ChainOfCustodyRepository custodyRepository;
     private final CaseFileRepository caseFileRepository;
+    private final IncidentRepository incidentRepository;
     private final HashService hashService;
     private final EncryptionService encryptionService;
     private final Tika tika = new Tika();
@@ -34,12 +36,14 @@ public class EvidenceService {
     public EvidenceService(EvidenceRepository evidenceRepository,
                            ChainOfCustodyRepository custodyRepository,
                            CaseFileRepository caseFileRepository,
+                           IncidentRepository incidentRepository,
                            HashService hashService,
                            EncryptionService encryptionService,
                            EvidenceStorage evidenceStorage) {
         this.evidenceRepository = evidenceRepository;
         this.custodyRepository = custodyRepository;
         this.caseFileRepository = caseFileRepository;
+        this.incidentRepository = incidentRepository;
         this.hashService = hashService;
         this.encryptionService = encryptionService;
         this.evidenceStorage = evidenceStorage;
@@ -58,6 +62,10 @@ public class EvidenceService {
 
         if (incidentId == null || username == null || username.isBlank() || uploadedBy == null) {
             throw new IllegalArgumentException("Authenticated incident reporter is required.");
+        }
+        com.tz.forensics.entity.Incident incident = incidentRepository.findById(incidentId).orElse(null);
+        if (incident == null || Boolean.TRUE.equals(incident.getIsClosed()) || "CLOSED".equalsIgnoreCase(incident.getWorkflowStatus())) {
+            throw new IllegalArgumentException("Evidence cannot be added to a closed or missing incident.");
         }
         if (caseId != null) {
             com.tz.forensics.entity.CaseFile linkedCase = caseFileRepository.findById(caseId).orElse(null);
@@ -267,6 +275,9 @@ public class EvidenceService {
             }
         }
         if (Boolean.TRUE.equals(evidence.getVerified())) return;
+        if (!"UPLOADED".equalsIgnoreCase(evidence.getCustodyStatus())) {
+            throw new IllegalStateException("Only newly uploaded evidence can be verified.");
+        }
         try {
             byte[] encrypted = evidenceStorage.read(evidence.getStoredFilename());
             byte[] decrypted = encryptionService.decrypt(encrypted);
