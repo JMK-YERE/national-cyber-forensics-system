@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
 import java.net.URI;
@@ -58,6 +59,7 @@ public class S3EvidenceStorage implements EvidenceStorage {
 
     private String key(String storageKey) throws IOException {
         if (storageKey == null || storageKey.isBlank()) throw new IOException("Evidence storage key is required.");
+        if (storageKey.indexOf('/') >= 0 || storageKey.indexOf('\\') >= 0) throw new IOException("Invalid evidence storage key.");
         String normalized = Paths.get(storageKey).getFileName().toString();
         if (!normalized.equals(storageKey)) throw new IOException("Invalid evidence storage key.");
         if (normalized.isBlank() || ".".equals(normalized) || "..".equals(normalized)) throw new IOException("Invalid evidence storage key.");
@@ -77,8 +79,15 @@ public class S3EvidenceStorage implements EvidenceStorage {
     }
 
     public boolean exists(String storageKey) throws IOException {
-        try { client.headObject(b -> b.bucket(bucket).key(key(storageKey))); return true; }
-        catch (RuntimeException e) { return false; }
+        try {
+            client.headObject(b -> b.bucket(bucket).key(key(storageKey)));
+            return true;
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404) return false;
+            throw new IOException("Unable to check evidence object.", e);
+        } catch (RuntimeException e) {
+            throw new IOException("Unable to check evidence object.", e);
+        }
     }
 
     public void delete(String storageKey) throws IOException {
