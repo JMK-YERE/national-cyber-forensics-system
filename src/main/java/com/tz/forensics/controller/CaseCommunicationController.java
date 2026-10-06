@@ -62,12 +62,18 @@ public class CaseCommunicationController{
   if(item!=null){
    audit.log("CASE_MESSAGE_SENT","CaseCommunication",String.valueOf(item.getId()),"Case "+c.getCaseNumber()+" | TLP="+item.getTlp());
    caseService.addTimeline(caseId,"COMMUNICATION","Case message sent",item.getTlp()+" message by "+a.getName(),u.getId(),a.getName(),u.getRole());
-   List<User> recipients=users.findAll().stream()
-       .filter(x->x.getId()!=null&&!x.getId().equals(u.getId())&&Boolean.TRUE.equals(x.getEnabled())&&x.isApproved()&&canView(c,x))
-       .toList();
-   for(User recipient:recipients)
-    notifications.createNotification(recipient.getId(),"Case communication","New "+item.getTlp()+" message in "+c.getCaseNumber(),
-        "CASE_MESSAGE","/case-communications/"+caseId);
+   java.util.LinkedHashSet<Long> recipientIds=new java.util.LinkedHashSet<>();
+   if(c.getAssignedTo()!=null) recipientIds.add(c.getAssignedTo());
+   if(c.getLeadInvestigator()!=null) recipientIds.add(c.getLeadInvestigator());
+   if(c.getCreatedBy()!=null) recipientIds.add(c.getCreatedBy());
+   recipientIds.remove(u.getId());
+   for(Long recipientId:recipientIds){
+    User recipient=users.findById(recipientId).orElse(null);
+    if(recipient!=null&&Boolean.TRUE.equals(recipient.getEnabled())&&recipient.isApproved()&&canView(c,recipient)){
+     notifications.createNotification(recipientId,"Case communication","New "+item.getTlp()+" message in "+c.getCaseNumber(),
+         "CASE_MESSAGE","/case-communications/"+caseId);
+    }
+   }
   }else audit.log("REJECT_CASE_MESSAGE","CaseCommunication",String.valueOf(caseId),"Invalid message or TLP");
   return "redirect:/case-communications/"+caseId;
  }
