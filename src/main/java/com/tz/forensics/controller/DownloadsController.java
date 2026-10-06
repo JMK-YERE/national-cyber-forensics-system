@@ -33,9 +33,14 @@ public class DownloadsController {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        List<com.tz.forensics.entity.ReportAttack> reports = user.isAdmin()
-                ? reportRepository.findAllByOrderByCreatedAtDesc()
-                : reportRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        List<com.tz.forensics.entity.ReportAttack> reports;
+        if (user.isAdmin() || user.isProfessional() || user.isForensics()) {
+            reports = reportRepository.findAllByOrderByCreatedAtDesc();
+        } else if (user.isAnalyst()) {
+            reports = reportRepository.findByAssignedToOrderByCreatedAtDesc(user.getId());
+        } else {
+            reports = reportRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        }
 
         StringBuilder csv = new StringBuilder("Report ID,Title,Attack Type,Status,Priority,Region,Created At\n");
         for (var r : reports) {
