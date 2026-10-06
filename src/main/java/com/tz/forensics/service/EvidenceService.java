@@ -218,6 +218,12 @@ public class EvidenceService {
         Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
         if (evidence == null || actorId == null || recipientId == null) return false;
         if (!isEvidenceStaffRole(actorRole) || !isEvidenceStaffRole(recipientRole)) return false;
+        com.tz.forensics.entity.Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
+        if (incident == null || Boolean.TRUE.equals(incident.getIsClosed()) || "CLOSED".equalsIgnoreCase(incident.getWorkflowStatus())) return false;
+        if ("ANALYST".equalsIgnoreCase(recipientRole)) {
+            boolean incidentAccess = recipientId.equals(incident.getAssignedTo()) || recipientId.equals(incident.getReporterUserId());
+            if (!incidentAccess) return false;
+        }
         if (evidence.getCaseId() != null) {
             com.tz.forensics.entity.CaseFile cf = caseFileRepository.findById(evidence.getCaseId()).orElse(null);
             if (cf == null || "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())) return false;
