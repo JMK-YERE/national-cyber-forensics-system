@@ -144,8 +144,12 @@ public class EvidenceService {
     public byte[] downloadEvidence(Long evidenceId) throws IOException {
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
-        Path filePath = Paths.get(uploadDir, evidence.getStoredFilename());
-        if (!Files.exists(filePath)) throw new IOException("Stored evidence file not found.");
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Path filePath = uploadPath.resolve(evidence.getStoredFilename()).normalize();
+        if (!filePath.startsWith(uploadPath)) throw new IOException("Invalid evidence storage path.");
+        if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+            throw new IOException("Stored evidence file not found.");
+        }
         byte[] decrypted = encryptionService.decrypt(Files.readAllBytes(filePath));
         String actualSha256 = hashService.sha256(decrypted);
         if (!actualSha256.equalsIgnoreCase(evidence.getSha256Hash())) {
@@ -180,6 +184,7 @@ public class EvidenceService {
         if (!"VERIFIED".equals(status) && !"ACCEPTED".equals(status) && !"EXAMINED".equals(status)
                 && !"REPORT_GENERATED".equals(status)) return false;
         if (recipientId.equals(actorId)) return false;
+        if (evidence.getCustodianId() == null || !actorId.equals(evidence.getCustodianId())) return false;
 
         evidence.setCustodyStatus("TRANSFERRED");
         evidence.setCustodianId(recipientId);
@@ -241,6 +246,18 @@ public class EvidenceService {
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
         if (Boolean.TRUE.equals(evidence.getVerified())) return;
+        try {
+            byte[] encrypted = Files.readAllBytes(
+                    Paths.get(uploadDir).toAbsolutePath().normalize()
+                            .resolve(evidence.getStoredFilename()).normalize());
+            byte[] decrypted = encryptionService.decrypt(encrypted);
+            String actualSha256 = hashService.sha256(decrypted);
+            if (!actualSha256.equalsIgnoreCase(evidence.getSha256Hash())) {
+                throw new IllegalStateException("Evidence integrity check failed: SHA-256 mismatch.");
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Evidence integrity verification failed.", e);
+        }
         evidence.setVerified(true);
         evidence.setCustodyStatus("VERIFIED");
         evidence.setVerifiedBy(verifiedBy);
