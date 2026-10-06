@@ -128,6 +128,7 @@ public class SecurityConfig {
                 .successHandler(oauth2Handler)
                 .failureUrl("/login?error")
             )
+            .sessionManagement(session -> session.sessionFixation(fixation -> fixation.migrateSession()))
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
