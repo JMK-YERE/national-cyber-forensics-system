@@ -73,12 +73,9 @@ public class IncidentController {
     }
 
     @GetMapping("/my-tasks")
-    public String myTasks(Model model, Authentication auth) {
-        User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null) return "redirect:/login";
-        model.addAttribute("tasks", incidentService.getMyActiveIncidents(user.getId()));
-        model.addAttribute("user", user);
-        return "my-tasks";
+    public String myTasks(Authentication auth) {
+        if (auth == null || auth.getName() == null) return "redirect:/login";
+        return "redirect:/case-tasks";
     }
 
     @GetMapping("/new")
