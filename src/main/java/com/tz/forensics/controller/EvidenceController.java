@@ -200,7 +200,7 @@ public class EvidenceController {
         Evidence evidence = evidenceService.getById(id);
         if (evidence == null) return "redirect:/incidents";
         Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!isStaff(actor) || !canAccessIncident(incident, actor)) return "redirect:/access-denied";
+        if (!isStaff(actor) || !canAccessEvidence(evidence, incident, actor)) return "redirect:/access-denied";
 
         String normalized = action == null ? "" : action.trim().toUpperCase();
         if (!java.util.Set.of("ACCEPTED", "UNDER_EXAMINATION", "EXAMINED", "REPORT_GENERATED").contains(normalized)) {
