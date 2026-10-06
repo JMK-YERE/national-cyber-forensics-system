@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @Controller
 @RequestMapping("/case-tasks")
@@ -46,6 +47,10 @@ public class CaseTaskController {
   return incident!=null&&(u.getId().equals(incident.getReporterUserId())||u.getId().equals(incident.getAssignedTo()));
  }
  private boolean manager(User u){return u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics());}
+ private boolean closed(CaseFile c){
+  String s=c==null||c.getStatus()==null?"OPEN":c.getStatus().trim().toUpperCase(Locale.ROOT);
+  return "CLOSED".equals(s)||"ARCHIVED".equals(s);
+ }
 
  @GetMapping
  public String myTasks(Model m,Authentication a){
@@ -60,6 +65,7 @@ public class CaseTaskController {
                       @RequestParam Long assignedTo,@RequestParam(required=false)String priority,@RequestParam(required=false)String dueDate,Authentication a){
   User actor=current(a);CaseFile c=caseService.getById(caseId);
   if(!manager(actor)||!canView(c,actor))return "redirect:/access-denied";
+  if(closed(c)){audit.log("REJECT_CASE_TASK_CREATE","CaseFile",String.valueOf(caseId),"Task creation attempted after case closure");return "redirect:/cases/"+caseId;}
   User assignee=users.findById(assignedTo).orElse(null);
   if(assignee==null||!Boolean.TRUE.equals(assignee.getEnabled())||!assignee.isApproved()||
      !(assignee.isAnalyst()||assignee.isForensics()||assignee.isProfessional()))return "redirect:/cases/"+caseId;
@@ -81,19 +87,16 @@ public class CaseTaskController {
  public String status(@PathVariable Long id,@RequestParam String status,Authentication a){
   User actor=current(a);CaseTask t=taskService.get(id);CaseFile c=t==null?null:caseService.getById(t.getCaseId());
   if(!staff(actor)||t==null||c==null||!canView(c,actor))return "redirect:/access-denied";
+  if(closed(c)){audit.log("REJECT_CASE_TASK_STATUS","CaseTask",""+id,"Status change attempted after case closure by "+a.getName());return "redirect:/cases/"+c.getId();}
   boolean assignee=actor.getId().equals(t.getAssignedTo());boolean privileged=manager(actor);
   if(!assignee&&!privileged)return "redirect:/access-denied";
-  String from=t.getStatus()==null?"OPEN":t.getStatus().trim().toUpperCase();
-  String requested=status==null?"":status.trim().toUpperCase();
+  String from=t.getStatus()==null?"OPEN":t.getStatus().trim().toUpperCase(Locale.ROOT);
+  String requested=status==null?"":status.trim().toUpperCase(Locale.ROOT);
   if(taskService.transition(t,requested,actor.getId(),a.getName())){
    audit.log("CHANGE_CASE_TASK_STATUS","CaseTask",""+id,from+" → "+t.getStatus()+" by "+a.getName());
    caseService.addTimeline(c.getId(),"TASK_STATUS_CHANGED","Task status changed",t.getTitle()+" | "+from+" → "+t.getStatus(),actor.getId(),a.getName(),actor.getRole());
-   if(t.getAssignedTo()!=null){
-    notifications.createNotification(t.getAssignedTo(),"Case task updated","Case "+c.getCaseNumber()+" — "+t.getTitle()+" | "+from+" → "+t.getStatus(),"TASK_STATUS","/case-tasks");
-   }
-  } else {
-   audit.log("REJECT_CASE_TASK_STATUS","CaseTask",""+id,from+" → "+requested+" by "+a.getName());
-  }
+   if(t.getAssignedTo()!=null)notifications.createNotification(t.getAssignedTo(),"Case task updated","Case "+c.getCaseNumber()+" — "+t.getTitle()+" | "+from+" → "+t.getStatus(),"TASK_STATUS","/case-tasks");
+  } else audit.log("REJECT_CASE_TASK_STATUS","CaseTask",""+id,from+" → "+requested+" by "+a.getName());
   return "redirect:/cases/"+c.getId();
  }
 }
