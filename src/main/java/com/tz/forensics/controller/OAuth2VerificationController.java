@@ -80,9 +80,6 @@ public class OAuth2VerificationController {
             clearChallenge(session);
             return "redirect:/login?error=oauth_account_unavailable";
         }
-            clearChallenge(session);
-            return "redirect:/login?error=oauth_account_unavailable";
-        }
 
         String otp = String.format("%06d", RANDOM.nextInt(1_000_000));
         user.setOauthOtpHash(passwordEncoder.encode(otp));
