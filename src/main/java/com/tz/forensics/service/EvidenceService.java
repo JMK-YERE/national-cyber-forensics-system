@@ -173,13 +173,18 @@ public class EvidenceService {
         return decrypted;
     }
  
+    private boolean isEvidenceStaffRole(String role) {
+        if (role == null) return false;
+        return java.util.Set.of("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST")
+                .contains(role.trim().toUpperCase());
+    }
+
     private String getClientIp() {
         try {
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attrs == null) return "unknown";
             HttpServletRequest request = attrs.getRequest();
-            String xff = request.getHeader("X-Forwarded-For");
-            return xff != null && !xff.isBlank() ? xff.split(",")[0].trim() : request.getRemoteAddr();
+            return request.getRemoteAddr();
         } catch (Exception e) {
             return "unknown";
         }
@@ -196,6 +201,7 @@ public class EvidenceService {
                                    String purpose, String notes) {
         Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
         if (evidence == null || actorId == null || recipientId == null) return false;
+        if (!isEvidenceStaffRole(actorRole) || !isEvidenceStaffRole(recipientRole)) return false;
         if (evidence.getCaseId() != null) {
             com.tz.forensics.entity.CaseFile cf = caseFileRepository.findById(evidence.getCaseId()).orElse(null);
             if (cf == null || "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())) return false;
@@ -227,6 +233,7 @@ public class EvidenceService {
                                   String actorRole, String purpose, String notes) {
         Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
         if (evidence == null || actorId == null || action == null) return false;
+        if (!isEvidenceStaffRole(actorRole)) return false;
         if (evidence.getCaseId() != null) {
             com.tz.forensics.entity.CaseFile cf = caseFileRepository.findById(evidence.getCaseId()).orElse(null);
             if (cf == null || "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())) return false;
