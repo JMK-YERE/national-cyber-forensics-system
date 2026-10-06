@@ -127,6 +127,11 @@ public class EvidenceService {
         return evidenceRepository.findByIncidentIdOrderByUploadedAtDesc(incidentId);
     }
 
+    public List<Evidence> getEvidenceByCase(Long caseId) {
+        if (caseId == null) return List.of();
+        return evidenceRepository.findByCaseIdOrderByUploadedAtDesc(caseId);
+    }
+
     public Evidence getById(Long evidenceId) {
         return evidenceRepository.findById(evidenceId).orElse(null);
     }
