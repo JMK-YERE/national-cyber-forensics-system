@@ -5,6 +5,7 @@ import com.tz.forensics.entity.ChainOfCustody;
 import com.tz.forensics.entity.Evidence;
 import com.tz.forensics.repository.ChainOfCustodyRepository;
 import com.tz.forensics.repository.EvidenceRepository;
+import com.tz.forensics.repository.CaseFileRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import java.util.UUID;
 public class EvidenceService {
     private final EvidenceRepository evidenceRepository;
     private final ChainOfCustodyRepository custodyRepository;
+    private final CaseFileRepository caseFileRepository;
     private final HashService hashService;
     private final EncryptionService encryptionService;
     private final Tika tika = new Tika();
@@ -36,10 +38,12 @@ public class EvidenceService {
 
     public EvidenceService(EvidenceRepository evidenceRepository,
                            ChainOfCustodyRepository custodyRepository,
+                           CaseFileRepository caseFileRepository,
                            HashService hashService,
                            EncryptionService encryptionService) {
         this.evidenceRepository = evidenceRepository;
         this.custodyRepository = custodyRepository;
+        this.caseFileRepository = caseFileRepository;
         this.hashService = hashService;
         this.encryptionService = encryptionService;
     }
@@ -182,6 +186,10 @@ public class EvidenceService {
                                    String purpose, String notes) {
         Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
         if (evidence == null || actorId == null || recipientId == null) return false;
+        if (evidence.getCaseId() != null) {
+            com.tz.forensics.entity.CaseFile cf = caseFileRepository.findById(evidence.getCaseId()).orElse(null);
+            if (cf == null || "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())) return false;
+        }
         String status = evidence.getCustodyStatus();
         if (!"VERIFIED".equals(status) && !"ACCEPTED".equals(status) && !"EXAMINED".equals(status)) return false;
         if (recipientId.equals(actorId)) return false;
@@ -209,6 +217,10 @@ public class EvidenceService {
                                   String actorRole, String purpose, String notes) {
         Evidence evidence = evidenceRepository.findById(evidenceId).orElse(null);
         if (evidence == null || actorId == null || action == null) return false;
+        if (evidence.getCaseId() != null) {
+            com.tz.forensics.entity.CaseFile cf = caseFileRepository.findById(evidence.getCaseId()).orElse(null);
+            if (cf == null || "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())) return false;
+        }
 
         String from = evidence.getCustodyStatus();
         String to = action.trim().toUpperCase();
@@ -248,6 +260,12 @@ public class EvidenceService {
     public void verifyEvidence(Long evidenceId, String username, Long verifiedBy) {
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
+        if (evidence.getCaseId() != null) {
+            com.tz.forensics.entity.CaseFile cf = caseFileRepository.findById(evidence.getCaseId()).orElse(null);
+            if (cf == null || "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())) {
+                throw new IllegalStateException("Evidence in a closed or archived case cannot be verified.");
+            }
+        }
         if (Boolean.TRUE.equals(evidence.getVerified())) return;
         try {
             Path base = Paths.get(uploadDir).toAbsolutePath().normalize();
