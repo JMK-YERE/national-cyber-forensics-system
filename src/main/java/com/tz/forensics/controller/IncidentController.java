@@ -46,7 +46,7 @@ public class IncidentController {
     private boolean isForensics(User u) { return u != null && u.isForensics(); }
     private boolean isAnalyst(User u) { return u != null && u.isAnalyst(); }
 
-    private boolean canViewAll(User u) { return isAdmin(u) || isCyberPro(u); }
+    private boolean canViewAll(User u) { return isAdmin(u) || isCyberPro(u) || isForensics(u); }
     private boolean canManageWorkflow(User u) { return isAdmin(u) || isCyberPro(u) || isForensics(u); }
     private boolean canAssign(User u) { return isAdmin(u) || isCyberPro(u); }
 
