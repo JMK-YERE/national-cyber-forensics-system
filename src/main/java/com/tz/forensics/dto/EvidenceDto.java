@@ -1,6 +1,8 @@
 package com.tz.forensics.dto;
 
 public class EvidenceDto {
+    private Long caseId;
+    public Long getCaseId(){return caseId;} public void setCaseId(Long v){caseId=v;}
     private String description, sourceDevice, acquisitionMethod, acquisitionType;
     private String deviceMake, deviceModel, deviceSerial, sourceIdentifier;
     private String acquisitionTool, acquisitionToolVersion, acquisitionNotes;
