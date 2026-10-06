@@ -12,6 +12,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.tz.forensics.entity.CaseFile;
+import com.tz.forensics.entity.ChainOfCustody;
 import com.tz.forensics.entity.Evidence;
 import com.tz.forensics.entity.Incident;
 import com.tz.forensics.entity.CaseIoc;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PDFReportService {
@@ -172,23 +174,23 @@ public class PDFReportService {
     }
 
     public byte[] generateCaseReport(CaseFile caseFile) {
-        return generateDetailedCaseReport(caseFile, List.of(), List.of(), List.of(), "Case File Report");
+        return generateDetailedCaseReport(caseFile, List.of(), List.of(), List.of(), Map.of(), "Case File Report");
     }
 
     // ===== CASE FILE PDF =====
     public byte[] generateExecutiveCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
-        return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, "Executive Case Report");
+        return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, custody, "Executive Case Report");
     }
 
     public byte[] generateTechnicalCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
-        return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, "Technical Investigation Report");
+        return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, custody, "Technical Investigation Report");
     }
 
     public byte[] generateForensicCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
-        return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, "Forensic Report");
+        return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, custody, "Forensic Report");
     }
 
-    private byte[] generateDetailedCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence, String reportTitle) {
+    private byte[] generateDetailedCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence, Map<Long, List<ChainOfCustody>> custody, String reportTitle) {
 
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -267,7 +269,34 @@ public class PDFReportService {
             } else doc.add(new Paragraph("No evidence attached to this incident."));
 
             doc.add(new Paragraph("CHAIN OF CUSTODY").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(16));
-            doc.add(new Paragraph("Custody status and custodian are recorded for each evidence item. Detailed custody events remain available from the evidence custody view.").setFontSize(9));
+            if (evidence != null && !evidence.isEmpty()) {
+                Table ct = new Table(UnitValue.createPercentArray(new float[]{22,18,24,36})).setWidth(UnitValue.createPercentValue(100));
+                ct.addHeaderCell(new Cell().add(new Paragraph("Evidence").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                ct.addHeaderCell(new Cell().add(new Paragraph("Action").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                ct.addHeaderCell(new Cell().add(new Paragraph("Performed By").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                ct.addHeaderCell(new Cell().add(new Paragraph("Time / Hash").setBold().setFontColor(ColorConstants.WHITE)).setBackgroundColor(CYBER_DARK));
+                for (Evidence item : evidence) {
+                    List<ChainOfCustody> events = custody == null ? List.of() : custody.getOrDefault(item.getId(), List.of());
+                    if (events.isEmpty()) {
+                        ct.addCell(new Paragraph(item.getOriginalFilename() != null ? item.getOriginalFilename() : "N/A"));
+                        ct.addCell(new Paragraph(item.getCustodyStatus()));
+                        ct.addCell(new Paragraph(item.getCustodianName() != null ? item.getCustodianName() : "N/A"));
+                        ct.addCell(new Paragraph("No custody events"));
+                    } else {
+                        for (ChainOfCustody event : events) {
+                            ct.addCell(new Paragraph(item.getOriginalFilename() != null ? item.getOriginalFilename() : "N/A"));
+                            ct.addCell(new Paragraph(event.getAction() != null ? event.getAction() : "N/A"));
+                            ct.addCell(new Paragraph(event.getPerformedByName() != null ? event.getPerformedByName() : "N/A"));
+                            String stamp = event.getTimestamp() != null ? event.getTimestamp().format(FMT) : "N/A";
+                            String hash = event.getHashAtAction() != null ? " | " + event.getHashAtAction() : "";
+                            ct.addCell(new Paragraph(stamp + hash));
+                        }
+                    }
+                }
+                doc.add(ct);
+            } else {
+                doc.add(new Paragraph("No evidence custody events recorded."));
+            }
             doc.add(new Paragraph("Generated: " + java.time.LocalDateTime.now().format(FMT)).setFontSize(9).setItalic().setMarginTop(14));
             doc.add(new Paragraph("Confidential — For Official Use Only").setFontSize(8).setItalic().setFontColor(CYBER_RED).setTextAlignment(TextAlignment.CENTER));
             doc.close();
