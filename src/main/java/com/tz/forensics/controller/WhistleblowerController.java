@@ -57,6 +57,7 @@ public class WhistleblowerController {
         this.auditService = auditService;
         this.notificationService = notificationService;
         this.encryptionService = encryptionService;
+        this.evidenceStorage = evidenceStorage;
     }
 
     @GetMapping
