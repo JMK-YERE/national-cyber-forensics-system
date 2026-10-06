@@ -1,6 +1,8 @@
 package com.tz.forensics.controller;
 
 import com.tz.forensics.entity.CaseFile;
+import com.tz.forensics.entity.CaseIoc;
+import com.tz.forensics.entity.CaseTimeline;
 import com.tz.forensics.entity.Evidence;
 import com.tz.forensics.entity.Incident;
 import com.tz.forensics.entity.User;
@@ -66,6 +68,21 @@ public class PDFController {
                 .body(pdf);
     }
 
+    @GetMapping("/case/{id}/executive.pdf")
+    public ResponseEntity<byte[]> executiveCasePdf(@PathVariable Long id, Authentication auth) {
+        return caseReport(id, auth, "executive");
+    }
+
+    @GetMapping("/case/{id}/technical.pdf")
+    public ResponseEntity<byte[]> technicalCasePdf(@PathVariable Long id, Authentication auth) {
+        return caseReport(id, auth, "technical");
+    }
+
+    @GetMapping("/case/{id}/forensic.pdf")
+    public ResponseEntity<byte[]> forensicCasePdf(@PathVariable Long id, Authentication auth) {
+        return caseReport(id, auth, "forensic");
+    }
+
     @GetMapping("/case/{id}/pdf")
     public ResponseEntity<byte[]> casePdf(@PathVariable Long id, Authentication auth) {
         User user = authenticatedUser(auth);
@@ -88,6 +105,17 @@ public class PDFController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .contentLength(pdf.length)
                 .body(pdf);
+    }
+
+    private ResponseEntity<byte[]> caseReport(Long id, Authentication auth, String type) {
+        User user=authenticatedUser(auth); CaseFile cf=caseFileService.getById(id);
+        if(user==null||cf==null||!canAccessCase(cf,user)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        List<CaseTimeline> timeline=caseFileService.getTimeline(id);
+        List<CaseIoc> iocs=com.tz.forensics.service.CaseIocService.class.cast(null)==null?List.of():List.of();
+        // IOC and evidence are intentionally fetched through their scoped services in the standard case endpoint.
+        List<Evidence> evidence=evidenceService.getEvidenceByIncident(cf.getIncidentId());
+        byte[] pdf=switch(type){case "executive"->pdfReportService.generateExecutiveCaseReport(cf,timeline,iocs,evidence);case "technical"->pdfReportService.generateTechnicalCaseReport(cf,timeline,iocs,evidence);default->pdfReportService.generateForensicCaseReport(cf,timeline,iocs,evidence);};
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+type+"-"+cf.getCaseNumber()+".pdf\"").contentType(MediaType.APPLICATION_PDF).contentLength(pdf.length).body(pdf);
     }
 
     private User authenticatedUser(Authentication auth) {
