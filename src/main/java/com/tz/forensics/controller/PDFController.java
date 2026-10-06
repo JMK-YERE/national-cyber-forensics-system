@@ -42,7 +42,6 @@ public class PDFController {
     private final CaseIocService caseIocService;
     private final AuditService auditService;
     private final ChainOfCustodyRepository custodyRepository;
-    private final AuditService auditService;
 
     public PDFController(IncidentService incidentService,
                          EvidenceService evidenceService,
