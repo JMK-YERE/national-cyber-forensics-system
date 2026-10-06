@@ -65,6 +65,7 @@ public class ReportAttackController {
         this.aiChatService = aiChatService;
         this.advancedSecurityService = advancedSecurityService;
         this.encryptionService = encryptionService;
+        this.evidenceStorage = evidenceStorage;
     }
 
     private boolean canSeeAllReports(User user) {
@@ -319,7 +320,7 @@ public class ReportAttackController {
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .contentLength(data.length)
                     .body(data);
-        } catch (java.nio.file.NoSuchFileException e) {
+        } catch (IOException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             log.error("Evidence download failed for report {}: {}", id, e.getMessage(), e);
