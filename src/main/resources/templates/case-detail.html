@@ -66,6 +66,12 @@
         </form>
     </div>
 
+    <div class="app-card" style="margin-bottom:14px">
+        <h3>Case Communication</h3>
+        <p style="color:#64748b">Secure case discussion, TLP handling and escalation are audited.</p>
+        <a th:href="@{'/case-communications/' + ${caseFile.id}}" class="app-btn app-btn-outline">Open Case Communication →</a>
+    </div>
+
     <div class="app-card" th:if="${caseFile.status != 'ARCHIVED' and eligibleInvestigators != null}">
         <h3>Case Tasks</h3><p style="color:#64748b">Create controlled work items linked to this case. Assignees can update their own tasks.</p>
         <form th:action="@{/case-tasks/create}" method="post"><input type="hidden" name="caseId" th:value="${caseFile.id}"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
