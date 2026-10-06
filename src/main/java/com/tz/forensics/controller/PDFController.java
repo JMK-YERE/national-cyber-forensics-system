@@ -15,6 +15,7 @@ import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.EvidenceService;
 import com.tz.forensics.service.IncidentService;
 import com.tz.forensics.service.PDFReportService;
+import com.tz.forensics.service.AuditService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,6 +42,7 @@ public class PDFController {
     private final CaseIocService caseIocService;
     private final AuditService auditService;
     private final ChainOfCustodyRepository custodyRepository;
+    private final AuditService auditService;
 
     public PDFController(IncidentService incidentService,
                          EvidenceService evidenceService,
@@ -49,7 +51,8 @@ public class PDFController {
                          UserRepository userRepository,
                          CaseIocService caseIocService,
                          AuditService auditService,
-                         ChainOfCustodyRepository custodyRepository) {
+                         ChainOfCustodyRepository custodyRepository,
+                         AuditService auditService) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.caseFileService = caseFileService;
@@ -58,6 +61,7 @@ public class PDFController {
         this.caseIocService = caseIocService;
         this.auditService = auditService;
         this.custodyRepository = custodyRepository;
+        this.auditService = auditService;
     }
 
     @GetMapping("/incident/{id}/pdf")
@@ -74,6 +78,8 @@ public class PDFController {
 
         List<Evidence> evidenceList = evidenceService.getEvidenceByIncident(id);
         byte[] pdf = pdfReportService.generateIncidentReport(incident, evidenceList);
+        auditService.log("EXPORT_INCIDENT_REPORT", "Incident", String.valueOf(id),
+                "Incident report exported: " + incident.getIncidentId());
         String filename = "incident-" + incident.getIncidentId() + ".pdf";
 
         return ResponseEntity.ok()
