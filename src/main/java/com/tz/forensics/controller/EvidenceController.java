@@ -274,6 +274,8 @@ public class EvidenceController {
         String contentDisposition = "attachment; filename=" + '"' + filename + '"';
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+                .header(HttpHeaders.CACHE_CONTROL, "no-store, no-cache, must-revalidate, max-age=0")
+                .header("Pragma", "no-cache")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(data);
     }
