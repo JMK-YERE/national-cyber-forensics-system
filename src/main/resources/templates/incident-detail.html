@@ -49,13 +49,13 @@
   </form>
 </section>
 
-<section class="cftz-section" th:if="${linkedCases != null}">
+<section class="cftz-section" th:if="${canViewForensicData}">
   <div class="cftz-section-title"><div><span class="cftz-eyebrow">FORENSIC WORK</span><h2>Case files</h2></div><a th:if="${canManageWorkflow}" th:href="@{/cases/new(incidentId=${incident.id})}" class="app-btn app-btn-primary">Create case</a></div>
   <div th:if="${linkedCases.isEmpty()}" class="cftz-empty">No forensic case has been opened for this incident.</div>
   <div th:each="cf : ${linkedCases}" class="cftz-row"><div><strong class="mono" th:text="${cf.caseNumber}">CASE-0001</strong><p th:text="${cf.title}">Forensic investigation</p></div><div><span class="cftz-tag" th:text="${cf.status}">OPEN</span><a th:href="@{/cases/{id}(id=${cf.id})}" class="app-btn app-btn-outline">Open case</a></div></div>
 </section>
 
-<section class="cftz-section" th:if="${evidenceList != null}">
+<section class="cftz-section" th:if="${canViewForensicData}">
   <div class="cftz-section-title"><div><span class="cftz-eyebrow">EVIDENCE CONTROL</span><h2>Digital evidence</h2></div><a th:href="@{'/evidence/upload/' + ${incident.id}}" class="app-btn app-btn-primary">Acquire evidence</a></div>
   <div th:if="${evidenceList.isEmpty()}" class="cftz-empty">No evidence is currently attached to this incident.</div>
   <div th:each="ev : ${evidenceList}" class="cftz-row">
@@ -64,7 +64,7 @@
   </div>
 </section>
 
-<section class="cftz-section" th:if="${linkedCases == null and evidenceList == null}">
+<section class="cftz-section" th:if="${!canViewForensicData}">
   <div class="cftz-section-title"><div><span class="cftz-eyebrow">YOUR REPORT</span><h2>Report status</h2></div></div>
   <div class="cftz-empty">This incident is within your permitted view. Forensic case files and evidence are restricted to authorized response personnel.</div>
 </section>
