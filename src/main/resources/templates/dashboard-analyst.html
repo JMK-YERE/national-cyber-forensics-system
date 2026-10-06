@@ -9,6 +9,7 @@
 <div class="s"><b th:text="${investigatingCount != null ? investigatingCount : 0}">0</b><span>Investigating</span></div>
 <div class="s"><b th:text="${triagedCount != null ? triagedCount : 0}">0</b><span>Triaged</span></div>
 <div class="s"><b th:text="${closedCount != null ? closedCount : 0}">0</b><span>Closed</span></div></div></section>
+<div class="app-card" style="margin:14px 0"><strong>Response workload</strong><span style="margin-left:14px">My open tasks: <b th:text="${myOpenTaskCount != null ? myOpenTaskCount : 0}">0</b></span><span style="margin-left:14px;color:#b91c1c">Overdue: <b th:text="${myOverdueTaskCount != null ? myOverdueTaskCount : 0}">0</b></span><a th:href="@{/case-tasks}" class="app-btn app-btn-outline" style="float:right">View Tasks</a></div>
 <section class="a"><h2>🔬 Analyst Workspace</h2><p style="font-size:10px;color:#64748b">Only analyst-relevant operational views are shown.</p><div class="actions">
 <a th:href="@{/incidents/my-tasks}"><b>📌 My Analysis Tasks</b><small>Cases assigned to you</small></a>
 <a th:href="@{/incidents}"><b>🔎 Permitted Cases</b><small>Authorized investigation scope</small></a>
