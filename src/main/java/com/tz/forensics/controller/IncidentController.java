@@ -122,7 +122,14 @@ public class IncidentController {
                 || isForensics(currentUser) || isAnalyst(currentUser);
         model.addAttribute("canViewForensicData", canViewForensicData);
         if (canViewForensicData) {
-            model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(id));
+            // Never expose forensic evidence to an Analyst merely because they can
+            // view an incident. EvidenceController applies the stricter incident+
+            // case object-level authorization boundary.
+            if (!isAnalyst(currentUser) || incident.getAssignedTo() != null && currentUser.getId().equals(incident.getAssignedTo())) {
+                model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(id));
+            } else {
+                model.addAttribute("evidenceList", List.of());
+            }
             model.addAttribute("linkedCases", caseFileService.getCasesByIncident(id));
         }
 
