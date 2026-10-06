@@ -34,6 +34,7 @@ public class CaseFileService {
         this.timelineRepository = timelineRepository;
         this.caseTaskRepository = caseTaskRepository;
         this.evidenceRepository = evidenceRepository;
+        this.incidentRepository = incidentRepository;
     }
 
     public List<CaseTimeline> getTimeline(Long caseId) {
