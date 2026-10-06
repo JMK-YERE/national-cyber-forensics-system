@@ -230,7 +230,6 @@ public class EvidenceController {
         String filename = evidence.getOriginalFilename() == null ? "evidence.bin" : evidence.getOriginalFilename()
                 .replaceAll("[\\\\/\\r\\n]", "_")
                 .replace('"', '_');
-                .replace('\"', '_');
         String contentDisposition = "attachment; filename=" + '"' + filename + '"';
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
