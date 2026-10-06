@@ -74,7 +74,7 @@ public class ReportAttackController {
         if (user == null) return false;
         String role = user.getRole();
         if (role == null) return false;
-        return "ADMIN".equalsIgnoreCase(role) || "CYBER_PRO".equalsIgnoreCase(role) || "FORENSICS".equalsIgnoreCase(role) || "ANALYST".equalsIgnoreCase(role);
+        return "ADMIN".equalsIgnoreCase(role) || "CYBER_PRO".equalsIgnoreCase(role) || "FORENSICS".equalsIgnoreCase(role);
     }
 
     private boolean canInteractWithReport(User user, ReportAttack report) {
@@ -402,16 +402,17 @@ public class ReportAttackController {
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        // Examination workspace: authorized response/forensics staff may review reports.
-        if (user == null || !(user.isAdmin() || user.isProfessional() || user.isForensics() || "ANALYST".equalsIgnoreCase(user.getRole()))) return "redirect:/access-denied";
+        // Examination workspace: privileged staff review all reports; analysts only see reports assigned to them.
+        if (user == null || !(user.isAdmin() || user.isProfessional() || user.isForensics() || user.isAnalyst())) return "redirect:/access-denied";
 
-        model.addAttribute("reports", service.getAll());
+        boolean privileged = user.isAdmin() || user.isProfessional() || user.isForensics();
+        model.addAttribute("reports", privileged ? service.getAll() : service.getAssignedTo(user.getId()));
         model.addAttribute("user", user);
         model.addAttribute("newCount", service.countNew());
         model.addAttribute("todayCount", service.countToday());
         model.addAttribute("totalCount", service.countTotal());
         model.addAttribute("assignableUsers", userRepository.findAll().stream()
-                .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics() || "ANALYST".equalsIgnoreCase(u.getRole())).toList());
+                .filter(u -> u.isProfessional() || u.isForensics() || u.isAnalyst()).toList());
         return "report-attack-admin";
     }
 
@@ -423,8 +424,21 @@ public class ReportAttackController {
                                 @RequestParam(required = false) String policeCaseNumber,
                                 Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        // Status/assignment actions are limited to authorized examination staff.
-        if (user == null || !(user.isAdmin() || user.isProfessional() || user.isForensics() || "ANALYST".equalsIgnoreCase(user.getRole()))) return "redirect:/access-denied";
+        // Privileged staff may manage any report. Analysts may update only reports assigned to them.
+        if (user == null || !(user.isAdmin() || user.isProfessional() || user.isForensics() || user.isAnalyst())) return "redirect:/access-denied";
+        ReportAttack target = service.getById(id);
+        if (target == null) return "redirect:/report-attack/admin";
+        boolean privileged = user.isAdmin() || user.isProfessional() || user.isForensics();
+        if (!privileged && (target.getAssignedTo() == null || !target.getAssignedTo().equals(user.getId()))) {
+            auditService.log("REJECT_UPDATE_REPORT", "ReportAttack", String.valueOf(id), "Analyst attempted to update an unassigned report.");
+            return "redirect:/access-denied";
+        }
+
+        // Analysts cannot reassign reports; assignment is a privileged operation.
+        if (!privileged && assignedTo != null && !assignedTo.equals(target.getAssignedTo())) {
+            auditService.log("REJECT_REASSIGN_REPORT", "ReportAttack", String.valueOf(id), "Analyst attempted to reassign a report.");
+            return "redirect:/access-denied";
+        }
 
         String assignedName = null;
         if (assignedTo != null) {
@@ -432,7 +446,12 @@ public class ReportAttackController {
             if (assignee != null) assignedName = assignee.getUsername();
         }
 
-        service.updateStatus(id, status, adminResponse, assignedTo, assignedName);
+        try {
+            service.updateStatus(id, status, adminResponse, assignedTo, assignedName);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            auditService.log("REJECT_UPDATE_REPORT", "ReportAttack", String.valueOf(id), e.getMessage());
+            return "redirect:/report-attack/admin";
+        }
         auditService.log("UPDATE_REPORT", "ReportAttack", String.valueOf(id),
                 "Status=" + status + " | assignedTo=" + assignedTo);
 
