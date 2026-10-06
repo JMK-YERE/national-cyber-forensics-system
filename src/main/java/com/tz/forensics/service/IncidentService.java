@@ -40,7 +40,9 @@ public class IncidentService {
         incident.setReporterUserId(reporterUser != null ? reporterUser.getId() : null);
         incident.setDateReported(LocalDateTime.now());
         incident.setStatus("Under Investigation");
-        incident.setSeverity(dto.getSeverity() != null ? dto.getSeverity() : "MEDIUM");
+        String normalizedSeverity = dto.getSeverity() == null || dto.getSeverity().isBlank()
+                ? "MEDIUM" : dto.getSeverity().trim().toUpperCase();
+        incident.setSeverity(normalizedSeverity);
         incident.setCategory(dto.getCategory());
         incident.setRegion(dto.getRegion());
         incident.setOrganization(dto.getOrganization());
