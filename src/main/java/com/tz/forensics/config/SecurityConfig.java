@@ -62,7 +62,7 @@ public class SecurityConfig {
                 ).permitAll()
 
                 .requestMatchers("/admin/audit", "/admin/audit/**")
-                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS")
 
                 .requestMatchers("/admin/**")
                     .hasAuthority("ROLE_ADMIN")
