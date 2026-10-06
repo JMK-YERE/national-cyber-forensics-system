@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.LinkedHashMap;
 
 @Controller
@@ -25,12 +26,15 @@ public class DashboardController {
     private final UserRepository userRepository;
     private final ReportAttackRepository reportRepo;
     private final WhistleblowerReportRepository wbRepo;
+    private final com.tz.forensics.service.CaseTaskService caseTaskService;
 
     public DashboardController(UserRepository userRepository, ReportAttackRepository reportRepo,
-                               WhistleblowerReportRepository wbRepo) {
+                               WhistleblowerReportRepository wbRepo,
+                               com.tz.forensics.service.CaseTaskService caseTaskService) {
         this.userRepository = userRepository;
         this.reportRepo = reportRepo;
         this.wbRepo = wbRepo;
+        this.caseTaskService = caseTaskService;
     }
 
     @GetMapping("/dashboard")
@@ -58,6 +62,10 @@ public class DashboardController {
                 model.addAttribute("newReports", newReports);
                 model.addAttribute("totalWb", wbRepo.count());
                 model.addAttribute("totalUsers", userRepository.count());
+                List<com.tz.forensics.entity.CaseTask> myTasks = caseTaskService.findMyTasks(user.getId());
+                model.addAttribute("myTaskCount", myTasks.size());
+                model.addAttribute("myOverdueTaskCount", myTasks.stream().filter(com.tz.forensics.entity.CaseTask::isOverdue).count());
+                model.addAttribute("myOpenTaskCount", myTasks.stream().filter(t -> t.getStatus() != null && !Set.of("COMPLETED","CANCELLED").contains(t.getStatus().toUpperCase())).count());
 
                 model.addAttribute("newCount", newReports);
                 model.addAttribute("triagedCount", reportRepo.countByStatus("TRIAGED"));
