@@ -174,7 +174,7 @@ public class IncidentService {
             setWorkflowState(incident, "ASSIGNED", true);
         }
         incidentRepository.save(incident);
-        auditService.log("ASSIGN_INCIDENT", "Incident", incident.getIncidentId(), "Assigned to: " + assignedToName);
+        auditService.log(assignedBy, null, "ASSIGN_INCIDENT", "Incident", incident.getIncidentId(), "Assigned to: " + assignedToName);
     }
 
     @Transactional
@@ -247,8 +247,7 @@ public class IncidentService {
     }
 
     private void auditWorkflow(String action, Incident incident, String details, String actorName) {
-        String suffix = actorName == null || actorName.isBlank() ? "" : " | actor: " + actorName;
-        auditService.log(action, "Incident", incident.getIncidentId(), details + suffix);
+        auditService.log(null, actorName, action, "Incident", incident.getIncidentId(), details);
     }
 
     private static final java.util.Map<String, java.util.Set<String>> ALLOWED_TRANSITIONS = java.util.Map.of(
