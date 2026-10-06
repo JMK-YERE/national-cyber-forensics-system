@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 import java.security.SecureRandom;
 
 @Service
@@ -84,29 +85,73 @@ public class IncidentService {
 
     public void assignIncident(Long incidentId, Long assignedTo, String assignedToName,
                                Long assignedBy, String priority, LocalDateTime dueDate) {
-        Incident incident = incidentRepository.findById(incidentId).orElse(null);
-        if (incident != null) {
-            incident.setAssignedTo(assignedTo);
-            incident.setAssignedToName(assignedToName);
-            incident.setAssignedBy(assignedBy);
-            incident.setAssignedAt(LocalDateTime.now());
-            incident.setPriority(priority != null ? priority : "MEDIUM");
-            incident.setDueDate(dueDate);
-            incident.setWorkflowStatus("ASSIGNED");
-            incidentRepository.save(incident);
+        if (incidentId == null || assignedTo == null) {
+            throw new IllegalArgumentException("Incident and assignee are required.");
         }
+        Incident incident = incidentRepository.findById(incidentId).orElse(null);
+        if (incident == null) throw new IllegalArgumentException("Incident not found.");
+        if ("CLOSED".equalsIgnoreCase(incident.getWorkflowStatus())) {
+            throw new IllegalStateException("Closed incidents cannot be assigned.");
+        }
+
+        incident.setAssignedTo(assignedTo);
+        incident.setAssignedToName(assignedToName);
+        incident.setAssignedBy(assignedBy);
+        incident.setAssignedAt(LocalDateTime.now());
+        if (priority != null && !priority.isBlank()) incident.setPriority(priority.trim().toUpperCase());
+        if (dueDate != null) incident.setDueDate(dueDate);
+
+        String current = normalizeWorkflow(incident.getWorkflowStatus());
+        if ("NEW".equals(current) || "TRIAGED".equals(current)) {
+            incident.setWorkflowStatus("ASSIGNED");
+        }
+        incidentRepository.save(incident);
     }
 
     public void updateWorkflowStatus(Long incidentId, String status) {
-        Incident incident = incidentRepository.findById(incidentId).orElse(null);
-        if (incident != null) {
-            incident.setWorkflowStatus(status);
-            if ("CLOSED".equals(status)) {
-                incident.setIsClosed(true);
-                incident.setClosedAt(LocalDateTime.now());
-                incident.setStatus("Resolved");
-            }
-            incidentRepository.save(incident);
+        if (incidentId == null) throw new IllegalArgumentException("Incident id is required.");
+        String requested = normalizeWorkflow(status);
+        if (!ALLOWED_TRANSITIONS.containsKey(requested)) {
+            throw new IllegalArgumentException("Unsupported workflow status: " + status);
         }
+
+        Incident incident = incidentRepository.findById(incidentId).orElse(null);
+        if (incident == null) throw new IllegalArgumentException("Incident not found.");
+
+        String current = normalizeWorkflow(incident.getWorkflowStatus());
+        if (current.equals(requested)) return;
+        if (!ALLOWED_TRANSITIONS.getOrDefault(current, Set.of()).contains(requested)) {
+            throw new IllegalStateException("Invalid incident workflow transition: " + current + " -> " + requested);
+        }
+        if ("ASSIGNED".equals(requested) && incident.getAssignedTo() == null) {
+            throw new IllegalStateException("Incident must have an assignee before entering ASSIGNED.");
+        }
+
+        incident.setWorkflowStatus(requested);
+        if ("CLOSED".equals(requested)) {
+            incident.setIsClosed(true);
+            incident.setClosedAt(LocalDateTime.now());
+            incident.setStatus("Resolved");
+        } else {
+            incident.setIsClosed(false);
+            incident.setClosedAt(null);
+            incident.setStatus("Under Investigation");
+        }
+        incidentRepository.save(incident);
+    }
+
+    private static final java.util.Map<String, java.util.Set<String>> ALLOWED_TRANSITIONS = java.util.Map.of(
+            "NEW", java.util.Set.of("TRIAGED"),
+            "TRIAGED", java.util.Set.of("ASSIGNED"),
+            "ASSIGNED", java.util.Set.of("INVESTIGATING"),
+            "INVESTIGATING", java.util.Set.of("CONTAINMENT", "ERADICATION"),
+            "CONTAINMENT", java.util.Set.of("ERADICATION", "RECOVERY"),
+            "ERADICATION", java.util.Set.of("RECOVERY"),
+            "RECOVERY", java.util.Set.of("CLOSED"),
+            "CLOSED", java.util.Set.of()
+    );
+
+    private String normalizeWorkflow(String status) {
+        return status == null ? "NEW" : status.trim().toUpperCase();
     }
 }
