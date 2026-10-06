@@ -131,7 +131,12 @@ public class IncidentController {
         Incident incident = incidentService.getById(id);
         if (!canAssign(currentUser) || incident == null || assignedUser == null) return "redirect:/access-denied";
 
-        incidentService.assignIncident(id, assignedTo, assignedUser.getUsername(), currentUser.getId(), priority, dueDate);
+        try {
+            incidentService.assignIncident(id, assignedTo, assignedUser.getUsername(), currentUser.getId(), priority, dueDate);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            auditService.log("REJECT_ASSIGN_INCIDENT", "Incident", String.valueOf(id), e.getMessage());
+            return "redirect:/incidents/" + id;
+        }
         auditService.log("ASSIGN_INCIDENT", "Incident", String.valueOf(id), "Assigned to: " + assignedUser.getUsername());
         try {
             notificationService.createNotification(
@@ -158,7 +163,12 @@ public class IncidentController {
             auditService.log("REJECT_WORKFLOW", "Incident", String.valueOf(id), "Rejected invalid workflow status: " + status);
             return "redirect:/incidents/" + id;
         }
-        incidentService.updateWorkflowStatus(id, normalizedStatus);
+        try {
+            incidentService.updateWorkflowStatus(id, normalizedStatus);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            auditService.log("REJECT_WORKFLOW", "Incident", String.valueOf(id), e.getMessage());
+            return "redirect:/incidents/" + id;
+        }
         auditService.log("UPDATE_WORKFLOW", "Incident", String.valueOf(id), "Workflow: " + normalizedStatus);
         try {
             String message = incident.getIncidentId() + " — workflow changed to " + normalizedStatus;
