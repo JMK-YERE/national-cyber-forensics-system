@@ -41,7 +41,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled()) || !user.isApproved() || !user.isEmailVerified()) {
             response.sendRedirect("/login?error=oauth_account_unavailable");
             SecurityContextHolder.clearContext();
             return;
