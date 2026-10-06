@@ -76,7 +76,7 @@ public class PDFController {
         byte[] pdf = pdfReportService.generateIncidentReport(incident, evidenceList);
         auditService.log("EXPORT_INCIDENT_REPORT", "Incident", String.valueOf(id),
                 "Incident report exported: " + incident.getIncidentId());
-        String filename = "incident-" + incident.getIncidentId() + ".pdf";
+        String filename = safeFilename("incident-" + incident.getIncidentId()) + ".pdf";
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
@@ -126,7 +126,7 @@ public class PDFController {
         byte[] pdf = pdfReportService.generateForensicCaseReport(caseFile, timeline, iocs, evidence, custody);
         auditService.log("EXPORT_CASE_REPORT", "CASE", String.valueOf(id),
                 "Report type=standard | Case=" + caseFile.getCaseNumber());
-        String filename = "case-" + caseFile.getCaseNumber() + ".pdf";
+        String filename = safeFilename("case-" + caseFile.getCaseNumber()) + ".pdf";
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
@@ -161,12 +161,17 @@ public class PDFController {
         auditService.log("EXPORT_CASE_REPORT", "CASE",
                 String.valueOf(id), "Report type=" + type + " | Case=" + cf.getCaseNumber());
 
-        String filename = type + "-" + cf.getCaseNumber() + ".pdf";
+        String filename = safeFilename(type + "-" + cf.getCaseNumber()) + ".pdf";
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .contentLength(pdf.length)
                 .body(pdf);
+    }
+
+    private String safeFilename(String value) {
+        if (value == null || value.isBlank()) return "report";
+        return value.replaceAll("[\\r\\n\\\\/\":*?<>|]+", "_").replaceAll("\\s+", " ").trim();
     }
 
     private User authenticatedUser(Authentication auth) {
