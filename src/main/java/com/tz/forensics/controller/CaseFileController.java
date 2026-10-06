@@ -3,7 +3,6 @@ package com.tz.forensics.controller;
 import com.tz.forensics.entity.CaseFile;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
-import com.tz.forensics.repository.CaseFileRepository;
 import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.CaseFileService;
 import com.tz.forensics.service.CaseIocService;
@@ -27,7 +26,6 @@ public class CaseFileController {
     private final UserRepository userRepository;
     private final AuditService auditService;
     private final CaseIocService caseIocService;
-    private final CaseFileRepository caseFileRepository;
     private final NotificationService notificationService;
     private final CaseTaskService caseTaskService;
     private final IncidentService incidentService;
@@ -35,14 +33,13 @@ public class CaseFileController {
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
-                              AuditService auditService, CaseIocService caseIocService, CaseFileRepository caseFileRepository,
+                              AuditService auditService, CaseIocService caseIocService,
                               NotificationService notificationService, CaseTaskService caseTaskService,
                               IncidentService incidentService, EvidenceService evidenceService) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.caseIocService = caseIocService;
-        this.caseFileRepository = caseFileRepository;
         this.notificationService = notificationService;
         this.caseTaskService = caseTaskService;
         this.incidentService = incidentService;
@@ -179,19 +176,19 @@ public class CaseFileController {
             return "redirect:/cases/" + id;
         }
         String previousAssignee = cf.getAssignedToName();
-        cf.setAssignedTo(investigator.getId());
-        cf.setAssignedToName(investigator.getFullName() != null ? investigator.getFullName() : investigator.getUsername());
-        cf.setLeadInvestigator(lead.getId());
-        cf.setLeadInvestigatorName(lead.getFullName() != null ? lead.getFullName() : lead.getUsername());
-        cf.setDueDate(deadline);
-        cf.setUpdatedAt(LocalDateTime.now());
-        caseFileRepository.save(cf);
-        if ("TRIAGED".equals(current)) {
-            if (!caseFileService.updateStatus(id, "ASSIGNED", null, actor.getId(), auth.getName(), actor.getRole())) {
-                auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Failed TRIAGED → ASSIGNED transition");
+        String investigatorName = investigator.getFullName() != null ? investigator.getFullName() : investigator.getUsername();
+        String leadName = lead.getFullName() != null ? lead.getFullName() : lead.getUsername();
+        try {
+            if (!caseFileService.assignCase(id, investigator.getId(), investigatorName,
+                    lead.getId(), leadName, deadline, actor.getId(), auth.getName(), actor.getRole())) {
+                auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Case assignment was rejected by the service.");
                 return "redirect:/cases/" + id;
             }
+        } catch (IllegalStateException e) {
+            auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), e.getMessage());
+            return "redirect:/cases/" + id;
         }
+        cf = caseFileService.getById(id);
         auditService.log(previousAssignee == null ? "ASSIGN_CASE" : "REASSIGN_CASE", "CaseFile", cf.getCaseNumber(),
                 "Assigned to " + cf.getAssignedToName() + "; lead " + cf.getLeadInvestigatorName()
                         + (deadline != null ? "; due " + deadline : "") + " by " + auth.getName());
