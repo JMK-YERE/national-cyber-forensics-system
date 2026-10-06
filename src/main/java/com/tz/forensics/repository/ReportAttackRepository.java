@@ -9,6 +9,7 @@ import java.util.List;
 public interface ReportAttackRepository extends JpaRepository<ReportAttack, Long> {
     List<ReportAttack> findAllByOrderByCreatedAtDesc();
     List<ReportAttack> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<ReportAttack> findByAssignedToOrderByCreatedAtDesc(Long assignedTo);
     List<ReportAttack> findByStatusOrderByCreatedAtDesc(String status);
     boolean existsByReportId(String reportId);
     long countByStatus(String status);
