@@ -63,7 +63,7 @@ class IncidentServiceTest {
 
         assertEquals("TRIAGED", i.getWorkflowStatus());
         verify(incidents).save(i);
-        verify(auditService).log(eq("UPDATE_WORKFLOW"), eq("Incident"),
+        verify(auditService).log(isNull(), isNull(), eq("UPDATE_WORKFLOW"), eq("Incident"),
                 eq("SEC-20261006-103"), contains("NEW -> TRIAGED"));
     }
 
@@ -79,10 +79,7 @@ class IncidentServiceTest {
         when(assignee.getUsername()).thenReturn("forensics");
         when(assignee.getEnabled()).thenReturn(true);
         when(assignee.isApproved()).thenReturn(true);
-        when(assignee.isAdmin()).thenReturn(false);
-        when(assignee.isProfessional()).thenReturn(false);
         when(assignee.isForensics()).thenReturn(true);
-        when(assignee.isAnalyst()).thenReturn(false);
         when(users.findById(9L)).thenReturn(Optional.of(assignee));
 
         service.assignIncident(1L, 9L, "forensics", 7L, "HIGH", null);
