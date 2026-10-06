@@ -26,6 +26,23 @@ public class WhistleblowerService {
 
     @Transactional
     public WhistleblowerReport createReport(WhistleblowerReport report) {
+        if (report == null) throw new IllegalArgumentException("Report is required.");
+        requireLength(report.getCategory(), "Category", 100);
+        requireLength(report.getUrgency(), "Urgency", 30);
+        requireLength(report.getTitle(), "Title", 200);
+        requireLength(report.getDescription(), "Description", 20000);
+        requireLength(report.getInvolvedParties(), "Involved parties", 5000);
+        requireLength(report.getLocation(), "Location", 500);
+        requireLength(report.getRegion(), "Region", 100);
+        requireLength(report.getEvidence(), "Evidence description", 10000);
+        requireLength(report.getCountry(), "Country", 10);
+        requireLength(report.getCountryName(), "Country name", 100);
+        if (report.getTitle() == null || report.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Report title is required.");
+        }
+        if (report.getDescription() == null || report.getDescription().isBlank()) {
+            throw new IllegalArgumentException("Report description is required.");
+        }
         report.setTrackingCode(generateTrackingCode());
         report.setCreatedAt(LocalDateTime.now());
         report.setStatus("NEW");
@@ -61,8 +78,14 @@ public class WhistleblowerService {
         return messageRepo.findByReportIdOrderByCreatedAtAsc(reportId);
     }
 
+    @Transactional
     public void addMessage(Long reportId, String senderType, String message) {
-        messageRepo.save(new WhistleblowerMessage(reportId, senderType, message));
+        if (reportId == null) throw new IllegalArgumentException("Report is required.");
+        if (reportRepo.findById(reportId).isEmpty()) throw new IllegalArgumentException("Report not found.");
+        requireLength(senderType, "Sender type", 30);
+        requireLength(message, "Message", 4000);
+        if (message == null || message.isBlank()) throw new IllegalArgumentException("Message is required.");
+        messageRepo.save(new WhistleblowerMessage(reportId, senderType.trim().toUpperCase(), message.trim()));
     }
 
     @Transactional
@@ -89,11 +112,15 @@ public class WhistleblowerService {
                 throw new IllegalStateException("Invalid whistleblower workflow transition: " + from + " -> " + normalized);
             }
             r.setStatus(normalized);
-            if (adminResponse != null && !adminResponse.isEmpty()) {
-                r.setAdminResponse(adminResponse);
-                messageRepo.save(new WhistleblowerMessage(id, "ADMIN", adminResponse));
+            if (adminResponse != null && !adminResponse.isBlank()) {
+                requireLength(adminResponse, "Admin response", 5000);
+                r.setAdminResponse(adminResponse.trim());
+                messageRepo.save(new WhistleblowerMessage(id, "ADMIN", adminResponse.trim()));
             }
-            if (internalNotes != null) r.setInternalNotes(internalNotes);
+            if (internalNotes != null) {
+                requireLength(internalNotes, "Internal notes", 10000);
+                r.setInternalNotes(internalNotes.trim());
+            }
             r.setUpdatedAt(LocalDateTime.now());
             reportRepo.save(r);
         }
@@ -108,6 +135,12 @@ public class WhistleblowerService {
     }
     public long countTodayAssignedTo(Long userId) {
         return userId == null ? 0L : reportRepo.countByAssignedToAndCreatedAtAfter(userId, LocalDateTime.now().withHour(0).withMinute(0));
+    }
+
+    private void requireLength(String value, String field, int max) {
+        if (value != null && value.length() > max) {
+            throw new IllegalArgumentException(field + " exceeds " + max + " characters.");
+        }
     }
 
     private String generateTrackingCode() {
