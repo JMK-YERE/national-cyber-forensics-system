@@ -160,7 +160,8 @@ public class EvidenceController {
         model.addAttribute("custodians", userRepository.findAll().stream()
                 .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
                         && (u.isAdmin() || u.isProfessional() || u.isForensics() || u.isAnalyst())).toList());
-        model.addAttribute("canOperateCustody", canAcquireEvidence(user)\n                || (evidence.getCustodianId() != null && evidence.getCustodianId().equals(user.getId())));
+        model.addAttribute("canOperateCustody", canAcquireEvidence(user)
+                || (evidence.getCustodianId() != null && evidence.getCustodianId().equals(user.getId())));
         auditService.log("VIEW_CHAIN_OF_CUSTODY", "Evidence", String.valueOf(id),
                 "Viewed chain of custody | SHA-256: " + evidence.getSha256Hash());
         return "evidence-custody";
@@ -227,7 +228,8 @@ public class EvidenceController {
         try{data=evidenceService.downloadEvidence(id);}catch(IOException|RuntimeException e){return ResponseEntity.status(HttpStatus.NOT_FOUND).build();}
         auditService.log("DOWNLOAD_EVIDENCE","Evidence",String.valueOf(id),"Downloaded | SHA-256: "+evidence.getSha256Hash());
         String filename = evidence.getOriginalFilename() == null ? "evidence.bin" : evidence.getOriginalFilename()
-                .replaceAll("[\\\\/\\r\\n]", "_")
+                .replaceAll("[\\\\/\\r\
+]", "_")
                 .replace('\"', '_');
         String contentDisposition = "attachment; filename=" + '"' + filename + '"';
         return ResponseEntity.ok()
