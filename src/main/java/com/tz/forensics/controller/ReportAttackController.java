@@ -320,8 +320,6 @@ public class ReportAttackController {
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .contentLength(data.length)
                     .body(data);
-        } catch (IOException e) {
-            return ResponseEntity.notFound().build();
         } catch (Exception e) {
             log.error("Evidence download failed for report {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
