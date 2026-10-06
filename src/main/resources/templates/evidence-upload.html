@@ -8,7 +8,7 @@
 </head>
 <body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-<main class="app-main"><div class="app-container"><header class="evidence-head"><h1>🔬 Forensic Evidence Acquisition</h1><p>Authorized acquisition • preservation • SHA-256 integrity • encrypted evidence registration</p></header>
+<main class="app-main"><div class="app-container"><header class="evidence-head"><h1>🔬 Forensic Evidence Acquisition</h1><p>Authorized acquisition • preservation • SHA-256 integrity • encrypted evidence registration</p><p th:if="${caseFile != null}" style="margin-top:8px;"><strong>Case:</strong> <span th:text="${caseFile.caseNumber}"></span> · <span th:text="${caseFile.title}"></span></p></header>
     <div class="app-card evidence-form-card">
         <p><strong>Workflow:</strong> acquire on an authorized forensic workstation → preserve the source → calculate SHA-256 → record the acquisition metadata → upload the forensic image/export. The web app does not bypass device locks or directly mount raw phones/USB devices.</p>
 
@@ -17,6 +17,7 @@
 
         <form class="evidence-form" th:action="@{/evidence/upload/{incidentId}(incidentId=${incidentId})}" method="post" enctype="multipart/form-data" style="margin-top:20px;">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input th:if="${caseId != null}" type="hidden" name="caseId" th:value="${caseId}">
 
             <label>FORENSIC IMAGE / EXPORT FILE *</label>
             <input type="file" name="file" required>
