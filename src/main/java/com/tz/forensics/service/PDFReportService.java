@@ -178,15 +178,15 @@ public class PDFReportService {
     }
 
     // ===== CASE FILE PDF =====
-    public byte[] generateExecutiveCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
+    public byte[] generateExecutiveCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence, Map<Long, List<ChainOfCustody>> custody) {
         return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, custody, "Executive Case Report");
     }
 
-    public byte[] generateTechnicalCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
+    public byte[] generateTechnicalCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence, Map<Long, List<ChainOfCustody>> custody) {
         return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, custody, "Technical Investigation Report");
     }
 
-    public byte[] generateForensicCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
+    public byte[] generateForensicCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence, Map<Long, List<ChainOfCustody>> custody) {
         return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, custody, "Forensic Report");
     }
 
