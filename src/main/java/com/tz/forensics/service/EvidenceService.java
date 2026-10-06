@@ -51,15 +51,25 @@ public class EvidenceService {
 
     public Evidence uploadEvidence(Long incidentId, MultipartFile file,
                                    EvidenceDto dto, String username, Long uploadedBy) throws IOException {
-        return uploadEvidence(incidentId, null, file, dto, username, uploadedBy);
+        return uploadEvidence(incidentId, null, file, dto, username, uploadedBy, null);
     }
 
     @Transactional
     public Evidence uploadEvidence(Long incidentId, Long caseId, MultipartFile file,
                                    EvidenceDto dto, String username, Long uploadedBy) throws IOException {
+        return uploadEvidence(incidentId, caseId, file, dto, username, uploadedBy, null);
+    }
+
+    @Transactional
+    public Evidence uploadEvidence(Long incidentId, Long caseId, MultipartFile file,
+                                   EvidenceDto dto, String username, Long uploadedBy,
+                                   String actorRole) throws IOException {
         if (file == null || file.isEmpty()) throw new IllegalArgumentException("Evidence file is empty.");
         if (file.getSize() > 50L * 1024L * 1024L) throw new IllegalArgumentException("Evidence file exceeds the 50 MB limit.");
 
+        if (!isEvidenceAcquisitionRole(actorRole)) {
+            throw new SecurityException("Only authorized forensic staff may acquire evidence.");
+        }
         if (incidentId == null || username == null || username.isBlank() || uploadedBy == null) {
             throw new IllegalArgumentException("Authenticated incident reporter is required.");
         }
@@ -179,6 +189,12 @@ public class EvidenceService {
                 .contains(role.trim().toUpperCase());
     }
 
+    private boolean isEvidenceAcquisitionRole(String role) {
+        if (role == null) return false;
+        return java.util.Set.of("ADMIN", "CYBER_PRO", "FORENSICS")
+                .contains(role.trim().toUpperCase());
+    }
+
     private String getClientIp() {
         try {
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -275,6 +291,14 @@ public class EvidenceService {
 
     @Transactional
     public void verifyEvidence(Long evidenceId, String username, Long verifiedBy) {
+        verifyEvidence(evidenceId, username, verifiedBy, null);
+    }
+
+    @Transactional
+    public void verifyEvidence(Long evidenceId, String username, Long verifiedBy, String actorRole) {
+        if (!isEvidenceAcquisitionRole(actorRole)) {
+            throw new SecurityException("Only authorized forensic staff may verify evidence.");
+        }
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
         if (evidence.getCaseId() != null) {
