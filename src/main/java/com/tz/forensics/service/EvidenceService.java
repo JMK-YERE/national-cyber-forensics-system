@@ -76,6 +76,8 @@ public class EvidenceService {
             }
         }
         if (dto == null) dto = new EvidenceDto();
+        validateAcquisitionMetadata(dto);
+        String originalFilename = sanitizeOriginalFilename(file.getOriginalFilename());
 
         byte[] fileBytes = file.getBytes();
         String sha256 = hashService.sha256(fileBytes);
@@ -94,7 +96,7 @@ public class EvidenceService {
         Evidence evidence = new Evidence();
         evidence.setIncidentId(incidentId);
         evidence.setCaseId(caseId);
-        evidence.setOriginalFilename(file.getOriginalFilename() == null ? "evidence.bin" : file.getOriginalFilename());
+        evidence.setOriginalFilename(originalFilename);
         evidence.setStoredFilename(storedFilename);
         evidence.setFileType(detectedFileType);
         evidence.setFileSize(file.getSize());
@@ -302,4 +304,37 @@ public class EvidenceService {
         verifiedEvent.setHashAtAction(evidence.getSha256Hash());
         custodyRepository.save(verifiedEvent);
     }
+
+    private void validateAcquisitionMetadata(EvidenceDto dto) {
+        requireText(dto.getAcquisitionType(), "Acquisition type", 50);
+        requireText(dto.getSourceDevice(), "Source device", 200);
+        requireText(dto.getAcquisitionMethod(), "Acquisition method", 100);
+        validateLength(dto.getDescription(), "Description", 10000);
+        validateLength(dto.getDeviceMake(), "Device make", 100);
+        validateLength(dto.getDeviceModel(), "Device model", 150);
+        validateLength(dto.getDeviceSerial(), "Device serial", 200);
+        validateLength(dto.getSourceIdentifier(), "Source identifier", 250);
+        validateLength(dto.getAcquisitionTool(), "Acquisition tool", 150);
+        validateLength(dto.getAcquisitionToolVersion(), "Acquisition tool version", 100);
+        validateLength(dto.getAcquisitionNotes(), "Acquisition notes", 20000);
+    }
+
+    private void requireText(String value, String field, int maxLength) {
+        if (value == null || value.trim().isEmpty()) throw new IllegalArgumentException(field + " is required.");
+        validateLength(value, field, maxLength);
+    }
+
+    private void validateLength(String value, String field, int maxLength) {
+        if (value != null && value.length() > maxLength) {
+            throw new IllegalArgumentException(field + " exceeds the maximum length of " + maxLength + " characters.");
+        }
+    }
+
+    private String sanitizeOriginalFilename(String filename) {
+        String safe = filename == null ? "evidence.bin" : filename.trim();
+        safe = safe.replace('/', '_').replace('\\\\', '_').replace('\\r', '_').replace('\\n', '_').replace('\\t', '_');
+        if (safe.isBlank()) safe = "evidence.bin";
+        return safe.length() > 255 ? safe.substring(0, 255) : safe;
+    }
+
 }
