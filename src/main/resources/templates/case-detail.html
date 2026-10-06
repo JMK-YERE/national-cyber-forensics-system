@@ -1,160 +1,18 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><style>.case-detail-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:4px 0 20px;border-bottom:1px solid #d6e9df;margin-bottom:20px}.case-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;color:#08785a}.case-detail-head h1{margin:3px 0;color:#022c22;font-size:28px}.case-detail-head p{margin:0;color:#61736d;font-size:13px}@media(max-width:600px){.case-detail-head{align-items:flex-start;flex-direction:column}.case-detail-head h1{font-size:22px}}</style>
-    <meta charset="UTF-8">
-    <title>Case Detail - Cyber Forensics</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css(v=20261004)}">
-</head>
-<body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
-<main class="app-main"><div class="app-container"><header class="case-detail-head"><div><div class="case-kicker">FORENSIC CASE FILE</div><h1 th:text="${caseFile.caseNumber}"></h1><p th:text="${caseFile.title}"></p></div><a th:href="@{/cases}" class="app-btn app-btn-outline">← Cases</a></header>
-    <div class="app-card">
-        <h3>Investigation Timeline</h3>
-        <p style="color:#64748b">Audited events for this case, newest first.</p>
-        <div th:if="${timeline == null or timeline.isEmpty()}" style="color:#64748b">No investigation events recorded yet.</div>
-        <div th:each="event : ${timeline}" style="display:grid;grid-template-columns:150px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid #e2e8f0">
-            <div>
-                <strong th:text="${#temporals.format(event.createdAt,'yyyy-MM-dd HH:mm')}"></strong>
-                <div style="font-size:11px;color:#64748b" th:text="${event.eventType}"></div>
-            </div>
-            <div>
-                <strong th:text="${event.title}"></strong>
-                <div th:if="${event.details != null}" style="margin-top:4px;color:#475569" th:text="${event.details}"></div>
-                <div style="margin-top:5px;font-size:11px;color:#64748b"
-                     th:text="${event.actorName != null ? event.actorName + ' · ' + event.actorRole : 'System · WORKFLOW'}"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="app-card" th:if="${caseFile.status != 'CLOSED' and caseFile.status != 'ARCHIVED' and eligibleInvestigators != null}">
-        <h3>Case Assignment</h3>
-        <p style="color:#64748b">Assign an eligible investigator, designate the lead investigator, and set a case deadline. Only authorized case managers can change assignments.</p>
-        <form th:action="@{/cases/{id}/assign(id=${caseFile.id})}" method="post" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-            <div><label>Investigator</label><select name="investigatorId" required>
-                <option value="">Select investigator</option>
-                <option th:each="u : ${eligibleInvestigators}" th:value="${u.id}" th:selected="${u.id == caseFile.assignedTo}" th:text="${(u.fullName != null ? u.fullName : u.username) + ' · ' + u.role}"></option>
-            </select></div>
-            <div><label>Lead Investigator</label><select name="leadInvestigatorId" required>
-                <option value="">Select lead</option>
-                <option th:each="u : ${eligibleInvestigators}" th:value="${u.id}" th:selected="${u.id == caseFile.leadInvestigator}" th:text="${(u.fullName != null ? u.fullName : u.username) + ' · ' + u.role}"></option>
-            </select></div>
-            <div><label>Due Date</label><input name="dueDate" type="datetime-local" th:value="${caseFile.dueDate != null ? #temporals.format(caseFile.dueDate,'yyyy-MM-dd''T''HH:mm') : ''}"></div>
-            <button class="app-btn app-btn-primary" type="submit" style="grid-column:1/-1">Save Assignment</button>
-        </form>
-        <div style="margin-top:14px;color:#475569;font-size:13px"><strong>Assigned:</strong> <span th:text="${caseFile.assignedToName != null ? caseFile.assignedToName : 'Not assigned'}"></span> · <strong>Lead:</strong> <span th:text="${caseFile.leadInvestigatorName != null ? caseFile.leadInvestigatorName : 'Not assigned'}"></span> · <strong>Due:</strong> <span th:text="${caseFile.dueDate != null ? #temporals.format(caseFile.dueDate,'yyyy-MM-dd HH:mm') : 'No deadline'}"></span></div>
-    </div>
-    <div class="app-card" th:if="${caseFile.status != 'CLOSED' and caseFile.status != 'ARCHIVED'}">
-        <h3>Case Workflow</h3>
-        <p style="color:#64748b">Controlled progression: OPEN → TRIAGED → ASSIGNED → INVESTIGATING → EXAMINATION → REVIEW → CLOSED → ARCHIVED.</p>
-        <form th:action="@{/cases/{id}/status(id=${caseFile.id})}" method="post" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-            <div><label>Next Stage</label>
-                <select name="status" required>
-                    <option value="TRIAGED" th:if="${caseFile.status == 'OPEN'}">TRIAGED — Triage complete</option>
-                    <option value="ASSIGNED" th:if="${caseFile.status == 'TRIAGED'}">ASSIGNED — Investigator assigned</option>
-                    <option value="INVESTIGATING" th:if="${caseFile.status == 'ASSIGNED'}">INVESTIGATING — Investigation started</option>
-                    <option value="EXAMINATION" th:if="${caseFile.status == 'INVESTIGATING'}">EXAMINATION — Evidence examination</option>
-                    <option value="REVIEW" th:if="${caseFile.status == 'EXAMINATION'}">REVIEW — Findings under review</option>
-                    <option value="CLOSED" th:if="${caseFile.status == 'REVIEW'}">CLOSED — Close case</option>
-                </select>
-            </div>
-            <div style="min-width:260px;flex:1"><label>Transition note</label>
-                <input name="reason" type="text" placeholder="Required when closing; useful for every transition">
-            </div>
-            <button type="submit" class="app-btn app-btn-primary">Advance Case</button>
-        </form>
-    </div>
-
-    <div class="app-card" th:if="${caseFile.status != 'ARCHIVED'}" style="margin-bottom:14px">
-        <h3>Forensic Evidence</h3>
-        <p style="color:#64748b">Evidence registered here is explicitly linked to this case and remains traceable through SHA-256 and chain of custody.</p>
-        <a th:href="@{/evidence/upload/{incidentId}(incidentId=${caseFile.incidentId},caseId=${caseFile.id})}" class="app-btn app-btn-primary">🔐 Acquire Evidence for this Case</a>
-        <div style="overflow-x:auto;margin-top:18px">
-            <table><thead><tr><th>Evidence</th><th>SHA-256</th><th>Custody</th><th>Action</th></tr></thead>
-            <tbody>
-            <tr th:each="ev : ${caseEvidence}">
-                <td><strong th:text="${ev.originalFilename}"></strong><br><small th:text="${ev.readableSize}"></small></td>
-                <td style="font-family:ui-monospace,monospace;font-size:10px;word-break:break-all" th:text="${ev.sha256Hash}"></td>
-                <td><span th:text="${ev.custodyStatus}"></span></td>
-                <td><a th:href="@{/evidence/custody/{id}(id=${ev.id})}" class="app-btn app-btn-outline">Custody</a>
-                    <a th:href="@{/evidence/download/{id}(id=${ev.id})}" class="app-btn app-btn-secondary">Download</a></td>
-            </tr>
-            <tr th:if="${caseEvidence == null or caseEvidence.isEmpty()}"><td colspan="4">No evidence registered for this case yet.</td></tr>
-            </tbody></table>
-        </div>
-    </div>
-    <div class="app-card" style="margin-bottom:14px">
-        <h3>Case Communication</h3>
-        <p style="color:#64748b">Secure case discussion, TLP handling and escalation are audited.</p>
-        <a th:href="@{'/case-communications/' + ${caseFile.id}}" class="app-btn app-btn-outline">Open Case Communication →</a>
-    </div>
-
-    <div class="app-card" th:if="${caseFile.status != 'ARCHIVED' and eligibleInvestigators != null}">
-        <h3>Case Tasks</h3><p style="color:#64748b">Create controlled work items linked to this case. Assignees can update their own tasks.</p>
-        <form th:action="@{/case-tasks/create}" method="post"><input type="hidden" name="caseId" th:value="${caseFile.id}"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-        <div><label>Task</label><input name="title" maxlength="200" required placeholder="e.g. Acquire workstation image"></div>
-        <div><label>Assignee</label><select name="assignedTo" required><option value="">Select assignee</option><option th:each="u : ${eligibleInvestigators}" th:value="${u.id}" th:text="${(u.fullName != null ? u.fullName : u.username) + ' · ' + u.role}"></option></select></div>
-        <div><label>Priority</label><select name="priority"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></div>
-        <div><label>Due Date</label><input name="dueDate" type="datetime-local"></div>
-        <textarea name="description" placeholder="Task instructions / expected output"></textarea><button class="app-btn app-btn-primary">Create Task</button></form>
-        <div style="overflow-x:auto;margin-top:18px"><table><thead><tr><th>Task</th><th>Assignee</th><th>Priority</th><th>Status</th><th>Due</th><th>Action</th></tr></thead><tbody>
-        <tr th:each="task : ${caseTasks}"><td><strong th:text="${task.title}"></strong></td><td th:text="${task.assignedToName}"></td><td th:text="${task.priority}"></td><td th:text="${task.status}"></td><td th:text="${task.dueDate != null ? #temporals.format(task.dueDate,'yyyy-MM-dd HH:mm') : 'No deadline'}"></td>
-        <td><form th:if="${task.status == 'OPEN'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="IN_PROGRESS"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Start</button></form>
-        <form th:if="${task.status == 'OPEN'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="CANCELLED"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Cancel</button></form>
-        <form th:if="${task.status == 'BLOCKED'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="IN_PROGRESS"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-primary">Resume</button></form>
-        <form th:if="${task.status == 'BLOCKED'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="CANCELLED"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Cancel</button></form>
-        <form th:if="${task.status == 'IN_PROGRESS'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="BLOCKED"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Block</button></form>
-        <form th:if="${task.status == 'IN_PROGRESS'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="COMPLETED"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-primary">Complete</button></form>
-        <form th:if="${task.status == 'IN_PROGRESS'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="CANCELLED"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Cancel</button></form></td></tr>
-        <tr th:if="${caseTasks == null or caseTasks.isEmpty()}"><td colspan="6">No tasks recorded for this case.</td></tr></tbody></table></div></div>
-
-    <div class="app-card" th:if="${caseFile.status != 'ARCHIVED'}">
-        <h3>Indicators of Compromise (IOCs)</h3>
-        <p style="color:#64748b">Track IPs, domains, URLs, hashes, emails and malware indicators linked to this case.</p>
-        <form th:action="@{/cases/{id}/iocs(id=${caseFile.id})}" method="post" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-            <select name="iocType" required><option value="IP">IP Address</option><option value="DOMAIN">Domain</option><option value="URL">URL</option><option value="HASH">Hash</option><option value="EMAIL">Email</option><option value="MALWARE">Malware</option><option value="OTHER">Other</option></select>
-            <input name="value" required maxlength="500" placeholder="Indicator value">
-            <select name="confidence"><option value="HIGH">HIGH</option><option value="MEDIUM" selected>MEDIUM</option><option value="LOW">LOW</option></select>
-            <input name="source" maxlength="120" placeholder="Source / tool">
-            <input name="firstSeen" type="datetime-local"><input name="lastSeen" type="datetime-local">
-            <textarea name="notes" placeholder="Analyst notes" style="grid-column:1/-1"></textarea>
-            <button class="app-btn app-btn-primary" type="submit">Add IOC</button>
-        </form>
-        <div style="overflow-x:auto;margin-top:18px"><table><thead><tr><th>Type</th><th>Indicator</th><th>Confidence</th><th>Source</th><th>First Seen</th><th>Action</th></tr></thead>
-        <tbody><tr th:each="ioc : ${iocs}"><td th:text="${ioc.iocType}"></td><td th:text="${ioc.value}"></td><td th:text="${ioc.confidence}"></td><td th:text="${ioc.source}"></td><td th:text="${ioc.firstSeen}"></td><td><form th:action="@{/cases/{c}/iocs/{i}/delete(c=${caseFile.id},i=${ioc.id})}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline" type="submit">Remove</button></form></td></tr>
-        <tr th:if="${iocs == null or iocs.isEmpty()}"><td colspan="6">No indicators recorded.</td></tr></tbody></table></div>
-    </div>
-
-    <div class="app-card" th:if="${caseFile.status == 'CLOSED'}"><h3>Archive Case</h3><p style="color:#64748b">Archiving is the final immutable lifecycle stage.</p><form th:action="@{/cases/{id}/archive(id=${caseFile.id})}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline" type="submit">Archive Case</button></form></div>
-
-    <div class="app-card case-summary">
-        <a th:href="@{'/reports/case/{id}/pdf'(id=${caseFile.id})}" class="app-btn app-btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
-        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
-            <a th:href="@{'/reports/case/{id}/executive.pdf'(id=${caseFile.id})}" class="app-btn app-btn-outline" target="_blank">Executive Report</a>
-            <a th:href="@{'/reports/case/{id}/technical.pdf'(id=${caseFile.id})}" class="app-btn app-btn-outline" target="_blank">Technical Investigation</a>
-            <a th:href="@{'/reports/case/{id}/forensic.pdf'(id=${caseFile.id})}" class="app-btn app-btn-outline" target="_blank">Forensic Report</a>
-        </div>
-        <p><strong>Title:</strong> <span th:text="${caseFile.title}"></span></p>
-        <p><strong>Priority:</strong> <span th:text="${caseFile.priority}"></span></p>
-        <p><strong>Status:</strong> <span th:text="${caseFile.status}"></span></p>
-        <p><strong>Created:</strong> <span th:text="${#temporals.format(caseFile.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
-        <hr style="border-color:rgba(0,255,157,0.2);margin:20px 0;">
-        <h3>📝 Description</h3>
-        <p th:text="${caseFile.description}"></p>
-    </div>
-
-    <div class="app-card" th:if="${caseFile.status == 'REVIEW'}">
-        <h3>Close Case</h3>
-        <form th:action="@{/cases/{value}/close(value=${caseFile.id})}" method="post">
-<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-<label>Closure Reason</label>
-            <textarea name="reason" rows="3" required></textarea>
-            <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px;">Close Case</button>
-        </form>
-    </div>
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><title>Case Workspace - Cyber Forensics TZ</title><link rel="stylesheet" th:href="@{/css/theme.css(v=20261006)}"></head><body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div><main class="app-main"><div class="app-container">
+<header class="cftz-case-head"><div><div class="cftz-case-kicker">CASE MANAGEMENT / FORENSIC WORKSPACE</div><h1 th:text="${caseFile.caseNumber}">CASE-000</h1><p th:text="${caseFile.title}">Investigation case</p></div><div class="cftz-case-actions"><a th:href="@{/cases}" class="app-btn app-btn-outline">← Cases</a><a th:href="@{/reports/case/{id}/pdf(id=${caseFile.id})}" class="app-btn app-btn-primary" target="_blank">Download Report</a></div></header>
+<section class="cftz-case-meta"><div><small>Status</small><strong class="cftz-status" th:text="${caseFile.status}">OPEN</strong></div><div><small>Priority</small><strong th:text="${caseFile.priority}">MEDIUM</strong></div><div><small>Assigned</small><strong th:text="${caseFile.assignedToName != null ? caseFile.assignedToName : 'Unassigned'}">Unassigned</strong></div><div><small>Lead</small><strong th:text="${caseFile.leadInvestigatorName != null ? caseFile.leadInvestigatorName : 'Unassigned'}">Unassigned</strong></div><div><small>Due</small><strong th:text="${caseFile.dueDate != null ? #temporals.format(caseFile.dueDate,'yyyy-MM-dd HH:mm') : 'No deadline'}">No deadline</strong></div></section>
+<div class="cftz-case-grid"><div>
+<section class="cftz-case-section"><h2>Investigation Timeline</h2><p>Audited case activity, decisions and workflow events.</p><div th:if="${timeline == null or timeline.isEmpty()}" class="cftz-case-empty">No investigation events recorded yet.</div><div class="cftz-case-event" th:each="event : ${timeline}"><time th:text="${#temporals.format(event.createdAt,'yyyy-MM-dd HH:mm')}">Time</time><div><strong th:text="${event.title}">Event</strong><div class="muted" th:text="${event.details != null ? event.details : event.eventType}">Details</div><div class="muted" th:text="${event.actorName != null ? event.actorName + ' · ' + event.actorRole : 'System · WORKFLOW'}">Actor</div></div></div></section>
+<section class="cftz-case-section" th:if="${caseFile.status != 'ARCHIVED'}"><h2>Digital Evidence</h2><p>Evidence acquired for this case, with integrity and custody controls.</p><div class="cftz-case-links"><a th:href="@{/evidence/upload/{incidentId}(incidentId=${caseFile.incidentId},caseId=${caseFile.id})}" class="app-btn app-btn-primary">Acquire Evidence</a></div><div style="overflow-x:auto;margin-top:14px"><table class="cftz-case-table"><thead><tr><th>Evidence</th><th>SHA-256</th><th>Custody</th><th>Actions</th></tr></thead><tbody><tr th:each="ev : ${caseEvidence}"><td><strong th:text="${ev.originalFilename}">file</strong><br><span class="muted" th:text="${ev.readableSize}">0 B</span></td><td><code th:text="${ev.sha256Hash}">hash</code></td><td><span class="cftz-status" th:text="${ev.custodyStatus}">UPLOADED</span></td><td><div class="cftz-case-links"><a th:href="@{/evidence/custody/{id}(id=${ev.id})}" class="app-btn app-btn-outline">Custody</a><a th:href="@{/evidence/download/{id}(id=${ev.id})}" class="app-btn app-btn-secondary">Download</a></div></td></tr><tr th:if="${caseEvidence == null or caseEvidence.isEmpty()}"><td colspan="4" class="cftz-case-empty">No evidence registered for this case yet.</td></tr></tbody></table></div></section>
+<section class="cftz-case-section"><h2>Case Tasks</h2><p>Controlled work items with assignee, priority and lifecycle state.</p><form th:if="${caseFile.status != 'ARCHIVED' and eligibleInvestigators != null}" th:action="@{/case-tasks/create}" method="post" class="cftz-case-form"><input type="hidden" name="caseId" th:value="${caseFile.id}"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><input name="title" maxlength="300" required placeholder="Task title"><select name="assignedTo" required><option value="">Assignee</option><option th:each="u : ${eligibleInvestigators}" th:value="${u.id}" th:text="${(u.fullName != null ? u.fullName : u.username) + ' · ' + u.role}"></option></select><select name="priority"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select><input name="dueDate" type="datetime-local"><textarea class="wide" name="description" placeholder="Task instructions / expected output"></textarea><button class="app-btn app-btn-primary" type="submit">Create Task</button></form><div style="overflow-x:auto;margin-top:14px"><table class="cftz-case-table"><thead><tr><th>Task</th><th>Assignee</th><th>Priority</th><th>Status</th><th>Due</th><th>Action</th></tr></thead><tbody><tr th:each="task : ${caseTasks}"><td th:text="${task.title}">Task</td><td th:text="${task.assignedToName}">Assignee</td><td th:text="${task.priority}">MEDIUM</td><td><span class="cftz-status" th:text="${task.status}">OPEN</span></td><td th:text="${task.dueDate != null ? #temporals.format(task.dueDate,'yyyy-MM-dd HH:mm') : '—'}">—</td><td><div class="cftz-case-links"><form th:if="${task.status == 'OPEN'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="IN_PROGRESS"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Start</button></form><form th:if="${task.status == 'IN_PROGRESS'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="COMPLETED"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-primary">Complete</button></form><form th:if="${task.status == 'IN_PROGRESS'}" th:action="@{/case-tasks/{id}/status(id=${task.id})}" method="post"><input type="hidden" name="status" value="BLOCKED"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Block</button></form></div></td></tr><tr th:if="${caseTasks == null or caseTasks.isEmpty()}"><td colspan="6" class="cftz-case-empty">No tasks recorded for this case.</td></tr></tbody></table></div></section>
+<section class="cftz-case-section" th:if="${caseFile.status != 'ARCHIVED'}"><h2>Indicators of Compromise</h2><p>Track technical indicators linked to the investigation.</p><form th:action="@{/cases/{id}/iocs(id=${caseFile.id})}" method="post" class="cftz-case-form"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><select name="iocType" required><option value="IP">IP Address</option><option value="DOMAIN">Domain</option><option value="URL">URL</option><option value="HASH">Hash</option><option value="EMAIL">Email</option><option value="MALWARE">Malware</option><option value="OTHER">Other</option></select><input name="value" required maxlength="2048" placeholder="Indicator value"><select name="confidence"><option>HIGH</option><option selected>MEDIUM</option><option>LOW</option></select><input name="source" maxlength="500" placeholder="Source / tool"><input name="firstSeen" type="datetime-local"><input name="lastSeen" type="datetime-local"><textarea class="wide" name="notes" maxlength="5000" placeholder="Analyst notes"></textarea><button class="app-btn app-btn-primary">Add IOC</button></form><div style="overflow-x:auto;margin-top:14px"><table class="cftz-case-table"><thead><tr><th>Type</th><th>Indicator</th><th>Confidence</th><th>Source</th><th>First Seen</th><th></th></tr></thead><tbody><tr th:each="ioc : ${iocs}"><td th:text="${ioc.iocType}">IP</td><td th:text="${ioc.value}">indicator</td><td th:text="${ioc.confidence}">MEDIUM</td><td th:text="${ioc.source}">source</td><td th:text="${ioc.firstSeen != null ? #temporals.format(ioc.firstSeen,'yyyy-MM-dd HH:mm') : '—'}">—</td><td><form th:action="@{/cases/{c}/iocs/{i}/delete(c=${caseFile.id},i=${ioc.id})}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Remove</button></form></td></tr><tr th:if="${iocs == null or iocs.isEmpty()}"><td colspan="6" class="cftz-case-empty">No indicators recorded.</td></tr></tbody></table></div></section>
 </div>
-<script th:src="@{/js/app.js}"></script>
-</main></body>
-</html>
+<aside>
+<section class="cftz-case-section" th:if="${caseFile.status != 'CLOSED' and caseFile.status != 'ARCHIVED' and eligibleInvestigators != null}"><h2>Assignment</h2><p>Authorized case managers can assign investigators and deadlines.</p><form th:action="@{/cases/{id}/assign(id=${caseFile.id})}" method="post" class="cftz-case-form"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><select name="investigatorId" required><option value="">Investigator</option><option th:each="u : ${eligibleInvestigators}" th:value="${u.id}" th:selected="${u.id == caseFile.assignedTo}" th:text="${(u.fullName != null ? u.fullName : u.username) + ' · ' + u.role}"></option></select><select name="leadInvestigatorId" required><option value="">Lead</option><option th:each="u : ${eligibleInvestigators}" th:value="${u.id}" th:selected="${u.id == caseFile.leadInvestigator}" th:text="${(u.fullName != null ? u.fullName : u.username) + ' · ' + u.role}"></option></select><input name="dueDate" type="datetime-local" th:value="${caseFile.dueDate != null ? #temporals.format(caseFile.dueDate,'yyyy-MM-dd''T''HH:mm') : ''}"><button class="app-btn app-btn-primary wide">Save Assignment</button></form></section>
+<section class="cftz-case-section" th:if="${caseFile.status != 'CLOSED' and caseFile.status != 'ARCHIVED'}"><h2>Workflow</h2><p>Controlled progression from triage to closure.</p><form th:action="@{/cases/{id}/status(id=${caseFile.id})}" method="post" class="cftz-case-form"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><select class="wide" name="status" required><option value="TRIAGED" th:if="${caseFile.status == 'OPEN'}">TRIAGED</option><option value="ASSIGNED" th:if="${caseFile.status == 'TRIAGED'}">ASSIGNED</option><option value="INVESTIGATING" th:if="${caseFile.status == 'ASSIGNED'}">INVESTIGATING</option><option value="EXAMINATION" th:if="${caseFile.status == 'INVESTIGATING'}">EXAMINATION</option><option value="REVIEW" th:if="${caseFile.status == 'EXAMINATION'}">REVIEW</option><option value="CLOSED" th:if="${caseFile.status == 'REVIEW'}">CLOSED</option></select><input class="wide" name="reason" placeholder="Transition / closure note"><button class="app-btn app-btn-primary wide">Advance Case</button></form></section>
+<section class="cftz-case-section"><h2>Communication</h2><p>Secure discussion with TLP handling and escalation.</p><a th:href="@{'/case-communications/' + ${caseFile.id}}" class="app-btn app-btn-outline">Open Case Communication →</a></section>
+<section class="cftz-case-section"><h2>Reports</h2><p>Export an audited report for this authorized case.</p><div class="cftz-case-links"><a th:href="@{/reports/case/{id}/executive.pdf(id=${caseFile.id})}" class="app-btn app-btn-outline" target="_blank">Executive</a><a th:href="@{/reports/case/{id}/technical.pdf(id=${caseFile.id})}" class="app-btn app-btn-outline" target="_blank">Technical</a><a th:href="@{/reports/case/{id}/forensic.pdf(id=${caseFile.id})}" class="app-btn app-btn-outline" target="_blank">Forensic</a></div></section>
+<section class="cftz-case-section"><h2>Case Record</h2><p th:text="${caseFile.description}">Description</p><div class="cftz-case-links"><span class="cftz-status" th:text="${caseFile.status}">OPEN</span><span class="cftz-status" th:text="${caseFile.priority}">MEDIUM</span></div></section>
+<section class="cftz-case-section" th:if="${caseFile.status == 'REVIEW'}"><h2>Close Case</h2><p>Closure is allowed only when service-side integrity checks pass.</p><form th:action="@{/cases/{value}/close(value=${caseFile.id})}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><textarea name="reason" rows="3" required placeholder="Closure reason"></textarea><button class="app-btn app-btn-primary" style="margin-top:10px">Close Case</button></form></section>
+<section class="cftz-case-section" th:if="${caseFile.status == 'CLOSED'}"><h2>Archive Case</h2><p>Archiving is the final lifecycle stage.</p><form th:action="@{/cases/{id}/archive(id=${caseFile.id})}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="app-btn app-btn-outline">Archive Case</button></form></section>
+</aside></div></div></main><script th:src="@{/js/app.js}"></script></body></html>
