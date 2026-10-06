@@ -36,6 +36,7 @@ public class AdvancedSecurityService {
 
     private URI validatePublicHttpUrl(String value) {
         if (value == null || value.isBlank()) throw new IllegalArgumentException("URL haipo.");
+        if (value.length() > 2048) throw new IllegalArgumentException("URL ni ndefu kupita kikomo.");
         String normalized = value.matches("^[a-zA-Z][a-zA-Z0-9+.-]*://.*$") ? value : "https://" + value;
         URI uri = URI.create(normalized);
         String scheme = uri.getScheme();
@@ -219,6 +220,13 @@ public class AdvancedSecurityService {
     // ========== 5. HASH ANALYZER ==========
     public Map<String, Object> analyzeHash(String hash) {
         Map<String, Object> result = new HashMap<>();
+        if (hash == null || hash.isBlank() || hash.length() > 128) {
+            result.put("valid", false);
+            result.put("type", "Unknown");
+            result.put("message", "❌ Hash haipo au imezidi urefu unaoruhusiwa.");
+            return result;
+        }
+        hash = hash.trim();
         result.put("hash", hash);
         result.put("length", hash.length());
 
@@ -243,6 +251,11 @@ public class AdvancedSecurityService {
     // ========== 6. PASSWORD BREACH (HIBP) ==========
     public Map<String, Object> checkPasswordBreach(String password) {
         Map<String, Object> result = new HashMap<>();
+        if (password == null || password.length() > 1000) {
+            result.put("success", false);
+            result.put("message", "Password haipo au imezidi urefu unaoruhusiwa.");
+            return result;
+        }
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
             byte[] hashBytes = digest.digest(password.getBytes("UTF-8"));
@@ -293,6 +306,13 @@ public class AdvancedSecurityService {
     // ========== 7. PASSWORD STRENGTH ==========
     public Map<String, Object> checkPasswordStrength(String password) {
         Map<String, Object> result = new HashMap<>();
+        if (password == null || password.length() > 1000) {
+            result.put("score", 0);
+            result.put("rating", "VERY WEAK");
+            result.put("emoji", "🔴");
+            result.put("feedback", List.of("❌ Password haipo au imezidi urefu unaoruhusiwa."));
+            return result;
+        }
         int score = 0;
         List<String> feedback = new ArrayList<>();
 
