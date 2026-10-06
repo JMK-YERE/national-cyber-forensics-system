@@ -1,18 +1,22 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="sw" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Access Denied</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Access Denied | Cyber Forensics TZ</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
 <body>
 <main class="auth-container" style="text-align:center;">
     <h1>🚫 Access Denied</h1>
-    <p style="margin:15px 0;">Huna ruhusa ya kufikia ukurasa huu.</p>
-    <p style="font-size:12px; color:#888; margin-bottom:20px;">
-        Ukurasa huu unahitajika uwe Admin, Cyber Professional, au Forensics Analyst.
+    <p style="margin:15px 0;">Huna ruhusa ya kufikia ukurasa au kitendo hiki.</p>
+    <p style="font-size:12px;color:#687789;margin-bottom:20px;">
+        Ruhusa hutegemea jukumu lako na kiwango cha ufikiaji wa taarifa.
     </p>
-    <a th:href="@{/dashboard}" class="app-btn app-btn-primary">🏠 Rudi Dashboard</a>
+    <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+        <a th:href="@{/dashboard}" class="app-btn app-btn-primary">🏠 Rudi Dashboard</a>
+        <a th:href="@{/}" class="app-btn">Mwanzo</a>
+    </div>
 </main>
 <script th:src="@{/js/app.js}"></script>
 </body>
