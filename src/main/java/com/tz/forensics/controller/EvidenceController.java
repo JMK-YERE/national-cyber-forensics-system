@@ -211,7 +211,8 @@ public class EvidenceController {
                 .replace("\"", "_");
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\\\"" + filename + "\\\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM).body(data);EAM).body(data);
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(data);
     }
 
     @PostMapping("/verify/{id}")
