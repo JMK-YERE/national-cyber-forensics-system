@@ -113,16 +113,22 @@ public class CaseFileController {
             if (!ownsOrAssigned) return "redirect:/access-denied";
         }
 
-        CaseFile saved = caseFileService.createCase(
-                caseFile.getIncidentId(),
-                caseFile.getTitle(),
-                caseFile.getDescription(),
-                caseFile.getPriority(),
-                user.getId(),
-                auth.getName()
-        );
-        auditService.log("CREATE_CASE", "CaseFile", saved.getCaseNumber(), "Created case");
-        return "redirect:/cases";
+        try {
+            CaseFile saved = caseFileService.createCase(
+                    caseFile.getIncidentId(),
+                    caseFile.getTitle(),
+                    caseFile.getDescription(),
+                    caseFile.getPriority(),
+                    user.getId(),
+                    auth.getName()
+            );
+            auditService.log("CREATE_CASE", "CaseFile", saved.getCaseNumber(), "Created case");
+            return "redirect:/cases";
+        } catch (IllegalArgumentException e) {
+            auditService.log("REJECT_CREATE_CASE", "CaseFile", String.valueOf(caseFile.getIncidentId()),
+                    e.getMessage() == null ? "Invalid case submission" : e.getMessage());
+            return "redirect:/cases/new?incidentId=" + caseFile.getIncidentId() + "&error=invalid";
+        }
     }
 
     @GetMapping({"/{id}", "/view/{id}"})
