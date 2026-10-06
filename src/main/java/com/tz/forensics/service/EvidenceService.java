@@ -282,6 +282,11 @@ public class EvidenceService {
         };
         if (!allowed) return false;
 
+        // Verification is a privileged forensic operation and must not be
+        // reachable by an analyst merely by calling the service method.
+        if ("VERIFIED".equals(to)) {
+            if (!isEvidenceAcquisitionRole(actorRole) || !actorIsCustodian) return false;
+        }
         if ("ACCEPTED".equals(to) && !actorIsCustodian) return false;
         if ("UNDER_EXAMINATION".equals(to) || "EXAMINED".equals(to)) {
             if (!actorIsCustodian) return false;
