@@ -120,7 +120,8 @@ public class CaseFileController {
                     caseFile.getDescription(),
                     caseFile.getPriority(),
                     user.getId(),
-                    auth.getName()
+                    auth.getName(),
+                    user.getRole()
             );
             auditService.log("CREATE_CASE", "CaseFile", saved.getCaseNumber(), "Created case");
             return "redirect:/cases";
