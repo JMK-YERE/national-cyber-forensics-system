@@ -7,6 +7,7 @@ import com.tz.forensics.service.AuditService;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,9 @@ public class AIController {
     private final UserRepository userRepository;
     private final AuditService auditService;
 
-    private static final Map<String, List<Map<String, String>>> chatHistory = new HashMap<>();
+    private static final String SESSION_HISTORY = "CFTZ_AI_HISTORY";
+    private static final int MAX_MESSAGE_LENGTH = 4000;
+    private static final int MAX_HISTORY_ENTRIES = 40;
 
     public AIController(AIChatService aiChatService, UserRepository userRepository, AuditService auditService) {
         this.aiChatService = aiChatService;
@@ -34,34 +37,39 @@ public class AIController {
         if (user == null) return "redirect:/login";
 
         model.addAttribute("user", user);
-        model.addAttribute("history", chatHistory.getOrDefault(auth.getName(), new ArrayList<>()));
+        model.addAttribute("history", getHistory(model, auth));
         model.addAttribute("isConfigured", aiChatService.isConfigured());
         model.addAttribute("currentLang", LocaleContextHolder.getLocale().getLanguage());
         return "ai-assistant";
     }
 
     @PostMapping("/assistant")
-    public String askAI(@RequestParam String message, Authentication auth) {
+    public String askAI(@RequestParam String message, Authentication auth, HttpSession session) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
 
         String username = auth.getName();
+        String normalizedMessage = message == null ? "" : message.trim();
+        if (normalizedMessage.isBlank()) return "redirect:/ai/assistant";
+        if (normalizedMessage.length() > MAX_MESSAGE_LENGTH) {
+            normalizedMessage = normalizedMessage.substring(0, MAX_MESSAGE_LENGTH);
+        }
         String currentLang = LocaleContextHolder.getLocale().getLanguage();
         String context = buildContext(user);
 
         // Pass language kwenye AI
-        String response = aiChatService.chat(message, context, currentLang);
+        String response = aiChatService.chat(normalizedMessage, context, currentLang);
 
-        List<Map<String, String>> history = chatHistory.computeIfAbsent(username, k -> new ArrayList<>());
-        history.add(createChatEntry("user", message));
-        history.add(createChatEntry("ai", response));
-
-        if (history.size() > 40) {
-            history.subList(0, history.size() - 40).clear();
+        List<Map<String, String>> history = getSessionHistory(session);
+        history.add(createChatEntry("user", normalizedMessage));
+        history.add(createChatEntry("ai", response == null ? "" : response));
+        if (history.size() > MAX_HISTORY_ENTRIES) {
+            history.subList(0, history.size() - MAX_HISTORY_ENTRIES).clear();
         }
+        session.setAttribute(SESSION_HISTORY, history);
 
         auditService.log("AI_QUERY", "AIChat", username,
-                "Lang: " + currentLang + " | Query: " + message.substring(0, Math.min(50, message.length())));
+                "Lang: " + currentLang + " | QueryLength: " + normalizedMessage.length());
 
         return "redirect:/ai/assistant";
     }
@@ -70,6 +78,19 @@ public class AIController {
     public String clearHistory(Authentication auth) {
         chatHistory.remove(auth.getName());
         return "redirect:/ai/assistant";
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<String, String>> getSessionHistory(HttpSession session) {
+        Object value = session.getAttribute(SESSION_HISTORY);
+        if (value instanceof List<?>) {
+            return (List<Map<String, String>>) value;
+        }
+        return new ArrayList<>();
+    }
+
+    private List<Map<String, String>> getHistory(Model model, Authentication auth) {
+        return new ArrayList<>();
     }
 
     private Map<String, String> createChatEntry(String type, String text) {
