@@ -68,14 +68,27 @@ public class AdminController {
         }
 
         User user = userRepository.findById(id).orElse(null);
-        if (user != null) {
+        String normalizedRole = role == null ? "" : role.trim().toUpperCase();
+        java.util.Set<String> allowedRoles = java.util.Set.of("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST", "INDIVIDUAL");
+        if (user != null && allowedRoles.contains(normalizedRole)) {
+            if (user.getId().equals(currentUser.getId()) && !"ADMIN".equals(normalizedRole)) {
+                auditService.log("REJECT_CHANGE_ROLE", "User", user.getUsername(), "Self-demotion rejected");
+                redirectAttributes.addFlashAttribute("error", "❌ Huwezi kujiondoa ADMIN mwenyewe.");
+                return "redirect:/admin/users";
+            }
             String oldRole = user.getRole();
-            user.setRole(role);
+            if ("ADMIN".equalsIgnoreCase(oldRole) && !"ADMIN".equals(normalizedRole)
+                    && userRepository.findAll().stream().filter(User::isAdmin).count() <= 1) {
+                auditService.log("REJECT_CHANGE_ROLE", "User", user.getUsername(), "Last admin protection");
+                redirectAttributes.addFlashAttribute("error", "❌ Mfumo lazima ubaki na angalau ADMIN mmoja.");
+                return "redirect:/admin/users";
+            }
+            user.setRole(normalizedRole);
             userRepository.save(user);
             auditService.log("CHANGE_ROLE", "User", user.getUsername(),
-                    "Role: " + oldRole + " → " + role);
+                    "Role: " + oldRole + " → " + normalizedRole);
             redirectAttributes.addFlashAttribute("success",
-                    "✅ Role ya " + user.getUsername() + " imebadilishwa kuwa " + role);
+                    "✅ Role ya " + user.getUsername() + " imebadilishwa kuwa " + normalizedRole);
         }
         return "redirect:/admin/users";
     }
@@ -108,6 +121,17 @@ public class AdminController {
 
         User user = userRepository.findById(id).orElse(null);
         if (user != null) {
+            if (user.getId().equals(currentUser.getId()) && Boolean.TRUE.equals(user.getEnabled())) {
+                auditService.log("REJECT_TOGGLE_USER", "User", user.getUsername(), "Self-disable rejected");
+                redirectAttributes.addFlashAttribute("error", "❌ Huwezi kujizima mwenyewe.");
+                return "redirect:/admin/users";
+            }
+            if (user.isAdmin() && Boolean.TRUE.equals(user.getEnabled())
+                    && userRepository.findAll().stream().filter(u -> u.isAdmin() && Boolean.TRUE.equals(u.getEnabled())).count() <= 1) {
+                auditService.log("REJECT_TOGGLE_USER", "User", user.getUsername(), "Last enabled admin protection");
+                redirectAttributes.addFlashAttribute("error", "❌ Lazima kuwe na ADMIN mmoja aliyewezeshwa.");
+                return "redirect:/admin/users";
+            }
             user.setEnabled(!Boolean.TRUE.equals(user.getEnabled()));
             userRepository.save(user);
             String status = user.getEnabled() ? "amewashwa" : "amezimwa";
@@ -152,7 +176,8 @@ public class AdminController {
         }
 
         User user = userRepository.findById(id).orElse(null);
-        if (user != null && !"admin".equals(user.getUsername())) {
+        if (user != null && !user.getId().equals(currentUser.getId())
+                && !"admin".equalsIgnoreCase(user.getUsername())) {
             String username = user.getUsername();
             userRepository.delete(user);
             auditService.log("DELETE_USER", "User", username, "User deleted");
