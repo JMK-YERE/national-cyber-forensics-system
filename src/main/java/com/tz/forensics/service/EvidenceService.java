@@ -227,6 +227,10 @@ public class EvidenceService {
         if (evidence.getCaseId() != null) {
             com.tz.forensics.entity.CaseFile cf = caseFileRepository.findById(evidence.getCaseId()).orElse(null);
             if (cf == null || "CLOSED".equalsIgnoreCase(cf.getStatus()) || "ARCHIVED".equalsIgnoreCase(cf.getStatus())) return false;
+            if ("ANALYST".equalsIgnoreCase(recipientRole)
+                    && !recipientId.equals(cf.getCreatedBy())
+                    && !recipientId.equals(cf.getAssignedTo())
+                    && !recipientId.equals(cf.getLeadInvestigator())) return false;
         }
         String status = evidence.getCustodyStatus();
         if (!"VERIFIED".equals(status) && !"ACCEPTED".equals(status) && !"EXAMINED".equals(status)) return false;
