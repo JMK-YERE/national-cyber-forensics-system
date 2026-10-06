@@ -1,143 +1,74 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Incident Detail - Cyber Forensics</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Incident Detail | Cyber Forensics TZ</title>
+<link rel="stylesheet" th:href="@{/css/theme.css}">
 </head>
-<body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 <main class="app-main"><div class="app-container">
-    <div class="app-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:15px;">
-            <div>
-                <h1 th:text="'📋 ' + ${incident.title}"></h1>
-                <p><strong>Incident ID:</strong> <span th:text="${incident.incidentId}"></span></p>
-            </div>
-            <div>
-                <a th:href="@{/reports/incident/{id}/pdf(id=${incident.id})}" class="app-btn app-btn-primary" target="_blank">📄 Download PDF</a>
-            </div>
-        </div>
 
-        <p><strong>Reporter:</strong> <span th:text="${incident.reporter}"></span></p>
-        <p><strong>Severity:</strong> <span th:text="${incident.severity}"></span></p>
-        <p><strong>Status:</strong> <span th:text="${incident.status}"></span></p>
-        <p><strong>Workflow:</strong> <span th:text="${incident.workflowStatus}"></span></p>
-        <p><strong>Priority:</strong> <span th:text="${incident.priority}"></span></p>
-        <p><strong>Assigned To:</strong> <span th:text="${incident.assignedToName != null ? incident.assignedToName : 'Unassigned'}"></span></p>
-        <p><strong>Category:</strong> <span th:text="${incident.category}"></span></p>
-        <p><strong>Region:</strong> <span th:text="${incident.region}"></span></p>
-        <p><strong>Date:</strong> <span th:text="${#temporals.format(incident.dateReported, 'yyyy-MM-dd HH:mm')}"></span></p>
-    </div>
+<header class="cftz-page-head">
+  <div>
+    <span class="cftz-eyebrow">INCIDENT / CASE MANAGEMENT</span>
+    <h1 th:text="${incident.title}">Incident</h1>
+    <p><strong class="mono" th:text="${incident.incidentId}">CFTZ-INC-0001</strong> · Track triage, assignment, investigation and resolution from one record.</p>
+  </div>
+  <a th:href="@{/reports/incident/{id}/pdf(id=${incident.id})}" class="app-btn app-btn-outline" target="_blank">Download report</a>
+</header>
 
-    <!-- ASSIGNMENT SECTION -->
-    <div class="app-card" th:if="${assignableUsers != null}">
-        <h2>👥 Assignment</h2>
-        <form th:action="@{/incidents/{value}/assign(value=${incident.id})}" method="post" style="margin-top:15px;">
-<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-<label>Assign to:</label>
-            <select name="assignedTo" required>
-                <option value="">-- Chagua Mtu --</option>
-                <option th:each="u : ${assignableUsers}"
-                        th:value="${u.id}"
-                        th:text="${u.username + ' (' + u.role + ')'}"></option>
-            </select>
+<section class="cftz-stat-grid">
+  <div class="cftz-stat"><span>Severity</span><b th:text="${incident.severity}">MEDIUM</b></div>
+  <div class="cftz-stat"><span>Status</span><b th:text="${incident.status}">New</b></div>
+  <div class="cftz-stat"><span>Workflow</span><b th:text="${incident.workflowStatus}">NEW</b></div>
+  <div class="cftz-stat"><span>Priority</span><b th:text="${incident.priority}">MEDIUM</b></div>
+</section>
 
-            <label>Priority:</label>
-            <select name="priority">
-                <option value="LOW">Low</option>
-                <option value="MEDIUM" selected>Medium</option>
-                <option value="HIGH">High</option>
-                <option value="CRITICAL">Critical</option>
-            </select>
+<section class="cftz-section">
+  <div class="cftz-section-title"><div><span class="cftz-eyebrow">INCIDENT RECORD</span><h2>Core information</h2></div></div>
+  <div class="cftz-row"><div><strong>Reporter</strong><p th:text="${incident.reporter}">Reporter</p></div><div><strong>Assigned to</strong><p th:text="${incident.assignedToName != null ? incident.assignedToName : 'Unassigned'}">Unassigned</p></div></div>
+  <div class="cftz-row"><div><strong>Category</strong><p th:text="${incident.category}">Category</p></div><div><strong>Region</strong><p th:text="${incident.region}">Region</p></div></div>
+  <div class="cftz-row"><div><strong>Date reported</strong><p th:text="${#temporals.format(incident.dateReported, 'yyyy-MM-dd HH:mm')}">2026-10-06 00:00</p></div><div><strong>Incident ID</strong><p class="mono" th:text="${incident.incidentId}">CFTZ-INC-0001</p></div></div>
+</section>
 
-            <label>Due Date (optional):</label>
-            <input type="datetime-local" name="dueDate">
+<section class="cftz-section" th:if="${assignableUsers != null}">
+  <div class="cftz-section-title"><div><span class="cftz-eyebrow">RESPONSE CONTROL</span><h2>Assignment & workflow</h2></div></div>
+  <form th:action="@{/incidents/{value}/assign(value=${incident.id})}" method="post" class="cftz-row">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <div><label>Assign to</label><select name="assignedTo" required><option value="">Select investigator</option><option th:each="u : ${assignableUsers}" th:value="${u.id}" th:text="${u.username + ' (' + u.role + ')'}"></option></select></div>
+    <div><label>Priority</label><select name="priority"><option value="LOW">Low</option><option value="MEDIUM" selected>Medium</option><option value="HIGH">High</option><option value="CRITICAL">Critical</option></select></div>
+    <div><label>Due date</label><input type="datetime-local" name="dueDate"></div>
+    <div><label>&nbsp;</label><button type="submit" class="app-btn app-btn-primary">Assign incident</button></div>
+  </form>
+  <form th:action="@{/incidents/{value}/workflow(value=${incident.id})}" method="post" class="cftz-workline">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <div><strong>Workflow transition</strong><span>Move the incident through the controlled response lifecycle.</span></div>
+    <div><select name="status"><option value="NEW">New</option><option value="TRIAGED">Triaged</option><option value="ASSIGNED">Assigned</option><option value="INVESTIGATING">Investigating</option><option value="CONTAINMENT">Containment</option><option value="ERADICATION">Eradication</option><option value="RECOVERY">Recovery</option><option value="CLOSED">Closed</option></select><button type="submit" class="app-btn app-btn-outline">Update workflow</button></div>
+  </form>
+</section>
 
-            <button type="submit" class="app-btn app-btn-primary" style="margin-top:10px;">👥 Assign</button>
-        </form>
-    </div>
+<section class="cftz-section" th:if="${linkedCases != null}">
+  <div class="cftz-section-title"><div><span class="cftz-eyebrow">FORENSIC WORK</span><h2>Case files</h2></div><a th:if="${canManageWorkflow}" th:href="@{/cases/new(incidentId=${incident.id})}" class="app-btn app-btn-primary">Create case</a></div>
+  <div th:if="${linkedCases.isEmpty()}" class="cftz-empty">No forensic case has been opened for this incident.</div>
+  <div th:each="cf : ${linkedCases}" class="cftz-row"><div><strong class="mono" th:text="${cf.caseNumber}">CASE-0001</strong><p th:text="${cf.title}">Forensic investigation</p></div><div><span class="cftz-tag" th:text="${cf.status}">OPEN</span><a th:href="@{/cases/{id}(id=${cf.id})}" class="app-btn app-btn-outline">Open case</a></div></div>
+</section>
 
-    <!-- WORKFLOW SECTION -->
-    <div class="app-card" th:if="${assignableUsers != null}">
-        <h2>🔄 Update Workflow</h2>
-        <form th:action="@{/incidents/{value}/workflow(value=${incident.id})}" method="post" style="margin-top:15px;">
-<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-<select name="status">
-                <option value="NEW">🆕 New</option>
-                <option value="TRIAGED">🔎 Triaged</option>
-                <option value="ASSIGNED">👤 Assigned</option>
-                <option value="INVESTIGATING">🧪 Investigating</option>
-                <option value="CONTAINMENT">🛑 Containment</option>
-                <option value="ERADICATION">🧹 Eradication</option>
-                <option value="RECOVERY">🔄 Recovery</option>
-                <option value="CLOSED">✅ Closed</option>
-            </select>
-            <button type="submit" class="app-btn app-btn-outline" style="margin-left:10px;">🔄 Update</button>
-        </form>
-    </div>
+<section class="cftz-section" th:if="${evidenceList != null}">
+  <div class="cftz-section-title"><div><span class="cftz-eyebrow">EVIDENCE CONTROL</span><h2>Digital evidence</h2></div><a th:href="@{'/evidence/upload/' + ${incident.id}}" class="app-btn app-btn-primary">Acquire evidence</a></div>
+  <div th:if="${evidenceList.isEmpty()}" class="cftz-empty">No evidence is currently attached to this incident.</div>
+  <div th:each="ev : ${evidenceList}" class="cftz-row">
+    <div><strong th:text="${ev.originalFilename}">evidence.bin</strong><p><span th:text="${ev.fileType}">FILE</span> · <span th:text="${ev.readableSize}">0 B</span> · SHA-256 <span class="mono" th:text="${#strings.length(ev.sha256Hash) > 16 ? #strings.substring(ev.sha256Hash,0,16) + '…' : ev.sha256Hash}">hash</span></p></div>
+    <div><span class="cftz-tag" th:text="${ev.verified ? 'VERIFIED' : 'PENDING'}">PENDING</span><a th:href="@{'/evidence/download/' + ${ev.id}}" class="app-btn app-btn-outline">Download</a><form th:if="${!ev.verified}" th:action="@{/evidence/verify/{id}(id=${ev.id})}" method="post" style="display:inline"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button type="submit" class="app-btn app-btn-outline">Verify</button></form></div>
+  </div>
+</section>
 
-    <!-- CASE SECTION -->
-    <div class="app-card">
-        <h2>🗂️ Forensic Case</h2>
-        <div th:if="${linkedCases != null and !linkedCases.isEmpty()}">
-            <p th:each="cf : ${linkedCases}" style="margin:8px 0;">
-                <a th:href="@{/cases/{id}(id=${cf.id})}" class="app-btn app-btn-outline">
-                    <span th:text="${cf.caseNumber}"></span>
-                </a>
-                <span th:text="' · ' + ${cf.title} + ' · ' + ${cf.status}"></span>
-            </p>
-        </div>
-        <div th:if="${linkedCases == null or linkedCases.isEmpty()}">
-            <p>No forensic case has been opened for this incident yet.</p>
-            <a th:if="${canManageWorkflow}" th:href="@{/cases/new(incidentId=${incident.id})}" class="app-btn app-btn-primary">
-                ➕ Create Forensic Case
-            </a>
-        </div>
-    </div>
+<section class="cftz-section" th:if="${linkedCases == null and evidenceList == null}">
+  <div class="cftz-section-title"><div><span class="cftz-eyebrow">YOUR REPORT</span><h2>Report status</h2></div></div>
+  <div class="cftz-empty">This incident is within your permitted view. Forensic case files and evidence are restricted to authorized response personnel.</div>
+</section>
 
-    <!-- EVIDENCE SECTION -->
-    <div class="app-card">
-        <h2>🔬 Digital Evidence</h2>
-        <a th:href="@{'/evidence/upload/' + ${incident.id}}" class="app-btn app-btn-primary" style="margin-top:15px;">📤 Upload Evidence</a>
-
-        <div class="table-responsive" th:if="${!evidenceList.isEmpty()}" style="margin-top:20px;"><table>
-            <thead>
-            <tr>
-                <th>Filename</th>
-                <th>Type</th>
-                <th>Size</th>
-                <th>SHA-256</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="ev : ${evidenceList}">
-                <td th:text="${ev.originalFilename}"></td>
-                <td th:text="${ev.fileType}"></td>
-                <td th:text="${ev.readableSize}"></td>
-                <td><span class="hash-display" th:text="${#strings.substring(ev.sha256Hash, 0, 16)} + '...'"></span></td>
-                <td>
-                    <span th:if="${ev.verified}" style="color:#00ff9d;">✅ Verified</span>
-                    <span th:unless="${ev.verified}" style="color:#ffc800;">⏳ Pending</span>
-                </td>
-                <td>
-                    <a th:href="@{'/evidence/download/' + ${ev.id}}">⬇️</a>
-                    <form th:if="${!ev.verified}" th:action="@{/evidence/verify/{id}(id=${ev.id})}" method="post" style="display:inline;">
-<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-<button type="submit" class="app-btn app-btn-outline" style="padding:4px 10px;font-size:11px;">✅</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table></div>
-        <p th:if="${evidenceList.isEmpty()}" style="text-align:center;margin-top:20px;">
-            Hakuna evidence bado.
-        </p>
-    </div>
-</div>
+</div></main>
 <script th:src="@{/js/app.js}"></script>
-</main></body>
-</html>
+</body></html>
