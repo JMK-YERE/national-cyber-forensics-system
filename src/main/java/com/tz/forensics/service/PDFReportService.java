@@ -14,6 +14,8 @@ import com.itextpdf.layout.properties.UnitValue;
 import com.tz.forensics.entity.CaseFile;
 import com.tz.forensics.entity.Evidence;
 import com.tz.forensics.entity.Incident;
+import com.tz.forensics.entity.CaseIoc;
+import com.tz.forensics.entity.CaseTimeline;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -73,6 +75,34 @@ public class PDFReportService {
 
             // ===== DESCRIPTION =====
             doc.add(new Paragraph(""));
+            doc.add(new Paragraph(reportTitle).setFontSize(11).setItalic().setTextAlignment(TextAlignment.CENTER));
+            doc.add(new Paragraph("Timeline").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
+            if(timeline != null && !timeline.isEmpty()){
+                Table tt=new Table(UnitValue.createPercentArray(new float[]{22,24,54})).setWidth(UnitValue.createPercentValue(100));
+                tt.addHeaderCell(new Cell().add(new Paragraph("Time").setBold()));
+                tt.addHeaderCell(new Cell().add(new Paragraph("Event").setBold()));
+                tt.addHeaderCell(new Cell().add(new Paragraph("Details").setBold()));
+                for(CaseTimeline t:timeline){
+                    tt.addCell(new Paragraph(t.getCreatedAt()!=null?t.getCreatedAt().format(FMT):"N/A"));
+                    tt.addCell(new Paragraph(t.getTitle()!=null?t.getTitle():"N/A"));
+                    tt.addCell(new Paragraph(t.getDetails()!=null?t.getDetails():"N/A"));
+                }
+                doc.add(tt);
+            } else doc.add(new Paragraph("No timeline events recorded."));
+            doc.add(new Paragraph("Indicators of Compromise (IOCs)").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(14));
+            if(iocs != null && !iocs.isEmpty()){
+                Table it=new Table(UnitValue.createPercentArray(new float[]{15,40,20,25})).setWidth(UnitValue.createPercentValue(100));
+                it.addHeaderCell(new Paragraph("Type").setBold()); it.addHeaderCell(new Paragraph("Value").setBold()); it.addHeaderCell(new Paragraph("Confidence").setBold()); it.addHeaderCell(new Paragraph("Source").setBold());
+                for(CaseIoc i:iocs){it.addCell(new Paragraph(i.getIocType()));it.addCell(new Paragraph(i.getValue()));it.addCell(new Paragraph(i.getConfidence()!=null?i.getConfidence():"N/A"));it.addCell(new Paragraph(i.getSource()!=null?i.getSource():"N/A"));}
+                doc.add(it);
+            } else doc.add(new Paragraph("No IOCs recorded."));
+            doc.add(new Paragraph("Evidence Integrity").setBold().setFontSize(12).setFontColor(CYBER_GREEN).setMarginTop(14));
+            if(evidence != null && !evidence.isEmpty()){
+                Table et=new Table(UnitValue.createPercentArray(new float[]{28,18,18,36})).setWidth(UnitValue.createPercentValue(100));
+                et.addHeaderCell(new Paragraph("File").setBold());et.addHeaderCell(new Paragraph("Custody").setBold());et.addHeaderCell(new Paragraph("Verified").setBold());et.addHeaderCell(new Paragraph("SHA-256").setBold());
+                for(Evidence e:evidence){et.addCell(new Paragraph(e.getOriginalFilename()));et.addCell(new Paragraph(e.getCustodyStatus()!=null?e.getCustodyStatus():"N/A"));et.addCell(new Paragraph(Boolean.TRUE.equals(e.getVerified())?"VERIFIED":"PENDING"));et.addCell(new Paragraph(e.getSha256Hash()!=null?e.getSha256Hash():"N/A"));}
+                doc.add(et);
+            } else doc.add(new Paragraph("No evidence attached."));
             doc.add(new Paragraph("📝 DESCRIPTION").setBold().setFontSize(12).setFontColor(CYBER_GREEN));
             doc.add(new Paragraph(incident.getDescription() != null ? incident.getDescription() : "N/A")
                     .setFontSize(10));
@@ -172,7 +202,20 @@ public class PDFReportService {
     }
 
     // ===== CASE FILE PDF =====
-    public byte[] generateCaseReport(CaseFile caseFile) {
+    public byte[] generateExecutiveCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
+        return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, "Executive Case Report");
+    }
+
+    public byte[] generateTechnicalCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
+        return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, "Technical Investigation Report");
+    }
+
+    public byte[] generateForensicCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence) {
+        return generateDetailedCaseReport(caseFile, timeline, iocs, evidence, "Forensic Report");
+    }
+
+    private byte[] generateDetailedCaseReport(CaseFile caseFile, List<CaseTimeline> timeline, List<CaseIoc> iocs, List<Evidence> evidence, String reportTitle) {
+
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PdfWriter writer = new PdfWriter(baos);
