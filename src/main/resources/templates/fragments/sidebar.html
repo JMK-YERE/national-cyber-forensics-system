@@ -12,7 +12,7 @@
 <a th:href="@{/cases}" class="sidebar-item"><span class="icon">🧪</span><span class="label" th:text="#{nav.forensicsCases}">Cases</span></a>
 <a th:href="@{/evidence}" class="sidebar-item"><span class="icon">🔐</span><span class="label" th:text="#{nav.evidence}">Evidence</span></a>
 <a th:href="@{/case-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label" th:text="#{nav.responseTasks}">Tasks</span></a>
-<a th:href="@{/threat-map}" class="sidebar-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO')"><span class="icon">◉</span><span class="label" th:text="#{nav.incidentMap}">Incident Intelligence</span></a>
+<a th:href="@{/threat-map}" class="sidebar-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_ANALYST')"><span class="icon">◉</span><span class="label" th:text="#{nav.incidentMap}">Incident Intelligence</span></a>
 <a th:href="@{/analytics}" class="sidebar-item"><span class="icon">▥</span><span class="label" th:text="#{nav.analytics}">Analytics</span></a>
 </div>
 <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="sidebar-section" th:text="#{nav.administration}">Administration</div>
