@@ -45,6 +45,10 @@ public class EmailService {
     @Value("${email.resend.from:}")
     private String resendFrom;
 
+    public boolean isConfigured() {
+        return resendConfigured() || smtpConfigured();
+    }
+
     private boolean smtpConfigured() {
         return mailSender != null
                 && fromEmail != null && !fromEmail.isBlank()
