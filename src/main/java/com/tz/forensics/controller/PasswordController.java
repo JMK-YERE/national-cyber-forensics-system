@@ -281,6 +281,10 @@ public class PasswordController {
             ra.addFlashAttribute("error", "Password mpya iwe na herufi 6+ na zote zifanane.");
             return "redirect:/change-password";
         }
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            ra.addFlashAttribute("error", "Password mpya lazima iwe tofauti na password ya sasa.");
+            return "redirect:/change-password";
+        }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         ra.addFlashAttribute("success", "✅ Neno la siri limebadilishwa!");
