@@ -75,8 +75,8 @@ public class AIController {
     }
 
     @PostMapping("/clear")
-    public String clearHistory(Authentication auth) {
-        chatHistory.remove(auth.getName());
+    public String clearHistory(Authentication auth, HttpSession session) {
+        session.removeAttribute(SESSION_HISTORY);
         return "redirect:/ai/assistant";
     }
 
