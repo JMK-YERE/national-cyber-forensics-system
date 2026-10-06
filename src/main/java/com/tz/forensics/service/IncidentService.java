@@ -196,11 +196,11 @@ public class IncidentService {
         String current = normalizeWorkflow(incident.getWorkflowStatus());
         if (current.equals(requested)) return;
         if (!ALLOWED_TRANSITIONS.getOrDefault(current, Set.of()).contains(requested)) {
-            auditWorkflow("REJECT_WORKFLOW", incident, current + " -> " + requested, actorName);
+            auditWorkflow("REJECT_WORKFLOW", incident, current + " -> " + requested, actorId, actorName);
             throw new IllegalStateException("Invalid incident workflow transition: " + current + " -> " + requested);
         }
         if ("ASSIGNED".equals(requested) && incident.getAssignedTo() == null) {
-            auditWorkflow("REJECT_WORKFLOW", incident, current + " -> " + requested + " | assignee required", actorName);
+            auditWorkflow("REJECT_WORKFLOW", incident, current + " -> " + requested + " | assignee required", actorId, actorName);
             throw new IllegalStateException("Incident must have an assignee before entering ASSIGNED.");
         }
 
@@ -211,7 +211,7 @@ public class IncidentService {
                 return !"CLOSED".equals(caseStatus) && !"ARCHIVED".equals(caseStatus);
             });
             if (hasOpenCase) {
-                auditWorkflow("REJECT_WORKFLOW", incident, current + " -> CLOSED | open linked case", actorName);
+                auditWorkflow("REJECT_WORKFLOW", incident, current + " -> CLOSED | open linked case", actorId, actorName);
                 throw new IllegalStateException("Incident cannot be closed while a linked forensic case is still open.");
             }
 
@@ -221,7 +221,7 @@ public class IncidentService {
                 return !"EXAMINED".equalsIgnoreCase(custody) && !"REPORT_GENERATED".equalsIgnoreCase(custody);
             });
             if (hasUnresolvedEvidence) {
-                auditWorkflow("REJECT_WORKFLOW", incident, current + " -> CLOSED | unresolved evidence", actorName);
+                auditWorkflow("REJECT_WORKFLOW", incident, current + " -> CLOSED | unresolved evidence", actorId, actorName);
                 throw new IllegalStateException("Incident cannot be closed while evidence is not fully examined.");
             }
         }
@@ -229,7 +229,7 @@ public class IncidentService {
         setWorkflowState(incident, requested, true);
         incidentRepository.save(incident);
         auditWorkflow("UPDATE_WORKFLOW", incident,
-                current + " -> " + requested + (actorRole != null ? " | role: " + actorRole : ""), actorName);
+                current + " -> " + requested + (actorRole != null ? " | role: " + actorRole : ""), actorId, actorName);
     }
 
     private void setWorkflowState(Incident incident, String workflowStatus, boolean changing) {
@@ -246,8 +246,8 @@ public class IncidentService {
         }
     }
 
-    private void auditWorkflow(String action, Incident incident, String details, String actorName) {
-        auditService.log(null, actorName, action, "Incident", incident.getIncidentId(), details);
+    private void auditWorkflow(String action, Incident incident, String details, Long actorId, String actorName) {
+        auditService.log(actorId, actorName, action, "Incident", incident.getIncidentId(), details);
     }
 
     private static final java.util.Map<String, java.util.Set<String>> ALLOWED_TRANSITIONS = java.util.Map.of(
