@@ -106,7 +106,10 @@ public class SecurityConfig {
                     .hasAuthority("ROLE_ADMIN")
 
                 .requestMatchers("/ai/**", "/report-attack/**", "/notifications/**", "/downloads/**", "/change-password")
-                    .authenticated()\n\n                // Advanced security tools are restricted to professional/staff roles.\n                // Basic tools above remain available to authenticated users.
+                    .authenticated()
+
+                // Advanced security tools are restricted to professional/staff roles.
+                // Basic tools above remain available to authenticated users.
                 .requestMatchers("/tools/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
