@@ -6,15 +6,11 @@ import com.tz.forensics.entity.Evidence;
 import com.tz.forensics.repository.ChainOfCustodyRepository;
 import com.tz.forensics.repository.EvidenceRepository;
 import com.tz.forensics.repository.CaseFileRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.tika.Tika;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,19 +29,20 @@ public class EvidenceService {
     private final EncryptionService encryptionService;
     private final Tika tika = new Tika();
 
-    @Value("$" + "{app.upload.dir}")
-    private String uploadDir;
+    private final EvidenceStorage evidenceStorage;
 
     public EvidenceService(EvidenceRepository evidenceRepository,
                            ChainOfCustodyRepository custodyRepository,
                            CaseFileRepository caseFileRepository,
                            HashService hashService,
-                           EncryptionService encryptionService) {
+                           EncryptionService encryptionService,
+                           EvidenceStorage evidenceStorage) {
         this.evidenceRepository = evidenceRepository;
         this.custodyRepository = custodyRepository;
         this.caseFileRepository = caseFileRepository;
         this.hashService = hashService;
         this.encryptionService = encryptionService;
+        this.evidenceStorage = evidenceStorage;
     }
 
     public Evidence uploadEvidence(Long incidentId, MultipartFile file,
@@ -79,14 +76,9 @@ public class EvidenceService {
         if (detectedFileType == null || detectedFileType.isBlank()) detectedFileType = "application/octet-stream";
         byte[] encrypted = encryptionService.encrypt(fileBytes);
 
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
-
         String storedFilename = UUID.randomUUID() + ".enc";
-        Path storedPath = uploadPath.resolve(storedFilename).normalize();
-        if (!storedPath.startsWith(uploadPath)) throw new IOException("Invalid evidence storage path.");
         try {
-            Files.write(storedPath, encrypted);
+            evidenceStorage.write(storedFilename, encrypted);
         } catch (IOException e) {
             throw new IOException("Unable to persist encrypted evidence file.", e);
         }
@@ -127,7 +119,7 @@ public class EvidenceService {
         try {
             saved = evidenceRepository.save(evidence);
         } catch (RuntimeException e) {
-            try { Files.deleteIfExists(storedPath); } catch (IOException ignored) { }
+            try { evidenceStorage.delete(storedFilename); } catch (IOException ignored) { }
             throw e;
         }
 
@@ -141,7 +133,7 @@ public class EvidenceService {
             custodyRepository.save(uploadedEvent);
         } catch (RuntimeException e) {
             try { evidenceRepository.delete(saved); } catch (RuntimeException ignored) { }
-            try { Files.deleteIfExists(storedPath); } catch (IOException ignored) { }
+            try { evidenceStorage.delete(storedFilename); } catch (IOException ignored) { }
             throw e;
         }
         return saved;
@@ -163,13 +155,7 @@ public class EvidenceService {
     public byte[] downloadEvidence(Long evidenceId) throws IOException {
         Evidence evidence = evidenceRepository.findById(evidenceId)
                 .orElseThrow(() -> new RuntimeException("Evidence not found"));
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        Path filePath = uploadPath.resolve(evidence.getStoredFilename()).normalize();
-        if (!filePath.startsWith(uploadPath)) throw new IOException("Invalid evidence storage path.");
-        if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
-            throw new IOException("Stored evidence file not found.");
-        }
-        byte[] decrypted = encryptionService.decrypt(Files.readAllBytes(filePath));
+        byte[] decrypted = encryptionService.decrypt(evidenceStorage.read(evidence.getStoredFilename()));
         String actualSha256 = hashService.sha256(decrypted);
         if (!actualSha256.equalsIgnoreCase(evidence.getSha256Hash())) {
             throw new IOException("Evidence integrity check failed: SHA-256 mismatch.");
@@ -282,12 +268,7 @@ public class EvidenceService {
         }
         if (Boolean.TRUE.equals(evidence.getVerified())) return;
         try {
-            Path base = Paths.get(uploadDir).toAbsolutePath().normalize();
-            Path storedPath = base.resolve(evidence.getStoredFilename()).normalize();
-            if (!storedPath.startsWith(base) || !Files.isRegularFile(storedPath)) {
-                throw new IOException("Stored evidence file not found.");
-            }
-            byte[] encrypted = Files.readAllBytes(storedPath);
+            byte[] encrypted = evidenceStorage.read(evidence.getStoredFilename());
             byte[] decrypted = encryptionService.decrypt(encrypted);
             String actualSha256 = hashService.sha256(decrypted);
             if (!actualSha256.equalsIgnoreCase(evidence.getSha256Hash())) {
