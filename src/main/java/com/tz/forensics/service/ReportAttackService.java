@@ -22,6 +22,20 @@ public class ReportAttackService {
 
     @org.springframework.transaction.annotation.Transactional
     public ReportAttack create(ReportAttack report) {
+        if (report == null) throw new IllegalArgumentException("Report is required.");
+        String title = report.getTitle() == null ? "" : report.getTitle().trim();
+        String description = report.getDescription() == null ? "" : report.getDescription().trim();
+        if (title.length() < 3 || title.length() > 200) throw new IllegalArgumentException("Report title must be between 3 and 200 characters.");
+        if (description.length() < 10 || description.length() > 10000) throw new IllegalArgumentException("Report description must be between 10 and 10000 characters.");
+        if (report.getStatus() == null || report.getStatus().isBlank()) report.setStatus("NEW");
+        report.setStatus(report.getStatus().trim().toUpperCase());
+        if (!Set.of("NEW").contains(report.getStatus())) throw new IllegalArgumentException("New reports must start in NEW status.");
+        if (report.getPriority() != null) {
+            String priority = report.getPriority().trim().toUpperCase();
+            if (!Set.of("LOW","MEDIUM","HIGH","CRITICAL").contains(priority)) throw new IllegalArgumentException("Unsupported report priority.");
+            report.setPriority(priority);
+        }
+        if (report.getSeverity() != null) report.setSeverity(report.getSeverity().trim().toUpperCase());
         if (report.getReportId() == null) {
             report.setReportId(generateReportId());
         }
@@ -117,7 +131,7 @@ public class ReportAttackService {
                     throw new IllegalStateException("Closed reports cannot be modified.");
                 }
                 String normalizedPoliceCase = policeCaseNumber.trim();
-                if (normalizedPoliceCase.length() > 100) {
+                if (normalizedPoliceCase.length() > 50) {
                     throw new IllegalArgumentException("Police case number is too long.");
                 }
                 r.setPoliceCaseNumber(normalizedPoliceCase);
@@ -134,6 +148,6 @@ public class ReportAttackService {
             String candidate = "SEC-" + date + "-" + rand;
             if (!repo.existsByReportId(candidate)) return candidate;
         }
-        return "SEC-" + date + "-" + secureRandom.nextInt(900000);
+        throw new IllegalStateException("Unable to generate a unique report ID.");
     }
 }
