@@ -191,10 +191,19 @@ public class PDFController {
     private boolean canAccessCase(CaseFile caseFile, User user) {
         if (caseFile == null || user == null) return false;
         if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
-        return "ANALYST".equalsIgnoreCase(user.getRole())
-                && (user.getId().equals(caseFile.getCreatedBy())
-                    || user.getId().equals(caseFile.getAssignedTo())
-                    || user.getId().equals(caseFile.getLeadInvestigator()));
+        if (!"ANALYST".equalsIgnoreCase(user.getRole()) || user.getId() == null) return false;
+
+        // Analysts must have access to both the case and its underlying incident.
+        Incident incident = caseFile.getIncidentId() == null ? null : incidentService.getById(caseFile.getIncidentId());
+        if (incident == null) return false;
+        boolean incidentAccess =
+                (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
+                || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
+        if (!incidentAccess) return false;
+
+        return (caseFile.getCreatedBy() != null && user.getId().equals(caseFile.getCreatedBy()))
+                || (caseFile.getAssignedTo() != null && user.getId().equals(caseFile.getAssignedTo()))
+                || (caseFile.getLeadInvestigator() != null && user.getId().equals(caseFile.getLeadInvestigator()));
     }
 
     private boolean canAccessIncident(Incident incident, User user) {
