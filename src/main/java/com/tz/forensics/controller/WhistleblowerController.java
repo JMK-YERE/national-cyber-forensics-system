@@ -259,7 +259,12 @@ public class WhistleblowerController {
         if (target == null) return "redirect:/whistleblower/admin";
         if (user.isAnalyst() && (target.getAssignedTo() == null || !user.getId().equals(target.getAssignedTo())))
             return "redirect:/access-denied";
-        service.updateStatus(id, status, adminResponse, internalNotes);
+        try {
+            service.updateStatus(id, status, adminResponse, internalNotes);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            auditService.log("REJECT_WHISTLEBLOWER_UPDATE", "Whistleblower", String.valueOf(id), e.getMessage());
+            return "redirect:/whistleblower/admin/" + id;
+        }
         auditService.log("WHISTLEBLOWER_UPDATE", "Whistleblower", String.valueOf(id), "Status: " + status);
         return "redirect:/whistleblower/admin/" + id;
     }
