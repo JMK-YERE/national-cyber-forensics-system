@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.Locale;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/whistleblower")
