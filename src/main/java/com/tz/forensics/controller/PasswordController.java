@@ -131,7 +131,7 @@ public class PasswordController {
         Long resetUserId = session == null ? null : (Long) session.getAttribute("PASSWORD_RESET_USER_ID");
         User user = resetUserId == null ? null : userRepository.findById(resetUserId).orElse(null);
 
-        if (user == null || !Boolean.TRUE.equals(user.getEnabled()) || !user.isApproved() ||
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled()) || !user.isApproved() || !user.isEmailVerified() ||
                 user.getPasswordResetToken() == null || !passwordEncoder.matches(cleanToken, user.getPasswordResetToken()) ||
                 user.getPasswordResetExpiresAt() == null ||
                 user.getPasswordResetExpiresAt().isBefore(LocalDateTime.now())) {
