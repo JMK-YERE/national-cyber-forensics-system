@@ -462,21 +462,13 @@ public class ReportAttackController {
         }
 
         try {
-            service.updateStatus(id, status, adminResponse, assignedTo, assignedName);
+            service.updateStatus(id, status, adminResponse, assignedTo, assignedName, policeCaseNumber);
         } catch (IllegalArgumentException | IllegalStateException e) {
             auditService.log("REJECT_UPDATE_REPORT", "ReportAttack", String.valueOf(id), e.getMessage());
             return "redirect:/report-attack/admin";
         }
         auditService.log("UPDATE_REPORT", "ReportAttack", String.valueOf(id),
                 "Status=" + status + " | assignedTo=" + assignedTo);
-
-        if (policeCaseNumber != null && !policeCaseNumber.isEmpty()) {
-            ReportAttack r = service.getById(id);
-            if (r != null) {
-                r.setPoliceCaseNumber(policeCaseNumber);
-                service.save(r);
-            }
-        }
 
         if (adminResponse != null && !adminResponse.isEmpty()) {
             messageRepo.save(new ReportMessage(id, user.getId(), user.getUsername(), "ADMIN", adminResponse));
