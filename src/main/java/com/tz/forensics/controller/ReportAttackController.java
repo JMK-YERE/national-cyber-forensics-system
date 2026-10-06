@@ -13,7 +13,6 @@ import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.apache.tika.Tika;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -28,9 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.MessageDigest;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -48,11 +44,9 @@ public class ReportAttackController {
     private final AIChatService aiChatService;
     private final AdvancedSecurityService advancedSecurityService;
     private final EncryptionService encryptionService;
+    private final EvidenceStorage evidenceStorage;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Tika tika = new Tika();
-
-    @Value("${app.upload.dir:uploads/evidence}")
-    private String uploadDir;
 
     public ReportAttackController(ReportAttackService service,
                                    UserRepository userRepository,
@@ -61,7 +55,8 @@ public class ReportAttackController {
                                    ReportMessageRepository messageRepo,
                                    AIChatService aiChatService,
                                    AdvancedSecurityService advancedSecurityService,
-                                   EncryptionService encryptionService) {
+                                   EncryptionService encryptionService,
+                                   EvidenceStorage evidenceStorage) {
         this.service = service;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -182,7 +177,7 @@ public class ReportAttackController {
             }
         }
 
-        Path writtenEvidencePath = null;
+        String writtenEvidenceKey = null;
 
         try {
             report.setDynamicDetails(objectMapper.writeValueAsString(dynamicDetails));
@@ -191,19 +186,14 @@ public class ReportAttackController {
         // ===== EVIDENCE =====
         if (evidenceFile != null && !evidenceFile.isEmpty()) {
             try {
-                Path uploadPath = Paths.get(uploadDir);
-                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
                 if (evidenceFile.getSize() > 50L * 1024L * 1024L) throw new IllegalArgumentException("Evidence file exceeds 50 MB.");
                 byte[] evidenceBytes = evidenceFile.getBytes();
-                String originalName = evidenceFile.getOriginalFilename() == null ? "evidence.bin" : Paths.get(evidenceFile.getOriginalFilename()).getFileName().toString();
+                String originalName = evidenceFile.getOriginalFilename() == null ? "evidence.bin" : java.nio.file.Paths.get(evidenceFile.getOriginalFilename()).getFileName().toString();
                 originalName = originalName.replaceAll("[^A-Za-z0-9._-]", "_");
                 if (originalName.length() > 120) originalName = originalName.substring(originalName.length() - 120);
                 String storedName = UUID.randomUUID() + "_" + originalName;
-                Path targetPath = uploadPath.resolve(storedName).normalize();
-                if (!targetPath.getParent().equals(uploadPath.toAbsolutePath().normalize())) throw new IllegalArgumentException("Invalid evidence filename.");
-                Files.write(targetPath, encryptionService.encrypt(evidenceBytes));
-                writtenEvidencePath = targetPath;
-
+                evidenceStorage.write(storedName, encryptionService.encrypt(evidenceBytes));
+                writtenEvidenceKey = storedName;
                 report.setEvidenceFilePath(storedName);
                 String detectedMime = tika.detect(evidenceBytes, originalName);
                 report.setEvidenceFileType(detectFileType(detectedMime));
@@ -217,9 +207,9 @@ public class ReportAttackController {
         try {
             saved = service.create(report);
         } catch (Exception e) {
-            if (writtenEvidencePath != null) {
-                try { Files.deleteIfExists(writtenEvidencePath); }
-                catch (Exception cleanup) { log.warn("Failed to clean orphan evidence file: {}", cleanup.getMessage()); }
+            if (writtenEvidenceKey != null) {
+                try { evidenceStorage.delete(writtenEvidenceKey); }
+                catch (Exception cleanup) { log.warn("Failed to clean orphan evidence object: {}", cleanup.getMessage()); }
             }
             log.error("Report creation failed: {}", e.getMessage(), e);
             return "redirect:/report-attack?error=save";
@@ -309,16 +299,14 @@ public class ReportAttackController {
             boolean assignee = r.getAssignedTo() != null && r.getAssignedTo().equals(user.getId());
             if (!staff && !owner && !assignee) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
-            Path basePath = Paths.get(uploadDir).toAbsolutePath().normalize();
-            Path filePath = basePath.resolve(r.getEvidenceFilePath()).normalize();
-            if (!filePath.startsWith(basePath) || !Files.isRegularFile(filePath)) {
-                log.warn("Evidence file not found for report {}: {}", id, filePath);
+            byte[] encrypted;
+            try {
+                encrypted = evidenceStorage.read(r.getEvidenceFilePath());
+            } catch (IOException e) {
                 return ResponseEntity.notFound().build();
             }
-
-            byte[] encrypted = Files.readAllBytes(filePath);
             byte[] data = encryptionService.decrypt(encrypted);
-            String fileName = Paths.get(r.getEvidenceFilePath()).getFileName().toString();
+            String fileName = java.nio.file.Paths.get(r.getEvidenceFilePath()).getFileName().toString();
             int separator = fileName.indexOf('_');
             if (separator >= 0 && separator + 1 < fileName.length()) fileName = fileName.substring(separator + 1);
             fileName = fileName.replaceAll("[^A-Za-z0-9._-]", "_");
