@@ -1,0 +1,56 @@
+package com.tz.forensics.controller;
+
+import com.tz.forensics.entity.*;
+import com.tz.forensics.repository.UserRepository;
+import com.tz.forensics.service.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Locale;
+
+@Controller
+@RequestMapping("/case-communications")
+public class CaseCommunicationController{
+ private final CaseCommunicationService communicationService; private final CaseFileService caseService; private final UserRepository users;
+ private final AuditService audit; private final NotificationService notifications;
+ public CaseCommunicationController(CaseCommunicationService c,CaseFileService cs,UserRepository u,AuditService a,NotificationService n){communicationService=c;caseService=cs;users=u;audit=a;notifications=n;}
+ private User current(Authentication a){return a==null?null:users.findByUsername(a.getName()).orElse(null);}
+ private boolean staff(User u){return u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics()||u.isAnalyst());}
+ private boolean canView(CaseFile c,User u){return c!=null&&u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics()||("ANALYST".equalsIgnoreCase(u.getRole())&&(u.getId().equals(c.getCreatedBy())||u.getId().equals(c.getAssignedTo())||u.getId().equals(c.getLeadInvestigator()))));}
+ @GetMapping("/{caseId}")
+ public String view(@PathVariable Long caseId,Model m,Authentication a){
+  User u=current(a); CaseFile c=caseService.getById(caseId);
+  if(!staff(u)||!canView(c,u))return "redirect:/access-denied";
+  m.addAttribute("caseFile",c);m.addAttribute("communications",communicationService.findByCaseId(caseId));
+  audit.log("VIEW_CASE_COMMUNICATION","CaseFile",String.valueOf(caseId),"Viewed case communication");
+  return "case-communications";
+ }
+ @PostMapping("/{caseId}/send")
+ public String send(@PathVariable Long caseId,@RequestParam String message,@RequestParam(required=false) String tlp,Authentication a){
+  User u=current(a);CaseFile c=caseService.getById(caseId);
+  if(!staff(u)||!canView(c,u))return "redirect:/access-denied";
+  CaseCommunication item=communicationService.create(caseId,u.getId(),a.getName(),u.getRole(),message,tlp);
+  if(item!=null){
+   audit.log("CASE_MESSAGE_SENT","CaseCommunication",String.valueOf(item.getId()),"Case "+c.getCaseNumber()+" | TLP="+item.getTlp());
+   caseService.addTimeline(caseId,"COMMUNICATION","Case message sent",item.getTlp()+" message by "+a.getName(),u.getId(),a.getName(),u.getRole());
+   List<User> recipients=users.findAll().stream().filter(x->x.getId()!=null&&!x.getId().equals(u.getId())&&Boolean.TRUE.equals(x.getEnabled())&&x.isApproved()&&canView(c,x)).toList();
+   for(User recipient:recipients)notifications.createNotification(recipient.getId(),"Case communication","New "+item.getTlp()+" message in "+c.getCaseNumber(),"CASE_MESSAGE","/case-communications/"+caseId);
+  }else audit.log("REJECT_CASE_MESSAGE","CaseCommunication",String.valueOf(caseId),"Invalid message or TLP");
+  return "redirect:/case-communications/"+caseId;
+ }
+ @PostMapping("/{caseId}/escalate")
+ public String escalate(@PathVariable Long caseId,Authentication a){
+  User u=current(a);CaseFile c=caseService.getById(caseId);
+  if(!staff(u)||!canView(c,u))return "redirect:/access-denied";
+  String current=u.getRole()==null?"":u.getRole().toUpperCase(Locale.ROOT);
+  String next=switch(current){case "ANALYST"->"FORENSICS";case "FORENSICS"->"CYBER_PRO";case "CYBER_PRO"->"ADMIN";default->null;};
+  if(next!=null){
+   users.findAll().stream().filter(x->next.equalsIgnoreCase(x.getRole())&&Boolean.TRUE.equals(x.getEnabled())&&x.isApproved()).forEach(x->notifications.createNotification(x.getId(),"Case escalation","Case "+c.getCaseNumber()+" escalated by "+a.getName(),"CASE_ESCALATION","/cases/"+caseId));
+   audit.log("ESCALATE_CASE","CaseFile",String.valueOf(caseId),current+" → "+next);
+   caseService.addTimeline(caseId,"ESCALATION","Case escalated",current+" → "+next,u.getId(),a.getName(),u.getRole());
+  }
+  return "redirect:/case-communications/"+caseId;
+ }
+}
