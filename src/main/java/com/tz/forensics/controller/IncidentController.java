@@ -115,8 +115,17 @@ public class IncidentController {
         if (!canAccess(incident, currentUser)) return "redirect:/access-denied";
 
         model.addAttribute("incident", incident);
-        model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(id));
-        model.addAttribute("linkedCases", caseFileService.getCasesByIncident(id));
+
+        // Do not expose forensic evidence from the incident page to an individual reporter.
+        // Evidence access must remain case-scoped/staff-scoped through EvidenceController.
+        if (isAdmin(currentUser) || isCyberPro(currentUser) || isForensics(currentUser) || isAnalyst(currentUser)) {
+            model.addAttribute("evidenceList", evidenceService.getEvidenceByIncident(id));
+            model.addAttribute("linkedCases", caseFileService.getCasesByIncident(id));
+        } else {
+            model.addAttribute("evidenceList", java.util.List.of());
+            model.addAttribute("linkedCases", java.util.List.of());
+        }
+
         model.addAttribute("canAssign", canAssign(currentUser));
         model.addAttribute("canManageWorkflow", canManageWorkflow(currentUser));
 
