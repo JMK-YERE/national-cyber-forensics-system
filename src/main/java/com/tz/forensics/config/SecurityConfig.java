@@ -128,6 +128,7 @@ public class SecurityConfig {
                 .successHandler(oauth2Handler)
                 .failureUrl("/login?error")
             )
+            .exceptionHandling(exceptions -> exceptions.accessDeniedPage("/access-denied"))
             .sessionManagement(session -> session.sessionFixation(fixation -> fixation.migrateSession()))
             .logout(logout -> logout
                 .logoutUrl("/logout")
