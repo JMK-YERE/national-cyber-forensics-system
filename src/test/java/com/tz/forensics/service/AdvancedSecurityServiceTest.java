@@ -36,4 +36,35 @@ class AdvancedSecurityServiceTest {
         assertEquals(false, result.get("success"));
         assertEquals("INVALID URL", result.get("verdict"));
     }
+    @Test
+    void rejectsMissingHashWithoutThrowing() {
+        Map<String, Object> result = service.analyzeHash(null);
+        assertEquals(false, result.get("valid"));
+    }
+
+    @Test
+    void rejectsOversizedHashWithoutThrowing() {
+        Map<String, Object> result = service.analyzeHash("a".repeat(129));
+        assertEquals(false, result.get("valid"));
+    }
+
+    @Test
+    void rejectsNullPasswordBreachCheck() {
+        Map<String, Object> result = service.checkPasswordBreach(null);
+        assertEquals(false, result.get("success"));
+    }
+
+    @Test
+    void rejectsOversizedPasswordStrengthInput() {
+        Map<String, Object> result = service.checkPasswordStrength("a".repeat(1001));
+        assertEquals("VERY WEAK", result.get("rating"));
+    }
+
+    @Test
+    void rejectsOversizedUrlBeforeNetworkValidation() {
+        Map<String, Object> result = service.checkUrlReputation("https://example.com/" + "a".repeat(2050));
+        assertEquals(false, result.get("success"));
+        assertEquals("INVALID URL", result.get("verdict"));
+    }
+
 }

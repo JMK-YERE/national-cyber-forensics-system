@@ -113,7 +113,8 @@ public class OAuth2VerificationController {
         if (!challengeExists(session)) return "redirect:/login";
 
         User user = userRepository.findById((Long) session.getAttribute(USER_ID)).orElse(null);
-        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled())
+                || !user.isApproved() || !user.isEmailVerified()) {
             clearChallenge(session);
             return "redirect:/login?error=oauth_account_unavailable";
         }
@@ -190,7 +191,8 @@ public class OAuth2VerificationController {
         }
 
         User user = userRepository.findById((Long) session.getAttribute(USER_ID)).orElse(null);
-        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled())
+                || !user.isApproved() || !user.isEmailVerified()) {
             clearChallenge(session);
             return "redirect:/login?error=oauth_account_unavailable";
         }

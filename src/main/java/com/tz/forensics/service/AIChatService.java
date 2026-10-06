@@ -76,11 +76,12 @@ public class AIChatService {
                 }
             }
 
-            return getErrorResponse(lang, "Status: " + response.statusCode());
+            log.warn("AI provider returned HTTP {}", response.statusCode());
+            return getErrorResponse(lang, "provider_error");
 
         } catch (Exception e) {
-            log.error("AI failed: {}", e.getMessage());
-            return getErrorResponse(lang, e.getMessage());
+            log.error("AI request failed", e);
+            return getErrorResponse(lang, "provider_error");
         }
     }
 
@@ -101,10 +102,10 @@ public class AIChatService {
 
     private String getErrorResponse(String lang, String error) {
         switch (lang != null ? lang.toLowerCase() : "en") {
-            case "sw": return "❌ AI haiwezi kujibu kwa sasa. Hitilafu: " + error;
-            case "fr": return "❌ L'IA ne peut pas répondre. Erreur: " + error;
-            case "ar": return "❌ لا يمكن للذكاء الاصطناعي الرد. خطأ: " + error;
-            default: return "❌ AI cannot respond. Error: " + error;
+            case "sw": return "❌ AI haiwezi kujibu kwa sasa. Tafadhali jaribu tena baadaye.";
+            case "fr": return "❌ L'IA ne peut pas répondre pour le moment. Veuillez réessayer plus tard.";
+            case "ar": return "❌ لا يمكن للذكاء الاصطناعي الرد حالياً. يرجى المحاولة لاحقاً.";
+            default: return "❌ AI cannot respond right now. Please try again later.";
         }
     }
 
