@@ -68,7 +68,7 @@ public class PDFController {
         if (user == null || incident == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        if (!canAccessIncident(incident, user)) {
+        if (!isStaff(user) || !canAccessIncident(incident, user)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
