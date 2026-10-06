@@ -138,7 +138,7 @@ public class EvidenceController {
                                  Authentication auth, Model model) {
         User user = currentUser(auth);
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
-        if (!isStaff(user) || !canAccessIncident(incident, user)) return "redirect:/access-denied";
+        if (!canAcquireEvidence(user) || !canAccessIncident(incident, user)) return "redirect:/access-denied";
         CaseFile caseFile = null;
         if (caseId != null) {
             caseFile = caseFileService.getById(caseId);
@@ -198,6 +198,9 @@ public class EvidenceController {
         if(evidence==null)return "redirect:/incidents";
         Incident incident=incidentRepository.findById(evidence.getIncidentId()).orElse(null);
         if(!canAccessEvidence(evidence,incident,actor))return "redirect:/access-denied";
+        boolean custodyOperator=canAcquireEvidence(actor)
+                || (evidence.getCustodianId()!=null && evidence.getCustodianId().equals(actor.getId()));
+        if(!custodyOperator)return "redirect:/access-denied";
         User recipient=userRepository.findById(recipientId).orElse(null);
         if(recipient==null||!Boolean.TRUE.equals(recipient.getEnabled())||!recipient.isApproved()
                 ||(!recipient.isAdmin()&&!recipient.isProfessional()&&!recipient.isForensics()&&!recipient.isAnalyst())){
@@ -231,6 +234,9 @@ public class EvidenceController {
         if(evidence==null)return "redirect:/incidents";
         Incident incident=incidentRepository.findById(evidence.getIncidentId()).orElse(null);
         if(!canAccessEvidence(evidence,incident,actor))return "redirect:/access-denied";
+        boolean custodyOperator=canAcquireEvidence(actor)
+                || (evidence.getCustodianId()!=null && evidence.getCustodianId().equals(actor.getId()));
+        if(!custodyOperator)return "redirect:/access-denied";
         String normalized=action==null?"":action.trim().toUpperCase();
         if(!Set.of("ACCEPTED","UNDER_EXAMINATION","EXAMINED","REPORT_GENERATED").contains(normalized)){
             return "redirect:/access-denied";
