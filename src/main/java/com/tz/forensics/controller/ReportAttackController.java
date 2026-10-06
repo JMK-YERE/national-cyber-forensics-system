@@ -307,7 +307,14 @@ public class ReportAttackController {
             } catch (IOException e) {
                 return ResponseEntity.notFound().build();
             }
-            byte[] data = encryptionService.decrypt(encrypted);
+            byte[] data;
+            try {
+                data = encryptionService.decrypt(encrypted);
+            } catch (Exception e) {
+                auditService.log("REJECT_REPORT_EVIDENCE_DECRYPT", "ReportAttack", String.valueOf(id),
+                        "Evidence decryption failed.");
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
             String actualSha256 = sha256(data);
             if (r.getEvidenceSha256() == null || !r.getEvidenceSha256().equalsIgnoreCase(actualSha256)) {
                 auditService.log("REJECT_REPORT_EVIDENCE_INTEGRITY", "ReportAttack", String.valueOf(id),
