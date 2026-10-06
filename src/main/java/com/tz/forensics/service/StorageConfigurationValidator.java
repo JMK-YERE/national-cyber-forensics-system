@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StorageConfigurationValidator {
     @Value("${app.storage.provider:local}") private String provider;
-    @Value("${app.storage.production-required:false}") private boolean productionRequired;
+    @Value("${app.storage.production-required:${PRODUCTION_STORAGE_REQUIRED:false}}") private boolean productionRequired;
     @Value("${app.storage.s3.bucket:}") private String bucket;
     @Value("${app.encryption.key:}") private String encryptionKey;
 
