@@ -128,11 +128,19 @@ public class ReportAttackService {
             }
             r.setStatus(normalizedStatus);
             if (adminResponse != null && !adminResponse.isEmpty()) {
-                r.setAdminResponse(adminResponse);
+                String normalizedResponse = adminResponse.trim();
+                if (normalizedResponse.length() > 10000) {
+                    throw new IllegalArgumentException("Admin response is too long.");
+                }
+                r.setAdminResponse(normalizedResponse);
             }
             if (assignedTo != null) {
+                String normalizedAssignedName = assignedName == null ? null : assignedName.trim();
+                if (normalizedAssignedName != null && normalizedAssignedName.length() > 200) {
+                    throw new IllegalArgumentException("Assigned name is too long.");
+                }
                 r.setAssignedTo(assignedTo);
-                r.setAssignedToName(assignedName);
+                r.setAssignedToName(normalizedAssignedName);
             }
             if (policeCaseNumber != null && !policeCaseNumber.isBlank()) {
                 if ("CLOSED".equals(from)) {
