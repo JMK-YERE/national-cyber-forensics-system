@@ -74,12 +74,12 @@ class IncidentServiceTest {
         i.setWorkflowStatus("INVESTIGATING");
         when(incidents.findById(1L)).thenReturn(Optional.of(i));
 
-        User assignee = mock(User.class);
-        when(assignee.getId()).thenReturn(9L);
-        when(assignee.getUsername()).thenReturn("forensics");
-        when(assignee.getEnabled()).thenReturn(true);
-        when(assignee.isApproved()).thenReturn(true);
-        when(assignee.isForensics()).thenReturn(true);
+        User assignee = new User();
+        assignee.setId(9L);
+        assignee.setUsername("forensics");
+        assignee.setRole("FORENSICS");
+        assignee.setEnabled(true);
+        assignee.setApprovalStatus("APPROVED");
         when(users.findById(9L)).thenReturn(Optional.of(assignee));
 
         service.assignIncident(1L, 9L, "forensics", 7L, "HIGH", null);
