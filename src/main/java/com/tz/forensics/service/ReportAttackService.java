@@ -56,12 +56,24 @@ public class ReportAttackService {
         return repo.countByStatus("NEW");
     }
 
+    public long countNewAssignedTo(Long userId) {
+        return userId == null ? 0L : repo.countByAssignedToAndStatus(userId, "NEW");
+    }
+
     public long countToday() {
         return repo.countByCreatedAtAfter(LocalDateTime.now().withHour(0).withMinute(0));
     }
 
+    public long countTodayAssignedTo(Long userId) {
+        return userId == null ? 0L : repo.countByAssignedToAndCreatedAtAfter(userId, LocalDateTime.now().withHour(0).withMinute(0));
+    }
+
     public long countTotal() {
         return repo.count();
+    }
+
+    public long countTotalAssignedTo(Long userId) {
+        return userId == null ? 0L : repo.countByAssignedTo(userId);
     }
 
     @org.springframework.transaction.annotation.Transactional
