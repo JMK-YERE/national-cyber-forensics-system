@@ -306,7 +306,7 @@ public class ReportAttackController {
             } catch (IOException e) {
                 return ResponseEntity.notFound().build();
             }
-            byte[] data = encryptionService.decrypt(encrypted);
+            byte[] data = encryptionService.decrypt(encrypted);\n            String actualSha256 = sha256(data);\n            if (r.getEvidenceSha256() == null || !r.getEvidenceSha256().equalsIgnoreCase(actualSha256)) {\n                auditService.log("REJECT_REPORT_EVIDENCE_INTEGRITY", "ReportAttack", String.valueOf(id),\n                        "Evidence hash mismatch | expected=" + r.getEvidenceSha256() + " | actual=" + actualSha256);\n                return ResponseEntity.status(HttpStatus.CONFLICT).build();\n            }
             String fileName = java.nio.file.Paths.get(r.getEvidenceFilePath()).getFileName().toString();
             int separator = fileName.indexOf('_');
             if (separator >= 0 && separator + 1 < fileName.length()) fileName = fileName.substring(separator + 1);
