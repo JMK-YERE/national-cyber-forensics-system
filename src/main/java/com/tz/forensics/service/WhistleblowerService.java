@@ -48,6 +48,11 @@ public class WhistleblowerService {
         return reportRepo.findAllByOrderByCreatedAtDesc();
     }
 
+    public List<WhistleblowerReport> getAssignedTo(Long userId) {
+        if (userId == null) return List.of();
+        return reportRepo.findByAssignedToOrderByCreatedAtDesc(userId);
+    }
+
     public List<WhistleblowerMessage> getMessages(Long reportId) {
         return messageRepo.findByReportIdOrderByCreatedAtAsc(reportId);
     }
