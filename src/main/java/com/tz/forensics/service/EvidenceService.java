@@ -43,6 +43,11 @@ public class EvidenceService {
 
     public Evidence uploadEvidence(Long incidentId, MultipartFile file,
                                    EvidenceDto dto, String username, Long uploadedBy) throws IOException {
+        return uploadEvidence(incidentId, null, file, dto, username, uploadedBy);
+    }
+
+    public Evidence uploadEvidence(Long incidentId, Long caseId, MultipartFile file,
+                                   EvidenceDto dto, String username, Long uploadedBy) throws IOException {
         if (file == null || file.isEmpty()) throw new IllegalArgumentException("Evidence file is empty.");
         if (file.getSize() > 50L * 1024L * 1024L) throw new IllegalArgumentException("Evidence file exceeds the 50 MB limit.");
 
@@ -64,6 +69,7 @@ public class EvidenceService {
 
         Evidence evidence = new Evidence();
         evidence.setIncidentId(incidentId);
+        evidence.setCaseId(caseId);
         evidence.setOriginalFilename(file.getOriginalFilename() == null ? "evidence.bin" : file.getOriginalFilename());
         evidence.setStoredFilename(storedFilename);
         evidence.setFileType(file.getContentType());
