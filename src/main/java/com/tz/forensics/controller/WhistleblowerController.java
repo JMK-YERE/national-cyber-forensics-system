@@ -103,10 +103,11 @@ public class WhistleblowerController {
                 String storedName = UUID.randomUUID() + extension + ".enc";
                 Path targetPath = uploadPath.resolve(storedName).normalize();
                 if (!targetPath.startsWith(uploadPath)) throw new IOException("Invalid upload path.");
-                Files.write(targetPath, encryptionService.encrypt(evidenceFile.getBytes()));
+                byte[] originalBytes = evidenceFile.getBytes();
+                Files.write(targetPath, encryptionService.encrypt(originalBytes));
                 report.setEvidenceFilePath(storedName);
-                report.setEvidenceFileType(detectFileType(tika.detect(evidenceFile.getBytes(), original)));
-                report.setEvidenceFileSize(evidenceFile.getSize());
+                report.setEvidenceFileType(detectFileType(tika.detect(originalBytes, original)));
+                report.setEvidenceFileSize(originalBytes.length);
             } catch (IOException e) { log.error("File: {}", e.getMessage()); }
         }
 
