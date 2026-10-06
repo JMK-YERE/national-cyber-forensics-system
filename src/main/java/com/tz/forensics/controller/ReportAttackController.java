@@ -344,6 +344,7 @@ public class ReportAttackController {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
         if (!canInteractWithReport(user, r)) return "redirect:/access-denied";
+        if ("CLOSED".equalsIgnoreCase(r.getStatus())) return "redirect:/access-denied";
         if (message == null || message.isBlank() || message.length() > 4000) return "redirect:/report-attack/view/" + id;
 
         String senderType = user.isAdmin() ? "ADMIN" : (canSeeAllReports(user) ? "STAFF" : (r.getAssignedTo() != null && r.getAssignedTo().equals(user.getId()) ? "STAFF" : "USER"));
@@ -374,6 +375,7 @@ public class ReportAttackController {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
         if (!canInteractWithReport(user, r)) return "redirect:/access-denied";
+        if ("CLOSED".equalsIgnoreCase(r.getStatus())) return "redirect:/access-denied";
 
         try {
             String prompt = "Report Type: " + r.getAttackTypeLabel() + "\n"
