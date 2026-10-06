@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -37,6 +38,7 @@ public class VirusTotalService {
 
     // ========== URL CHECK ==========
     public Map<String, Object> checkUrl(String url) {
+        url = validatePublicUrl(url);
         Map<String, Object> result = new HashMap<>();
         result.put("url", url);
         result.put("type", "URL");
@@ -83,6 +85,7 @@ public class VirusTotalService {
 
     // ========== FILE HASH CHECK ==========
     public Map<String, Object> checkFileHash(String hash) {
+        hash = validateHash(hash);
         Map<String, Object> result = new HashMap<>();
         result.put("hash", hash);
         result.put("type", "FILE");
@@ -116,6 +119,7 @@ public class VirusTotalService {
 
     // ========== IP CHECK ==========
     public Map<String, Object> checkIP(String ip) {
+        ip = validatePublicIp(ip);
         Map<String, Object> result = new HashMap<>();
         result.put("ip", ip);
         result.put("type", "IP");
@@ -149,6 +153,7 @@ public class VirusTotalService {
 
     // ========== DOMAIN CHECK ==========
     public Map<String, Object> checkDomain(String domain) {
+        domain = validatePublicDomain(domain);
         Map<String, Object> result = new HashMap<>();
         result.put("domain", domain);
         result.put("type", "DOMAIN");
@@ -178,6 +183,49 @@ public class VirusTotalService {
             result.put("error", e.getMessage());
         }
         return result;
+    }
+
+    private String validatePublicUrl(String value) {
+        if (value == null || value.isBlank() || value.length() > 2048) throw new IllegalArgumentException("URL si sahihi.");
+        String normalized = value.matches("^[a-zA-Z][a-zA-Z0-9+.-]*://.*$") ? value.trim() : "https://" + value.trim();
+        URI uri = URI.create(normalized);
+        if (!"http".equalsIgnoreCase(uri.getScheme()) && !"https".equalsIgnoreCase(uri.getScheme())) throw new IllegalArgumentException("HTTP/HTTPS pekee.");
+        if (uri.getUserInfo() != null || uri.getHost() == null) throw new IllegalArgumentException("URL si salama.");
+        int port = uri.getPort();
+        if (port != -1 && port != 80 && port != 443) throw new IllegalArgumentException("Port hairuhusiwi.");
+        for (InetAddress address : InetAddress.getAllByName(uri.getHost())) {
+            if (address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress() || address.isSiteLocalAddress() || address.isMulticastAddress()) {
+                throw new IllegalArgumentException("Private/local host hairuhusiwi.");
+            }
+        }
+        return uri.toString();
+    }
+
+    private String validateHash(String value) {
+        if (value == null || !value.trim().matches("(?i)([a-f0-9]{32}|[a-f0-9]{40}|[a-f0-9]{64}|[a-f0-9]{128})")) throw new IllegalArgumentException("Hash si sahihi.");
+        return value.trim().toLowerCase(java.util.Locale.ROOT);
+    }
+
+    private String validatePublicIp(String value) throws Exception {
+        if (value == null || value.isBlank() || value.length() > 45) throw new IllegalArgumentException("IP si sahihi.");
+        InetAddress address = InetAddress.getByName(value.trim());
+        if (!address.getHostAddress().equalsIgnoreCase(value.trim()) || address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress() || address.isSiteLocalAddress() || address.isMulticastAddress()) throw new IllegalArgumentException("IP private/local/reserved hairuhusiwi.");
+        return value.trim();
+    }
+
+    private String validatePublicDomain(String value) throws Exception {
+        if (value == null || value.isBlank() || value.length() > 253) throw new IllegalArgumentException("Domain si sahihi.");
+        String domain = value.trim().toLowerCase(java.util.Locale.ROOT);
+        if (domain.matches("^[a-z][a-z0-9+.-]*://.*$")) {
+            URI uri = URI.create(domain);
+            if (uri.getUserInfo() != null || uri.getHost() == null) throw new IllegalArgumentException("Domain si sahihi.");
+            domain = uri.getHost().toLowerCase(java.util.Locale.ROOT);
+        }
+        if (!domain.matches("(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}")) throw new IllegalArgumentException("Domain si sahihi.");
+        for (InetAddress address : InetAddress.getAllByName(domain)) {
+            if (address.isAnyLocalAddress() || address.isLoopbackAddress() || address.isLinkLocalAddress() || address.isSiteLocalAddress() || address.isMulticastAddress()) throw new IllegalArgumentException("Private/local domain hairuhusiwi.");
+        }
+        return domain;
     }
 
     // ========== HELPER — CALL VT ==========
