@@ -58,10 +58,11 @@ public class AuditService {
         try {
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attrs != null) {
-                HttpServletRequest request = attrs.getRequest();
-                String xff = request.getHeader("X-Forwarded-For");
-                if (xff != null && !xff.isEmpty()) return xff.split(",")[0];
-                return request.getRemoteAddr();
+                // With server.forward-headers-strategy=framework, Spring resolves trusted
+                // proxy forwarding headers. Do not manually trust the first X-Forwarded-For
+                // value because clients can spoof that header before the trusted proxy layer.
+                String ip = attrs.getRequest().getRemoteAddr();
+                if (ip != null && !ip.isBlank()) return ip;
             }
         } catch (Exception ignored) {}
         return "unknown";
