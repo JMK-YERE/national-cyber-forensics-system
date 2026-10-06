@@ -223,7 +223,7 @@ public class ReportAttackController {
         }
 
         try {
-            String welcome = "✅ Report Received\n\nAsante kwa kuripoti. Timu yetu itaangalia taarifa yako. Utapata jibu hivi karibuni.";
+            String welcome = "Report Received\n\nAsante kwa kuripoti. Timu yetu itaangalia taarifa yako. Utapata jibu hivi karibuni.";
             messageRepo.save(new ReportMessage(saved.getId(), null, "System", "SYSTEM", welcome));
 
             notifyAdmins(
@@ -334,6 +334,7 @@ public class ReportAttackController {
 
     @PostMapping("/{id}/reply")
     public String reply(@PathVariable Long id, @RequestParam String message, Authentication auth) {
+        if (message == null || message.trim().isEmpty() || message.length() > 5000) return "redirect:/access-denied";
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         ReportAttack r = service.getById(id);
         if (!canInteractWithReport(user, r)) return "redirect:/access-denied";
