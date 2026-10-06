@@ -89,7 +89,16 @@ public class IncidentController {
 
     @PostMapping("/new")
     public String createIncident(@ModelAttribute("incident") IncidentDto dto, Authentication auth, Model model) {
-        Incident saved = incidentService.createIncident(dto, auth.getName());
+        Incident saved;
+        try {
+            saved = incidentService.createIncident(dto, auth.getName());
+        } catch (IllegalArgumentException e) {
+            auditService.log("REJECT_CREATE_INCIDENT", "Incident", "NEW", e.getMessage());
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("incident", dto);
+            model.addAttribute("user", userRepository.findByUsername(auth.getName()).orElse(null));
+            return "incident-form";
+        }
         auditService.log("CREATE_INCIDENT", "Incident", saved.getIncidentId(), "Created incident: " + saved.getTitle());
         try { notificationService.createIncidentNotification(saved.getIncidentId(), saved.getTitle(), saved.getSeverity()); } catch (Exception ignored) {}
         try { emailService.sendIncidentAlert(saved.getIncidentId(), saved.getTitle(), saved.getSeverity()); } catch (Exception ignored) {}
