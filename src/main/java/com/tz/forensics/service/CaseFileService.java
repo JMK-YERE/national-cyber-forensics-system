@@ -116,6 +116,7 @@ public class CaseFileService {
                               LocalDateTime dueDate, Long actorId, String actorName, String actorRole) {
         CaseFile cf = caseFileRepository.findById(caseId).orElse(null);
         if (cf == null || investigatorId == null || leadInvestigatorId == null) return false;
+        if (!isPrivilegedRole(actorRole)) return false;
         String current = cf.getStatus() == null ? "OPEN" : cf.getStatus().trim().toUpperCase();
         if (!Set.of("TRIAGED", "ASSIGNED", "INVESTIGATING", "EXAMINATION", "REVIEW").contains(current)) return false;
         if (dueDate != null && dueDate.isBefore(LocalDateTime.now())) return false;
@@ -139,6 +140,7 @@ public class CaseFileService {
                                 Long actorId, String actorName, String actorRole) {
         CaseFile cf = caseFileRepository.findById(caseId).orElse(null);
         if (cf == null || status == null || status.isBlank()) return false;
+        if (!canActOnCase(cf, actorId, actorRole)) return false;
 
         String from = cf.getStatus() == null ? "OPEN" : cf.getStatus().trim().toUpperCase();
         String to = status.trim().toUpperCase();
@@ -191,6 +193,20 @@ public class CaseFileService {
 
     public boolean updateStatus(Long caseId, String status, String closureReason) {
         return updateStatus(caseId, status, closureReason, null, "System", "WORKFLOW");
+    }
+
+    private boolean isPrivilegedRole(String role) {
+        String normalized = role == null ? "" : role.trim().toUpperCase();
+        return Set.of("ADMIN", "CYBER_PRO", "FORENSICS").contains(normalized);
+    }
+
+    private boolean canActOnCase(CaseFile cf, Long actorId, String role) {
+        if (cf == null || actorId == null) return false;
+        if (isPrivilegedRole(role)) return true;
+        if (!"ANALYST".equalsIgnoreCase(role)) return false;
+        return actorId.equals(cf.getCreatedBy())
+                || actorId.equals(cf.getAssignedTo())
+                || actorId.equals(cf.getLeadInvestigator());
     }
 
     public long countOpen() { return caseFileRepository.countByStatus("OPEN"); }
