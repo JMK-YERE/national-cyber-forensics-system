@@ -67,7 +67,9 @@ public class EvidenceController {
     }
 
     @GetMapping("/upload/{incidentId}")
-    public String uploadForm(@PathVariable Long incidentId,\n                              @RequestParam(value = "caseId", required = false) Long caseId,\n                              Authentication auth, Model model) {
+    public String uploadForm(@PathVariable Long incidentId,
+                              @RequestParam(value = "caseId", required = false) Long caseId,
+                              Authentication auth, Model model) {
         User user = currentUser(auth);
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (!canAccessIncident(incident, user)) return "redirect:/access-denied";
