@@ -81,3 +81,11 @@ footer{background:#0f172a!important}
 .feature-grid article:hover,.announcement-card:hover{border-color:#cbd5e1!important}
 @media(min-width:901px){.hero-slider{height:min(620px,64svh)!important;min-height:480px!important}.feature-image{height:180px!important}.image-feature-grid .feature-image{height:150px!important}}
 @media(max-width:900px){.hero-slider{height:min(580px,calc(100svh - 62px))!important;min-height:450px!important}}
+
+
+/* ===== PUBLIC PAGES READABILITY + RESPONSIVE PASS 2026-10-06 ===== */
+.intro p,.feature-body p,.announcement-card p,.map-cta p{color:#475569!important}
+.announcement-card small{color:#64748b!important}
+.public-links{color:#475569}
+@media(max-width:850px){.intro p,.feature-body p,.announcement-card p,.map-cta p{font-size:14px;line-height:1.65}.feature-body h3,.announcement-card h3{line-height:1.3}.public-actions{flex-wrap:wrap}}
+@media(max-width:600px){.hero-copy p{font-size:15px;line-height:1.65}.hero-copy h1{line-height:1.08}.feature-body p,.announcement-card p,.map-cta p{font-size:13px}.btn-main,.btn-ghost,.btn-light{min-height:42px;padding:10px 14px}}
