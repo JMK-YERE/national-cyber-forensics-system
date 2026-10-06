@@ -53,10 +53,24 @@ public class EvidenceService {
         return uploadEvidence(incidentId, null, file, dto, username, uploadedBy);
     }
 
+    @Transactional
     public Evidence uploadEvidence(Long incidentId, Long caseId, MultipartFile file,
                                    EvidenceDto dto, String username, Long uploadedBy) throws IOException {
         if (file == null || file.isEmpty()) throw new IllegalArgumentException("Evidence file is empty.");
         if (file.getSize() > 50L * 1024L * 1024L) throw new IllegalArgumentException("Evidence file exceeds the 50 MB limit.");
+
+        if (incidentId == null || username == null || username.isBlank() || uploadedBy == null) {
+            throw new IllegalArgumentException("Authenticated incident reporter is required.");
+        }
+        if (caseId != null) {
+            com.tz.forensics.entity.CaseFile linkedCase = caseFileRepository.findById(caseId).orElse(null);
+            if (linkedCase == null || !incidentId.equals(linkedCase.getIncidentId())
+                    || "CLOSED".equalsIgnoreCase(linkedCase.getStatus())
+                    || "ARCHIVED".equalsIgnoreCase(linkedCase.getStatus())) {
+                throw new IllegalArgumentException("Evidence case is invalid or closed.");
+            }
+        }
+        if (dto == null) dto = new EvidenceDto();
 
         byte[] fileBytes = file.getBytes();
         String sha256 = hashService.sha256(fileBytes);
