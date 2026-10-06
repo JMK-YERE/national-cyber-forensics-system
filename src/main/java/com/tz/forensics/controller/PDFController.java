@@ -115,7 +115,18 @@ public class PDFController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        byte[] pdf = pdfReportService.generateCaseReport(caseFile);
+        List<CaseTimeline> timeline = caseFileService.getTimeline(id);
+        List<CaseIoc> iocs = caseIocService.findByCaseId(id);
+        List<Evidence> evidence = evidenceService.getEvidenceByCase(id);
+        Map<Long, List<ChainOfCustody>> custody = new HashMap<>();
+        for (Evidence item : evidence) {
+            if (item.getId() != null) {
+                custody.put(item.getId(), custodyRepository.findByEvidenceIdOrderByTimestampDesc(item.getId()));
+            }
+        }
+        byte[] pdf = pdfReportService.generateForensicCaseReport(caseFile, timeline, iocs, evidence, custody);
+        auditService.log("EXPORT_CASE_REPORT", "CASE", String.valueOf(id),
+                "Report type=standard | Case=" + caseFile.getCaseNumber());
         String filename = "case-" + caseFile.getCaseNumber() + ".pdf";
 
         return ResponseEntity.ok()
@@ -134,7 +145,7 @@ public class PDFController {
 
         List<CaseTimeline> timeline = caseFileService.getTimeline(id);
         List<CaseIoc> iocs = caseIocService.findByCaseId(id);
-        List<Evidence> evidence = evidenceService.getEvidenceByIncident(cf.getIncidentId());
+        List<Evidence> evidence = evidenceService.getEvidenceByCase(id);
         Map<Long, List<ChainOfCustody>> custody = new HashMap<>();
         for (Evidence item : evidence) {
             if (item.getId() != null) {
