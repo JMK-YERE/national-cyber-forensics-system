@@ -1,48 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>System Settings</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-</head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>System Settings</title><link rel="stylesheet" th:href="@{/css/theme.css}"></head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
-<div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
+<div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 <main class="app-main"><div class="app-container">
-    <div class="app-card" style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; padding: 25px;">
-        <h1 style="color: white; margin: 0;">⚙️ System Settings</h1>
-        <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Mipangilio ya mfumo</p>
-    </div>
-
-    <div class="app-card">
-        <h2>🔧 General Settings</h2>
-        <div style="padding: 15px; margin: 8px 0; background: rgba(7,84,62,0.03); border-radius: 8px;">
-            <p style="margin: 5px 0;"><strong>Application Name:</strong> Cyber Forensics System</p>
-            <p style="margin: 5px 0;"><strong>Version:</strong> 1.0.0</p>
-            <p style="margin: 5px 0;"><strong>Environment:</strong> Production (Render)</p>
-            <p style="margin: 5px 0;"><strong>Database:</strong> PostgreSQL (Neon)</p>
-        </div>
-    </div>
-
-    <div class="app-card">
-        <h2>📧 Email Settings</h2>
-        <p style="color: #666;">Email notifications hazijawashwa bado.</p>
-    </div>
-
-    <div class="app-card">
-        <h2>🔒 Security Settings</h2>
-        <div style="padding: 15px; margin: 8px 0; background: rgba(7,84,62,0.03); border-radius: 8px;">
-            <p style="margin: 5px 0;"><strong>2FA:</strong> Optional kwa watumiaji</p>
-            <p style="margin: 5px 0;"><strong>Encryption:</strong> AES-256 kwa evidence</p>
-            <p style="margin: 5px 0;"><strong>Session timeout:</strong> 30 dakika</p>
-        </div>
-    </div>
-
-    <div style="margin: 20px 0;">
-        <a th:href="@{/dashboard}" class="app-btn app-btn-outline" style="text-decoration: none;">← Back to Dashboard</a>
-    </div>
-</div>
-<script th:src="@{/js/app.js}"></script>
-</main></body>
-</html>
+<section class="app-card" style="background:linear-gradient(135deg,#07543e,#0aa879);color:white"><h1 style="color:white;margin:0">⚙️ System Settings</h1><p style="color:rgba(255,255,255,.9)">Runtime configuration ya mfumo. Secrets hazionyeshwi hapa.</p></section>
+<section class="app-card"><h2>🔧 General</h2><p><strong>Application:</strong> <span th:text="${appName}">Cyber Forensics TZ</span></p><p><strong>Environment:</strong> Production / Render</p><p><strong>Database:</strong> PostgreSQL / Neon</p></section>
+<section class="app-card"><h2>📧 Email</h2><p><strong>Status:</strong> <span th:text="${emailConfigured ? 'Configured' : 'Not configured'}">Not configured</span></p><p style="color:var(--muted,#60766e)">Provider credentials and API keys are intentionally hidden.</p></section>
+<section class="app-card"><h2>🔒 Security</h2><p><strong>Evidence encryption:</strong> AES-256 application encryption</p><p><strong>Session timeout:</strong> <span th:text="${sessionTimeout}">30m</span></p><p><strong>Evidence storage provider:</strong> <span th:text="${storageProvider}">local</span></p></section>
+<p><a th:href="@{/dashboard}" class="app-btn app-btn-outline">← Back to Dashboard</a></p>
+</div><script th:src="@{/js/app.js}"></script></main>
+</body></html>
