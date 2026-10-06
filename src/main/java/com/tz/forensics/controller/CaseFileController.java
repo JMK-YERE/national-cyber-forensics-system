@@ -9,6 +9,8 @@ import com.tz.forensics.service.CaseFileService;
 import com.tz.forensics.service.CaseIocService;
 import com.tz.forensics.service.NotificationService;
 import com.tz.forensics.service.CaseTaskService;
+import com.tz.forensics.service.IncidentService;
+import com.tz.forensics.entity.Incident;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +29,13 @@ public class CaseFileController {
     private final CaseFileRepository caseFileRepository;
     private final NotificationService notificationService;
     private final CaseTaskService caseTaskService;
+    private final IncidentService incidentService;
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
                               AuditService auditService, CaseIocService caseIocService, CaseFileRepository caseFileRepository,
-                              NotificationService notificationService, CaseTaskService caseTaskService) {
+                              NotificationService notificationService, CaseTaskService caseTaskService,
+                              IncidentService incidentService) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -39,6 +43,7 @@ public class CaseFileController {
         this.caseFileRepository = caseFileRepository;
         this.notificationService = notificationService;
         this.caseTaskService = caseTaskService;
+        this.incidentService = incidentService;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -93,6 +98,17 @@ public class CaseFileController {
     public String createCase(@ModelAttribute CaseFile caseFile, Authentication auth) {
         User user = getCurrentUser(auth);
         if (!canManageCases(user)) return "redirect:/access-denied";
+
+        if (caseFile.getIncidentId() == null) return "redirect:/cases";
+        Incident incident = incidentService.getById(caseFile.getIncidentId());
+        if (incident == null) return "redirect:/access-denied";
+
+        if ("ANALYST".equalsIgnoreCase(user.getRole())) {
+            boolean ownsOrAssigned =
+                    (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
+                    || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
+            if (!ownsOrAssigned) return "redirect:/access-denied";
+        }
 
         CaseFile saved = caseFileService.createCase(
                 caseFile.getIncidentId(),
