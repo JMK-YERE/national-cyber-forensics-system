@@ -113,6 +113,11 @@
 
     <div class="app-card case-summary">
         <a th:href="@{'/reports/case/{id}/pdf'(id=${caseFile.id})}" class="app-btn app-btn-primary" style="margin-top:10px;display:inline-block;" target="_blank">📄 Download PDF Report</a>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+            <a th:href="@{'/reports/case/{id}/executive.pdf'(id=${caseFile.id})}" class="app-btn app-btn-outline" target="_blank">Executive Report</a>
+            <a th:href="@{'/reports/case/{id}/technical.pdf'(id=${caseFile.id})}" class="app-btn app-btn-outline" target="_blank">Technical Investigation</a>
+            <a th:href="@{'/reports/case/{id}/forensic.pdf'(id=${caseFile.id})}" class="app-btn app-btn-outline" target="_blank">Forensic Report</a>
+        </div>
         <p><strong>Title:</strong> <span th:text="${caseFile.title}"></span></p>
         <p><strong>Priority:</strong> <span th:text="${caseFile.priority}"></span></p>
         <p><strong>Status:</strong> <span th:text="${caseFile.status}"></span></p>
