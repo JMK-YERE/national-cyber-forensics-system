@@ -60,10 +60,15 @@ public class PasswordSetupController {
         if (phone != null && !phone.isBlank() && otp != null && !otp.isBlank()) {
             user = userRepository.findByPhone(phone.trim()).orElse(null);
             if (user != null && !hashed.equals(user.getPasswordSetupToken())) {
-                // Backward-compatible support for pending pre-hardening records.
-                user = userRepository.findAll().stream()
-                        .filter(u -> phone.trim().equals(u.getPhone()) && otp.trim().equals(u.getPasswordSetupToken()))
-                        .findFirst().orElse(null);
+                if (user.getPasswordSetupAttempts() >= 5) {
+                    user = null;
+                } else {
+                    user.setPasswordSetupAttempts(user.getPasswordSetupAttempts() + 1);
+                    userRepository.save(user);
+                    user = null;
+                }
+                // Legacy plaintext SMS tokens intentionally do not bypass
+                // the attempt counter.
             }
         } else if (token != null && !token.isBlank()) {
             user = userRepository.findByPasswordSetupToken(hashed).orElse(null);
