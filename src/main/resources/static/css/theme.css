@@ -467,3 +467,22 @@ html[data-theme="dark"] .dropdown-item{color:#d9f6ec!important}
 html[data-theme="dark"] .page-heading h1{color:#e7f7f0!important}
 html[data-theme="dark"] .page-heading p{color:#9bbcaf!important}
 html[data-theme="dark"] .page-kicker{background:#102d23!important;color:#67e8f9!important;border-color:#285847!important}
+
+
+/* ===== FINAL READABILITY + RESPONSIVE ACCESSIBILITY PASS 2026-10-06 ===== */
+body{font-size:15px!important;line-height:1.55!important;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.app-main,.app-main p,.app-main li,.app-main td,.app-main th,.app-main label{color:#334155}
+.app-main p,.app-main li{line-height:1.6}
+.app-main small,.app-main .muted,.app-main .text-muted{color:#64748b!important}
+.app-main h1,.app-main h2,.app-main h3,.app-main h4,.app-main h5{color:#0f172a!important}
+.app-main h1{font-size:clamp(24px,2.2vw,32px);line-height:1.2}.app-main h2{font-size:clamp(19px,1.7vw,24px);line-height:1.25}.app-main h3{font-size:clamp(16px,1.4vw,19px);line-height:1.3}
+.app-main a:not(.app-btn){color:#1d4ed8}.app-main input::placeholder,.app-main textarea::placeholder{color:#64748b!important;opacity:1}
+.app-main :focus-visible{outline:3px solid rgba(37,99,235,.32);outline-offset:2px}
+table{font-size:13px}table th{font-weight:800;color:#334155!important}table td{color:#334155}
+@media(max-width:900px){.app-main{font-size:15px!important}.app-main h1{font-size:24px}.app-main h2{font-size:20px}.app-main h3{font-size:17px}}
+@media(max-width:600px){.app-main{padding-left:12px!important;padding-right:12px!important;overflow-x:hidden}.app-main p,.app-main li,.app-main label,.app-main td,.app-main th{font-size:14px!important}.app-main h1{font-size:22px}.app-main h2{font-size:19px}.app-main h3{font-size:16px}.app-main .app-card{padding:14px!important}.app-main .app-btn,.app-main button{min-height:40px}.app-main input,.app-main select,.app-main textarea{min-height:42px;font-size:14px!important}}
+html[data-theme="dark"] .app-main,html[data-theme="dark"] .app-main p,html[data-theme="dark"] .app-main li,html[data-theme="dark"] .app-main td,html[data-theme="dark"] .app-main label{color:#d5e8df!important}
+html[data-theme="dark"] .app-main h1,html[data-theme="dark"] .app-main h2,html[data-theme="dark"] .app-main h3,html[data-theme="dark"] .app-main h4,html[data-theme="dark"] .app-main h5{color:#e7f7f0!important}
+html[data-theme="dark"] .app-main small,html[data-theme="dark"] .app-main .muted,html[data-theme="dark"] .app-main .text-muted{color:#9fc5b6!important}
+html[data-theme="dark"] .app-main a:not(.app-btn){color:#67e8f9!important}
+html[data-theme="dark"] .app-main input::placeholder,html[data-theme="dark"] .app-main textarea::placeholder{color:#9fc5b6!important}
