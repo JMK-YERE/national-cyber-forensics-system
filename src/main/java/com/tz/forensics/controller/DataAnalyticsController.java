@@ -4,6 +4,7 @@ import com.tz.forensics.entity.ReportAttack;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.ReportAttackRepository;
 import com.tz.forensics.repository.UserRepository;
+import com.tz.forensics.service.ReportAttackService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,10 +17,12 @@ import java.util.Map;
 public class DataAnalyticsController {
     private final ReportAttackRepository reports;
     private final UserRepository users;
+    private final ReportAttackService reportService;
 
-    public DataAnalyticsController(ReportAttackRepository reports, UserRepository users) {
+    public DataAnalyticsController(ReportAttackRepository reports, UserRepository users, ReportAttackService reportService) {
         this.reports = reports;
         this.users = users;
+        this.reportService = reportService;
     }
 
     @GetMapping("/analytics")
@@ -29,7 +32,13 @@ public class DataAnalyticsController {
                 .anyMatch(a -> java.util.Set.of("ROLE_ADMIN","ROLE_CYBER_PRO","ROLE_FORENSICS","ROLE_ANALYST").contains(a.getAuthority()));
         if (!allowed) return "redirect:/access-denied";
 
-        var all = reports.findAllByOrderByCreatedAtDesc();
+        User user = users.findByUsername(auth.getName()).orElse(null);
+        if (user == null) return "redirect:/login";
+
+        boolean privileged = user.isAdmin() || user.isProfessional() || user.isForensics();
+        var all = privileged ? reports.findAllByOrderByCreatedAtDesc()
+                : user.isAnalyst() ? reportService.getAssignedTo(user.getId())
+                : reportService.getMine(user.getId());
         Map<String,Long> categories = new LinkedHashMap<>();
         Map<String,Long> regions = new LinkedHashMap<>();
         Map<String,Long> statuses = new LinkedHashMap<>();
