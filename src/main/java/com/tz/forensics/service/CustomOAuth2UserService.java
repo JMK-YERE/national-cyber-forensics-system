@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -43,11 +44,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         log.info("OAuth2 login: provider={}, emailPresent={}", provider, email != null && !email.isBlank());
 
-        if (email == null) {
-            email = (sub != null ? sub : "oauth") + "@" + provider + ".local";
+        if (email == null || email.isBlank() || sub == null || sub.isBlank()) {
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("oauth_identity_invalid"),
+                    "Required OAuth identity attributes are missing");
         }
 
-        final String finalEmail = email;
+        final String finalEmail = email.trim();
         User user = userRepository.findByEmail(finalEmail).orElse(null);
         if (user == null) {
             user = new User();
@@ -76,6 +79,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 user.setOauthId(sub);
                 user.setProfilePicture(limit(picture, 2048));
                 userRepository.save(user);
+            } else if (!provider.equals(user.getOauthProvider())
+                    || user.getOauthId() == null
+                    || !sub.equals(user.getOauthId())) {
+                log.warn("OAuth identity mismatch rejected for existing local account (provider={})", provider);
+                throw new OAuth2AuthenticationException(
+                        new OAuth2Error("oauth_identity_mismatch"),
+                        "OAuth identity does not match the existing account");
             }
         }
         // Spring Security uses OAuth2User.getName() for Authentication.getName().
