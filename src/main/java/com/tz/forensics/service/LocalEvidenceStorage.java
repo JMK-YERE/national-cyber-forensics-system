@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @Service
 @ConditionalOnProperty(name = "app.storage.provider", havingValue = "local", matchIfMissing = true)
@@ -44,7 +45,17 @@ public class LocalEvidenceStorage implements EvidenceStorage {
         if (data == null) throw new IOException("Evidence storage data is required.");
         ensureBaseDirectory();
         Path path = resolve(key);
-        Files.write(path, data);
+        Path temp = Files.createTempFile(basePath, ".evidence-", ".tmp");
+        try {
+            Files.write(temp, data);
+            try {
+                Files.move(temp, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (java.nio.file.AtomicMoveNotSupportedException e) {
+                Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temp);
+        }
     }
 
     @Override
