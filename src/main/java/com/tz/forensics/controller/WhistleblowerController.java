@@ -113,7 +113,7 @@ public class WhistleblowerController {
         // ===== NOTIFY ADMINS =====
         try {
             List<User> admins = userRepository.findAll().stream()
-                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics() || "ANALYST".equalsIgnoreCase(u.getRole())).toList();
+                    .filter(u -> u.isAdmin() || u.isProfessional() || u.isForensics()).toList();
             for (User admin : admins) {
                 notificationService.createNotification(
                     admin.getId(),
