@@ -457,3 +457,13 @@ html[data-theme="dark"] .language-menu,
 html[data-theme="dark"] .profile-dropdown{background:#0c251d!important;border-color:#285847!important}
 html[data-theme="dark"] .language-menu a,
 html[data-theme="dark"] .dropdown-item{color:#d9f6ec!important}
+
+/* ===== PAGE HEADING / WORKSPACE POLISH ===== */
+.page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:0 0 16px;padding:0 2px}
+.page-heading h1{margin:0;color:#0f172a;font-size:25px;line-height:1.15;letter-spacing:-.02em}
+.page-heading p{margin:6px 0 0;color:#64748b;font-size:12px}
+.page-kicker{font-size:9px;font-weight:900;letter-spacing:.12em;color:#2563eb;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;padding:6px 9px;white-space:nowrap}
+@media(max-width:600px){.page-heading{align-items:flex-start;flex-direction:column;gap:8px}.page-heading h1{font-size:21px}.page-kicker{font-size:8px}}
+html[data-theme="dark"] .page-heading h1{color:#e7f7f0!important}
+html[data-theme="dark"] .page-heading p{color:#9bbcaf!important}
+html[data-theme="dark"] .page-kicker{background:#102d23!important;color:#67e8f9!important;border-color:#285847!important}
