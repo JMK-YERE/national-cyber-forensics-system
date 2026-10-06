@@ -54,6 +54,10 @@ public class EvidenceController {
                 || "ANALYST".equalsIgnoreCase(user.getRole()));
     }
 
+    private boolean canAcquireEvidence(User user) {
+        return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
+    }
+
     private boolean canAccessIncident(Incident incident, User user) {
         if (incident == null || user == null) return false;
         return user.isAdmin() || user.isProfessional() || user.isForensics()
@@ -85,7 +89,7 @@ public class EvidenceController {
                              Authentication auth, Model model) {
         User user = currentUser(auth);
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
-        if (!isStaff(user) || !canAccessIncident(incident, user)) return "redirect:/access-denied";
+        if (!canAcquireEvidence(user) || !canAccessIncident(incident, user)) return "redirect:/access-denied";
         CaseFile caseFile = null;
         if (caseId != null) {
             caseFile = caseFileService.getById(caseId);
@@ -125,7 +129,7 @@ public class EvidenceController {
 
         try {
             if (file == null || file.isEmpty()) throw new IllegalArgumentException("Chagua evidence file kwanza.");
-            Evidence saved = evidenceService.uploadEvidence(incidentId, caseId, file, dto, auth.getName(), user.getId());
+            Evidence saved = evidenceService.uploadEvidence(incidentId, caseId, file, dto, auth.getName(), user.getId(), user.getRole());
             auditService.log("UPLOAD_EVIDENCE", "Evidence", String.valueOf(saved.getId()),
                     "Uploaded: " + saved.getOriginalFilename() + " | SHA-256: " + saved.getSha256Hash());
             model.addAttribute("success", "Evidence imepakiwa! SHA-256: " + saved.getSha256Hash());
@@ -238,8 +242,13 @@ public class EvidenceController {
         if(evidence==null)return "redirect:/incidents";
         Incident incident=incidentRepository.findById(evidence.getIncidentId()).orElse(null);
         if(!canAccessEvidence(evidence,incident,user))return "redirect:/access-denied";
-        evidenceService.verifyEvidence(id,auth.getName(),user.getId());
-        auditService.log("VERIFY_EVIDENCE","Evidence",String.valueOf(id),"Verified | SHA-256: "+evidence.getSha256Hash());
+        if (!canAcquireEvidence(user)) return "redirect:/access-denied";
+        try {
+            evidenceService.verifyEvidence(id,auth.getName(),user.getId(),user.getRole());
+            auditService.log("VERIFY_EVIDENCE","Evidence",String.valueOf(id),"Verified | SHA-256: "+evidence.getSha256Hash());
+        } catch (SecurityException | IllegalStateException e) {
+            auditService.log("REJECT_VERIFY_EVIDENCE","Evidence",String.valueOf(id),e.getMessage());
+        }
         return "redirect:/incidents/"+evidence.getIncidentId();
     }
 }
