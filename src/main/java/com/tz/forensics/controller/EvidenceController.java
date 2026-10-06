@@ -248,7 +248,19 @@ public class EvidenceController {
         Incident incident=incidentRepository.findById(evidence.getIncidentId()).orElse(null);
         if(!canAccessEvidence(evidence,incident,user))return ResponseEntity.status(403).build();
         byte[] data;
-        try{data=evidenceService.downloadEvidence(id);}catch(IOException|RuntimeException e){return ResponseEntity.status(HttpStatus.NOT_FOUND).build();}
+        try {
+            data = evidenceService.downloadEvidence(id);
+        } catch (IOException e) {
+            // A stored object that fails decryption/integrity verification must
+            // never be presented as a normal "not found" response.
+            auditService.log("REJECT_DOWNLOAD_EVIDENCE", "Evidence", String.valueOf(id),
+                    "Evidence integrity/storage failure: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (RuntimeException e) {
+            auditService.log("REJECT_DOWNLOAD_EVIDENCE", "Evidence", String.valueOf(id),
+                    "Evidence retrieval failure.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
         auditService.log("DOWNLOAD_EVIDENCE","Evidence",String.valueOf(id),"Downloaded | SHA-256: "+evidence.getSha256Hash());
         String filename = evidence.getOriginalFilename() == null ? "evidence.bin" : evidence.getOriginalFilename()
                 .replaceAll("[\\\\/\\r\\n]", "_")
