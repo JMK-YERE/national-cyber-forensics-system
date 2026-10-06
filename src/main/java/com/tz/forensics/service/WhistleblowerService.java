@@ -93,11 +93,15 @@ public class WhistleblowerService {
     private String generateTrackingCode() {
         String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         SecureRandom random = new SecureRandom();
-        StringBuilder sb = new StringBuilder("WB-");
-        for (int i = 0; i < 8; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
+        for (int attempt = 0; attempt < 20; attempt++) {
+            StringBuilder sb = new StringBuilder("WB-");
+            for (int i = 0; i < 8; i++) {
+                sb.append(chars.charAt(random.nextInt(chars.length())));
+            }
+            String candidate = sb.toString();
+            if (!reportRepo.existsByTrackingCode(candidate)) return candidate;
         }
-        return sb.toString();
+        throw new IllegalStateException("Unable to generate a unique whistleblower tracking code.");
     }
 
     private String mapUrgency(String urgency) {
