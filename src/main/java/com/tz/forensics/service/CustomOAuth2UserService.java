@@ -14,8 +14,10 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -23,9 +25,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private static final Logger log = LoggerFactory.getLogger(CustomOAuth2UserService.class);
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public CustomOAuth2UserService(UserRepository userRepository) {
+    public CustomOAuth2UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -37,7 +41,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String picture = oauth2User.getAttribute("picture");
         String sub = oauth2User.getAttribute("sub");
 
-        log.info("OAuth2 login: provider={}, email={}", provider, email);
+        log.info("OAuth2 login: provider={}, emailPresent={}", provider, email != null && !email.isBlank());
 
         if (email == null) {
             email = (sub != null ? sub : "oauth") + "@" + provider + ".local";
@@ -55,7 +59,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setUsername(username);
             user.setEmail(finalEmail);
             user.setFullName(name != null ? name : username);
-            user.setPassword("$2a$10$OAUTH2USERPLACEHOLDERxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+            // OAuth-only accounts receive a unique random password hash; no shared placeholder secret is stored.\n            user.setPassword(passwordEncoder.encode(UUID.randomUUID() + ":" + UUID.randomUUID()));
             user.setRole("INDIVIDUAL");
             user.setEnabled(true);
             user.setEmailVerified(true);
