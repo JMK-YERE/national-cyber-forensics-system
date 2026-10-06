@@ -1,4 +1,4 @@
-# 🇹🇿 National Cyber Security & Digital Forensics System
+# 🇹🇿 Cyber Forensics TZ
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tanzania](https://img.shields.io/badge/🇹🇿-Tanzania-green.svg)](https://github.com/JMK-YERE/national-cyber-forensics-system)
 
-> Mfumo wa Kitaifa wa **Kuripoti Matukio ya Usalama wa Mtandao** na **Uchambuzi wa Ushahidi wa Kidijitali** kwa Tanzania.
+> **From Report to Evidence to Resolution.** Mfumo wa kuripoti, triage, investigation, evidence preservation, response na closure kwa taasisi na timu za cyber/forensics.
 
 ---
 
@@ -35,11 +35,11 @@ Mfumo unafaa kwa:
 
 ### 🔒 Usalama (Security)
 - ✅ **Spring Security** + BCrypt password hashing
-- ✅ **Role-Based Access Control (RBAC)** — ADMIN, ANALYST, INVESTIGATOR, REPORTER
+- ✅ **RBAC + object-level authorization** — ADMIN, CYBER_PRO, FORENSICS, ANALYST, INDIVIDUAL
 - ✅ **Account Lockout** baada ya majaribio 5 ya kuingia vibaya
 - ✅ **Audit Log** — kila kitendo kinarekodiwa (nani, lini, wapi, kwa nini)
 - ✅ **CSRF Protection** (Spring Security built-in)
-- ✅ **Session Management** na timeout ya dakika 30
+- ✅ **Session Management** yenye timeout ya dakika 30 na session-fixation protection
 - ✅ **Secure File Upload** na validation ya aina ya file
 - ✅ **AES-256 Encryption** ya evidence files
 
@@ -64,7 +64,7 @@ Mfumo unafaa kwa:
 - ✅ **Region Tagging** (Mikoa yote ya Tanzania)
 
 ### 🇹🇿 Tanzania-Specific
-- ✅ **TCRA Reporting Format** — export inayokubalika
+- ✅ **Tanzania-focused incident fields and regional classification**
 - ✅ **Police Cybercrime Case Number** integration
 - ✅ **TZS Currency** for financial loss tracking
 - ✅ **Region Selection** — Dar es Salaam, Arusha, Mwanza, Dodoma, Mbeya, Morogoro, Tanga, Zanzibar
