@@ -43,6 +43,12 @@ public class CaseTaskService {
 
         String normalizedTitle = title == null ? "" : title.trim();
         if (normalizedTitle.length() < 3 || normalizedTitle.length() > 300) return null;
+        String normalizedDescription = description == null ? "" : description.trim();
+        if (normalizedDescription.length() > 10000) return null;
+        String normalizedAssignedName = assignedName == null ? null : assignedName.trim();
+        if (normalizedAssignedName != null && normalizedAssignedName.length() > 200) return null;
+        String normalizedCreatorName = creatorName == null ? null : creatorName.trim();
+        if (normalizedCreatorName != null && normalizedCreatorName.length() > 200) return null;
         String normalizedPriority = priority == null || priority.isBlank() ? "MEDIUM" : priority.trim().toUpperCase();
         if (!PRIORITIES.contains(normalizedPriority)) return null;
         if (dueDate != null && dueDate.isBefore(LocalDateTime.now())) return null;
@@ -50,13 +56,13 @@ public class CaseTaskService {
         CaseTask t = new CaseTask();
         t.setCaseId(caseId);
         t.setTitle(normalizedTitle);
-        t.setDescription(description == null ? null : description.trim());
+        t.setDescription(normalizedDescription.isEmpty() ? null : normalizedDescription);
         t.setAssignedTo(assignedTo);
-        t.setAssignedToName(assignedName);
+        t.setAssignedToName(normalizedAssignedName);
         t.setPriority(normalizedPriority);
         t.setDueDate(dueDate);
         t.setCreatedBy(creator);
-        t.setCreatedByName(creatorName);
+        t.setCreatedByName(normalizedCreatorName);
         return repository.save(t);
     }
 
