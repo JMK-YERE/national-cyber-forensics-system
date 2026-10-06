@@ -152,7 +152,7 @@ public class EvidenceController {
                 .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
                         && (u.isAdmin() || u.isProfessional() || u.isForensics() || u.isAnalyst()))
                 .toList());
-        model.addAttribute("canOperateCustody", isStaff(user) && canAccessIncident(incident, user));
+        model.addAttribute("canOperateCustody", isStaff(user) && canAccessEvidence(evidence, incident, user));
         auditService.log("VIEW_CHAIN_OF_CUSTODY", "Evidence", String.valueOf(id),
                 "Viewed chain of custody | SHA-256: " + evidence.getSha256Hash());
         return "evidence-custody";
@@ -169,7 +169,7 @@ public class EvidenceController {
         Evidence evidence = evidenceService.getById(id);
         if (evidence == null) return "redirect:/incidents";
         Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!isStaff(actor) || !canAccessIncident(incident, actor)) return "redirect:/access-denied";
+        if (!isStaff(actor) || !canAccessEvidence(evidence, incident, actor)) return "redirect:/access-denied";
 
         User recipient = userRepository.findById(recipientId).orElse(null);
         if (recipient == null || !Boolean.TRUE.equals(recipient.getEnabled()) || !recipient.isApproved()
@@ -242,7 +242,7 @@ public class EvidenceController {
         Evidence evidence = evidenceService.getById(id);
         if (evidence == null) return "redirect:/incidents";
         Incident incident = incidentRepository.findById(evidence.getIncidentId()).orElse(null);
-        if (!isStaff(user) || !canAccessIncident(incident, user)) return "redirect:/access-denied";
+        if (!isStaff(user) || !canAccessEvidence(evidence, incident, user)) return "redirect:/access-denied";
 
         evidenceService.verifyEvidence(id, auth.getName(), user.getId());
         auditService.log("VERIFY_EVIDENCE", "Evidence", String.valueOf(id),
