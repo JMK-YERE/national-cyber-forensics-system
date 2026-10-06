@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 import java.security.SecureRandom;
 
 @Service
@@ -45,6 +46,11 @@ public class ReportAttackService {
         return repo.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
+    public List<ReportAttack> getAssignedTo(Long userId) {
+        if (userId == null) return List.of();
+        return repo.findByAssignedToOrderByCreatedAtDesc(userId);
+    }
+
     public long countNew() {
         return repo.countByStatus("NEW");
     }
@@ -60,7 +66,18 @@ public class ReportAttackService {
     public void updateStatus(Long id, String status, String adminResponse, Long assignedTo, String assignedName) {
         ReportAttack r = repo.findById(id).orElse(null);
         if (r != null) {
-            r.setStatus(status);
+            String normalizedStatus = status == null ? null : status.trim().toUpperCase();
+            if (normalizedStatus == null || normalizedStatus.isBlank()) {
+                throw new IllegalArgumentException("Report status is required.");
+            }
+            Set<String> allowed = Set.of("NEW", "UNDER_REVIEW", "INVESTIGATING", "RESOLVED", "REJECTED", "CLOSED");
+            if (!allowed.contains(normalizedStatus)) {
+                throw new IllegalArgumentException("Unsupported report status: " + status);
+            }
+            if ("CLOSED".equalsIgnoreCase(r.getStatus()) && !"CLOSED".equals(normalizedStatus)) {
+                throw new IllegalStateException("Closed reports cannot be reopened.");
+            }
+            r.setStatus(normalizedStatus);
             if (adminResponse != null && !adminResponse.isEmpty()) {
                 r.setAdminResponse(adminResponse);
             }
