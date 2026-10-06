@@ -25,14 +25,17 @@ public class IncidentService {
     private final UserRepository userRepository;
     private final CaseFileRepository caseFileRepository;
     private final EvidenceRepository evidenceRepository;
+    private final AuditService auditService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public IncidentService(IncidentRepository incidentRepository, UserRepository userRepository,
-                           CaseFileRepository caseFileRepository, EvidenceRepository evidenceRepository) {
+                           CaseFileRepository caseFileRepository, EvidenceRepository evidenceRepository,
+                           AuditService auditService) {
         this.incidentRepository = incidentRepository;
         this.userRepository = userRepository;
         this.caseFileRepository = caseFileRepository;
         this.evidenceRepository = evidenceRepository;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -50,14 +53,13 @@ public class IncidentService {
         incident.setReporter(reporterName);
         incident.setReporterUserId(reporterUser != null ? reporterUser.getId() : null);
         incident.setDateReported(LocalDateTime.now());
-        incident.setStatus("New");
         String normalizedSeverity = dto.getSeverity() == null || dto.getSeverity().isBlank()
                 ? "MEDIUM" : dto.getSeverity().trim().toUpperCase();
         incident.setSeverity(normalizedSeverity);
         incident.setCategory(dto.getCategory());
         incident.setRegion(dto.getRegion());
         incident.setOrganization(dto.getOrganization());
-        incident.setWorkflowStatus("NEW");
+        setWorkflowState(incident, "NEW", false);
 
         incident.setDirectLossTzs(dto.getDirectLossTzs());
         incident.setRecoveryCostTzs(dto.getRecoveryCostTzs());
@@ -130,6 +132,7 @@ public class IncidentService {
         return incidentRepository.findByReporterUserIdOrAssignedToAndWorkflowStatusNotOrderByDateReportedDesc(userId, userId, "CLOSED");
     }
 
+    @Transactional
     public void assignIncident(Long incidentId, Long assignedTo, String assignedToName,
                                Long assignedBy, String priority, LocalDateTime dueDate) {
         if (incidentId == null || assignedTo == null) {
@@ -137,7 +140,7 @@ public class IncidentService {
         }
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (incident == null) throw new IllegalArgumentException("Incident not found.");
-        if ("CLOSED".equalsIgnoreCase(incident.getWorkflowStatus())) {
+        if ("CLOSED".equalsIgnoreCase(normalizeWorkflow(incident.getWorkflowStatus()))) {
             throw new IllegalStateException("Closed incidents cannot be assigned.");
         }
 
@@ -168,13 +171,19 @@ public class IncidentService {
 
         String current = normalizeWorkflow(incident.getWorkflowStatus());
         if ("NEW".equals(current) || "TRIAGED".equals(current)) {
-            incident.setWorkflowStatus("ASSIGNED");
+            setWorkflowState(incident, "ASSIGNED", true);
         }
         incidentRepository.save(incident);
+        auditService.log("ASSIGN_INCIDENT", "Incident", incident.getIncidentId(), "Assigned to: " + assignedToName);
     }
 
     @Transactional
     public void updateWorkflowStatus(Long incidentId, String status) {
+        updateWorkflowStatus(incidentId, status, null, null, null);
+    }
+
+    @Transactional
+    public void updateWorkflowStatus(Long incidentId, String status, Long actorId, String actorName, String actorRole) {
         if (incidentId == null) throw new IllegalArgumentException("Incident id is required.");
         String requested = normalizeWorkflow(status);
         if (!ALLOWED_TRANSITIONS.containsKey(requested)) {
@@ -187,9 +196,11 @@ public class IncidentService {
         String current = normalizeWorkflow(incident.getWorkflowStatus());
         if (current.equals(requested)) return;
         if (!ALLOWED_TRANSITIONS.getOrDefault(current, Set.of()).contains(requested)) {
+            auditWorkflow("REJECT_WORKFLOW", incident, current + " -> " + requested, actorName);
             throw new IllegalStateException("Invalid incident workflow transition: " + current + " -> " + requested);
         }
         if ("ASSIGNED".equals(requested) && incident.getAssignedTo() == null) {
+            auditWorkflow("REJECT_WORKFLOW", incident, current + " -> " + requested + " | assignee required", actorName);
             throw new IllegalStateException("Incident must have an assignee before entering ASSIGNED.");
         }
 
@@ -200,6 +211,7 @@ public class IncidentService {
                 return !"CLOSED".equals(caseStatus) && !"ARCHIVED".equals(caseStatus);
             });
             if (hasOpenCase) {
+                auditWorkflow("REJECT_WORKFLOW", incident, current + " -> CLOSED | open linked case", actorName);
                 throw new IllegalStateException("Incident cannot be closed while a linked forensic case is still open.");
             }
 
@@ -209,21 +221,34 @@ public class IncidentService {
                 return !"EXAMINED".equalsIgnoreCase(custody) && !"REPORT_GENERATED".equalsIgnoreCase(custody);
             });
             if (hasUnresolvedEvidence) {
+                auditWorkflow("REJECT_WORKFLOW", incident, current + " -> CLOSED | unresolved evidence", actorName);
                 throw new IllegalStateException("Incident cannot be closed while evidence is not fully examined.");
             }
         }
 
-        incident.setWorkflowStatus(requested);
-        if ("CLOSED".equals(requested)) {
+        setWorkflowState(incident, requested, true);
+        incidentRepository.save(incident);
+        auditWorkflow("UPDATE_WORKFLOW", incident,
+                current + " -> " + requested + (actorRole != null ? " | role: " + actorRole : ""), actorName);
+    }
+
+    private void setWorkflowState(Incident incident, String workflowStatus, boolean changing) {
+        String state = normalizeWorkflow(workflowStatus);
+        incident.setWorkflowStatus(state);
+        if ("CLOSED".equals(state)) {
             incident.setIsClosed(true);
-            incident.setClosedAt(LocalDateTime.now());
+            if (incident.getClosedAt() == null || changing) incident.setClosedAt(LocalDateTime.now());
             incident.setStatus("Resolved");
         } else {
             incident.setIsClosed(false);
             incident.setClosedAt(null);
             incident.setStatus("Under Investigation");
         }
-        incidentRepository.save(incident);
+    }
+
+    private void auditWorkflow(String action, Incident incident, String details, String actorName) {
+        String suffix = actorName == null || actorName.isBlank() ? "" : " | actor: " + actorName;
+        auditService.log(action, "Incident", incident.getIncidentId(), details + suffix);
     }
 
     private static final java.util.Map<String, java.util.Set<String>> ALLOWED_TRANSITIONS = java.util.Map.of(
