@@ -179,10 +179,13 @@ public class AdminController {
         if (user != null && !user.getId().equals(currentUser.getId())
                 && !"admin".equalsIgnoreCase(user.getUsername())) {
             String username = user.getUsername();
-            userRepository.delete(user);
-            auditService.log("DELETE_USER", "User", username, "User deleted");
+            user.setEnabled(false);
+            user.setApprovalStatus("REVOKED");
+            userRepository.save(user);
+            auditService.log("DEACTIVATE_USER", "User", username,
+                    "Account deactivated instead of hard deletion to preserve forensic attribution and audit history");
             redirectAttributes.addFlashAttribute("success",
-                    "✅ " + username + " amefutwa");
+                    "✅ " + username + " amezimwa na kuwekwa REVOKED; rekodi za audit zimehifadhiwa.");
         } else {
             redirectAttributes.addFlashAttribute("error",
                     "❌ Hauwezi kufuta admin mkuu");
