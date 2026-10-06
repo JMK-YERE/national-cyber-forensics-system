@@ -74,7 +74,7 @@ public class ChainOfCustody {
     public Long getEvidenceId() { return evidenceId; }
     public void setEvidenceId(Long evidenceId) { this.evidenceId = evidenceId; }
     public Long getReportAttackId() { return reportAttackId; }
-    public void setReportAttackId(Long reportAttackId) { reportAttackId = reportAttackId; }
+    public void setReportAttackId(Long reportAttackId) { this.reportAttackId = reportAttackId; }
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }
     public Long getPerformedBy() { return performedBy; }
