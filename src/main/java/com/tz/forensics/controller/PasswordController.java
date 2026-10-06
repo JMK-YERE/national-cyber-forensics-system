@@ -56,6 +56,15 @@ public class PasswordController {
             return "redirect:/reset-password?emailOtp=true";
         }
 
+        // Enforce the OTP cooldown from the account state as well as the browser session.
+        // This prevents attackers from bypassing the resend limit by creating new sessions.
+        if (user != null && user.getPasswordResetToken() != null
+                && user.getPasswordResetExpiresAt() != null
+                && user.getPasswordResetExpiresAt().isAfter(LocalDateTime.now())) {
+            ra.addFlashAttribute("sent", true);
+            return "redirect:/reset-password?emailOtp=true";
+        }
+
         // Do not reveal whether an account exists.
         if (user != null && user.getEmail() != null && !user.getEmail().isBlank()) {
             String otp = String.valueOf(100000 + new SecureRandom().nextInt(900000));
@@ -97,6 +106,14 @@ public class PasswordController {
                 && System.currentTimeMillis() - (Long) lastSent < RESET_OTP_RESEND_COOLDOWN_MS) {
             ra.addFlashAttribute("sent", true);
             ra.addFlashAttribute("error", "Subiri sekunde chache kabla ya kuomba OTP nyingine.");
+            return "redirect:/reset-password?sms=true";
+        }
+
+        // Enforce the OTP cooldown from the account state as well as the browser session.
+        if (user != null && user.getPasswordResetToken() != null
+                && user.getPasswordResetExpiresAt() != null
+                && user.getPasswordResetExpiresAt().isAfter(LocalDateTime.now())) {
+            ra.addFlashAttribute("sent", true);
             return "redirect:/reset-password?sms=true";
         }
 
