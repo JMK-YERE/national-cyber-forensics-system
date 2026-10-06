@@ -208,7 +208,7 @@ public class EvidenceController {
         auditService.log("DOWNLOAD_EVIDENCE","Evidence",String.valueOf(id),"Downloaded | SHA-256: "+evidence.getSha256Hash());
         String filename = evidence.getOriginalFilename() == null ? "evidence.bin" : evidence.getOriginalFilename()
                 .replaceAll("[\\\\/\\r\\n]", "_")
-                .replace(""", "_");
+                .replace('\"', '_');
         String contentDisposition = "attachment; filename=" + '"' + filename + '"';
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
