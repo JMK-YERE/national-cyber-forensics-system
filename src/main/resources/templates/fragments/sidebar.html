@@ -1,7 +1,8 @@
 <!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"><body>
 <aside class="app-sidebar" th:fragment="sidebar" id="appSidebar"><nav class="sidebar-nav">
 <a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label" th:text="#{nav.dashboard}">Dashboard</span></a>
-<div sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')" class="sidebar-section" th:text="#{nav.workspace}">Workspace</div>\n<div><a th:href="@{/notifications}" class="sidebar-item"><span class="icon">🔔</span><span class="label" th:text="#{nav.notifications}">Notifications</span></a></div>
+<div sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')" class="sidebar-section" th:text="#{nav.workspace}">Workspace</div>
+<div><a th:href="@{/notifications}" class="sidebar-item"><span class="icon">🔔</span><span class="label" th:text="#{nav.notifications}">Notifications</span></a></div>
 <div sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')">
 <a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label" th:text="#{nav.report}">Report Incident</span></a>
 <a th:href="@{/report-attack/my-reports}" class="sidebar-item"><span class="icon">📋</span><span class="label" th:text="#{nav.myReports}">My Reports</span></a>
