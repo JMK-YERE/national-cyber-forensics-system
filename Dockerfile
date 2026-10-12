@@ -2,9 +2,10 @@
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
 COPY src ./src
-RUN mvn clean verify
+# Resolve dependencies once during verification; the separate go-offline pass
+# duplicates Maven work on Render builds where Docker layer caching is disabled.
+RUN mvn -B -ntp clean verify
 
 # ========== STAGE 2: RUNTIME ==========
 FROM eclipse-temurin:17-jre-alpine
