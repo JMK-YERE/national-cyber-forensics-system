@@ -558,3 +558,45 @@ html[data-theme="dark"] table{color:#e5f5ef!important}html[data-theme="dark"] ta
 /* Mobile: readable drawer, no horizontal squeeze, no oversized controls. */
 @media(max-width:900px){.app-sidebar{width:min(300px,88vw)!important}.app-main{padding:14px 11px!important}.app-main h1{font-size:clamp(22px,5.8vw,30px)!important}.app-main h2{font-size:clamp(18px,4.8vw,24px)!important}.app-main p,.app-main li{font-size:14px!important}.app-main .app-btn{min-height:42px;font-size:14px!important}}
 @media(max-width:560px){.app-card{padding:14px 12px!important;border-radius:10px!important}.app-stats-grid{gap:10px!important}.app-stat-box{padding:13px 10px!important}.app-stat-box .value{font-size:23px!important}.app-main table{font-size:12px!important}.ai-floating{right:8px!important;bottom:9px!important}}
+
+
+/* ===== 2026 CLEAN INSTITUTIONAL UI: ONE ACCENT, FLAT SURFACES ===== */
+:root{
+ --forest-950:#082c23;--forest-900:#0b4938;--forest-800:#12634b;--forest-700:#197557;
+ --green:#197557;--green-dark:#145d46;--green-bright:#2a8b68;--mint:#edf5f0;
+ --cyan:#2a8b68;--ink:#172a23;--muted:#65766d;--line:#dce5df;--bg:#f7f9f7;
+ --white:#fff;--shadow:none;
+}
+html,body{background:var(--bg);color:var(--ink)}
+.app-header{background:#082c23;box-shadow:0 1px 0 rgba(255,255,255,.08)}
+.app-sidebar{background:#0b382c;box-shadow:none;border-right:1px solid rgba(255,255,255,.08)}
+.sidebar-item{border-radius:5px;margin:2px 0}
+.sidebar-item:hover,.sidebar-item.active{background:rgba(42,139,104,.22);box-shadow:none}
+.sidebar-item.active{border-left:3px solid #65b895;padding-left:8px}
+.sidebar-section{color:#a9d2bd}
+.app-main{background:var(--bg)}
+.app-card{background:transparent;border:0;border-radius:0;box-shadow:none;padding:8px 0;margin:0 0 22px}
+.app-card h2{border-bottom:1px solid var(--line);padding:0 0 8px;margin-bottom:12px}
+.app-btn,.app-btn-primary,.app-btn-cyan,.app-btn-outline{border-radius:5px;box-shadow:none}
+.app-btn-primary,.app-btn-cyan{background:#176b50;color:#fff}
+.app-btn-outline{background:transparent;color:#176b50;border:1px solid #b8cfc2}
+.profile-avatar{background:#176b50}
+.ai-floating{filter:none}
+.ai-floating-label{background:#176b50;box-shadow:none;border-radius:4px}
+.app-stat-box{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important}
+.app-stat-box .value{color:#176b50!important}
+.app-stat-box:hover{border-color:var(--line);box-shadow:none}
+input,select,textarea{border-radius:5px}
+table{border-collapse:collapse}
+th,td{border-color:var(--line)}
+/* Remove decorative gradients, colorful borders and nested-card effects across pages. */
+.app-main [class*="card"],.app-main [class*="panel"],.app-main [class*="widget"]{box-shadow:none}
+.app-main .app-card .app-card{border:0;background:transparent;padding:8px 0}
+.app-main .app-btn:hover{transform:none}
+html[data-theme="dark"],html[data-theme="dark"] body{background:#101a15;color:#e5eee8}
+html[data-theme="dark"] .app-main{background:#101a15}
+html[data-theme="dark"] .app-card{background:transparent;border:0;box-shadow:none}
+html[data-theme="dark"] .app-card h2{color:#e5eee8;border-color:#30483b}
+html[data-theme="dark"] .app-stat-box .value{color:#91c5a8!important}
+html[data-theme="dark"] .app-btn-outline{background:transparent;color:#b7d9c4;border-color:#476553}
+html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea{background:#17251c;color:#e5eee8;border-color:#3b5143}
