@@ -76,3 +76,22 @@ table{border-color:#e2e8f0!important}th{background:#f8fafc!important;color:#4755
 .legacy-nav-shell~.container small,.legacy-nav-shell~.container .muted,.legacy-nav-shell~.container .text-muted{color:#64748b!important}
 .legacy-nav-shell~.container h1,.legacy-nav-shell~.container h2,.legacy-nav-shell~.container h3,.legacy-nav-shell~.container h4{color:#0f172a!important}
 @media(max-width:900px){.legacy-nav-shell~.container{font-size:15px}.legacy-nav-shell~.container p,.legacy-nav-shell~.container li{font-size:14px;line-height:1.6}.legacy-nav-shell~.container h1{font-size:24px}.legacy-nav-shell~.container h2{font-size:20px}}
+
+
+/* ===== LEGACY SCREENS: MATCH THE RESTRAINED CYBER FORENSICS THEME ===== */
+.navbar,.legacy-nav-shell .app-header{background:#082c23!important;box-shadow:none!important}
+.legacy-nav-shell .app-sidebar{background:#0b382c!important;box-shadow:none!important}
+.legacy-nav-shell .sidebar-item{border-radius:4px!important;margin:2px 0!important}
+.legacy-nav-shell .sidebar-item:hover,.legacy-nav-shell .sidebar-item.active{background:rgba(42,139,104,.2)!important}
+.legacy-nav-shell .profile-avatar{background:#176b50!important}
+.legacy-nav-shell .ai-floating{background:#176b50!important;box-shadow:none!important;border-radius:5px!important}
+.legacy-nav-shell .ai-floating-icon{border-radius:5px!important}
+.container .card,.card{box-shadow:none!important;border-radius:5px!important}
+.card::before{background:#176b50!important}
+.btn,.auth-container{box-shadow:none!important;border-radius:5px!important}
+.btn-primary,.btn-success{background:#176b50!important;border-color:#176b50!important}
+.auth-container{border:1px solid #dce5df!important;border-top:3px solid #176b50!important}
+html[data-theme="dark"] .card,html[data-theme="dark"] .auth-container{background:#0b261e!important;color:#e5f5ef!important;border-color:#244d3f!important}
+html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3,html[data-theme="dark"] h4{color:#d9eee2!important}
+html[data-theme="dark"] .container{color:#e5f5ef!important}
+@media(max-width:900px){.legacy-nav-shell ~ .app-main{margin-left:0!important}.legacy-nav-shell .app-sidebar{width:min(280px,88vw)!important}}
