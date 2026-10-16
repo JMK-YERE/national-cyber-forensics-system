@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface TenantPolicyRepository extends JpaRepository<TenantPolicy, Long> {
     Optional<TenantPolicy> findByTenantIdAndPolicyType(Long tenantId, String policyType);
+    java.util.List<TenantPolicy> findAllByTenantIdOrderByPolicyTypeAsc(Long tenantId);
 }
