@@ -14,7 +14,9 @@ The staff-only, read-only playbook catalog gives responders a consistent startin
 
 Each playbook has a version, severity hint, trigger examples and ordered steps with phase, guidance and required flag. The initial phases are detection/triage, preservation, containment, investigation/eradication, recovery and lessons learned.
 
-## API
+## UI and API
+
+- `/response-playbooks` — responsive staff workspace with expandable step-by-step guidance, trigger hints and severity labels.
 
 All routes require an authenticated incident-response staff role: `ROLE_ADMIN`, `ROLE_CYBER_PRO`, `ROLE_FORENSICS` or `ROLE_ANALYST`.
 
