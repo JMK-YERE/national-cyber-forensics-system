@@ -67,4 +67,17 @@ class CaseFileServiceTest {
         verify(cases, never()).save(any());
     }
 
+
+    @Test void createCaseInheritsTenantFromParentIncident() {
+        Incident incident = new Incident();
+        incident.setTenantId(42L);
+        when(incidents.findById(1L)).thenReturn(Optional.of(incident));
+        when(cases.save(any(CaseFile.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CaseFile created = service.createCase(1L, "Tenant-scoped case",
+                "A sufficiently detailed forensic case description.", "HIGH", 7L, "admin", "ADMIN");
+
+        assertEquals(42L, created.getTenantId());
+        verify(cases).save(any(CaseFile.class));
+    }
 }
