@@ -89,3 +89,7 @@ Prefer existing Spring Security, PostgreSQL, Flyway, JUnit, Testcontainers, GitH
 ## Release gate remains
 
 The tenant schema is only a foundation: existing incidents, case files, evidence, downloads, reports, notifications, search and export flows have not all been tenant-scoped. Do not merge/deploy until tenant ownership/backfill is approved, all data access paths are scoped, cross-tenant denial tests pass, migrations are tested against both an empty database and a restored production-like backup, and security review is complete.
+
+## Tenant audit integrity
+
+Tenant administration audit writes now serialize on the tenant row, link each event to the previous event hash, and compute a SHA-256 digest over length-prefixed event fields. This helps detect accidental or unauthorized edits when the chain is independently verified. It is **tamper-evident, not tamper-proof**: a database owner able to rewrite the full chain can forge it. Higher assurance requires external/WORM log export, key separation, monitoring and independent verification.
