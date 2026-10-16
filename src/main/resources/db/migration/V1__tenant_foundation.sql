@@ -61,19 +61,19 @@ CREATE TABLE IF NOT EXISTS tenant_audit_events (
 DO $$
 BEGIN
     IF to_regclass('public.users') IS NOT NULL THEN
-        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_memberships_user') THEN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_memberships_user' AND conrelid = 'public.tenant_memberships'::regclass) THEN
             ALTER TABLE tenant_memberships ADD CONSTRAINT fk_tenant_memberships_user
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT;
         END IF;
-        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_memberships_created_by') THEN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_memberships_created_by' AND conrelid = 'public.tenant_memberships'::regclass) THEN
             ALTER TABLE tenant_memberships ADD CONSTRAINT fk_tenant_memberships_created_by
                 FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
         END IF;
-        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_policies_updated_by') THEN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_policies_updated_by' AND conrelid = 'public.tenant_policies'::regclass) THEN
             ALTER TABLE tenant_policies ADD CONSTRAINT fk_tenant_policies_updated_by
                 FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
         END IF;
-        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_audit_actor') THEN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_audit_actor' AND conrelid = 'public.tenant_audit_events'::regclass) THEN
             ALTER TABLE tenant_audit_events ADD CONSTRAINT fk_tenant_audit_actor
                 FOREIGN KEY (actor_user_id) REFERENCES users(id) ON DELETE SET NULL;
         END IF;
