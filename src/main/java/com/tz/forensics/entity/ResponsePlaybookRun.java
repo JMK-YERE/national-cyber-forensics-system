@@ -22,6 +22,9 @@ public class ResponsePlaybookRun {
     private OffsetDateTime startedAt = OffsetDateTime.now();
     @Column(name = "completed_at")
     private OffsetDateTime completedAt;
+    @jakarta.persistence.Version
+    @Column(name = "lock_version", nullable = false)
+    private Long lockVersion = 0L;
 
     public ResponsePlaybookRun() {}
     public Long getId(){return id;} public Long getCaseId(){return caseId;} public void setCaseId(Long v){caseId=v;}
