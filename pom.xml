@@ -23,6 +23,16 @@
     </properties>
 
     <dependencies>
+        <!-- Versioned PostgreSQL schema migrations; rollout requires reviewed backup/restore. -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
         <!-- S3-compatible object storage for production evidence vault -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
