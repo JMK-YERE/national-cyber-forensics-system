@@ -174,7 +174,11 @@ public class CaseFileController {
         model.addAttribute("timeline", caseFileService.getTimeline(cf.getId()));
         model.addAttribute("iocs", caseIocService.findByCaseId(cf.getId()));
         model.addAttribute("caseTasks", caseTaskService.findByCaseId(cf.getId()));
-        model.addAttribute("caseEvidence", evidenceService.getEvidenceByCase(cf.getId()));
+        Incident parentIncident = cf.getIncidentId() == null ? null : incidentService.getById(cf.getIncidentId());
+        model.addAttribute("caseEvidence", evidenceService.getEvidenceByCase(cf.getId()).stream()
+                .filter(e -> parentIncident != null && hasTenantAccess(e.getTenantId(), user)
+                        && hasTenantAccess(parentIncident.getTenantId(), user)
+                        && (e.getTenantId() == null || java.util.Objects.equals(e.getTenantId(), cf.getTenantId()))).toList());
         model.addAttribute("responsePlaybooks", responsePlaybooks.list());
         model.addAttribute("playbookRuns", playbookExecutions.listRuns(cf.getId(), user));
         if (canAssignCases(user)) {
