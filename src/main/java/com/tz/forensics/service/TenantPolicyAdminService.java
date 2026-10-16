@@ -41,8 +41,7 @@ public class TenantPolicyAdminService {
     @Transactional(readOnly = true)
     public java.util.List<TenantPolicy> list(Long tenantId) {
         requireTenant(tenantId);
-        return policies.findAll().stream().filter(p -> tenantId.equals(p.getTenantId()))
-            .sorted(java.util.Comparator.comparing(TenantPolicy::getPolicyType)).toList();
+        return policies.findAllByTenantIdOrderByPolicyTypeAsc(tenantId);
     }
 
     @Transactional
