@@ -45,6 +45,25 @@ public class TenantWorkspaceController {
         return access.listMyActiveTenants(auth == null ? null : auth.getName());
     }
 
+    @PostMapping("/{tenantId}/activate")
+    public ActiveTenant activateTenant(@PathVariable Long tenantId, Authentication auth,
+            jakarta.servlet.http.HttpSession session) {
+        TenantMembership membership = access.requireMembership(auth.getName(), tenantId, Set.of());
+        Tenant tenant = access.listMyActiveTenants(auth.getName()).stream()
+            .filter(t -> tenantId.equals(t.getId())).findFirst()
+            .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.FORBIDDEN, "Tenant access denied."));
+        session.setAttribute("ACTIVE_TENANT_ID", tenantId);
+        return new ActiveTenant(tenant.getId(), tenant.getName(), tenant.getSlug(), membership.getRole());
+    }
+
+    @DeleteMapping("/active")
+    public void clearActiveTenant(jakarta.servlet.http.HttpSession session) {
+        session.removeAttribute("ACTIVE_TENANT_ID");
+    }
+
+    public record ActiveTenant(Long id, String name, String slug, String role) {}
+
     @GetMapping("/{tenantId}/members")
     public List<TenantMembership> members(@PathVariable Long tenantId, Authentication auth) {
         access.requireMembership(auth.getName(), tenantId, TENANT_ADMINS);
