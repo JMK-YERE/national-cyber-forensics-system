@@ -44,7 +44,7 @@ public class TenantAccessService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Active tenant membership is required."));
         Set<String> normalizedRoles = allowedRoles == null ? Set.of() : allowedRoles.stream()
             .map(r -> r.toUpperCase(Locale.ROOT)).collect(java.util.stream.Collectors.toUnmodifiableSet());
-        if (!normalizedRoles.isEmpty() && !normalizedRoles.contains(membership.getRole().toUpperCase(Locale.ROOT))) {
+        if (!normalizedRoles.isEmpty() && !normalizedRoles.contains(membership.getRole() == null ? "" : membership.getRole().toUpperCase(Locale.ROOT))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your tenant role does not permit this action.");
         }
         return membership;
