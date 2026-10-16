@@ -35,7 +35,7 @@ All routes require an authenticated incident-response staff role: `ROLE_ADMIN`, 
 
 ## Deliberate limitations
 
-The current release is a catalog only. It does not start case runs, create tasks, execute containment, notify external parties, or claim tenant isolation. Those features must be added only after case-level tenant authorization and auditable human approval are implemented. Never paste secrets, personal data or raw evidence into playbook metadata.
+The catalog and case-linked run workflow are implemented on the development branch. The system does not create tasks automatically, execute containment, notify external parties, or claim tenant isolation. Automatic actions require separate approval gates and case-level tenant authorization. Never paste secrets, personal data or raw evidence into playbook metadata.
 
 ## Case-linked execution (implemented on the development branch)
 
@@ -43,14 +43,14 @@ The current release is a catalog only. It does not start case runs, create tasks
 - `GET /api/response-playbooks/cases/{caseId}/runs` lists runs for an authorized case.
 - `GET /api/response-playbooks/runs/{runId}` returns one authorized run.
 - `PATCH /api/response-playbooks/runs/{runId}/steps/{stepId}` accepts `{"status":"COMPLETED","notes":"..." }` or `{"status":"SKIPPED","notes":"reason"}`.
-- Step completion is persisted and added to the case timeline. Skipping requires a reason; finalized steps cannot be edited again. A run is marked completed when every step is finalized.
+- Step completion is persisted and added to the case timeline. Steps must be finalized in order; skipping requires a reason; finalized steps cannot be edited again. A run is marked completed when every step is finalized.
 - Authorization is checked server-side on each operation. ADMIN, CYBER_PRO and FORENSICS can manage cases; ANALYST access is limited to cases where they are involved in the underlying incident and are the case creator, assignee or lead investigator. Closed/archived cases cannot start new runs.
 
 The run history is an operational record, not a replacement for a formal evidence chain-of-custody record. Tenant isolation across existing incident/case/evidence APIs remains a separate required release gate.
 
-## Case-linked execution
+## Case workspace
 
-The case workspace now includes a **Response Playbooks** section. Authorized responders can start a playbook on an open case, record step completion or skip a step with a reason, and see run status and notes. Starting and updating a run creates case timeline events. The run stores the playbook version and a snapshot of step guidance so future catalog edits do not rewrite an existing investigation record.
+The case workspace includes a **Response Playbooks** section. Authorized responders can start a playbook on an open case, record step completion or skip a step with a reason, and see run status and notes. Starting and updating a run creates case timeline events. The run stores the playbook version and a snapshot of step guidance so future catalog edits do not rewrite an existing investigation record.
 
 API routes:
 
@@ -60,7 +60,7 @@ API routes:
 - `PATCH /api/response-playbooks/runs/{runId}/steps/{stepId}` with `{"status":"COMPLETED","notes":"..." }` — finalize a pending step. `status` is `COMPLETED` or `SKIPPED`; skipping requires a reason.
 - `PATCH /api/response-playbooks/runs/{runId}/cancel` with `{"reason":"Duplicate incident"}` — cancel an active run; a 5–1000 character reason is required and the cancellation is recorded in the case timeline.
 
-The case workspace provides equivalent CSRF-protected form actions. Closed or archived cases cannot start new runs; finalized steps cannot be edited; runs are marked complete when every step is finalized. Optimistic-lock version columns help prevent concurrent updates from silently overwriting each other. Access checks require incident-response staff and, for analysts, access to both the underlying incident and case.
+The case workspace provides equivalent CSRF-protected form actions. Closed or archived cases cannot start new runs; finalized steps cannot be edited; runs are marked complete when every step is finalized. Concurrent updates should be exercised in integration tests before production rollout. Access checks require incident-response staff and, for analysts, access to both the underlying incident and case.
 
 ## Operational rollout
 
