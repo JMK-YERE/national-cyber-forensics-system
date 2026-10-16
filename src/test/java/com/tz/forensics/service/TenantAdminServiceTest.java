@@ -41,6 +41,25 @@ class TenantAdminServiceTest {
     }
 
     @Test
+    void preventsRemovingTheLastTenantAdministrator() {
+        when(tenants.existsById(3L)).thenReturn(true);
+        com.tz.forensics.entity.TenantMembership admin = new com.tz.forensics.entity.TenantMembership();
+        admin.setTenantId(3L);
+        admin.setUserId(4L);
+        admin.setRole("TENANT_ADMIN");
+        admin.setStatus("ACTIVE");
+        when(memberships.findByTenantIdAndUserId(3L, 4L)).thenReturn(java.util.Optional.of(admin));
+        when(memberships.findAllByTenantIdAndStatus(3L, "ACTIVE")).thenReturn(java.util.List.of(admin));
+
+        ResponseStatusException error = org.junit.jupiter.api.Assertions.assertThrows(ResponseStatusException.class,
+            () -> service.updateMembershipRole(3L, 4L, "ANALYST", "root"));
+
+        org.junit.jupiter.api.Assertions.assertEquals(409, error.getStatusCode().value());
+        verify(memberships, never()).save(any());
+        verifyNoInteractions(auditEventService, users);
+    }
+
+    @Test
     void rejectsDuplicateTenantSlug() {
         when(tenants.existsBySlugIgnoreCase("finance-org")).thenReturn(true);
         assertThrows(ResponseStatusException.class,
