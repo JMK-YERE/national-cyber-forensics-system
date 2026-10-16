@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Response Playbooks - Cyber Forensics TZ</title>
+<link rel="stylesheet" th:href="@{/css/theme.css}">
+<style>
+.playbook-main{max-width:1200px;margin:0 auto}.playbook-head{border-left:3px solid #0d9488;padding:4px 0 8px 15px;margin-bottom:22px}.playbook-head h1{margin:0;font-size:27px;color:var(--text-primary,#0f172a)}.playbook-head p{margin:6px 0 0;color:var(--text-muted,#64748b);font-size:13px;max-width:760px}.flow-strip{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 26px}.flow-strip span{padding:7px 10px;border:1px solid rgba(13,148,136,.35);border-radius:7px;font-size:11px;font-weight:700;color:var(--text-primary,#0f172a)}.playbook-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.playbook-card{border:1px solid var(--border-color,#dbe4e8);border-radius:12px;padding:16px;background:var(--surface,#fff);min-width:0}.playbook-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.playbook-title h2{font-size:17px;margin:0 0 8px;color:var(--text-primary,#0f172a)}.playbook-title p{font-size:12px;line-height:1.55;margin:0;color:var(--text-muted,#64748b)}.severity{font-size:10px;font-weight:800;letter-spacing:.06em;padding:5px 7px;border:1px solid rgba(13,148,136,.45);border-radius:6px;white-space:nowrap}.meta{font-size:11px;color:var(--text-muted,#64748b);margin:12px 0}.triggers{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 15px}.triggers span{font-size:10px;background:rgba(13,148,136,.08);border-radius:5px;padding:5px 7px;color:var(--text-primary,#0f172a)}.playbook-card details{border-top:1px solid var(--border-color,#dbe4e8);padding-top:12px}.playbook-card summary{cursor:pointer;font-size:12px;font-weight:800;color:var(--text-primary,#0f172a);min-height:28px}.step-list{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:10px}.step{border-left:2px solid #0d9488;padding:2px 0 3px 11px}.step-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.step-num{font-size:10px;font-weight:800;color:#0f766e}.step-phase{font-size:9px;letter-spacing:.05em;font-weight:800;color:var(--text-muted,#64748b)}.step h3{font-size:12px;margin:4px 0;color:var(--text-primary,#0f172a)}.step p{font-size:11px;line-height:1.55;margin:0;color:var(--text-muted,#64748b)}.safety-note{margin:22px 0 4px;border-left:3px solid #0d9488;padding:10px 13px;background:rgba(13,148,136,.07);font-size:12px;line-height:1.6;color:var(--text-primary,#0f172a)}@media(max-width:760px){.playbook-list{grid-template-columns:1fr}.playbook-head h1{font-size:23px}.playbook-card{padding:13px}.flow-strip{gap:6px}.flow-strip span{font-size:10px}}
+</style></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main"><div class="app-container playbook-main">
+<header class="playbook-head"><h1>Incident Response Playbooks</h1><p>Consistent, evidence-aware workflows for common cyber incidents. Open a playbook to follow its recommended steps and document decisions in the authorized case record.</p></header>
+<div class="flow-strip" aria-label="Incident response flow"><span>1. Detect &amp; triage</span><span>2. Preserve evidence</span><span>3. Contain</span><span>4. Investigate</span><span>5. Recover</span><span>6. Learn</span></div>
+<section class="playbook-list">
+<article class="playbook-card" th:each="p : ${playbooks}">
+<div class="playbook-title"><div><h2 th:text="${p.title()}">Playbook title</h2><p th:text="${p.summary()}">Playbook summary</p></div><span class="severity" th:text="${p.severityHint()}">HIGH</span></div>
+<div class="meta"><span>Version </span><strong th:text="${p.version()}">1.0</strong><span> · </span><strong th:text="${p.steps().size()}">0</strong><span> steps</span></div>
+<div class="triggers"><span th:each="trigger : ${p.triggers()}" th:text="${trigger}">Trigger</span></div>
+<details><summary>Open workflow and step-by-step guidance</summary>
+<ol class="step-list"><li class="step" th:each="s : ${p.steps()}"><div class="step-top"><span class="step-num" th:text="'STEP ' + ${s.order()}">STEP 1</span><span class="step-phase" th:text="${s.phase()}">TRIAGE</span></div><h3 th:text="${s.title()}">Step title</h3><p th:text="${s.guidance()}">Guidance</p></li></ol>
+</details></article>
+</section>
+<div class="safety-note"><strong>Evidence and safety:</strong> Preserve original evidence and record collection metadata and hashes. Containment, credential changes, shutdowns and recovery actions must be authorized and documented. This guide does not execute actions automatically; follow your institution's escalation, legal and privacy procedures.</div>
+</div></main><script th:src="@{/js/app.js}"></script></body></html>
