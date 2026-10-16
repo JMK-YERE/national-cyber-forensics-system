@@ -30,7 +30,8 @@ This branch introduces the additive database foundation only. It is not yet a co
 - [x] Add tenant, membership, policy and tenant-audit entities/repositories plus global-admin-only tenant management endpoints.
 - [ ] Inspect the live database schema and actual Render/Neon connection target.
 - [ ] Verify backup and restore, then apply migration only to a disposable clone.
-- [ ] Add tenant-aware entities/repositories and authenticated tenant context.
+- [x] Map nullable `tenant_id` fields on Incident, CaseFile and Evidence entities; add tenant-filtered repository query methods for these resources.
+- [ ] Add an authenticated active-tenant context and route/service enforcement; repository query primitives alone do not provide isolation.
 - [ ] Apply tenant-scoped authorization to every controller, service, repository query, file download, search, notification and report/export.
 - [ ] Add cross-tenant denial tests before assigning any legacy data to tenants.
 - [ ] Backfill legacy data from a reviewed mapping; reconcile counts; only then enforce non-null ownership.
@@ -53,7 +54,11 @@ This branch introduces the additive database foundation only. It is not yet a co
 - [ ] SLA metrics, tenant-scoped executive reports, restore drills and recovery objectives.
 - [ ] Partner/referral workflows for Tanzania institutions, only under approved agreements.
 
-## Current API surface (foundation only)\n\n- GET /admin/api/tenants — list tenants; restricted by the existing /admin/** ADMIN security rule.\n- POST /admin/api/tenants — create a tenant.\n- POST /admin/api/tenants/{tenantId}/members — add/reactivate a membership using an existing user ID.\n\nThese endpoints manage tenant metadata only. They do not mean that incidents, cases, evidence, downloads, reports or notifications are tenant-isolated yet. Do not onboard real customer data until all cross-tenant authorization gates pass.\n\n## Acceptance gates
+## Current API surface (foundation only)
+
+### Tenant ownership mapping progress
+
+The incident, case-file and evidence JPA entities now map the nullable `tenant_id` column and repositories expose tenant-filtered lookup/list methods. This is a schema/repository foundation only: existing controller and service flows still contain global reads and role-only bypasses. Do not treat these methods as an authorization boundary until callers consistently use them and cross-tenant tests pass.\n\n- GET /admin/api/tenants — list tenants; restricted by the existing /admin/** ADMIN security rule.\n- POST /admin/api/tenants — create a tenant.\n- POST /admin/api/tenants/{tenantId}/members — add/reactivate a membership using an existing user ID.\n\nThese endpoints manage tenant metadata only. They do not mean that incidents, cases, evidence, downloads, reports or notifications are tenant-isolated yet. Do not onboard real customer data until all cross-tenant authorization gates pass.\n\n## Acceptance gates
 
 - Tenant A cannot list, read, mutate, upload to, download, search, notify, or export Tenant B records even with guessed IDs.
 - Missing/invalid tenant context fails closed.
