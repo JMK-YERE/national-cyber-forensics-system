@@ -25,12 +25,14 @@ public class IncidentController {
     private final WhatsAppService whatsAppService;
     private final UserRepository userRepository;
     private final CaseFileService caseFileService;
+    private final TenantAccessService tenantAccessService;
 
     public IncidentController(IncidentService incidentService, EvidenceService evidenceService,
                               AuditService auditService, NotificationService notificationService,
                               EmailService emailService, WhatsAppService whatsAppService,
                               UserRepository userRepository,
-                              CaseFileService caseFileService) {
+                              CaseFileService caseFileService,
+                              TenantAccessService tenantAccessService) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.auditService = auditService;
@@ -39,6 +41,7 @@ public class IncidentController {
         this.whatsAppService = whatsAppService;
         this.userRepository = userRepository;
         this.caseFileService = caseFileService;
+        this.tenantAccessService = tenantAccessService;
     }
 
     private boolean isAdmin(User u) { return u != null && u.isAdmin(); }
@@ -50,8 +53,15 @@ public class IncidentController {
     private boolean canManageWorkflow(User u) { return isAdmin(u) || isCyberPro(u) || isForensics(u); }
     private boolean canAssign(User u) { return isAdmin(u) || isCyberPro(u); }
 
+    private boolean hasTenantAccess(Long tenantId, User user) {
+        if (tenantId == null) return true; // Legacy records remain unmapped pending approved backfill.
+        if (user == null || user.getUsername() == null) return false;
+        try { tenantAccessService.requireMembership(user.getUsername(), tenantId, Set.of()); return true; }
+        catch (org.springframework.web.server.ResponseStatusException denied) { return false; }
+    }
+
     private boolean canAccess(Incident incident, User user) {
-        if (incident == null || user == null) return false;
+        if (incident == null || user == null || !hasTenantAccess(incident.getTenantId(), user)) return false;
         if (canViewAll(user)) return true;
         return (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
                 || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
@@ -62,8 +72,8 @@ public class IncidentController {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
         model.addAttribute("incidents", canViewAll(user)
-                ? incidentService.getAllIncidents()
-                : incidentService.getMyIncidents(user.getId()));
+                ? incidentService.getAllIncidents().stream().filter(i -> canAccess(i, user)).toList()
+                : incidentService.getMyIncidents(user.getId()).stream().filter(i -> canAccess(i, user)).toList());
         model.addAttribute("user", user);
         model.addAttribute("isAdmin", isAdmin(user));
         model.addAttribute("isCyberPro", isCyberPro(user));
