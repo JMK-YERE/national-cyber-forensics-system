@@ -50,7 +50,7 @@ The run history is an operational record, not a replacement for a formal evidenc
 
 ## Case workspace
 
-The case workspace includes a **Response Playbooks** section. Authorized responders can start a playbook on an open case, record step completion or skip a step with a reason, and see run status and notes. Starting and updating a run creates case timeline events. The run stores the playbook version and a snapshot of step guidance so future catalog edits do not rewrite an existing investigation record.
+The case workspace includes a **Response Playbooks** section. Authorized responders can start a playbook on an open case, record step completion or skip a step with a reason, and see run status and notes. Starting and updating a run creates case timeline events. The run stores the playbook version and a snapshot of step guidance and required/optional status so future catalog edits do not rewrite an existing investigation record.
 
 API routes:
 
@@ -64,6 +64,6 @@ The case workspace provides equivalent CSRF-protected form actions. Closed or ar
 
 ## Operational rollout
 
-- Flyway baseline is configured at version 0 for existing installations so the additive V1/V2 migrations can be applied to an existing non-empty database. Verify the target database and take a restorable backup before enabling migrations in any production environment.
+- Flyway baseline is configured at version 0 for existing installations so the additive V1–V4 migrations can be applied to an existing non-empty database. Verify the target database and take a restorable backup before enabling migrations in any production environment.
 - Legacy records retain nullable tenant ownership; do not interpret the tenant foundation as complete isolation.
 - This release does not automatically assign step owners or deadlines and does not execute containment actions. Those require explicit approval workflows and stronger tenant-scoped authorization.
