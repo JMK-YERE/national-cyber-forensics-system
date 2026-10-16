@@ -126,6 +126,27 @@ public class ResponsePlaybookExecutionService {
         return new RunDetails(run, currentSteps);
     }
 
+    @Transactional
+    public RunDetails cancelRun(Long runId, String reason, User actor) {
+        ResponsePlaybookRun run = runs.findById(runId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Playbook run not found."));
+        CaseFile caseFile = requireAuthorizedCase(run.getCaseId(), actor);
+        if (!"IN_PROGRESS".equals(run.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only an active playbook run can be cancelled.");
+        }
+        String cleanReason = reason == null ? "" : reason.trim();
+        if (cleanReason.length() < 5 || cleanReason.length() > 1000) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cancellation reason must be between 5 and 1000 characters.");
+        }
+        run.setStatus("CANCELLED");
+        run.setCompletedAt(OffsetDateTime.now());
+        runs.save(run);
+        cases.addTimeline(caseFile.getId(), "PLAYBOOK_CANCELLED", "Response playbook cancelled",
+            "Playbook " + run.getPlaybookSlug() + " cancelled by " + safeName(actor) + ". Reason: " + cleanReason,
+            actor.getId(), safeName(actor), actor.getRole());
+        return new RunDetails(run, steps.findByRunIdOrderByStepOrderAsc(runId));
+    }
+
     private CaseFile requireAuthorizedCase(Long caseId, User actor) {
         if (actor == null || actor.getId() == null || !STAFF_ROLES.contains(
                 actor.getRole() == null ? "" : actor.getRole().trim().toUpperCase(java.util.Locale.ROOT))) {
