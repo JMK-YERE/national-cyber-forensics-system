@@ -3,6 +3,9 @@ package com.tz.forensics.controller.admin;
 import com.tz.forensics.entity.Tenant;
 import com.tz.forensics.entity.TenantMembership;
 import com.tz.forensics.entity.TenantAuditEvent;
+import com.tz.forensics.entity.TenantPolicy;
+import com.tz.forensics.service.TenantPolicyAdminService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tz.forensics.service.TenantAuditEventService;
 import com.tz.forensics.service.TenantAdminService;
 import jakarta.validation.Valid;
@@ -18,10 +21,13 @@ import java.util.List;
 public class TenantAdminApiController {
     private final TenantAdminService service;
     private final TenantAuditEventService auditEvents;
+    private final TenantPolicyAdminService policies;
 
-    public TenantAdminApiController(TenantAdminService service, TenantAuditEventService auditEvents) {
+    public TenantAdminApiController(TenantAdminService service, TenantAuditEventService auditEvents,
+                                    TenantPolicyAdminService policies) {
         this.service = service;
         this.auditEvents = auditEvents;
+        this.policies = policies;
     }
 
     @GetMapping
@@ -37,6 +43,18 @@ public class TenantAdminApiController {
     @GetMapping("/{tenantId}/audit-events/verify")
     public TenantAuditEventService.ChainVerification verifyAuditChain(@PathVariable Long tenantId) {
         return auditEvents.verifyChain(tenantId);
+    }
+
+    @GetMapping("/{tenantId}/policies")
+    public List<TenantPolicy> listPolicies(@PathVariable Long tenantId) {
+        return policies.list(tenantId);
+    }
+
+    @PutMapping("/{tenantId}/policies/{policyType}")
+    public TenantPolicy upsertPolicy(@PathVariable Long tenantId, @PathVariable String policyType,
+                                     @RequestBody JsonNode document,
+                                     org.springframework.security.core.Authentication authentication) {
+        return policies.upsert(tenantId, policyType, document, authentication.getName());
     }
 
     @PostMapping
