@@ -77,6 +77,7 @@ public class TenantAuditEvent {
     public String getSourceIp() { return sourceIp; }
     public void setSourceIp(String sourceIp) { this.sourceIp = sourceIp; }
     public OffsetDateTime getOccurredAt() { return occurredAt; }
+    public void setOccurredAt(OffsetDateTime occurredAt) { this.occurredAt = occurredAt; }
     public String getPreviousEventHash() { return previousEventHash; }
     public void setPreviousEventHash(String previousEventHash) { this.previousEventHash = previousEventHash; }
     public String getEventHash() { return eventHash; }
