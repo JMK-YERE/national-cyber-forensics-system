@@ -29,40 +29,42 @@ CREATE TABLE IF NOT EXISTS response_playbook_step_runs (
     CONSTRAINT ck_response_playbook_step_order CHECK (step_order > 0)
 );
 
--- Fresh databases may not have JPA-managed case_files until after Flyway completes.
--- Add the FK when the existing case table is available; service authorization also validates cases.
-DO $
-BEGIN
-    IF to_regclass('public.case_files') IS NOT NULL
-       AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_response_playbook_case') THEN
-        ALTER TABLE response_playbook_runs ADD CONSTRAINT fk_response_playbook_case
-            FOREIGN KEY (case_id) REFERENCES case_files(id) ON DELETE RESTRICT;
-    END IF;
-END $;
-
 CREATE INDEX IF NOT EXISTS ix_playbook_runs_case_started ON response_playbook_runs (case_id, started_at DESC);
 CREATE INDEX IF NOT EXISTS ix_playbook_steps_run_order ON response_playbook_step_runs (run_id, step_order);
 
+-- Flyway runs before Hibernate on fresh installs, so legacy tables are linked conditionally.
 DO $$
 BEGIN
-    -- Flyway runs before Hibernate on a fresh installation. Add the FK when the legacy case table exists.
     IF to_regclass('public.case_files') IS NOT NULL
-       AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_response_playbook_case') THEN
-        ALTER TABLE response_playbook_runs ADD CONSTRAINT fk_response_playbook_case
-            FOREIGN KEY (case_id) REFERENCES case_files(id) ON DELETE RESTRICT;
+       AND NOT EXISTS (
+           SELECT 1 FROM pg_constraint
+           WHERE conname = 'fk_response_playbook_case'
+             AND conrelid = 'public.response_playbook_runs'::regclass
+       ) THEN
+        ALTER TABLE public.response_playbook_runs
+            ADD CONSTRAINT fk_response_playbook_case
+            FOREIGN KEY (case_id) REFERENCES public.case_files(id) ON DELETE RESTRICT;
     END IF;
-END $$;
 
-DO $$
-BEGIN
     IF to_regclass('public.users') IS NOT NULL THEN
-        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_response_playbook_started_by') THEN
-            ALTER TABLE response_playbook_runs ADD CONSTRAINT fk_response_playbook_started_by
-                FOREIGN KEY (started_by) REFERENCES users(id) ON DELETE SET NULL;
+        IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint
+            WHERE conname = 'fk_response_playbook_started_by'
+              AND conrelid = 'public.response_playbook_runs'::regclass
+        ) THEN
+            ALTER TABLE public.response_playbook_runs
+                ADD CONSTRAINT fk_response_playbook_started_by
+                FOREIGN KEY (started_by) REFERENCES public.users(id) ON DELETE SET NULL;
         END IF;
-        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_response_playbook_completed_by') THEN
-            ALTER TABLE response_playbook_step_runs ADD CONSTRAINT fk_response_playbook_completed_by
-                FOREIGN KEY (completed_by) REFERENCES users(id) ON DELETE SET NULL;
+
+        IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint
+            WHERE conname = 'fk_response_playbook_completed_by'
+              AND conrelid = 'public.response_playbook_step_runs'::regclass
+        ) THEN
+            ALTER TABLE public.response_playbook_step_runs
+                ADD CONSTRAINT fk_response_playbook_completed_by
+                FOREIGN KEY (completed_by) REFERENCES public.users(id) ON DELETE SET NULL;
         END IF;
     END IF;
 END $$;
