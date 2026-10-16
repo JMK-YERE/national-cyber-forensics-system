@@ -6,6 +6,9 @@ import java.util.List;
 
 public interface IncidentRepository extends JpaRepository<Incident, Long> {
     boolean existsByIncidentId(String incidentId);
+    java.util.Optional<Incident> findByIdAndTenantId(Long id, Long tenantId);
+    List<Incident> findAllByTenantIdOrderByDateReportedDesc(Long tenantId);
+    List<Incident> findByTenantIdAndReporterUserIdOrTenantIdAndAssignedToOrderByDateReportedDesc(Long reporterTenantId, Long reporterUserId, Long assignedTenantId, Long assignedTo);
     List<Incident> findAllByOrderByDateReportedDesc();
     List<Incident> findByIncidentIdContainingIgnoreCase(String incidentId);
     List<Incident> findByReporterUserIdOrAssignedToOrderByDateReportedDesc(Long reporterUserId, Long assignedTo);
