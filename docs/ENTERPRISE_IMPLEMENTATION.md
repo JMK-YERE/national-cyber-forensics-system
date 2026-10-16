@@ -93,3 +93,7 @@ The tenant schema is only a foundation: existing incidents, case files, evidence
 ## Tenant audit integrity
 
 Tenant administration audit writes now serialize on the tenant row, link each event to the previous event hash, and compute a SHA-256 digest over length-prefixed event fields. This helps detect accidental or unauthorized edits when the chain is independently verified. It is **tamper-evident, not tamper-proof**: a database owner able to rewrite the full chain can forge it. Higher assurance requires external/WORM log export, key separation, monitoring and independent verification.
+
+Admin audit APIs:
+- `GET /admin/api/tenants/{tenantId}/audit-events` — latest 100 tenant audit events.
+- `GET /admin/api/tenants/{tenantId}/audit-events/verify` — verifies previous-hash links and recalculates each stored event hash, returning the first invalid event ID when a mismatch is detected.
