@@ -148,4 +148,56 @@ class ResponsePlaybookExecutionServiceTest {
             eq(1L), eq("Platform Admin"), eq("ADMIN"));
     }
 
+
+    @Test
+    void cancellationRequiresReasonAndDoesNotChangeRunOnInvalidReason() {
+        User admin = new User();
+        admin.setId(1L);
+        admin.setRole("ADMIN");
+        CaseFile cf = new CaseFile();
+        cf.setId(5L);
+        cf.setStatus("INVESTIGATING");
+        ResponsePlaybookRun run = new ResponsePlaybookRun();
+        ReflectionTestUtils.setField(run, "id", 41L);
+        run.setCaseId(5L);
+        run.setStatus("IN_PROGRESS");
+        when(runs.findById(41L)).thenReturn(Optional.of(run));
+        when(cases.getById(5L)).thenReturn(cf);
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> service.cancelRun(41L, "no", admin));
+
+        assertEquals(400, error.getStatusCode().value());
+        assertEquals("IN_PROGRESS", run.getStatus());
+        verify(runs, never()).save(any());
+    }
+
+    @Test
+    void cancellationRecordsReasonAndClosesActiveRun() {
+        User admin = new User();
+        admin.setId(1L);
+        admin.setUsername("admin");
+        admin.setFullName("Platform Admin");
+        admin.setRole("ADMIN");
+        CaseFile cf = new CaseFile();
+        cf.setId(5L);
+        cf.setStatus("INVESTIGATING");
+        ResponsePlaybookRun run = new ResponsePlaybookRun();
+        ReflectionTestUtils.setField(run, "id", 41L);
+        run.setCaseId(5L);
+        run.setPlaybookSlug("phishing");
+        run.setStatus("IN_PROGRESS");
+        when(runs.findById(41L)).thenReturn(Optional.of(run));
+        when(cases.getById(5L)).thenReturn(cf);
+        when(steps.findByRunIdOrderByStepOrderAsc(41L)).thenReturn(List.of());
+
+        var result = service.cancelRun(41L, "Duplicate incident", admin);
+
+        assertEquals("CANCELLED", result.run().getStatus());
+        assertNotNull(result.run().getCompletedAt());
+        verify(runs).save(run);
+        verify(cases).addTimeline(eq(5L), eq("PLAYBOOK_CANCELLED"), anyString(),
+            contains("Duplicate incident"), eq(1L), eq("Platform Admin"), eq("ADMIN"));
+    }
+
 }
