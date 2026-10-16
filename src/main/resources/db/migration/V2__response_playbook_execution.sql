@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS response_playbook_runs (
     started_by BIGINT,
     started_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMPTZ,
+    lock_version BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT ck_response_playbook_run_status CHECK (status IN ('IN_PROGRESS', 'COMPLETED', 'CANCELLED'))
 );
 
@@ -22,6 +23,7 @@ CREATE TABLE IF NOT EXISTS response_playbook_step_runs (
     completion_notes TEXT,
     completed_by BIGINT,
     completed_at TIMESTAMPTZ,
+    lock_version BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT uq_response_playbook_step_order UNIQUE (run_id, step_order),
     CONSTRAINT ck_response_playbook_step_status CHECK (status IN ('PENDING', 'COMPLETED', 'SKIPPED')),
     CONSTRAINT ck_response_playbook_step_order CHECK (step_order > 0)
