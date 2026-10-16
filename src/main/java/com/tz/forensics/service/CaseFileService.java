@@ -26,15 +26,18 @@ public class CaseFileService {
     private final CaseTaskRepository caseTaskRepository;
     private final EvidenceRepository evidenceRepository;
     private final IncidentRepository incidentRepository;
+    private final TenantAccessService tenantAccessService;
 
     public CaseFileService(CaseFileRepository caseFileRepository, CaseTimelineRepository timelineRepository,
                            CaseTaskRepository caseTaskRepository, EvidenceRepository evidenceRepository,
-                           IncidentRepository incidentRepository) {
+                           IncidentRepository incidentRepository,
+                           TenantAccessService tenantAccessService) {
         this.caseFileRepository = caseFileRepository;
         this.timelineRepository = timelineRepository;
         this.caseTaskRepository = caseTaskRepository;
         this.evidenceRepository = evidenceRepository;
         this.incidentRepository = incidentRepository;
+        this.tenantAccessService = tenantAccessService;
     }
 
     public List<CaseTimeline> getTimeline(Long caseId) {
@@ -55,6 +58,9 @@ public class CaseFileService {
         }
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (incident == null) throw new IllegalArgumentException("Incident not found.");
+        if (incident.getTenantId() != null) {
+            tenantAccessService.requireMembership(createdByName, incident.getTenantId(), Set.of());
+        }
         String normalizedRole = creatorRole == null ? "" : creatorRole.trim().toUpperCase();
         if (!Set.of("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST").contains(normalizedRole)) {
             throw new IllegalArgumentException("User is not authorized to create a forensic case.");
