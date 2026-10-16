@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -95,7 +96,7 @@ public class ResponsePlaybookService {
     }
 
     public Optional<Playbook> findBySlug(String slug) {
-        return Optional.ofNullable(playbooks.get(slug == null ? "" : slug.trim().toLowerCase()));
+        return Optional.ofNullable(playbooks.get(slug == null ? "" : slug.trim().toLowerCase(Locale.ROOT)));
     }
 
     private static Step step(int order, String phase, String title, String guidance, boolean required) {
