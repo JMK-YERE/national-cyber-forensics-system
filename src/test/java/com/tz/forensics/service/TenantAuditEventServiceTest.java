@@ -39,6 +39,39 @@ class TenantAuditEventServiceTest {
     }
 
     @Test
+    void verifiesValidChainAndDetectsChangedEvent() {
+        TenantRepository tenants = mock(TenantRepository.class);
+        TenantAuditEventRepository events = mock(TenantAuditEventRepository.class);
+        Tenant tenant = new Tenant();
+        tenant.setId(9L);
+        java.util.List<TenantAuditEvent> stored = new java.util.ArrayList<>();
+        when(tenants.findByIdForUpdate(9L)).thenReturn(Optional.of(tenant));
+        when(tenants.existsById(9L)).thenReturn(true);
+        when(events.findTopByTenantIdOrderByIdDesc(9L)).thenAnswer(invocation ->
+            stored.isEmpty() ? Optional.empty() : Optional.of(stored.get(stored.size() - 1)));
+        when(events.save(any(TenantAuditEvent.class))).thenAnswer(invocation -> {
+            TenantAuditEvent event = invocation.getArgument(0);
+            event.setEventHash(event.getEventHash());
+            stored.add(event);
+            return event;
+        });
+        when(events.findAllByTenantIdOrderByIdAsc(9L)).thenAnswer(invocation -> new java.util.ArrayList<>(stored));
+
+        TenantAuditEventService service = new TenantAuditEventService(tenants, events);
+        service.record(9L, 7L, "TENANT_CREATED", "tenant", "9", "SUCCESS", "created");
+        service.record(9L, 7L, "TENANT_MEMBER_ADDED", "membership", "10", "SUCCESS", "member added");
+
+        var verified = service.verifyChain(9L);
+        assertTrue(verified.valid());
+        assertEquals(2, verified.checkedEvents());
+
+        stored.get(0).setReason("altered after recording");
+        var tampered = service.verifyChain(9L);
+        assertFalse(tampered.valid());
+        assertEquals(stored.get(0).getId(), tampered.firstInvalidEventId());
+    }
+
+    @Test
     void refusesAuditEventWithoutTenantScope() {
         TenantAuditEventService service = new TenantAuditEventService(
             mock(TenantRepository.class), mock(TenantAuditEventRepository.class));
