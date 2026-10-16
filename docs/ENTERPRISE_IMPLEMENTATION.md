@@ -75,3 +75,17 @@ Prefer existing Spring Security, PostgreSQL, Flyway, JUnit, Testcontainers, GitH
 - Routes are restricted to ADMIN, CYBER_PRO, FORENSICS and ANALYST authorities.
 - Unit tests verify core catalog coverage, step order, required guidance and unknown-slug behavior.
 - This is a catalog, not an automated executor. Case-linked runs, task assignment, tenant checks, approval gates and execution audit must come after case-level tenant authorization.
+
+## Deep-development increment: persisted playbook runs
+
+- Added additive migration `V2__response_playbook_execution.sql` for run and step history.
+- A playbook run snapshots the catalog version and ordered guidance so later catalog edits do not rewrite historical case workflows.
+- Staff can start a run on an authorized, non-closed case, load prior runs, and finalize individual steps as completed or skipped.
+- Skipped steps require a reason; notes are bounded; finalized steps cannot be edited again; a run completes when no pending steps remain.
+- Start and step updates are appended to the case timeline. The UI uses the authenticated session and CSRF token for write requests.
+- Server-side authorization is rechecked for every read/write. Analyst access requires both underlying incident involvement and case involvement.
+- The migration conditionally adds legacy foreign keys because Flyway runs before Hibernate may create the legacy schema on a fresh database. A production migration rehearsal is still required.
+
+## Release gate remains
+
+The tenant schema is only a foundation: existing incidents, case files, evidence, downloads, reports, notifications, search and export flows have not all been tenant-scoped. Do not merge/deploy until tenant ownership/backfill is approved, all data access paths are scoped, cross-tenant denial tests pass, migrations are tested against both an empty database and a restored production-like backup, and security review is complete.
