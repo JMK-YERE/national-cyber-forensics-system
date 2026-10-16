@@ -29,6 +29,7 @@ public class EvidenceService {
     private final IncidentRepository incidentRepository;
     private final HashService hashService;
     private final EncryptionService encryptionService;
+    private final TenantAccessService tenantAccessService;
     private final Tika tika = new Tika();
 
     private final EvidenceStorage evidenceStorage;
@@ -39,7 +40,8 @@ public class EvidenceService {
                            IncidentRepository incidentRepository,
                            HashService hashService,
                            EncryptionService encryptionService,
-                           EvidenceStorage evidenceStorage) {
+                           EvidenceStorage evidenceStorage,
+                           TenantAccessService tenantAccessService) {
         this.evidenceRepository = evidenceRepository;
         this.custodyRepository = custodyRepository;
         this.caseFileRepository = caseFileRepository;
@@ -47,6 +49,7 @@ public class EvidenceService {
         this.hashService = hashService;
         this.encryptionService = encryptionService;
         this.evidenceStorage = evidenceStorage;
+        this.tenantAccessService = tenantAccessService;
     }
 
     public Evidence uploadEvidence(Long incidentId, MultipartFile file,
@@ -76,6 +79,10 @@ public class EvidenceService {
         com.tz.forensics.entity.Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (incident == null || Boolean.TRUE.equals(incident.getIsClosed()) || "CLOSED".equalsIgnoreCase(incident.getWorkflowStatus())) {
             throw new IllegalArgumentException("Evidence cannot be added to a closed or missing incident.");
+        }
+        // Tenant-owned incidents require an active membership; legacy unassigned incidents remain unchanged pending approved backfill.
+        if (incident.getTenantId() != null) {
+            tenantAccessService.requireMembership(username, incident.getTenantId(), java.util.Set.of());
         }
         if (caseId != null) {
             com.tz.forensics.entity.CaseFile linkedCase = caseFileRepository.findById(caseId).orElse(null);
