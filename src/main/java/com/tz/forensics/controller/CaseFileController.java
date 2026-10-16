@@ -253,13 +253,15 @@ public class CaseFileController {
                 && !"EXAMINATION".equals(current) && !"REVIEW".equals(current)) return "redirect:/cases/" + id;
         User investigator = userRepository.findById(investigatorId).orElse(null);
         if (investigator == null || !Boolean.TRUE.equals(investigator.getEnabled()) || !investigator.isApproved()
-                || !(investigator.isAnalyst() || investigator.isForensics() || investigator.isProfessional())) {
+                || !(investigator.isAnalyst() || investigator.isForensics() || investigator.isProfessional())
+                || !hasTenantAccess(cf.getTenantId(), investigator)) {
             auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Invalid investigator: " + investigatorId);
             return "redirect:/cases/" + id;
         }
         User lead = leadInvestigatorId == null ? investigator : userRepository.findById(leadInvestigatorId).orElse(null);
         if (lead == null || !Boolean.TRUE.equals(lead.getEnabled()) || !lead.isApproved()
-                || !(lead.isAnalyst() || lead.isForensics() || lead.isProfessional())) {
+                || !(lead.isAnalyst() || lead.isForensics() || lead.isProfessional())
+                || !hasTenantAccess(cf.getTenantId(), lead)) {
             auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Invalid lead investigator: " + leadInvestigatorId);
             return "redirect:/cases/" + id;
         }
