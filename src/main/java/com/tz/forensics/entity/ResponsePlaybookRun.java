@@ -8,6 +8,9 @@ import java.time.OffsetDateTime;
 public class ResponsePlaybookRun {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
     @Column(name = "case_id", nullable = false)
     private Long caseId;
     @Column(name = "playbook_slug", nullable = false, length = 80)
