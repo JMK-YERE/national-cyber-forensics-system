@@ -20,6 +20,7 @@ class CaseFileServiceTest {
     @Mock CaseFileRepository cases;
     @Mock CaseTimelineRepository timeline;
     @Mock IncidentRepository incidents;
+    @Mock TenantAccessService tenantAccessService;
     @InjectMocks CaseFileService service;
 
     @Test void lifecycleRejectsIllegalTransition() {
