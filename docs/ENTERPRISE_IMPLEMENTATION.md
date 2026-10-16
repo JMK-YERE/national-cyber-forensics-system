@@ -105,3 +105,10 @@ Admin APIs now support tenant-scoped policy documents:
 - `PUT /admin/api/tenants/{tenantId}/policies/{policyType}`
 
 Supported policy types are `EVIDENCE_RETENTION`, `EXPORT_APPROVAL`, `NOTIFICATIONS`, and `INCIDENT_SLA`. Input is validated by type, each update increments a version, and the change is appended to the tenant audit chain. Secret-like fields (passwords, tokens, API keys, credentials) are rejected so policy JSON is not used as a secret store. These policies are currently stored and audited; existing evidence retention, export and notification execution paths still need to consume them before the policies can be treated as enforced controls.
+
+## Tenant membership lifecycle
+
+- `GET /admin/api/tenants/{tenantId}/members` lists active memberships.
+- `PUT /admin/api/tenants/{tenantId}/members/{userId}` changes a tenant role.
+- `DELETE /admin/api/tenants/{tenantId}/members/{userId}` revokes membership without deleting history.
+- Role changes and revocations are audit-chained. The service refuses to remove or demote the last active `TENANT_ADMIN`.
