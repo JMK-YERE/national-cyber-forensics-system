@@ -28,6 +28,9 @@ public class ResponsePlaybookStepRun {
     private Long completedBy;
     @Column(name = "completed_at")
     private OffsetDateTime completedAt;
+    @jakarta.persistence.Version
+    @Column(name = "lock_version", nullable = false)
+    private Long lockVersion = 0L;
 
     public ResponsePlaybookStepRun() {}
     public Long getId(){return id;} public Long getRunId(){return runId;} public void setRunId(Long v){runId=v;}
