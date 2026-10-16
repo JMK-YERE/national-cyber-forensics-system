@@ -31,12 +31,14 @@ This branch introduces the additive database foundation only. It is not yet a co
 - [ ] Inspect the live database schema and actual Render/Neon connection target.
 - [ ] Verify backup and restore, then apply migration only to a disposable clone.
 - [x] Map nullable `tenant_id` fields on Incident, CaseFile and Evidence entities; add tenant-filtered repository query methods for these resources.
-- [ ] Add an authenticated active-tenant context and route/service enforcement; repository query primitives alone do not provide isolation.
+- [x] Require active tenant membership for tenant-owned Incident, Case and Evidence access checks in the corresponding web controllers; this is an incremental guard, not yet a complete active-tenant context.
 - [ ] Apply tenant-scoped authorization to every controller, service, repository query, file download, search, notification and report/export.
-- [ ] Add cross-tenant denial tests before assigning any legacy data to tenants.
+- [x] Add service-level tests for missing membership, revoked membership, insufficient tenant role, suspended tenant, and unknown user; add a Case tenant-inheritance test. [ ] Add controller integration tests for cross-tenant denial before assigning any legacy data to tenants.
 - [ ] Backfill legacy data from a reviewed mapping; reconcile counts; only then enforce non-null ownership.
 
 ### P1 — evidence and compliance
+- [x] Evidence acquisition records derive tenant ownership from the parent Incident and reject a linked Case whose tenant differs from the parent Incident.
+- [x] Evidence acquisition for tenant-owned incidents requires an active tenant membership.
 - [ ] Evidence acquisition records include collector, method, source, tool/version, timestamps/time zone and notes.
 - [ ] Preserve immutable originals; work on verified copies; keep SHA-256 verification and custody event history.
 - [ ] Add retention policy, legal hold, export approval, redaction and policy versioning.
