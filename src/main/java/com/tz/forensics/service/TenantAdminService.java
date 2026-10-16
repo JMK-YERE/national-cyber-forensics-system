@@ -60,7 +60,16 @@ public class TenantAdminService {
         tenant.setSector(sector == null || sector.isBlank() ? null : sector.trim());
         tenant.setStatus("ACTIVE");
         Tenant saved = tenants.save(tenant);
-        recordAudit(saved.getId(), actorName, "TENANT_CREATED", "tenant", saved.getId().toString(), "Tenant created.");
+        User creator = users.findByUsername(actorName)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tenant creator account not found."));
+        TenantMembership ownerMembership = new TenantMembership();
+        ownerMembership.setTenantId(saved.getId());
+        ownerMembership.setUserId(creator.getId());
+        ownerMembership.setRole("TENANT_ADMIN");
+        ownerMembership.setStatus("ACTIVE");
+        ownerMembership.setCreatedBy(creator.getId());
+        memberships.save(ownerMembership);
+        recordAudit(saved.getId(), actorName, "TENANT_CREATED", "tenant", saved.getId().toString(), "Tenant created; creator granted TENANT_ADMIN membership.");
         return saved;
     }
 
