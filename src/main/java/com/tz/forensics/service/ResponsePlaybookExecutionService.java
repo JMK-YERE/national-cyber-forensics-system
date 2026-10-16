@@ -57,6 +57,7 @@ public class ResponsePlaybookExecutionService {
             step.setPhase(template.phase());
             step.setTitle(template.title());
             step.setGuidance(template.guidance());
+            step.setRequired(template.required());
             steps.save(step);
         }
         cases.addTimeline(caseId, "PLAYBOOK_STARTED", "Response playbook started",
