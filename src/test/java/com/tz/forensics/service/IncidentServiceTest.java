@@ -25,6 +25,7 @@ class IncidentServiceTest {
     @Mock CaseFileRepository cases;
     @Mock EvidenceRepository evidence;
     @Mock AuditService auditService;
+    @Mock TenantAccessService tenantAccessService;
 
     @InjectMocks IncidentService service;
 
