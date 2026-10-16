@@ -112,3 +112,11 @@ Supported policy types are `EVIDENCE_RETENTION`, `EXPORT_APPROVAL`, `NOTIFICATIO
 - `PUT /admin/api/tenants/{tenantId}/members/{userId}` changes a tenant role.
 - `DELETE /admin/api/tenants/{tenantId}/members/{userId}` revokes membership without deleting history.
 - Role changes and revocations are audit-chained. The service refuses to remove or demote the last active `TENANT_ADMIN`.
+
+## Case workflow enhancement: response playbook runs
+
+- The case workspace can start one of five guided playbooks and display active/completed runs alongside the case timeline.
+- Each run snapshots the playbook slug/version and ordered guidance steps; step status is finalized as COMPLETED or SKIPPED, with a reason required for skipped steps.
+- Starting a run and finalizing a step write case timeline entries. Closed/archived cases cannot start new runs, and finalized steps cannot be edited.
+- The API and server-rendered forms both call the same service authorization checks. Analyst access requires the linked incident and case assignment/ownership checks to pass.
+- Database migrations are additive and legacy case rows remain unassigned to tenants. This is a foundation, not yet tenant isolation. Production rollout still requires tenant-scoped repositories/controllers, a verified legacy ownership map, cross-tenant denial tests, and backup/restore rehearsal.
