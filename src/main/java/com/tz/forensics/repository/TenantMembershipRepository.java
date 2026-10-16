@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface TenantMembershipRepository extends JpaRepository<TenantMembership, Long> {
     List<TenantMembership> findAllByUserIdAndStatus(Long userId, String status);
     List<TenantMembership> findAllByTenantIdAndStatus(Long tenantId, String status);
+    Optional<TenantMembership> findByTenantIdAndUserId(Long tenantId, Long userId);
     Optional<TenantMembership> findByTenantIdAndUserIdAndStatus(Long tenantId, Long userId, String status);
     boolean existsByTenantIdAndUserIdAndStatus(Long tenantId, Long userId, String status);
 }
