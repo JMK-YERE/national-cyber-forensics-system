@@ -10,6 +10,9 @@ import java.time.OffsetDateTime;
 public class ResponsePlaybookStepRun {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
     @Column(name = "run_id", nullable = false)
     private Long runId;
     @Column(name = "step_order", nullable = false)
