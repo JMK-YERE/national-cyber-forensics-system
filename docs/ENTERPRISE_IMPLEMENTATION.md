@@ -120,3 +120,17 @@ Supported policy types are `EVIDENCE_RETENTION`, `EXPORT_APPROVAL`, `NOTIFICATIO
 - Starting a run and finalizing a step write case timeline entries. Closed/archived cases cannot start new runs, and finalized steps cannot be edited.
 - The API and server-rendered forms both call the same service authorization checks. Analyst access requires the linked incident and case assignment/ownership checks to pass.
 - Database migrations are additive and legacy case rows remain unassigned to tenants. This is a foundation, not yet tenant isolation. Production rollout still requires tenant-scoped repositories/controllers, a verified legacy ownership map, cross-tenant denial tests, and backup/restore rehearsal.
+
+## Tenant self-service API added on this branch
+
+The branch now also contains a tenant workspace API separate from global /admin/** management:
+
+- GET /api/tenants — list only active tenants for which the authenticated user has active membership.
+- GET /api/tenants/{tenantId}/members — list active members (TENANT_ADMIN only).
+- POST /api/tenants/{tenantId}/members, PUT /api/tenants/{tenantId}/members/{userId}, DELETE /api/tenants/{tenantId}/members/{userId} — membership administration (TENANT_ADMIN only).
+- GET /api/tenants/{tenantId}/policies and PUT /api/tenants/{tenantId}/policies/{type} — policy administration (TENANT_ADMIN only).
+- GET /api/tenants/{tenantId}/audit-events and GET /api/tenants/{tenantId}/audit-events/verify — tenant audit access and hash-chain verification (TENANT_ADMIN only).
+
+Each route resolves the authenticated username to the existing user record, verifies the tenant is active, and checks active membership and role. Supplying or guessing a tenant ID is not sufficient. The platform ADMIN endpoints remain separate for initial tenant provisioning. Automated service tests cover missing membership, insufficient role, and suspended-tenant denial.
+
+**Scope limit remains important:** this protects tenant self-service management endpoints only. It does not yet scope legacy incident/case/evidence/download/search/report/notification queries by tenant. Do not treat the product as fully isolated multi-tenant SaaS until those data paths and their tests are complete.
