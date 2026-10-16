@@ -43,6 +43,9 @@ class TenantAdminServiceTest {
     @Test
     void preventsRemovingTheLastTenantAdministrator() {
         when(tenants.existsById(3L)).thenReturn(true);
+        com.tz.forensics.entity.Tenant lockedTenant = new com.tz.forensics.entity.Tenant();
+        lockedTenant.setId(3L);
+        when(tenants.findByIdForUpdate(3L)).thenReturn(java.util.Optional.of(lockedTenant));
         com.tz.forensics.entity.TenantMembership admin = new com.tz.forensics.entity.TenantMembership();
         admin.setTenantId(3L);
         admin.setUserId(4L);
