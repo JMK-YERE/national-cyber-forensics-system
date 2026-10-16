@@ -80,6 +80,7 @@ public class EvidenceService {
         if (caseId != null) {
             com.tz.forensics.entity.CaseFile linkedCase = caseFileRepository.findById(caseId).orElse(null);
             if (linkedCase == null || !incidentId.equals(linkedCase.getIncidentId())
+                    || !java.util.Objects.equals(incident.getTenantId(), linkedCase.getTenantId())
                     || "CLOSED".equalsIgnoreCase(linkedCase.getStatus())
                     || "ARCHIVED".equalsIgnoreCase(linkedCase.getStatus())) {
                 throw new IllegalArgumentException("Evidence case is invalid or closed.");
@@ -104,6 +105,8 @@ public class EvidenceService {
         }
 
         Evidence evidence = new Evidence();
+        // Evidence ownership is derived from the authoritative parent incident.
+        evidence.setTenantId(incident.getTenantId());
         evidence.setIncidentId(incidentId);
         evidence.setCaseId(caseId);
         evidence.setOriginalFilename(originalFilename);
