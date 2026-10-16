@@ -97,3 +97,11 @@ Tenant administration audit writes now serialize on the tenant row, link each ev
 Admin audit APIs:
 - `GET /admin/api/tenants/{tenantId}/audit-events` — latest 100 tenant audit events.
 - `GET /admin/api/tenants/{tenantId}/audit-events/verify` — verifies previous-hash links and recalculates each stored event hash, returning the first invalid event ID when a mismatch is detected.
+
+## Tenant policy administration
+
+Admin APIs now support tenant-scoped policy documents:
+- `GET /admin/api/tenants/{tenantId}/policies`
+- `PUT /admin/api/tenants/{tenantId}/policies/{policyType}`
+
+Supported policy types are `EVIDENCE_RETENTION`, `EXPORT_APPROVAL`, `NOTIFICATIONS`, and `INCIDENT_SLA`. Input is validated by type, each update increments a version, and the change is appended to the tenant audit chain. Secret-like fields (passwords, tokens, API keys, credentials) are rejected so policy JSON is not used as a secret store. These policies are currently stored and audited; existing evidence retention, export and notification execution paths still need to consume them before the policies can be treated as enforced controls.
