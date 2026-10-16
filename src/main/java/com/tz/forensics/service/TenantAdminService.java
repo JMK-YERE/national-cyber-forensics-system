@@ -1,10 +1,8 @@
 package com.tz.forensics.service;
 
 import com.tz.forensics.entity.Tenant;
-import com.tz.forensics.entity.TenantAuditEvent;
 import com.tz.forensics.entity.TenantMembership;
 import com.tz.forensics.entity.User;
-import com.tz.forensics.repository.TenantAuditEventRepository;
 import com.tz.forensics.repository.TenantMembershipRepository;
 import com.tz.forensics.repository.TenantRepository;
 import com.tz.forensics.repository.UserRepository;
@@ -25,16 +23,16 @@ public class TenantAdminService {
 
     private final TenantRepository tenants;
     private final TenantMembershipRepository memberships;
-    private final TenantAuditEventRepository auditEvents;
+    private final TenantAuditEventService tenantAuditEventService;
     private final UserRepository users;
 
     public TenantAdminService(TenantRepository tenants,
                               TenantMembershipRepository memberships,
-                              TenantAuditEventRepository auditEvents,
+                              TenantAuditEventService tenantAuditEventService,
                               UserRepository users) {
         this.tenants = tenants;
         this.memberships = memberships;
-        this.auditEvents = auditEvents;
+        this.tenantAuditEventService = tenantAuditEventService;
         this.users = users;
     }
 
@@ -98,15 +96,8 @@ public class TenantAdminService {
 
     private void recordAudit(Long tenantId, String actorName, String action, String resourceType,
                              String resourceId, String reason) {
-        TenantAuditEvent event = new TenantAuditEvent();
-        event.setTenantId(tenantId);
-        users.findByUsername(actorName).ifPresent(user -> event.setActorUserId(user.getId()));
-        event.setAction(action);
-        event.setResourceType(resourceType);
-        event.setResourceId(resourceId);
-        event.setOutcome("SUCCESS");
-        event.setReason(reason);
-        auditEvents.save(event);
+        Long actorId = users.findByUsername(actorName).map(User::getId).orElse(null);
+        tenantAuditEventService.record(tenantId, actorId, action, resourceType, resourceId, "SUCCESS", reason);
     }
 
     private String normalizeSlug(String slug) {
