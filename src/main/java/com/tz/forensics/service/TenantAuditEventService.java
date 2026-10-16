@@ -15,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.ChronoUnit;
 import java.util.HexFormat;
 
 /**
@@ -44,6 +45,8 @@ public class TenantAuditEventService {
         TenantAuditEvent previous = events.findTopByTenantIdOrderByIdDesc(tenant.getId()).orElse(null);
         TenantAuditEvent event = new TenantAuditEvent();
         event.setTenantId(tenant.getId());
+        // PostgreSQL TIMESTAMPTZ stores microsecond precision; normalize before hashing.
+        event.setOccurredAt(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
         // PostgreSQL timestamptz stores microsecond precision; normalize before hashing.
         event.setOccurredAt(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
         event.setActorUserId(actorUserId);
