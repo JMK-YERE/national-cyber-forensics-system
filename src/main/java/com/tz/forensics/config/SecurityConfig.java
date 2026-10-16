@@ -123,6 +123,10 @@ public class SecurityConfig {
                 .requestMatchers("/tools/**")
                     .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
 
+                // Incident response playbooks contain staff operational procedures.
+                .requestMatchers("/api/response-playbooks", "/api/response-playbooks/**")
+                    .hasAnyAuthority("ROLE_ADMIN", "ROLE_CYBER_PRO", "ROLE_FORENSICS", "ROLE_ANALYST")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
