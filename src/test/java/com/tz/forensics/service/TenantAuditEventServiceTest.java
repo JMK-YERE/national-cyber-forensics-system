@@ -78,4 +78,30 @@ class TenantAuditEventServiceTest {
         assertThrows(IllegalArgumentException.class,
             () -> service.record(null, 7L, "TEST", "resource", "1", "SUCCESS", "test"));
     }
+
+    @Test
+    void auditHashUsesCanonicalInstantRatherThanLocalOffsetRepresentation() {
+        TenantRepository tenants = mock(TenantRepository.class);
+        TenantAuditEventRepository events = mock(TenantAuditEventRepository.class);
+        Tenant tenant = new Tenant();
+        tenant.setId(9L);
+        java.util.List<TenantAuditEvent> stored = new java.util.ArrayList<>();
+        when(tenants.findByIdForUpdate(9L)).thenReturn(Optional.of(tenant));
+        when(tenants.existsById(9L)).thenReturn(true);
+        when(events.findTopByTenantIdOrderByIdDesc(9L)).thenAnswer(invocation ->
+            stored.isEmpty() ? Optional.empty() : Optional.of(stored.get(stored.size() - 1)));
+        when(events.save(any(TenantAuditEvent.class))).thenAnswer(invocation -> {
+            TenantAuditEvent event = invocation.getArgument(0);
+            stored.add(event);
+            return event;
+        });
+        when(events.findAllByTenantIdOrderByIdAsc(9L)).thenAnswer(invocation -> new java.util.ArrayList<>(stored));
+
+        TenantAuditEventService service = new TenantAuditEventService(tenants, events);
+        TenantAuditEvent saved = service.record(9L, 7L, "TENANT_CREATED", "tenant", "9", "SUCCESS", "created");
+        saved.setOccurredAt(saved.getOccurredAt().withOffsetSameInstant(java.time.ZoneOffset.UTC));
+
+        assertTrue(service.verifyChain(9L).valid());
+    }
+
 }
