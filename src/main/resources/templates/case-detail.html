@@ -19,7 +19,7 @@
 <li th:each="step : ${runDetails.steps}" style="padding:8px 0;border-bottom:1px solid var(--border-color,#dbe4e8)">
 <div><strong th:text="${step.title}">Step title</strong> <small th:text="${step.phase + ' · ' + step.status}">PHASE · PENDING</small></div>
 <p class="muted" th:text="${step.guidance}" style="font-size:12px;line-height:1.55;margin:5px 0">Guidance</p>
-<div th:if="${step.status != 'PENDING'}" class="muted" style="font-size:12px"><span th:text="${step.status}">COMPLETED</span><span th:if="${step.completionNotes != null}" th:text="' · ' + ${step.completionNotes}"></span></div>
+<div th:if="${step.status != 'PENDING'}" class="muted" style="font-size:12px"><span th:text="${step.status}">COMPLETED</span><span th:if="${step.completionNotes != null}" th:text="${' · ' + step.completionNotes}"></span></div>
 <form th:if="${step.status == 'PENDING' and runDetails.run.status == 'IN_PROGRESS'}" th:action="@{/cases/{id}/response-playbooks/{runId}/steps/{stepId}(id=${caseFile.id},runId=${runDetails.run.id},stepId=${step.id})}" method="post" style="display:grid;gap:7px;margin-top:8px">
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 <textarea name="notes" maxlength="5000" rows="2" placeholder="Decision, findings or reason if skipping"></textarea>
