@@ -192,7 +192,8 @@ public class EvidenceController {
         model.addAttribute("custodyEvents", evidenceService.getChainOfCustody(id));
         model.addAttribute("custodians", userRepository.findAll().stream()
                 .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
-                        && (u.isAdmin() || u.isProfessional() || u.isForensics() || u.isAnalyst())).toList());
+                        && (u.isAdmin() || u.isProfessional() || u.isForensics() || u.isAnalyst())
+                        && hasTenantAccess(evidence.getTenantId(), u)).toList());
         model.addAttribute("canOperateCustody", canAcquireEvidence(user)
                 || (evidence.getCustodianId() != null && evidence.getCustodianId().equals(user.getId())));
         auditService.log("VIEW_CHAIN_OF_CUSTODY", "Evidence", String.valueOf(id),
@@ -213,7 +214,8 @@ public class EvidenceController {
         if(!custodyOperator)return "redirect:/access-denied";
         User recipient=userRepository.findById(recipientId).orElse(null);
         if(recipient==null||!Boolean.TRUE.equals(recipient.getEnabled())||!recipient.isApproved()
-                ||(!recipient.isAdmin()&&!recipient.isProfessional()&&!recipient.isForensics()&&!recipient.isAnalyst())){
+                ||(!recipient.isAdmin()&&!recipient.isProfessional()&&!recipient.isForensics()&&!recipient.isAnalyst())
+                || !hasTenantAccess(evidence.getTenantId(), recipient)){
             auditService.log("REJECT_TRANSFER_EVIDENCE","Evidence",String.valueOf(id),"Invalid or inactive recipient: "+recipientId);
             return "redirect:/access-denied";
         }
