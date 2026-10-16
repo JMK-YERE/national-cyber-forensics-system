@@ -204,6 +204,23 @@ public class CaseFileController {
         return "redirect:/cases/" + id + "#response-playbooks";
     }
 
+    @PostMapping("/{id}/response-playbooks/{runId}/cancel")
+    public String cancelResponsePlaybook(@PathVariable Long id, @PathVariable Long runId,
+            @RequestParam String reason, Authentication auth) {
+        User actor = getCurrentUser(auth);
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, actor)) return "redirect:/access-denied";
+        try {
+            var run = playbookExecutions.getRun(runId, actor);
+            if (!id.equals(run.run().getCaseId())) return "redirect:/access-denied";
+            playbookExecutions.cancelRun(runId, reason, actor);
+        } catch (org.springframework.web.server.ResponseStatusException e) {
+            auditService.log("REJECT_PLAYBOOK_CANCEL", "CaseFile", String.valueOf(id), e.getReason());
+            return "redirect:/cases/" + id + "?playbookError=1#response-playbooks";
+        }
+        return "redirect:/cases/" + id + "#response-playbooks";
+    }
+
     @PostMapping("/{id}/assign")
     public String assignCase(@PathVariable Long id, @RequestParam Long investigatorId,
                              @RequestParam(required = false) Long leadInvestigatorId,
