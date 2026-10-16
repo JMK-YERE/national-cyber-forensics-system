@@ -1,6 +1,5 @@
 package com.tz.forensics.service;
 
-import com.tz.forensics.repository.TenantAuditEventRepository;
 import com.tz.forensics.repository.TenantMembershipRepository;
 import com.tz.forensics.repository.TenantRepository;
 import com.tz.forensics.repository.UserRepository;
@@ -14,7 +13,7 @@ import static org.mockito.Mockito.*;
 class TenantAdminServiceTest {
     private TenantRepository tenants;
     private TenantMembershipRepository memberships;
-    private TenantAuditEventRepository auditEvents;
+    private TenantAuditEventService auditEventService;
     private UserRepository users;
     private TenantAdminService service;
 
@@ -22,16 +21,16 @@ class TenantAdminServiceTest {
     void setUp() {
         tenants = mock(TenantRepository.class);
         memberships = mock(TenantMembershipRepository.class);
-        auditEvents = mock(TenantAuditEventRepository.class);
+        auditEventService = mock(TenantAuditEventService.class);
         users = mock(UserRepository.class);
-        service = new TenantAdminService(tenants, memberships, auditEvents, users);
+        service = new TenantAdminService(tenants, memberships, auditEventService, users);
     }
 
     @Test
     void rejectsBlankTenantName() {
         assertThrows(ResponseStatusException.class,
             () -> service.createTenant("  ", "valid-tenant", "Finance", "admin"));
-        verifyNoInteractions(tenants, memberships, auditEvents, users);
+        verifyNoInteractions(tenants, memberships, auditEventService, users);
     }
 
     @Test
@@ -48,6 +47,6 @@ class TenantAdminServiceTest {
             () -> service.createTenant("Finance Org", "finance-org", "Finance", "admin"));
         verify(tenants).existsBySlugIgnoreCase("finance-org");
         verify(tenants, never()).save(any());
-        verifyNoInteractions(memberships, auditEvents, users);
+        verifyNoInteractions(memberships, auditEventService, users);
     }
 }
