@@ -5,7 +5,8 @@
 <title>Response Playbooks - Cyber Forensics TZ</title>
 <link rel="stylesheet" th:href="@{/css/theme.css}">
 <style>
-.playbook-main{max-width:1200px;margin:0 auto}.playbook-head{border-left:3px solid #0d9488;padding:4px 0 8px 15px;margin-bottom:22px}.playbook-head h1{margin:0;font-size:27px;color:var(--text-primary,#0f172a)}.playbook-head p{margin:6px 0 0;color:var(--text-muted,#64748b);font-size:13px;max-width:760px}.flow-strip{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 26px}.flow-strip span{padding:7px 10px;border:1px solid rgba(13,148,136,.35);border-radius:7px;font-size:11px;font-weight:700;color:var(--text-primary,#0f172a)}.playbook-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.playbook-card{border:1px solid var(--border-color,#dbe4e8);border-radius:12px;padding:16px;background:var(--surface,#fff);min-width:0}.playbook-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.playbook-title h2{font-size:17px;margin:0 0 8px;color:var(--text-primary,#0f172a)}.playbook-title p{font-size:12px;line-height:1.55;margin:0;color:var(--text-muted,#64748b)}.severity{font-size:10px;font-weight:800;letter-spacing:.06em;padding:5px 7px;border:1px solid rgba(13,148,136,.45);border-radius:6px;white-space:nowrap}.meta{font-size:11px;color:var(--text-muted,#64748b);margin:12px 0}.triggers{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 15px}.triggers span{font-size:10px;background:rgba(13,148,136,.08);border-radius:5px;padding:5px 7px;color:var(--text-primary,#0f172a)}.playbook-card details{border-top:1px solid var(--border-color,#dbe4e8);padding-top:12px}.playbook-card summary{cursor:pointer;font-size:12px;font-weight:800;color:var(--text-primary,#0f172a);min-height:28px}.step-list{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:10px}.step{border-left:2px solid #0d9488;padding:2px 0 3px 11px}.step-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.step-num{font-size:10px;font-weight:800;color:#0f766e}.step-phase{font-size:9px;letter-spacing:.05em;font-weight:800;color:var(--text-muted,#64748b)}.step h3{font-size:12px;margin:4px 0;color:var(--text-primary,#0f172a)}.step p{font-size:11px;line-height:1.55;margin:0;color:var(--text-muted,#64748b)}.safety-note{margin:22px 0 4px;border-left:3px solid #0d9488;padding:10px 13px;background:rgba(13,148,136,.07);font-size:12px;line-height:1.6;color:var(--text-primary,#0f172a)}@media(max-width:760px){.playbook-list{grid-template-columns:1fr}.playbook-head h1{font-size:23px}.playbook-card{padding:13px}.flow-strip{gap:6px}.flow-strip span{font-size:10px}}
+.playbook-main{max-width:1200px;margin:0 auto}.playbook-head{border-left:3px solid #0d9488;padding:4px 0 8px 15px;margin-bottom:22px}.playbook-head h1{margin:0;font-size:27px;color:var(--text-primary,#0f172a)}.playbook-head p{margin:6px 0 0;color:var(--text-muted,#64748b);font-size:13px;max-width:760px}.flow-strip{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 26px}.flow-strip span{padding:7px 10px;border:1px solid rgba(13,148,136,.35);border-radius:7px;font-size:11px;font-weight:700;color:var(--text-primary,#0f172a)}.playbook-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.playbook-card{border:1px solid var(--border-color,#dbe4e8);border-radius:12px;padding:16px;background:var(--surface,#fff);min-width:0}.playbook-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.playbook-title h2{font-size:17px;margin:0 0 8px;color:var(--text-primary,#0f172a)}.playbook-title p{font-size:12px;line-height:1.55;margin:0;color:var(--text-muted,#64748b)}.severity{font-size:10px;font-weight:800;letter-spacing:.06em;padding:5px 7px;border:1px solid rgba(13,148,136,.45);border-radius:6px;white-space:nowrap}.meta{font-size:11px;color:var(--text-muted,#64748b);margin:12px 0}.triggers{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 15px}.triggers span{font-size:10px;background:rgba(13,148,136,.08);border-radius:5px;padding:5px 7px;color:var(--text-primary,#0f172a)}.playbook-card details{border-top:1px solid var(--border-color,#dbe4e8);padding-top:12px}.playbook-card summary{cursor:pointer;font-size:12px;font-weight:800;color:var(--text-primary,#0f172a);min-height:28px}.step-list{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:10px}.step{border-left:2px solid #0d9488;padding:2px 0 3px 11px}.step-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.step-num{font-size:10px;font-weight:800;color:#0f766e}.step-phase{font-size:9px;letter-spacing:.05em;font-weight:800;color:var(--text-muted,#64748b)}.step h3{font-size:12px;margin:4px 0;color:var(--text-primary,#0f172a)}.step p{font-size:11px;line-height:1.55;margin:0;color:var(--text-muted,#64748b)}.safety-note{margin:22px 0 4px;border-left:3px solid #0d9488;padding:10px 13px;background:rgba(13,148,136,.07);font-size:12px;line-height:1.6;color:var(--text-primary,#0f172a)}.execution-panel{border:1px solid var(--border-color,#dbe4e8);border-radius:12px;padding:16px;margin:0 0 22px;background:var(--surface,#fff)}.execution-panel h2{font-size:16px;margin:0 0 7px;color:var(--text-primary,#0f172a)}.execution-panel>p{font-size:12px;line-height:1.6;color:var(--text-muted,#64748b);margin:0 0 14px}.execution-controls{display:grid;grid-template-columns:minmax(90px,.6fr) minmax(200px,1fr) auto auto;gap:10px;align-items:end}.execution-controls label{display:grid;gap:5px;font-size:11px;font-weight:700;color:var(--text-primary,#0f172a)}.execution-controls input,.execution-controls select,.step-note{width:100%;box-sizing:border-box;border:1px solid var(--border-color,#cbd5e1);border-radius:7px;padding:10px;background:var(--surface,#fff);color:var(--text-primary,#0f172a);font:inherit;font-size:12px}.action-btn{border:1px solid #0d9488;border-radius:7px;padding:10px 12px;background:#0f766e;color:#fff;font-size:11px;font-weight:800;cursor:pointer;min-height:37px}.action-btn.secondary{background:transparent;color:var(--text-primary,#0f172a);border-color:var(--border-color,#cbd5e1)}.action-btn:disabled{opacity:.55;cursor:not-allowed}.execution-message{font-size:12px;margin-top:12px;color:var(--text-muted,#64748b);white-space:pre-wrap}.execution-message.error{color:#b91c1c}.run-list{display:grid;gap:12px;margin-top:15px}.run-card{border-top:1px solid var(--border-color,#dbe4e8);padding-top:12px}.run-card h3{font-size:13px;margin:0 0 5px;color:var(--text-primary,#0f172a)}.run-meta{font-size:10px;color:var(--text-muted,#64748b);margin-bottom:10px}.run-step{border-left:2px solid #0d9488;padding:8px 0 8px 10px;margin:9px 0}.run-step h4{font-size:12px;margin:0 0 5px;color:var(--text-primary,#0f172a)}.run-step p{font-size:11px;line-height:1.55;color:var(--text-muted,#64748b);margin:0 0 7px}.run-step textarea{min-height:54px;resize:vertical}.step-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}.step-status{font-size:10px;font-weight:800;color:#0f766e;margin-bottom:5px}.step-status.pending{color:var(--text-muted,#64748b)}.step-status.skipped{color:#b45309}.execution-note{font-size:11px;line-height:1.55;color:var(--text-muted,#64748b);margin-top:12px}
+@media(max-width:760px){.playbook-list{grid-template-columns:1fr}.playbook-head h1{font-size:23px}.playbook-card{padding:13px}.flow-strip{gap:6px}.flow-strip span{font-size:10px}}
 </style></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
@@ -13,6 +14,19 @@
 <main class="app-main"><div class="app-container playbook-main">
 <header class="playbook-head"><h1>Incident Response Playbooks</h1><p>Consistent, evidence-aware workflows for common cyber incidents. Open a playbook to follow its recommended steps and document decisions in the authorized case record.</p></header>
 <div class="flow-strip" aria-label="Incident response flow"><span>1. Detect &amp; triage</span><span>2. Preserve evidence</span><span>3. Contain</span><span>4. Investigate</span><span>5. Recover</span><span>6. Learn</span></div>
+<section class="execution-panel" aria-labelledby="execution-title">
+<h2 id="execution-title">Run a playbook against an authorized case</h2>
+<p>Start a versioned workflow, record completion notes, and keep step changes in the case timeline. Only staff with access to the selected case can use this workflow.</p>
+<div class="execution-controls">
+<label for="execution-case-id">Case ID <input id="execution-case-id" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 42"></label>
+<label for="execution-playbook">Playbook <select id="execution-playbook" required><option value="">Choose a playbook</option><option th:each="p : ${playbooks}" th:value="${p.slug()}" th:text="${p.title()}">Playbook</option></select></label>
+<button id="start-playbook" class="action-btn" type="button">Start workflow</button>
+<button id="load-playbook-runs" class="action-btn secondary" type="button">Load case runs</button>
+</div>
+<div id="execution-message" class="execution-message" role="status" aria-live="polite">Enter a case ID you are authorized to access.</div>
+<div id="execution-runs" class="run-list"></div>
+<div class="execution-note">Skipped steps require a reason. A run is marked complete when all steps are finalized. This tool records progress only; it does not isolate systems, disable accounts, delete files or execute containment actions.</div>
+</section>
 <section class="playbook-list">
 <article class="playbook-card" th:each="p : ${playbooks}">
 <div class="playbook-title"><div><h2 th:text="${p.title()}">Playbook title</h2><p th:text="${p.summary()}">Playbook summary</p></div><span class="severity" th:text="${p.severityHint()}">HIGH</span></div>
@@ -23,4 +37,67 @@
 </details></article>
 </section>
 <div class="safety-note"><strong>Evidence and safety:</strong> Preserve original evidence and record collection metadata and hashes. Containment, credential changes, shutdowns and recovery actions must be authorized and documented. This guide does not execute actions automatically; follow your institution's escalation, legal and privacy procedures.</div>
-</div></main><script th:src="@{/js/app.js}"></script></body></html>
+</div></main><script th:src="@{/js/app.js}"></script><script>
+(function(){
+  const caseInput=document.getElementById('execution-case-id');
+  const playbookSelect=document.getElementById('execution-playbook');
+  const message=document.getElementById('execution-message');
+  const runsRoot=document.getElementById('execution-runs');
+  const startButton=document.getElementById('start-playbook');
+  const loadButton=document.getElementById('load-playbook-runs');
+  function say(text,isError){message.textContent=text;message.classList.toggle('error',!!isError);}
+  function csrf(){const match=document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);return match?decodeURIComponent(match[1]):'';}
+  async function api(url,options){
+    const opts=options||{};opts.credentials='same-origin';opts.headers=Object.assign({'Accept':'application/json'},opts.headers||{});
+    if(opts.method && !['GET','HEAD'].includes(opts.method.toUpperCase())){opts.headers['Content-Type']='application/json';const token=csrf();if(token)opts.headers['X-XSRF-TOKEN']=token;}
+    const response=await fetch(url,opts);const text=await response.text();let data=null;try{data=text?JSON.parse(text):null;}catch(_){}
+    if(!response.ok)throw new Error((data&&(data.detail||data.message||data.error))||('Request failed ('+response.status+'). Check your role, case ID and session.'));
+    return data;
+  }
+  function node(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
+  function caseId(){const id=Number(caseInput.value);if(!Number.isSafeInteger(id)||id<1)throw new Error('Enter a valid positive case ID.');return id;}
+  function renderRuns(details){
+    runsRoot.replaceChildren();
+    if(!details||!details.length){runsRoot.append(node('p','execution-note','No playbook runs found for this case.'));return;}
+    details.forEach(function(detail){
+      const run=detail.run, card=node('article','run-card'), title=node('h3','',run.playbookSlug+' · '+run.playbookVersion);
+      const meta=node('div','run-meta','Run #'+run.id+' · '+run.status+' · Started '+(run.startedAt||''));
+      card.append(title,meta);
+      (detail.steps||[]).forEach(function(step){
+        const item=node('div','run-step'), status=node('div','step-status'+(step.status==='PENDING'?' pending':step.status==='SKIPPED'?' skipped':''),step.status);
+        item.append(status,node('h4','',step.stepOrder+'. '+step.title+' — '+step.phase),node('p','',step.guidance));
+        if(step.completionNotes)item.append(node('p','', 'Notes: '+step.completionNotes));
+        if(run.status==='IN_PROGRESS'&&step.status==='PENDING'){
+          const note=node('textarea','step-note');note.maxLength=5000;note.placeholder='Completion notes (required if skipping)';
+          const actions=node('div','step-actions');
+          const done=node('button','action-btn','Mark complete');done.type='button';
+          const skip=node('button','action-btn secondary','Skip with reason');skip.type='button';
+          done.addEventListener('click',()=>updateStep(run.id,step.id,'COMPLETED',note.value,done,skip));
+          skip.addEventListener('click',()=>updateStep(run.id,step.id,'SKIPPED',note.value,done,skip));
+          actions.append(done,skip);item.append(note,actions);
+        }
+        card.append(item);
+      });
+      runsRoot.append(card);
+    });
+  }
+  async function loadRuns(){
+    try{const id=caseId();say('Loading authorized case runs…');const data=await api('/api/response-playbooks/cases/'+id+'/runs');renderRuns(data);say('Loaded playbook runs for case '+id+'.');}
+    catch(e){say(e.message,true);}
+  }
+  async function updateStep(runId,stepId,status,notes,buttonA,buttonB){
+    if(status==='SKIPPED'&&!notes.trim()){say('Enter a reason before skipping this step.',true);return;}
+    buttonA.disabled=true;buttonB.disabled=true;
+    try{await api('/api/response-playbooks/runs/'+runId+'/steps/'+stepId,{method:'PATCH',body:JSON.stringify({status:status,notes:notes})});say('Step saved and case timeline updated.');await loadRuns();}
+    catch(e){say(e.message,true);buttonA.disabled=false;buttonB.disabled=false;}
+  }
+  startButton.addEventListener('click',async function(){
+    try{const id=caseId(),slug=playbookSelect.value;if(!slug)throw new Error('Choose a response playbook first.');startButton.disabled=true;say('Starting playbook and recording its steps…');
+      await api('/api/response-playbooks/cases/'+id+'/runs',{method:'POST',body:JSON.stringify({playbookSlug:slug})});
+      say('Playbook started. Its steps are now linked to the case timeline.');await loadRuns();
+    }catch(e){say(e.message,true);}finally{startButton.disabled=false;}
+  });
+  loadButton.addEventListener('click',loadRuns);
+})();
+</script>
+</body></html>
