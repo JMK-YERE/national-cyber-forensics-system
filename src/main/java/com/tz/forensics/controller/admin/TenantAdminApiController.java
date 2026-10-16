@@ -2,6 +2,8 @@ package com.tz.forensics.controller.admin;
 
 import com.tz.forensics.entity.Tenant;
 import com.tz.forensics.entity.TenantMembership;
+import com.tz.forensics.entity.TenantAuditEvent;
+import com.tz.forensics.service.TenantAuditEventService;
 import com.tz.forensics.service.TenantAdminService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -15,14 +17,26 @@ import java.util.List;
 @RequestMapping("/admin/api/tenants")
 public class TenantAdminApiController {
     private final TenantAdminService service;
+    private final TenantAuditEventService auditEvents;
 
-    public TenantAdminApiController(TenantAdminService service) {
+    public TenantAdminApiController(TenantAdminService service, TenantAuditEventService auditEvents) {
         this.service = service;
+        this.auditEvents = auditEvents;
     }
 
     @GetMapping
     public List<Tenant> listTenants() {
         return service.listTenants();
+    }
+
+    @GetMapping("/{tenantId}/audit-events")
+    public List<TenantAuditEvent> listAuditEvents(@PathVariable Long tenantId) {
+        return auditEvents.listRecent(tenantId);
+    }
+
+    @GetMapping("/{tenantId}/audit-events/verify")
+    public TenantAuditEventService.ChainVerification verifyAuditChain(@PathVariable Long tenantId) {
+        return auditEvents.verifyChain(tenantId);
     }
 
     @PostMapping
