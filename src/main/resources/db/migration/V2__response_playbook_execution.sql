@@ -29,6 +29,17 @@ CREATE TABLE IF NOT EXISTS response_playbook_step_runs (
     CONSTRAINT ck_response_playbook_step_order CHECK (step_order > 0)
 );
 
+-- Fresh databases may not have JPA-managed case_files until after Flyway completes.
+-- Add the FK when the existing case table is available; service authorization also validates cases.
+DO $
+BEGIN
+    IF to_regclass('public.case_files') IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_response_playbook_case') THEN
+        ALTER TABLE response_playbook_runs ADD CONSTRAINT fk_response_playbook_case
+            FOREIGN KEY (case_id) REFERENCES case_files(id) ON DELETE RESTRICT;
+    END IF;
+END $;
+
 CREATE INDEX IF NOT EXISTS ix_playbook_runs_case_started ON response_playbook_runs (case_id, started_at DESC);
 CREATE INDEX IF NOT EXISTS ix_playbook_steps_run_order ON response_playbook_step_runs (run_id, step_order);
 
