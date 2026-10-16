@@ -48,6 +48,12 @@ public class ResponsePlaybookExecutionController {
         return execution.updateStep(runId, stepId, request.status(), request.notes(), currentUser(auth));
     }
 
+    @PatchMapping("/runs/{runId}/cancel")
+    public ResponsePlaybookExecutionService.RunDetails cancelRun(@PathVariable Long runId,
+            @Valid @RequestBody CancelRunRequest request, Authentication auth) {
+        return execution.cancelRun(runId, request.reason(), currentUser(auth));
+    }
+
     private User currentUser(Authentication auth) {
         if (auth == null || auth.getName() == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication is required.");
@@ -57,5 +63,5 @@ public class ResponsePlaybookExecutionController {
     }
 
     public record StartRunRequest(@NotBlank @Size(max = 80) String playbookSlug) {}
-    public record UpdateStepRequest(@NotBlank @Size(max = 20) String status, @Size(max = 5000) String notes) {}
+    public record UpdateStepRequest(@NotBlank @Size(max = 20) String status, @Size(max = 5000) String notes) {}\n    public record CancelRunRequest(@NotBlank @Size(min = 5, max = 1000) String reason) {}
 }
