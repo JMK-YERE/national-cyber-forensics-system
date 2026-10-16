@@ -27,6 +27,7 @@ This branch introduces the additive database foundation only. It is not yet a co
 ### P0 — safe data and tenant foundation
 - [x] Add versioned migration tooling and initial tenant/membership/policy/audit schema.
 - [x] Add nullable tenant ownership columns to existing tenant-owned tables, without assigning old records automatically.
+- [x] Add tenant, membership, policy and tenant-audit entities/repositories plus global-admin-only tenant management endpoints.
 - [ ] Inspect the live database schema and actual Render/Neon connection target.
 - [ ] Verify backup and restore, then apply migration only to a disposable clone.
 - [ ] Add tenant-aware entities/repositories and authenticated tenant context.
@@ -52,7 +53,7 @@ This branch introduces the additive database foundation only. It is not yet a co
 - [ ] SLA metrics, tenant-scoped executive reports, restore drills and recovery objectives.
 - [ ] Partner/referral workflows for Tanzania institutions, only under approved agreements.
 
-## Acceptance gates
+## Current API surface (foundation only)\n\n- GET /admin/api/tenants — list tenants; restricted by the existing /admin/** ADMIN security rule.\n- POST /admin/api/tenants — create a tenant.\n- POST /admin/api/tenants/{tenantId}/members — add/reactivate a membership using an existing user ID.\n\nThese endpoints manage tenant metadata only. They do not mean that incidents, cases, evidence, downloads, reports or notifications are tenant-isolated yet. Do not onboard real customer data until all cross-tenant authorization gates pass.\n\n## Acceptance gates
 
 - Tenant A cannot list, read, mutate, upload to, download, search, notify, or export Tenant B records even with guessed IDs.
 - Missing/invalid tenant context fails closed.
