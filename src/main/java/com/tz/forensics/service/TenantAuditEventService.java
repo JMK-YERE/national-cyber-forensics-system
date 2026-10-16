@@ -54,6 +54,42 @@ public class TenantAuditEventService {
         return events.save(event);
     }
 
+    public record ChainVerification(boolean valid, long checkedEvents, Long firstInvalidEventId, String message) {}
+
+    @Transactional(readOnly = true)
+    public java.util.List<TenantAuditEvent> listRecent(Long tenantId) {
+        if (!tenants.existsById(tenantId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found.");
+        }
+        return events.findTop100ByTenantIdOrderByOccurredAtDesc(tenantId);
+    }
+
+    @Transactional(readOnly = true)
+    public ChainVerification verifyChain(Long tenantId) {
+        if (!tenants.existsById(tenantId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found.");
+        }
+        java.util.List<TenantAuditEvent> ordered = events.findAllByTenantIdOrderByIdAsc(tenantId);
+        String expectedPrevious = null;
+        long checked = 0;
+        for (TenantAuditEvent event : ordered) {
+            checked++;
+            if (!java.util.Objects.equals(expectedPrevious, event.getPreviousEventHash())) {
+                return new ChainVerification(false, checked, event.getId(),
+                    "Previous-event link mismatch; review this event and subsequent chain.");
+            }
+            String calculated = hash(event);
+            if (event.getEventHash() == null || !MessageDigest.isEqual(
+                    calculated.getBytes(StandardCharsets.US_ASCII),
+                    event.getEventHash().getBytes(StandardCharsets.US_ASCII))) {
+                return new ChainVerification(false, checked, event.getId(),
+                    "Event hash mismatch; the stored event may have changed.");
+            }
+            expectedPrevious = event.getEventHash();
+        }
+        return new ChainVerification(true, checked, null, "Audit hash chain verified.");
+    }
+
     private String hash(TenantAuditEvent event) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
