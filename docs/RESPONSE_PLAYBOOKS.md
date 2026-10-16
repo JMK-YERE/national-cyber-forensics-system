@@ -36,3 +36,14 @@ All routes require an authenticated incident-response staff role: `ROLE_ADMIN`, 
 ## Deliberate limitations
 
 The current release is a catalog only. It does not start case runs, create tasks, execute containment, notify external parties, or claim tenant isolation. Those features must be added only after case-level tenant authorization and auditable human approval are implemented. Never paste secrets, personal data or raw evidence into playbook metadata.
+
+## Case-linked execution (implemented on the development branch)
+
+- `POST /api/response-playbooks/cases/{caseId}/runs` with JSON `{"playbookSlug":"phishing"}` starts a versioned run and persists a snapshot of its steps.
+- `GET /api/response-playbooks/cases/{caseId}/runs` lists runs for an authorized case.
+- `GET /api/response-playbooks/runs/{runId}` returns one authorized run.
+- `PATCH /api/response-playbooks/runs/{runId}/steps/{stepId}` accepts `{"status":"COMPLETED","notes":"..." }` or `{"status":"SKIPPED","notes":"reason"}`.
+- Step completion is persisted and added to the case timeline. Skipping requires a reason; finalized steps cannot be edited again. A run is marked completed when every step is finalized.
+- Authorization is checked server-side on each operation. ADMIN, CYBER_PRO and FORENSICS can manage cases; ANALYST access is limited to cases where they are involved in the underlying incident and are the case creator, assignee or lead investigator. Closed/archived cases cannot start new runs.
+
+The run history is an operational record, not a replacement for a formal evidence chain-of-custody record. Tenant isolation across existing incident/case/evidence APIs remains a separate required release gate.
