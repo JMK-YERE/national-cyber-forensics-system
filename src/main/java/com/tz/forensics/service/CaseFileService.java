@@ -85,6 +85,8 @@ public class CaseFileService {
         caseFile.setCaseNumber("CASE-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         caseFile.setIncidentId(incidentId);
+        // Tenant ownership is inherited from the parent incident, never selected by the client.
+        caseFile.setTenantId(incident.getTenantId());
         caseFile.setTitle(normalizedTitle);
         caseFile.setDescription(normalizedDescription);
         caseFile.setPriority(normalizedPriority);
