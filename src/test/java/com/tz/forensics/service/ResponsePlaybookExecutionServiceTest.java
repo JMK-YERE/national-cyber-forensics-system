@@ -2,6 +2,8 @@ package com.tz.forensics.service;
 
 import com.tz.forensics.entity.CaseFile;
 import com.tz.forensics.entity.Incident;
+import com.tz.forensics.entity.ResponsePlaybookRun;
+import com.tz.forensics.entity.ResponsePlaybookStepRun;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.ResponsePlaybookRunRepository;
 import com.tz.forensics.repository.ResponsePlaybookStepRunRepository;
@@ -11,6 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.test.util.ReflectionTestUtils;
+import java.util.List;
 
 import java.util.Optional;
 
@@ -79,4 +83,69 @@ class ResponsePlaybookExecutionServiceTest {
         verify(runs, never()).save(any());
         verify(steps, never()).save(any());
     }
+
+    @Test
+    void skipRequiresReasonAndDoesNotFinalizeStepWithoutIt() {
+        User admin = new User();
+        admin.setId(1L);
+        admin.setRole("ADMIN");
+        CaseFile cf = new CaseFile();
+        cf.setId(5L);
+        cf.setStatus("INVESTIGATING");
+        ResponsePlaybookRun run = new ResponsePlaybookRun();
+        ReflectionTestUtils.setField(run, "id", 41L);
+        run.setCaseId(5L);
+        run.setStatus("IN_PROGRESS");
+        ResponsePlaybookStepRun step = new ResponsePlaybookStepRun();
+        ReflectionTestUtils.setField(step, "id", 9L);
+        step.setRunId(41L);
+        step.setStatus("PENDING");
+        when(runs.findById(41L)).thenReturn(Optional.of(run));
+        when(cases.getById(5L)).thenReturn(cf);
+        when(steps.findByIdAndRunId(9L, 41L)).thenReturn(Optional.of(step));
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> service.updateStep(41L, 9L, "SKIPPED", "  ", admin));
+
+        assertEquals(400, error.getStatusCode().value());
+        assertEquals("PENDING", step.getStatus());
+        verify(steps, never()).save(any());
+    }
+
+    @Test
+    void finalStepCompletionCompletesRunAndWritesTimeline() {
+        User admin = new User();
+        admin.setId(1L);
+        admin.setUsername("admin");
+        admin.setFullName("Platform Admin");
+        admin.setRole("ADMIN");
+        CaseFile cf = new CaseFile();
+        cf.setId(5L);
+        cf.setStatus("INVESTIGATING");
+        ResponsePlaybookRun run = new ResponsePlaybookRun();
+        ReflectionTestUtils.setField(run, "id", 41L);
+        run.setCaseId(5L);
+        run.setPlaybookSlug("phishing");
+        run.setStatus("IN_PROGRESS");
+        ResponsePlaybookStepRun step = new ResponsePlaybookStepRun();
+        ReflectionTestUtils.setField(step, "id", 9L);
+        step.setRunId(41L);
+        step.setStepOrder(7);
+        step.setTitle("Document findings");
+        step.setStatus("PENDING");
+        when(runs.findById(41L)).thenReturn(Optional.of(run));
+        when(cases.getById(5L)).thenReturn(cf);
+        when(steps.findByIdAndRunId(9L, 41L)).thenReturn(Optional.of(step));
+        when(steps.findByRunIdOrderByStepOrderAsc(41L)).thenReturn(List.of(step));
+
+        var result = service.updateStep(41L, 9L, "COMPLETED", "Report linked", admin);
+
+        assertEquals("COMPLETED", result.run().getStatus());
+        assertNotNull(result.run().getCompletedAt());
+        assertEquals("COMPLETED", result.steps().get(0).getStatus());
+        verify(runs).save(run);
+        verify(cases).addTimeline(eq(5L), eq("PLAYBOOK_STEP_UPDATED"), anyString(), contains("Report linked"),
+            eq(1L), eq("Platform Admin"), eq("ADMIN"));
+    }
+
 }
