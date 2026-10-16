@@ -98,10 +98,13 @@ public class IncidentController {
     }
 
     @PostMapping("/new")
-    public String createIncident(@ModelAttribute("incident") IncidentDto dto, Authentication auth, Model model) {
+    public String createIncident(@ModelAttribute("incident") IncidentDto dto, Authentication auth, Model model,
+                                 jakarta.servlet.http.HttpSession session) {
         Incident saved;
         try {
-            saved = incidentService.createIncident(dto, auth.getName());
+            Object activeTenant = session.getAttribute("ACTIVE_TENANT_ID");
+            Long tenantId = activeTenant instanceof Long id ? id : null;
+            saved = incidentService.createIncident(dto, auth.getName(), tenantId);
         } catch (IllegalArgumentException e) {
             auditService.log("REJECT_CREATE_INCIDENT", "Incident", "NEW", e.getMessage());
             model.addAttribute("error", e.getMessage());
