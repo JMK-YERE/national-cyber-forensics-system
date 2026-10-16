@@ -134,3 +134,18 @@ The branch now also contains a tenant workspace API separate from global /admin/
 Each route resolves the authenticated username to the existing user record, verifies the tenant is active, and checks active membership and role. Supplying or guessing a tenant ID is not sufficient. The platform ADMIN endpoints remain separate for initial tenant provisioning. Automated service tests cover missing membership, insufficient role, and suspended-tenant denial.
 
 **Scope limit remains important:** this protects tenant self-service management endpoints only. It does not yet scope legacy incident/case/evidence/download/search/report/notification queries by tenant. Do not treat the product as fully isolated multi-tenant SaaS until those data paths and their tests are complete.
+
+## CI and evidence-storage guard regression tests
+
+- Build/test workflow now runs for pushes to `main` and `feature/**` branches, as well as pull requests targeting `main`.
+- Added unit coverage for the storage configuration guard: local storage is accepted for development, while production-required mode rejects local storage, missing S3 bucket configuration, and encryption keys shorter than 32 UTF-8 bytes.
+- This validates configuration guard behavior only. It does not prove object-store connectivity, key management, encryption-at-rest configuration, restore capability, or evidence retention controls. Those require staging integration tests and operational verification.
+- Latest checked workflow for commit `6b533c818694d09cd8e0c44e0cd6ddf4fc5ce0e6` completed successfully: https://github.com/JMK-YERE/national-cyber-forensics-system/actions/runs/38938032227.
+
+## Remaining release blockers (do not bypass)
+
+- Legacy incident/case/evidence/file/report/notification/search endpoints are not yet consistently tenant-scoped.
+- Existing `tenant_id` values remain NULL until an approved ownership mapping exists.
+- Migration rehearsal against both empty PostgreSQL and a restored production-like database is still required.
+- Do not merge this draft or deploy it to production until the tenant authorization audit, cross-tenant denial tests, evidence-storage staging checks, backup/restore rehearsal, and explicit release approval are complete.
+
