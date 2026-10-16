@@ -99,7 +99,7 @@ class TenantAuditEventServiceTest {
 
         TenantAuditEventService service = new TenantAuditEventService(tenants, events);
         TenantAuditEvent saved = service.record(9L, 7L, "TENANT_CREATED", "tenant", "9", "SUCCESS", "created");
-        saved.setOccurredAt(saved.getOccurredAt().withOffsetSameInstant(java.time.ZoneOffset.UTC));
+        saved.setOccurredAt(saved.getOccurredAt().withOffsetSameInstant(java.time.ZoneOffset.ofHours(3)));
 
         assertTrue(service.verifyChain(9L).valid());
     }
