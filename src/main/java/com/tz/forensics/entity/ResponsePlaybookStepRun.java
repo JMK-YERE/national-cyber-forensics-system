@@ -23,6 +23,8 @@ public class ResponsePlaybookStepRun {
     private String title;
     @Column(nullable = false, columnDefinition = "TEXT")
     private String guidance;
+    @Column(nullable = false)
+    private boolean required;
     @Column(nullable = false, length = 20)
     private String status = "PENDING";
     @Column(name = "completion_notes", columnDefinition = "TEXT")
@@ -41,6 +43,7 @@ public class ResponsePlaybookStepRun {
     public String getPhase(){return phase;} public void setPhase(String v){phase=v;}
     public String getTitle(){return title;} public void setTitle(String v){title=v;}
     public String getGuidance(){return guidance;} public void setGuidance(String v){guidance=v;}
+    public boolean isRequired(){return required;} public void setRequired(boolean v){required=v;}
     public String getStatus(){return status;} public void setStatus(String v){status=v;}
     public String getCompletionNotes(){return completionNotes;} public void setCompletionNotes(String v){completionNotes=v;}
     public Long getCompletedBy(){return completedBy;} public void setCompletedBy(Long v){completedBy=v;}
