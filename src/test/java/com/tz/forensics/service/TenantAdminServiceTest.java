@@ -37,7 +37,7 @@ class TenantAdminServiceTest {
     void rejectsInvalidTenantSlug() {
         assertThrows(ResponseStatusException.class,
             () -> service.createTenant("Finance Org", "Finance Org!", "Finance", "admin"));
-        verifyNoInteractions(tenants, memberships, auditEvents, users);
+        verifyNoInteractions(tenants, memberships, auditEventService, users);
     }
 
     @Test
