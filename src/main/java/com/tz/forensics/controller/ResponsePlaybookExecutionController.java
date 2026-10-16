@@ -63,5 +63,6 @@ public class ResponsePlaybookExecutionController {
     }
 
     public record StartRunRequest(@NotBlank @Size(max = 80) String playbookSlug) {}
-    public record UpdateStepRequest(@NotBlank @Size(max = 20) String status, @Size(max = 5000) String notes) {}\n    public record CancelRunRequest(@NotBlank @Size(min = 5, max = 1000) String reason) {}
+    public record UpdateStepRequest(@NotBlank @Size(max = 20) String status, @Size(max = 5000) String notes) {}
+    public record CancelRunRequest(@NotBlank @Size(min = 5, max = 1000) String reason) {}
 }
