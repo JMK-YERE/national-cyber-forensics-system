@@ -63,6 +63,24 @@ public class TenantAdminApiController {
         return service.createTenant(request.name(), request.slug(), request.sector(), authentication.getName());
     }
 
+    @GetMapping("/{tenantId}/members")
+    public List<TenantMembership> listMembers(@PathVariable Long tenantId) {
+        return service.listActiveMemberships(tenantId);
+    }
+
+    @PutMapping("/{tenantId}/members/{userId}")
+    public TenantMembership updateMemberRole(@PathVariable Long tenantId, @PathVariable Long userId,
+            @Valid @RequestBody UpdateMemberRoleRequest request,
+            org.springframework.security.core.Authentication authentication) {
+        return service.updateMembershipRole(tenantId, userId, request.role(), authentication.getName());
+    }
+
+    @DeleteMapping("/{tenantId}/members/{userId}")
+    public TenantMembership revokeMember(@PathVariable Long tenantId, @PathVariable Long userId,
+            org.springframework.security.core.Authentication authentication) {
+        return service.revokeMembership(tenantId, userId, authentication.getName());
+    }
+
     @PostMapping("/{tenantId}/members")
     public TenantMembership addMember(@PathVariable Long tenantId,
                                       @Valid @RequestBody AddMemberRequest request,
@@ -77,4 +95,5 @@ public class TenantAdminApiController {
     ) {}
 
     public record AddMemberRequest(@NotNull Long userId, @NotBlank @Size(max = 40) String role) {}
+    public record UpdateMemberRoleRequest(@NotBlank @Size(max = 40) String role) {}
 }
