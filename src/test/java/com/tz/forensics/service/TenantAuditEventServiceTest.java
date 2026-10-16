@@ -51,7 +51,7 @@ class TenantAuditEventServiceTest {
             stored.isEmpty() ? Optional.empty() : Optional.of(stored.get(stored.size() - 1)));
         when(events.save(any(TenantAuditEvent.class))).thenAnswer(invocation -> {
             TenantAuditEvent event = invocation.getArgument(0);
-            event.setEventHash(event.getEventHash());
+            event.setId((long) stored.size() + 1);
             stored.add(event);
             return event;
         });
