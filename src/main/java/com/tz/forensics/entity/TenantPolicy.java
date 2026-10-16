@@ -1,6 +1,8 @@
 package com.tz.forensics.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -18,6 +20,7 @@ public class TenantPolicy {
     @Column(name = "policy_type", nullable = false, length = 60)
     private String policyType;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "policy_json", nullable = false, columnDefinition = "jsonb")
     private String policyJson = "{}";
 
