@@ -98,6 +98,12 @@ public class ResponsePlaybookExecutionService {
         if (!"PENDING".equals(step.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This step has already been finalized.");
         }
+        List<ResponsePlaybookStepRun> orderedSteps = steps.findByRunIdOrderByStepOrderAsc(runId);
+        boolean earlierStepPending = orderedSteps.stream()
+            .anyMatch(candidate -> candidate.getStepOrder() < step.getStepOrder() && "PENDING".equals(candidate.getStatus()));
+        if (earlierStepPending) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Complete or explicitly skip earlier steps before finalizing this step.");
+        }
         String cleanNotes = notes == null ? "" : notes.trim();
         if ("SKIPPED".equals(status) && cleanNotes.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A reason is required when skipping a step.");
