@@ -243,7 +243,7 @@ public class IncidentController {
         User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
         if (!(isAdmin(currentUser) || isCyberPro(currentUser) || isForensics(currentUser))) return "redirect:/access-denied";
         if (incidentId != null && !incidentId.isBlank()) {
-            model.addAttribute("results", incidentService.searchByIncidentId(incidentId));
+            model.addAttribute("results", incidentService.searchByIncidentId(incidentId).stream().filter(i -> canAccess(i, currentUser)).toList());
             model.addAttribute("searchId", incidentId);
         }
         model.addAttribute("user", currentUser);
