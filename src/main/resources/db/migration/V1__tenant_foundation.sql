@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS tenant_audit_events (
 
 -- Existing installations already have users; fresh installations may create it through JPA
 -- after Flyway runs, so user foreign keys are added only when the table already exists.
-DO $
+DO $$
 BEGIN
     IF to_regclass('public.users') IS NOT NULL THEN
         IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_memberships_user') THEN
@@ -78,7 +78,7 @@ BEGIN
                 FOREIGN KEY (actor_user_id) REFERENCES users(id) ON DELETE SET NULL;
         END IF;
     END IF;
-END $;
+END $$;
 
 CREATE INDEX IF NOT EXISTS ix_tenant_memberships_user_status ON tenant_memberships (user_id, status);
 CREATE INDEX IF NOT EXISTS ix_tenant_memberships_tenant_status ON tenant_memberships (tenant_id, status);
