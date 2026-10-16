@@ -1,6 +1,7 @@
 package com.tz.forensics.service;
 
 import com.tz.forensics.entity.Incident;
+import com.tz.forensics.dto.IncidentDto;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.CaseFileRepository;
 import com.tz.forensics.repository.EvidenceRepository;
@@ -28,6 +29,28 @@ class IncidentServiceTest {
     @Mock TenantAccessService tenantAccessService;
 
     @InjectMocks IncidentService service;
+
+
+    @Test void createIncidentUsesValidatedTenantContext() {
+        User reporter = new User();
+        reporter.setId(5L);
+        reporter.setUsername("analyst");
+        reporter.setFullName("Test Analyst");
+        when(users.findByUsername("analyst")).thenReturn(Optional.of(reporter));
+        when(incidents.existsByIncidentId(any())).thenReturn(false);
+        when(incidents.save(any(Incident.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        IncidentDto dto = new IncidentDto();
+        dto.setTitle("Suspicious account activity");
+        dto.setDescription("Multiple suspicious sign-in attempts were detected.");
+        dto.setSeverity("HIGH");
+        dto.setCategory("ACCOUNT_COMPROMISE");
+
+        Incident created = service.createIncident(dto, "analyst", 42L);
+
+        assertEquals(42L, created.getTenantId());
+        verify(tenantAccessService).requireMembership("analyst", 42L, java.util.Set.of());
+        verify(incidents).save(any(Incident.class));
+    }
 
     @Test void rejectsSkippingWorkflowStages() {
         Incident i = new Incident();
