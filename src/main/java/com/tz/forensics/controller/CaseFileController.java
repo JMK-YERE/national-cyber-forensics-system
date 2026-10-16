@@ -34,6 +34,7 @@ public class CaseFileController {
     private final EvidenceService evidenceService;
     private final ResponsePlaybookService responsePlaybooks;
     private final ResponsePlaybookExecutionService playbookExecutions;
+    private final com.tz.forensics.service.TenantAccessService tenantAccessService;
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
@@ -41,7 +42,8 @@ public class CaseFileController {
                               NotificationService notificationService, CaseTaskService caseTaskService,
                               IncidentService incidentService, EvidenceService evidenceService,
                               ResponsePlaybookService responsePlaybooks,
-                              ResponsePlaybookExecutionService playbookExecutions) {
+                              ResponsePlaybookExecutionService playbookExecutions,
+                              com.tz.forensics.service.TenantAccessService tenantAccessService) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -52,6 +54,7 @@ public class CaseFileController {
         this.evidenceService = evidenceService;
         this.responsePlaybooks = responsePlaybooks;
         this.playbookExecutions = playbookExecutions;
+        this.tenantAccessService = tenantAccessService;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -67,8 +70,15 @@ public class CaseFileController {
         return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
     }
 
+    private boolean hasTenantAccess(Long tenantId, User user) {
+        if (tenantId == null) return true; // Legacy records remain unmapped pending approved backfill.
+        if (user == null || user.getUsername() == null) return false;
+        try { tenantAccessService.requireMembership(user.getUsername(), tenantId, java.util.Set.of()); return true; }
+        catch (org.springframework.web.server.ResponseStatusException denied) { return false; }
+    }
+
     private boolean canViewCase(CaseFile cf, User user) {
-        if (cf == null || user == null) return false;
+        if (cf == null || user == null || !hasTenantAccess(cf.getTenantId(), user)) return false;
         if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
         if (!"ANALYST".equalsIgnoreCase(user.getRole())) return false;
 
