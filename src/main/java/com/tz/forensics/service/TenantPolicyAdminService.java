@@ -131,27 +131,19 @@ public class TenantPolicyAdminService {
 
     private boolean containsSecretKey(JsonNode node) {
         if (node.isObject()) {
-            Iterator<String> names = node.fieldNames();
-            while (names.hasNext()) {
-                String key = names.next().toLowerCase(Locale.ROOT);
+            Iterator<java.util.Map.Entry<String, JsonNode>> fields = node.fields();
+            while (fields.hasNext()) {
+                var field = fields.next();
+                String key = field.getKey().toLowerCase(Locale.ROOT);
                 if (key.contains("password") || key.contains("secret") || key.contains("token")
                         || key.contains("credential") || key.contains("apikey") || key.contains("api_key")) {
                     return true;
                 }
-                if (containsSecretKey(node.get(namesFor(node, key)))) return true;
+                if (containsSecretKey(field.getValue())) return true;
             }
         } else if (node.isArray()) {
             for (JsonNode child : node) if (containsSecretKey(child)) return true;
         }
         return false;
-    }
-
-    private String namesFor(JsonNode node, String lowerName) {
-        Iterator<String> names = node.fieldNames();
-        while (names.hasNext()) {
-            String name = names.next();
-            if (name.toLowerCase(Locale.ROOT).equals(lowerName)) return name;
-        }
-        return lowerName;
     }
 }
