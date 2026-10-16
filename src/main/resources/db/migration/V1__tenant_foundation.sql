@@ -17,11 +17,11 @@ CREATE TABLE IF NOT EXISTS tenants (
 CREATE TABLE IF NOT EXISTS tenant_memberships (
     id BIGSERIAL PRIMARY KEY,
     tenant_id BIGINT NOT NULL REFERENCES tenants(id) ON DELETE RESTRICT,
-    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    user_id BIGINT NOT NULL,
     role VARCHAR(40) NOT NULL DEFAULT 'MEMBER',
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    created_by BIGINT,
     CONSTRAINT uq_tenant_memberships_tenant_user UNIQUE (tenant_id, user_id),
     CONSTRAINT ck_tenant_memberships_status CHECK (status IN ('INVITED', 'ACTIVE', 'SUSPENDED', 'REVOKED'))
 );
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS tenant_policies (
     policy_json JSONB NOT NULL DEFAULT '{}'::jsonb,
     version INTEGER NOT NULL DEFAULT 1,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    updated_by BIGINT,
     CONSTRAINT uq_tenant_policies_type UNIQUE (tenant_id, policy_type),
     CONSTRAINT ck_tenant_policies_version CHECK (version > 0)
 );
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS tenant_policies (
 CREATE TABLE IF NOT EXISTS tenant_audit_events (
     id BIGSERIAL PRIMARY KEY,
     tenant_id BIGINT REFERENCES tenants(id) ON DELETE RESTRICT,
-    actor_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    actor_user_id BIGINT,
     action VARCHAR(100) NOT NULL,
     resource_type VARCHAR(100),
     resource_id VARCHAR(160),
@@ -54,6 +54,31 @@ CREATE TABLE IF NOT EXISTS tenant_audit_events (
     event_hash CHAR(64),
     CONSTRAINT ck_tenant_audit_outcome CHECK (outcome IN ('SUCCESS', 'DENIED', 'FAILURE'))
 );
+
+
+-- Existing installations already have users; fresh installations may create it through JPA
+-- after Flyway runs, so user foreign keys are added only when the table already exists.
+DO $
+BEGIN
+    IF to_regclass('public.users') IS NOT NULL THEN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_memberships_user') THEN
+            ALTER TABLE tenant_memberships ADD CONSTRAINT fk_tenant_memberships_user
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_memberships_created_by') THEN
+            ALTER TABLE tenant_memberships ADD CONSTRAINT fk_tenant_memberships_created_by
+                FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_policies_updated_by') THEN
+            ALTER TABLE tenant_policies ADD CONSTRAINT fk_tenant_policies_updated_by
+                FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_tenant_audit_actor') THEN
+            ALTER TABLE tenant_audit_events ADD CONSTRAINT fk_tenant_audit_actor
+                FOREIGN KEY (actor_user_id) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+    END IF;
+END $;
 
 CREATE INDEX IF NOT EXISTS ix_tenant_memberships_user_status ON tenant_memberships (user_id, status);
 CREATE INDEX IF NOT EXISTS ix_tenant_memberships_tenant_status ON tenant_memberships (tenant_id, status);
