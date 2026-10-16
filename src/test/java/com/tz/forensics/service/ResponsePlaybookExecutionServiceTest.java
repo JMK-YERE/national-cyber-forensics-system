@@ -200,4 +200,40 @@ class ResponsePlaybookExecutionServiceTest {
             contains("Duplicate incident"), eq(1L), eq("Platform Admin"), eq("ADMIN"));
     }
 
+
+    @Test
+    void cannotFinalizeLaterStepWhileEarlierStepIsPending() {
+        User admin = new User();
+        admin.setId(1L);
+        admin.setRole("ADMIN");
+        CaseFile cf = new CaseFile();
+        cf.setId(5L);
+        cf.setStatus("INVESTIGATING");
+        ResponsePlaybookRun run = new ResponsePlaybookRun();
+        ReflectionTestUtils.setField(run, "id", 41L);
+        run.setCaseId(5L);
+        run.setStatus("IN_PROGRESS");
+        ResponsePlaybookStepRun first = new ResponsePlaybookStepRun();
+        ReflectionTestUtils.setField(first, "id", 8L);
+        first.setRunId(41L);
+        first.setStepOrder(1);
+        first.setStatus("PENDING");
+        ResponsePlaybookStepRun second = new ResponsePlaybookStepRun();
+        ReflectionTestUtils.setField(second, "id", 9L);
+        second.setRunId(41L);
+        second.setStepOrder(2);
+        second.setStatus("PENDING");
+        when(runs.findById(41L)).thenReturn(Optional.of(run));
+        when(cases.getById(5L)).thenReturn(cf);
+        when(steps.findByIdAndRunId(9L, 41L)).thenReturn(Optional.of(second));
+        when(steps.findByRunIdOrderByStepOrderAsc(41L)).thenReturn(List.of(first, second));
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> service.updateStep(41L, 9L, "COMPLETED", "Later step", admin));
+
+        assertEquals(409, error.getStatusCode().value());
+        assertEquals("PENDING", second.getStatus());
+        verify(steps, never()).save(any());
+    }
+
 }
