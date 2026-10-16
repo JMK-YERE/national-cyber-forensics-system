@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS response_playbook_step_runs (
 CREATE INDEX IF NOT EXISTS ix_playbook_runs_case_started ON response_playbook_runs (case_id, started_at DESC);
 CREATE INDEX IF NOT EXISTS ix_playbook_steps_run_order ON response_playbook_step_runs (run_id, step_order);
 
-DO $
+DO $$
 BEGIN
     -- Flyway runs before Hibernate on a fresh installation. Add the FK when the legacy case table exists.
     IF to_regclass('public.case_files') IS NOT NULL
@@ -38,9 +38,9 @@ BEGIN
         ALTER TABLE response_playbook_runs ADD CONSTRAINT fk_response_playbook_case
             FOREIGN KEY (case_id) REFERENCES case_files(id) ON DELETE RESTRICT;
     END IF;
-END $;
+END $$;
 
-DO $
+DO $$
 BEGIN
     IF to_regclass('public.users') IS NOT NULL THEN
         IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_response_playbook_started_by') THEN
