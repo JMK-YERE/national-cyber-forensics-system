@@ -10,6 +10,8 @@ import com.tz.forensics.service.NotificationService;
 import com.tz.forensics.service.CaseTaskService;
 import com.tz.forensics.service.IncidentService;
 import com.tz.forensics.service.EvidenceService;
+import com.tz.forensics.service.ResponsePlaybookService;
+import com.tz.forensics.service.ResponsePlaybookExecutionService;
 import com.tz.forensics.entity.Incident;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -30,12 +32,16 @@ public class CaseFileController {
     private final CaseTaskService caseTaskService;
     private final IncidentService incidentService;
     private final EvidenceService evidenceService;
+    private final ResponsePlaybookService responsePlaybooks;
+    private final ResponsePlaybookExecutionService playbookExecutions;
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
                               AuditService auditService, CaseIocService caseIocService,
                               NotificationService notificationService, CaseTaskService caseTaskService,
-                              IncidentService incidentService, EvidenceService evidenceService) {
+                              IncidentService incidentService, EvidenceService evidenceService,
+                              ResponsePlaybookService responsePlaybooks,
+                              ResponsePlaybookExecutionService playbookExecutions) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -44,6 +50,8 @@ public class CaseFileController {
         this.caseTaskService = caseTaskService;
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
+        this.responsePlaybooks = responsePlaybooks;
+        this.playbookExecutions = playbookExecutions;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -153,11 +161,47 @@ public class CaseFileController {
         model.addAttribute("iocs", caseIocService.findByCaseId(cf.getId()));
         model.addAttribute("caseTasks", caseTaskService.findByCaseId(cf.getId()));
         model.addAttribute("caseEvidence", evidenceService.getEvidenceByCase(cf.getId()));
+        model.addAttribute("responsePlaybooks", responsePlaybooks.list());
+        model.addAttribute("playbookRuns", playbookExecutions.listRuns(cf.getId(), user));
         if (canAssignCases(user)) {
             model.addAttribute("eligibleInvestigators", userRepository.findByRoleInAndEnabledTrueAndApprovalStatusIgnoreCase(
                     List.of("ANALYST", "FORENSICS", "CYBER_PRO"), "APPROVED"));
         }
         return "case-detail";
+    }
+
+    @PostMapping("/{id}/response-playbooks")
+    public String startResponsePlaybook(@PathVariable Long id, @RequestParam String playbookSlug,
+                                        Authentication auth) {
+        User actor = getCurrentUser(auth);
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, actor)) return "redirect:/access-denied";
+        try {
+            playbookExecutions.startRun(id, playbookSlug, actor);
+        } catch (org.springframework.web.server.ResponseStatusException e) {
+            auditService.log("REJECT_PLAYBOOK_START", "CaseFile", String.valueOf(id), e.getReason());
+            return "redirect:/cases/" + id + "?playbookError=1";
+        }
+        auditService.log("START_RESPONSE_PLAYBOOK", "CaseFile", cf.getCaseNumber(), "Playbook started: " + playbookSlug);
+        return "redirect:/cases/" + id + "#response-playbooks";
+    }
+
+    @PostMapping("/{id}/response-playbooks/{runId}/steps/{stepId}")
+    public String updateResponsePlaybookStep(@PathVariable Long id, @PathVariable Long runId,
+            @PathVariable Long stepId, @RequestParam String status,
+            @RequestParam(required = false) String notes, Authentication auth) {
+        User actor = getCurrentUser(auth);
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, actor)) return "redirect:/access-denied";
+        try {
+            var run = playbookExecutions.getRun(runId, actor);
+            if (!id.equals(run.run().getCaseId())) return "redirect:/access-denied";
+            playbookExecutions.updateStep(runId, stepId, status, notes, actor);
+        } catch (org.springframework.web.server.ResponseStatusException e) {
+            auditService.log("REJECT_PLAYBOOK_STEP", "CaseFile", String.valueOf(id), e.getReason());
+            return "redirect:/cases/" + id + "?playbookError=1#response-playbooks";
+        }
+        return "redirect:/cases/" + id + "#response-playbooks";
     }
 
     @PostMapping("/{id}/assign")
