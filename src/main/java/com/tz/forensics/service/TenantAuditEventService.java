@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HexFormat;
 
 /**
@@ -43,6 +44,8 @@ public class TenantAuditEventService {
         TenantAuditEvent previous = events.findTopByTenantIdOrderByIdDesc(tenant.getId()).orElse(null);
         TenantAuditEvent event = new TenantAuditEvent();
         event.setTenantId(tenant.getId());
+        // PostgreSQL timestamptz stores microsecond precision; normalize before hashing.
+        event.setOccurredAt(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
         event.setActorUserId(actorUserId);
         event.setAction(required(action, "action"));
         event.setResourceType(resourceType);
@@ -103,7 +106,7 @@ public class TenantAuditEventService {
             add(digest, event.getReason());
             add(digest, event.getCorrelationId());
             add(digest, event.getSourceIp());
-            add(digest, event.getOccurredAt() == null ? null : event.getOccurredAt().toString());
+            add(digest, event.getOccurredAt() == null ? null : event.getOccurredAt().toInstant().truncatedTo(ChronoUnit.MICROS).toString());
             return HexFormat.of().formatHex(digest.digest());
         } catch (NoSuchAlgorithmException impossible) {
             throw new IllegalStateException("SHA-256 is not available in this runtime.", impossible);
