@@ -104,9 +104,9 @@ public class TenantAdminService {
 
     @Transactional
     public TenantMembership updateMembershipRole(Long tenantId, Long userId, String role, String actorName) {
-        if (!tenants.existsById(tenantId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found.");
-        }
+        // Serialize admin-role changes per tenant so concurrent requests cannot remove the final admin.
+        tenants.findByIdForUpdate(tenantId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found."));
         String normalizedRole = role == null ? "" : role.trim().toUpperCase(Locale.ROOT);
         if (!ALLOWED_TENANT_ROLES.contains(normalizedRole)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported tenant role.");
@@ -131,9 +131,9 @@ public class TenantAdminService {
 
     @Transactional
     public TenantMembership revokeMembership(Long tenantId, Long userId, String actorName) {
-        if (!tenants.existsById(tenantId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found.");
-        }
+        // Serialize revocations with role changes to preserve at least one active tenant administrator.
+        tenants.findByIdForUpdate(tenantId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found."));
         TenantMembership membership = memberships.findByTenantIdAndUserId(tenantId, userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant membership not found."));
         if (!"ACTIVE".equals(membership.getStatus())) {
