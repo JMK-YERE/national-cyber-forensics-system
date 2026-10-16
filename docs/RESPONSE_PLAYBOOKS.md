@@ -47,3 +47,22 @@ The current release is a catalog only. It does not start case runs, create tasks
 - Authorization is checked server-side on each operation. ADMIN, CYBER_PRO and FORENSICS can manage cases; ANALYST access is limited to cases where they are involved in the underlying incident and are the case creator, assignee or lead investigator. Closed/archived cases cannot start new runs.
 
 The run history is an operational record, not a replacement for a formal evidence chain-of-custody record. Tenant isolation across existing incident/case/evidence APIs remains a separate required release gate.
+
+## Case-linked execution
+
+The case workspace now includes a **Response Playbooks** section. Authorized responders can start a playbook on an open case, record step completion or skip a step with a reason, and see run status and notes. Starting and updating a run creates case timeline events. The run stores the playbook version and a snapshot of step guidance so future catalog edits do not rewrite an existing investigation record.
+
+API routes:
+
+- `GET /api/response-playbooks/cases/{caseId}/runs` — list runs for a case.
+- `POST /api/response-playbooks/cases/{caseId}/runs` with `{"playbookSlug":"phishing"}` — start a run.
+- `GET /api/response-playbooks/runs/{runId}` — get one authorized run.
+- `PATCH /api/response-playbooks/runs/{runId}/steps/{stepId}` with `{"status":"COMPLETED","notes":"..." }` — finalize a pending step. `status` is `COMPLETED` or `SKIPPED`; skipping requires a reason.
+
+The case workspace provides equivalent CSRF-protected form actions. Closed or archived cases cannot start new runs; finalized steps cannot be edited; runs are marked complete when every step is finalized. Access checks require incident-response staff and, for analysts, access to both the underlying incident and case.
+
+## Operational rollout
+
+- Flyway baseline is configured at version 0 for existing installations so the additive V1/V2 migrations can be applied to an existing non-empty database. Verify the target database and take a restorable backup before enabling migrations in any production environment.
+- Legacy records retain nullable tenant ownership; do not interpret the tenant foundation as complete isolation.
+- This release does not automatically assign step owners or deadlines and does not execute containment actions. Those require explicit approval workflows and stronger tenant-scoped authorization.
