@@ -66,3 +66,12 @@ This branch introduces the additive database foundation only. It is not yet a co
 ## Free/open-source preference
 
 Prefer existing Spring Security, PostgreSQL, Flyway, JUnit, Testcontainers, GitHub Actions and open-source forensic tools. Validate provider free-tier limits before promising availability or retention. Never store secrets in Git.
+
+## New capability: response playbook catalog
+
+- Added staff-only read-only APIs at `GET /api/response-playbooks` and `GET /api/response-playbooks/{slug}`.
+- Includes guided templates for phishing/BEC, ransomware, account compromise, suspected data breach, and malware.
+- Each template has versioned guidance and ordered phases covering triage, evidence preservation, containment, investigation/eradication, recovery and lessons learned.
+- Routes are restricted to ADMIN, CYBER_PRO, FORENSICS and ANALYST authorities.
+- Unit tests verify core catalog coverage, step order, required guidance and unknown-slug behavior.
+- This is a catalog, not an automated executor. Case-linked runs, task assignment, tenant checks, approval gates and execution audit must come after case-level tenant authorization.
