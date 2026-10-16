@@ -31,7 +31,9 @@ This branch introduces the additive database foundation only. It is not yet a co
 - [ ] Inspect the live database schema and actual Render/Neon connection target.
 - [ ] Verify backup and restore, then apply migration only to a disposable clone.
 - [x] Map nullable `tenant_id` fields on Incident, CaseFile and Evidence entities; add tenant-filtered repository query methods for these resources.
-- [x] Require active tenant membership for tenant-owned Incident, Case and Evidence access checks in the corresponding web controllers; this is an incremental guard, not yet a complete active-tenant context.
+- [x] Require active tenant membership for tenant-owned Incident, Case and Evidence access checks in the corresponding web controllers; this remains an incremental guard, not complete isolation.
+- [x] Add session-backed active tenant selection at `/api/tenants/{tenantId}/activate`, guarded by active membership; incident creation persists the selected tenant after re-validating membership.
+- [ ] Require tenant selection for all new institutional incidents and enforce tenant context across every service, download, search, notification and report/export.
 - [ ] Apply tenant-scoped authorization to every controller, service, repository query, file download, search, notification and report/export.
 - [x] Add service-level tests for missing membership, revoked membership, insufficient tenant role, suspended tenant, and unknown user; add a Case tenant-inheritance test. [ ] Add controller integration tests for cross-tenant denial before assigning any legacy data to tenants.
 - [ ] Backfill legacy data from a reviewed mapping; reconcile counts; only then enforce non-null ownership.
