@@ -94,6 +94,67 @@ public class TenantAdminService {
         return saved;
     }
 
+    @Transactional(readOnly = true)
+    public List<TenantMembership> listActiveMemberships(Long tenantId) {
+        if (!tenants.existsById(tenantId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found.");
+        }
+        return memberships.findAllByTenantIdAndStatus(tenantId, "ACTIVE");
+    }
+
+    @Transactional
+    public TenantMembership updateMembershipRole(Long tenantId, Long userId, String role, String actorName) {
+        if (!tenants.existsById(tenantId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found.");
+        }
+        String normalizedRole = role == null ? "" : role.trim().toUpperCase(Locale.ROOT);
+        if (!ALLOWED_TENANT_ROLES.contains(normalizedRole)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported tenant role.");
+        }
+        TenantMembership membership = memberships.findByTenantIdAndUserId(tenantId, userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant membership not found."));
+        if (!"ACTIVE".equals(membership.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only active memberships can be changed.");
+        }
+        if ("TENANT_ADMIN".equals(membership.getRole()) && !"TENANT_ADMIN".equals(normalizedRole)
+                && countActiveTenantAdmins(tenantId) <= 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A tenant must retain at least one active tenant administrator.");
+        }
+        String previousRole = membership.getRole();
+        membership.setRole(normalizedRole);
+        TenantMembership saved = memberships.save(membership);
+        Long actorId = users.findByUsername(actorName).map(User::getId).orElse(null);
+        tenantAuditEventService.record(tenantId, actorId, "TENANT_MEMBER_ROLE_CHANGED", "tenant_membership",
+            saved.getId().toString(), "SUCCESS", "userId=" + userId + "; from=" + previousRole + "; to=" + normalizedRole);
+        return saved;
+    }
+
+    @Transactional
+    public TenantMembership revokeMembership(Long tenantId, Long userId, String actorName) {
+        if (!tenants.existsById(tenantId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found.");
+        }
+        TenantMembership membership = memberships.findByTenantIdAndUserId(tenantId, userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant membership not found."));
+        if (!"ACTIVE".equals(membership.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Membership is not active.");
+        }
+        if ("TENANT_ADMIN".equals(membership.getRole()) && countActiveTenantAdmins(tenantId) <= 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The last active tenant administrator cannot be revoked.");
+        }
+        membership.setStatus("REVOKED");
+        TenantMembership saved = memberships.save(membership);
+        Long actorId = users.findByUsername(actorName).map(User::getId).orElse(null);
+        tenantAuditEventService.record(tenantId, actorId, "TENANT_MEMBER_REVOKED", "tenant_membership",
+            saved.getId().toString(), "SUCCESS", "userId=" + userId + "; role=" + saved.getRole());
+        return saved;
+    }
+
+    private long countActiveTenantAdmins(Long tenantId) {
+        return memberships.findAllByTenantIdAndStatus(tenantId, "ACTIVE").stream()
+            .filter(m -> "TENANT_ADMIN".equalsIgnoreCase(m.getRole())).count();
+    }
+
     private void recordAudit(Long tenantId, String actorName, String action, String resourceType,
                              String resourceId, String reason) {
         Long actorId = users.findByUsername(actorName).map(User::getId).orElse(null);
