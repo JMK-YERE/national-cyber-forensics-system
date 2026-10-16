@@ -172,7 +172,7 @@ public class IncidentController {
         User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
         User assignedUser = userRepository.findById(assignedTo).orElse(null);
         Incident incident = incidentService.getById(id);
-        if (!canAssign(currentUser) || incident == null || !hasTenantAccess(incident.getTenantId(), currentUser) || assignedUser == null) return "redirect:/access-denied";
+        if (!canAssign(currentUser) || incident == null || !hasTenantAccess(incident.getTenantId(), currentUser) || assignedUser == null || !hasTenantAccess(incident.getTenantId(), assignedUser)) return "redirect:/access-denied";
 
         try {
             incidentService.assignIncident(id, assignedTo, assignedUser.getUsername(), currentUser.getId(), priority, dueDate);
