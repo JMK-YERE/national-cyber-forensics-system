@@ -41,6 +41,28 @@ class TenantAdminServiceTest {
     }
 
     @Test
+    void creatorIsGrantedActiveTenantAdminMembership() {
+        com.tz.forensics.entity.User creator = new com.tz.forensics.entity.User();
+        creator.setId(9L);
+        creator.setUsername("root");
+        com.tz.forensics.entity.Tenant savedTenant = new com.tz.forensics.entity.Tenant();
+        savedTenant.setId(22L);
+        when(tenants.existsBySlugIgnoreCase("finance-org")).thenReturn(false);
+        when(tenants.save(any(com.tz.forensics.entity.Tenant.class))).thenReturn(savedTenant);
+        when(users.findByUsername("root")).thenReturn(java.util.Optional.of(creator));
+
+        service.createTenant("Finance Org", "finance-org", "Finance", "root");
+
+        org.mockito.ArgumentCaptor<com.tz.forensics.entity.TenantMembership> captor =
+            org.mockito.ArgumentCaptor.forClass(com.tz.forensics.entity.TenantMembership.class);
+        verify(memberships).save(captor.capture());
+        org.junit.jupiter.api.Assertions.assertEquals(22L, captor.getValue().getTenantId());
+        org.junit.jupiter.api.Assertions.assertEquals(9L, captor.getValue().getUserId());
+        org.junit.jupiter.api.Assertions.assertEquals("TENANT_ADMIN", captor.getValue().getRole());
+        org.junit.jupiter.api.Assertions.assertEquals("ACTIVE", captor.getValue().getStatus());
+    }
+
+    @Test
     void preventsRemovingTheLastTenantAdministrator() {
         when(tenants.existsById(3L)).thenReturn(true);
         com.tz.forensics.entity.Tenant lockedTenant = new com.tz.forensics.entity.Tenant();
