@@ -86,6 +86,31 @@ class TenantAccessServiceTest {
         verifyNoInteractions(memberships);
     }
 
+    @Test
+    void deniesRevokedMembership() {
+        User user = user(12L, "analyst");
+        when(users.findByUsername("analyst")).thenReturn(Optional.of(user));
+        when(tenants.findById(7L)).thenReturn(Optional.of(tenant(7L, "ACTIVE")));
+        when(memberships.findByTenantIdAndUserId(7L, 12L))
+            .thenReturn(Optional.of(membership(7L, 12L, "ANALYST", "REVOKED")));
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> access.requireMembership("analyst", 7L, Set.of()));
+
+        assertEquals(403, error.getStatusCode().value());
+    }
+
+    @Test
+    void deniesMembershipForUnknownUser() {
+        when(users.findByUsername("missing")).thenReturn(Optional.empty());
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> access.requireMembership("missing", 7L, Set.of()));
+
+        assertEquals(401, error.getStatusCode().value());
+        verifyNoInteractions(tenants, memberships);
+    }
+
     private User user(Long id, String username) {
         User user = new User();
         user.setId(id);
