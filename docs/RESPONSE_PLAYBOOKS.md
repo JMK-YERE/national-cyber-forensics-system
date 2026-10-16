@@ -58,6 +58,7 @@ API routes:
 - `POST /api/response-playbooks/cases/{caseId}/runs` with `{"playbookSlug":"phishing"}` — start a run.
 - `GET /api/response-playbooks/runs/{runId}` — get one authorized run.
 - `PATCH /api/response-playbooks/runs/{runId}/steps/{stepId}` with `{"status":"COMPLETED","notes":"..." }` — finalize a pending step. `status` is `COMPLETED` or `SKIPPED`; skipping requires a reason.
+- `PATCH /api/response-playbooks/runs/{runId}/cancel` with `{"reason":"Duplicate incident"}` — cancel an active run; a 5–1000 character reason is required and the cancellation is recorded in the case timeline.
 
 The case workspace provides equivalent CSRF-protected form actions. Closed or archived cases cannot start new runs; finalized steps cannot be edited; runs are marked complete when every step is finalized. Access checks require incident-response staff and, for analysts, access to both the underlying incident and case.
 
