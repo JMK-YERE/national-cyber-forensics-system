@@ -79,12 +79,11 @@ public class TenantAdminService {
         if (!ALLOWED_TENANT_ROLES.contains(normalizedRole)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported tenant role.");
         }
-        if (memberships.existsByTenantIdAndUserIdAndStatus(tenantId, userId, "ACTIVE")) {
+        TenantMembership membership = memberships.findByTenantIdAndUserId(tenantId, userId)
+            .orElseGet(TenantMembership::new);
+        if ("ACTIVE".equals(membership.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already an active member of this tenant.");
         }
-
-        TenantMembership membership = memberships.findByTenantIdAndUserIdAndStatus(tenantId, userId, "REVOKED")
-            .orElseGet(TenantMembership::new);
         membership.setTenantId(tenantId);
         membership.setUserId(userId);
         membership.setRole(normalizedRole);
