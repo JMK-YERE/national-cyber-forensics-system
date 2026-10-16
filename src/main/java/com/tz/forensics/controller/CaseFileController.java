@@ -119,7 +119,11 @@ public class CaseFileController {
         if (!canManageCases(user)) return "redirect:/access-denied";
 
         CaseFile cf = new CaseFile();
-        if (incidentId != null) cf.setIncidentId(incidentId);
+        if (incidentId != null) {
+            Incident incident = incidentService.getById(incidentId);
+            if (incident == null || !hasTenantAccess(incident.getTenantId(), user)) return "redirect:/access-denied";
+            cf.setIncidentId(incidentId);
+        }
         model.addAttribute("caseFile", cf);
         return "case-form";
     }
@@ -131,7 +135,7 @@ public class CaseFileController {
 
         if (caseFile.getIncidentId() == null) return "redirect:/cases";
         Incident incident = incidentService.getById(caseFile.getIncidentId());
-        if (incident == null) return "redirect:/access-denied";
+        if (incident == null || !hasTenantAccess(incident.getTenantId(), user)) return "redirect:/access-denied";
 
         if ("ANALYST".equalsIgnoreCase(user.getRole())) {
             boolean ownsOrAssigned =
