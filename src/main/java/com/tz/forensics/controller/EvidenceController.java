@@ -32,17 +32,20 @@ public class EvidenceController {
     private final IncidentRepository incidentRepository;
     private final CaseFileService caseFileService;
     private final NotificationService notificationService;
+    private final com.tz.forensics.service.TenantAccessService tenantAccessService;
 
     public EvidenceController(EvidenceService evidenceService, AuditService auditService,
                               UserRepository userRepository, IncidentRepository incidentRepository,
                               CaseFileService caseFileService,
-                              NotificationService notificationService) {
+                              NotificationService notificationService,
+                              com.tz.forensics.service.TenantAccessService tenantAccessService) {
         this.evidenceService = evidenceService;
         this.auditService = auditService;
         this.userRepository = userRepository;
         this.incidentRepository = incidentRepository;
         this.caseFileService = caseFileService;
         this.notificationService = notificationService;
+        this.tenantAccessService = tenantAccessService;
     }
 
     private User currentUser(Authentication auth) {
@@ -58,15 +61,22 @@ public class EvidenceController {
         return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
     }
 
+    private boolean hasTenantAccess(Long tenantId, User user) {
+        if (tenantId == null) return true; // Legacy records remain unmapped pending approved backfill.
+        if (user == null || user.getUsername() == null) return false;
+        try { tenantAccessService.requireMembership(user.getUsername(), tenantId, java.util.Set.of()); return true; }
+        catch (org.springframework.web.server.ResponseStatusException denied) { return false; }
+    }
+
     private boolean canAccessIncident(Incident incident, User user) {
-        if (incident == null || user == null) return false;
+        if (incident == null || user == null || !hasTenantAccess(incident.getTenantId(), user)) return false;
         return user.isAdmin() || user.isProfessional() || user.isForensics()
                 || (user.isAnalyst() && (user.getId().equals(incident.getAssignedTo())
                     || user.getId().equals(incident.getReporterUserId())));
     }
 
     private boolean canAccessCase(CaseFile caseFile, User user) {
-        if (caseFile == null || user == null) return false;
+        if (caseFile == null || user == null || !hasTenantAccess(caseFile.getTenantId(), user)) return false;
         if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
         if (!"ANALYST".equalsIgnoreCase(user.getRole()) || user.getId() == null) return false;
         Incident incident = caseFile.getIncidentId() == null
@@ -82,7 +92,7 @@ public class EvidenceController {
     }
 
     private boolean canAccessEvidence(Evidence evidence, Incident incident, User user) {
-        if (evidence == null || user == null || !isStaff(user) || !canAccessIncident(incident, user)) return false;
+        if (evidence == null || user == null || !isStaff(user) || !hasTenantAccess(evidence.getTenantId(), user) || !canAccessIncident(incident, user)) return false;
         if (evidence.getCaseId() != null) {
             CaseFile cf = caseFileService.getById(evidence.getCaseId());
             if (cf == null || !incident.getId().equals(cf.getIncidentId()) || !canAccessCase(cf, user)) return false;
