@@ -8,6 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ResponseBody;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/notifications")
@@ -37,6 +39,14 @@ public class NotificationController {
         model.addAttribute("notifications", notificationService.getNotificationsForUser(user.getId()));
         model.addAttribute("unreadCount", notificationService.getUnreadCount(user.getId()));
         return "notifications";
+    }
+
+    @GetMapping("/unread-count")
+    @ResponseBody
+    public Map<String, Long> unreadCount(Authentication auth) {
+        User user = currentUser(auth);
+        if (user == null) return Map.of("count", 0L);
+        return Map.of("count", notificationService.getUnreadCount(user.getId()));
     }
 
     @PostMapping("/read/{id}")
