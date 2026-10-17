@@ -64,7 +64,11 @@ public class CaseTaskController {
  public String myTasks(Model m,Authentication a){
   User u=current(a);
   if(!staff(u))return "redirect:/access-denied";
-  m.addAttribute("tasks",taskService.findMyTasks(u.getId()));
+  // Re-check the current tenant boundary when rendering assigned work; a revoked
+  // membership must not keep exposing old task descriptions through a stale session.
+  m.addAttribute("tasks",taskService.findMyTasks(u.getId()).stream()
+      .filter(task -> canView(caseService.getById(task.getCaseId()),u))
+      .toList());
   return "my-tasks";
  }
 
