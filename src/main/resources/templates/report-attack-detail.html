@@ -159,7 +159,7 @@
         </div>
 
         <!-- Evidence — Admin pekee -->
-        <div class="evidence-box" th:if="${report.evidenceFilePath != null}">
+        <div class="evidence-box" th:if="${report.evidenceFilePath != null and !#strings.isEmpty(report.evidenceFilePath)}">
             <h2 style="color:#1b7a4a; margin-top:0;">📎 Evidence</h2>
             <p><strong>Type:</strong> <span th:text="${report.evidenceFileType}"></span></p>
             <p><strong>Size:</strong> <span th:text="${report.evidenceFileSize != null ? (report.evidenceFileSize / 1024) + ' KB' : 'N/A'}"></span></p>
