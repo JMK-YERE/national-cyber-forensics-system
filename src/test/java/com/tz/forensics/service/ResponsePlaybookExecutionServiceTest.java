@@ -88,6 +88,50 @@ class ResponsePlaybookExecutionServiceTest {
     }
 
     @Test
+    void deniesPrivilegedStaffWithoutActiveTenantMembership() {
+        User admin = new User();
+        admin.setId(1L);
+        admin.setUsername("admin");
+        admin.setRole("ADMIN");
+        CaseFile cf = new CaseFile();
+        cf.setTenantId(7L);
+        cf.setIncidentId(44L);
+        Incident incident = new Incident();
+        incident.setTenantId(7L);
+        when(cases.getById(5L)).thenReturn(cf);
+        when(incidents.getById(44L)).thenReturn(incident);
+        when(tenantAccessService.requireMembership("admin", 7L, java.util.Set.of()))
+            .thenThrow(new ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "membership required"));
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> service.listRuns(5L, admin));
+
+        assertEquals(403, error.getStatusCode().value());
+        verifyNoInteractions(runs, steps);
+    }
+
+    @Test
+    void deniesCaseWhoseTenantDoesNotMatchParentIncident() {
+        User admin = new User();
+        admin.setId(1L);
+        admin.setUsername("admin");
+        admin.setRole("ADMIN");
+        CaseFile cf = new CaseFile();
+        cf.setTenantId(7L);
+        cf.setIncidentId(44L);
+        Incident incident = new Incident();
+        incident.setTenantId(8L);
+        when(cases.getById(5L)).thenReturn(cf);
+        when(incidents.getById(44L)).thenReturn(incident);
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> service.listRuns(5L, admin));
+
+        assertEquals(403, error.getStatusCode().value());
+        verifyNoInteractions(runs, steps, tenantAccessService);
+    }
+
+    @Test
     void skipRequiresReasonAndDoesNotFinalizeStepWithoutIt() {
         User admin = new User();
         admin.setId(1L);
