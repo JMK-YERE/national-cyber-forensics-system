@@ -63,10 +63,11 @@ public class PasswordSetupController {
                             && candidate.getWhatsappNumber().equals(phone.trim()))
                     .findFirst().orElse(null));
             if (user != null && !hashed.equals(user.getPasswordSetupToken())) {
-                if (user.getPasswordSetupAttempts() >= 5) {
+                int attempts = user.getPasswordSetupAttempts() == null ? 0 : user.getPasswordSetupAttempts();
+                if (attempts >= 5) {
                     user = null;
                 } else {
-                    user.setPasswordSetupAttempts(user.getPasswordSetupAttempts() + 1);
+                    user.setPasswordSetupAttempts(attempts + 1);
                     userRepository.save(user);
                     user = null;
                 }
@@ -83,7 +84,7 @@ public class PasswordSetupController {
             }
         }
 
-        if (user != null && user.getPasswordSetupAttempts() >= 5) {
+        if (user != null && user.getPasswordSetupAttempts() != null && user.getPasswordSetupAttempts() >= 5) {
             model.addAttribute("error", "Umefikia kikomo cha majaribio. Omba OTP/link mpya.");
             model.addAttribute("token", "");
             model.addAttribute("phone", phone);
@@ -91,7 +92,7 @@ public class PasswordSetupController {
             return "set-password";
         }
 
-        if (user == null || user.getPasswordSetupExpiresAt() == null ||
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled()) || user.getPasswordSetupExpiresAt() == null ||
                 user.getPasswordSetupExpiresAt().isBefore(LocalDateTime.now())) {
             model.addAttribute("error", "Link/OTP si sahihi au ime-expire.");
             model.addAttribute("token", token);
@@ -100,7 +101,7 @@ public class PasswordSetupController {
             return "set-password";
         }
 
-        user.setPasswordSetupAttempts(user.getPasswordSetupAttempts() + 1);
+        user.setPasswordSetupAttempts((user.getPasswordSetupAttempts() == null ? 0 : user.getPasswordSetupAttempts()) + 1);
         user.setPassword(passwordEncoder.encode(password));
         user.setEmailVerified(true);
         if (!user.isApproved()) user.setApprovalStatus("PENDING");
