@@ -3,41 +3,59 @@
 <body>
 <section th:fragment="incidentMap" class="dashboard-intelligence">
 <style>
-.intel-stage{position:relative;width:100%;height:clamp(290px,42vw,500px);overflow:hidden;background:#02140f;border:1px solid rgba(34,197,94,.18)}
-.intel-splash,.intel-map-layer{position:absolute;inset:0}
-.intel-splash{z-index:3;display:flex;align-items:center;justify-content:center;background:#02140f;opacity:1;transform:translateX(0);transition:opacity .9s ease,transform 1s ease}
-.intel-splash img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
-.intel-splash:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(1,20,15,.72),rgba(1,20,15,.05) 55%,rgba(1,20,15,.35))}
-.intel-splash-copy{position:absolute;z-index:2;left:clamp(18px,4vw,58px);bottom:clamp(22px,5vw,52px);color:#fff;max-width:650px}
-.intel-splash-copy small{display:block;color:#86efac;font:900 10px/1.2 ui-monospace,SFMono-Regular,monospace;letter-spacing:.18em}
-.intel-splash-copy strong{display:block;margin-top:8px;font-size:clamp(25px,4vw,48px);line-height:1.04}
-.intel-splash-copy span{display:block;margin-top:9px;color:#c9f7e4;font-size:12px}
-.intel-map-layer{z-index:1;opacity:0;transition:opacity 1s ease}
-.intel-stage.map-ready .intel-splash{opacity:0;transform:translateX(-8%);pointer-events:none}
-.intel-stage.map-ready .intel-map-layer{opacity:1}
-.cyber-map{position:relative;width:100%;height:100%;background:#031b14 url('/images/cyber-world-map.svg') center/cover no-repeat;overflow:hidden}.cyber-map:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 62% 65%,rgba(34,197,94,.12),transparent 30%),linear-gradient(rgba(2,44,34,.05),rgba(2,44,34,.25));pointer-events:none}.cyber-dot{position:absolute;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:#ff3b30;border:2px solid #fff;box-shadow:0 0 8px #ff3b30,0 0 18px #ff3b30,0 0 34px rgba(255,59,48,.75);animation:incidentPulse 1.05s ease-in-out infinite;z-index:5;cursor:pointer}.cyber-dot.medium{background:#22c55e;box-shadow:0 0 7px #22c55e,0 0 20px rgba(34,197,94,.85)}.cyber-dot.low{background:#facc15;box-shadow:0 0 7px #facc15,0 0 20px rgba(250,204,21,.8)}.cyber-map-empty{position:absolute;inset:0;display:grid;place-items:center;color:#86efac;font:900 12px/1.2 ui-monospace,SFMono-Regular,monospace;letter-spacing:.16em;text-align:center;z-index:4;background:rgba(2,20,15,.22)}.cyber-dot-label{position:absolute;left:12px;top:14px;display:none;min-width:155px;padding:8px 10px;background:rgba(1,20,15,.94);border:1px solid rgba(134,239,172,.35);color:#eafff5;font-size:10px;line-height:1.45;z-index:10}.cyber-dot:hover .cyber-dot-label,.cyber-dot:focus .cyber-dot-label{display:block}@keyframes incidentPulse{0%,100%{transform:scale(.72);opacity:.72}50%{transform:scale(1.35);opacity:1}}@media(max-width:600px){.intel-stage{height:300px}.intel-splash-copy strong{font-size:26px}.dashboard-map-head{display:block}.dashboard-map-meta{margin-top:6px}.cyber-dot{width:10px;height:10px;margin:-5px 0 0 -5px}.cyber-dot-label{font-size:9px;min-width:135px}}</style>
-<div id="incidentIntelligenceStage" class="intel-stage" aria-label="Forensics intelligence map">
-  <div class="intel-splash">
-    <img src="/images/forensics-splash.svg" alt="Cyber forensics investigation workspace">
-    <div class="intel-splash-copy">
-      <small>DIGITAL FORENSICS • INCIDENT INTELLIGENCE</small>
-      <strong>Evidence. Investigation. Response.</strong>
-      <span>Muonekano wa forensic unaandaa ramani ya matukio yaliyoripotiwa.</span>
-    </div>
-  </div>
-  <div class="intel-map-layer"><div id="dashboardIncidentMap" class="cyber-map"></div></div>
-</div>
-<div class="dashboard-map-head">
-  <div><h2>Ramani ya Matukio</h2><p>Dot inayowaka inaonyesha tukio lililoripotiwa; taarifa binafsi za aliyeripoti hazionyeshwi.</p></div>
-  <div class="dashboard-map-meta">● LIVE INCIDENT INTELLIGENCE</div>
+.tz-intel{background:#fff;border:1px solid #d9e4e8;border-radius:14px;padding:14px;margin:0 0 16px;color:#102a43}
+.tz-intel-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px}
+.tz-intel-head h2{margin:0;font-size:17px;color:#102a43}.tz-intel-head p{margin:5px 0 0;color:#5b7083;font-size:12px;line-height:1.5}
+.tz-live{font-size:10px;font-weight:800;letter-spacing:.05em;border:1px solid #c7e7df;background:#effaf7;color:#087d68;border-radius:999px;padding:7px 9px}
+.tz-map{height:390px;position:relative;overflow:hidden;border-radius:11px;border:1px solid #c5d9dc;background:linear-gradient(180deg,#f0f8fa,#e3f0f2)}
+.tz-map svg{position:absolute;inset:0;width:100%;height:100%}.tz-region-label{position:absolute;font:600 10px/1.1 system-ui,sans-serif;color:#254c61;white-space:nowrap;pointer-events:none;z-index:2}
+.tz-dot{position:absolute;z-index:4;transform:translate(-50%,-50%);width:15px;height:15px;border:2px solid white;border-radius:50%;background:#0d9488;box-shadow:0 0 0 4px #0d948833,0 0 13px #0d9488;cursor:pointer;padding:0}
+.tz-dot.high{background:#dc3545;box-shadow:0 0 0 4px #dc354533,0 0 13px #dc3545}.tz-dot.medium{background:#d99000;box-shadow:0 0 0 4px #d9900033,0 0 13px #d99000}
+.tz-dot span{display:none;position:absolute;left:14px;top:10px;min-width:150px;background:#102a43;color:white;padding:8px 10px;border-radius:7px;font:12px/1.5 system-ui,sans-serif;text-align:left;white-space:normal;box-shadow:0 8px 20px #102a4333}
+.tz-dot:hover span,.tz-dot:focus-visible span{display:block}.tz-dot:focus-visible{outline:3px solid #102a43;outline-offset:3px}
+.tz-map-key{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tz-key{font-size:10px;color:#334e68;background:#f8fafc;border:1px solid #dce5eb;border-radius:7px;padding:6px 8px}
+.tz-empty{position:absolute;z-index:3;left:12px;right:12px;bottom:12px;background:#ffffffed;border:1px solid #d9e4e8;color:#486581;padding:9px 11px;border-radius:8px;font-size:11px}
+@media(max-width:600px){.tz-map{height:430px}.tz-region-label{font-size:8px}.tz-intel{padding:10px}.tz-dot{width:12px;height:12px}.tz-dot span{min-width:125px;font-size:10px}}
+</style>
+<div class="tz-intel">
+ <div class="tz-intel-head"><div><h2>🗺 Ramani ya Matukio — Tanzania</h2><p>Matukio yamepangwa kwa mkoa ulioandikwa kwenye ripoti. Alama ni muhtasari wa mkoa, si GPS ya tukio. Mkoa usiojazwa hauwezi kuonyeshwa kama eneo halisi.</p></div><span class="tz-live">TANZANIA • OPERATIONAL VIEW</span></div>
+ <div id="dashboardIncidentMap" class="tz-map" role="img" aria-label="Ramani ya Tanzania yenye matukio yaliyoripotiwa kwa mkoa">
+  <svg aria-hidden="true" viewBox="0 0 600 500" preserveAspectRatio="xMidYMid meet">
+   <path d="M125 30 L235 40 L300 65 L355 95 L430 110 L480 160 L463 210 L435 250 L415 300 L375 350 L330 425 L280 445 L235 395 L205 345 L170 295 L140 240 L118 175 L100 115 Z" fill="#d5e7d6" stroke="#668f76" stroke-width="3"/>
+   <path d="M466 220 Q492 245 510 285" fill="none" stroke="#668f76" stroke-width="2"/>
+   <text x="210" y="250" font-size="22" fill="#6b8f7c" opacity=".7">TANZANIA</text><text x="430" y="320" font-size="11" fill="#4b7185">INDIAN OCEAN</text>
+  </svg>
+ </div>
+ <div class="tz-map-key"><span class="tz-key">● High / Critical</span><span class="tz-key">● Medium</span><span class="tz-key">● Low</span><span class="tz-key" id="tzMapTotal">Ripoti: 0</span><span class="tz-key" id="tzMapUnmapped">Bila mkoa: 0</span></div>
 </div>
 <script>
-const dashboardReports=/*[[${mapPoints}]]*/[]||[];
-const regionCoords={Arusha:[-3.3869,36.6830],Dar:[-6.7924,39.2083],"Dar es Salaam":[-6.7924,39.2083],Dodoma:[-6.1630,35.7516],Geita:[-2.8728,32.2294],Iringa:[-7.7696,35.6914],Kagera:[-1.3290,31.8090],Katavi:[-6.8270,31.0750],Kigoma:[-4.8769,29.6267],Kilimanjaro:[-3.0674,37.3556],Lindi:[-9.9931,39.7165],Manyara:[-4.3150,36.9541],Mara:[-1.7757,34.1532],Mbeya:[-8.9094,33.4608],Morogoro:[-6.8278,37.6591],Mtwara:[-10.2736,40.1828],Mwanza:[-2.5164,32.9175],Njombe:[-9.3333,34.7667],Pwani:[-7.3238,38.7660],Rukwa:[-8.0109,31.6107],Ruvuma:[-10.6870,35.6500],Shinyanga:[-3.6619,33.4232],Simiyu:[-2.9995,33.7940],Singida:[-4.8149,34.7439],Songwe:[-8.2582,32.5325],Tabora:[-5.0160,32.8009],Tanga:[-5.0689,39.0982],Zanzibar:[-6.1659,39.2026]};
-function project(lat,lon){return{x:((lon+180)/360)*100,y:((90-lat)/180)*100}}
-function safe(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function initCyberIncidentMap(){const map=document.getElementById('dashboardIncidentMap');if(!map)return;const reports=Array.isArray(dashboardReports)?dashboardReports:[];const oldEmpty=map.querySelector('.cyber-map-empty');if(!reports.length){if(!oldEmpty)map.insertAdjacentHTML('beforeend','<div class="cyber-map-empty">NO REPORTED INCIDENTS YET</div>');}else if(oldEmpty){oldEmpty.remove();}const seen={};reports.forEach((r,index)=>{const raw=String(r?.region||'').trim(),key=raw.replace(/\s+(Region|Mkoa)$/i,'').replace(/^Mkoa wa\s+/i,'').replace(/^Region of\s+/i,'').trim()||'Unknown location';let base=regionCoords[key]||regionCoords[key.replace(/\s+Region$/i,'')];if(!base){const seed=[...key].reduce((a,ch)=>a+ch.charCodeAt(0),0);base=[-6.2,35.8+((seed%17)-8)*0.55];}const group=key;const count=seen[group]||0;seen[group]=count+1;const ring=Math.floor(count/8)+1;const slot=count%8;const angle=(slot/8)*Math.PI*2;const radius=ring*1.35;const p=project(base[0],base[1]);p.x=Math.max(2,Math.min(98,p.x+Math.cos(angle)*radius));p.y=Math.max(4,Math.min(96,p.y+Math.sin(angle)*radius));const priority=String(r?.priority||'MEDIUM').toUpperCase(),cls=priority==='LOW'?' low':priority==='MEDIUM'?' medium':'';const dot=document.createElement('button');dot.type='button';dot.className='cyber-dot'+cls;dot.style.left=p.x+'%';dot.style.top=p.y+'%';dot.style.animationDelay=(index%12)*-0.09+'s';dot.setAttribute('aria-label','Incident '+key);dot.title=(r?.reportId?String(r.reportId)+' • ':'')+key;dot.innerHTML='<span class="cyber-dot-label"><strong>'+safe(r?.reportId||'INCIDENT')+'</strong><br>'+safe(key)+'<br>'+safe(r?.type||'Other')+'<br>'+safe(r?.status||'NEW')+' • '+safe(priority)+'</span>';map.appendChild(dot)});setTimeout(()=>document.getElementById('incidentIntelligenceStage')?.classList.add('map-ready'),1800)}
-document.readyState==='loading'?document.addEventListener('DOMContentLoaded',initCyberIncidentMap):initCyberIncidentMap();
+const dashboardReports=/*[[${mapPoints}]]*/ [];
+(function(){
+const map=document.getElementById('dashboardIncidentMap');if(!map)return;
+const reports=Array.isArray(dashboardReports)?dashboardReports:[];
+const coords={
+'Arusha':[-3.3869,36.6830],'Dar es Salaam':[-6.7924,39.2083],'Dar':[-6.7924,39.2083],
+'Dodoma':[-6.1630,35.7516],'Geita':[-2.8728,32.2294],'Iringa':[-7.7696,35.6914],
+'Kagera':[-1.3290,31.8090],'Katavi':[-6.8270,31.0750],'Kigoma':[-4.8769,29.6267],
+'Kilimanjaro':[-3.0674,37.3556],'Lindi':[-9.9931,39.7165],'Manyara':[-4.3150,36.9541],
+'Mara':[-1.7757,34.1532],'Mbeya':[-8.9094,33.4608],'Morogoro':[-6.8278,37.6591],
+'Mtwara':[-10.2736,40.1828],'Mwanza':[-2.5164,32.9175],'Njombe':[-9.3333,34.7667],
+'Pwani':[-7.3238,38.7660],'Rukwa':[-8.0109,31.6107],'Ruvuma':[-10.6870,35.6500],
+'Shinyanga':[-3.6619,33.4232],'Simiyu':[-2.9995,33.7940],'Singida':[-4.8149,34.7439],
+'Songwe':[-8.2582,32.5325],'Tabora':[-5.0160,32.8009],'Tanga':[-5.0689,39.0982],
+'Mjini Magharibi':[-6.1659,39.2026],'Unguja North':[-5.95,39.30],'Unguja South':[-6.35,39.55],
+'Pemba North':[-5.05,39.78],'Pemba South':[-5.25,39.78],'Zanzibar':[-6.1659,39.2026]
+};
+function norm(v){return String(v||'').trim().replace(/^Mkoa wa\s+/i,'').replace(/\s+(Region|Mkoa)$/i,'').toLocaleLowerCase('en')}
+function project(lat,lon){return {x:Math.max(10,Math.min(83,12+((lon-29)/12)*70)),y:Math.max(8,Math.min(87,9+((-1-lat)/11)*76))}}
+const lookup={};Object.keys(coords).forEach(k=>lookup[norm(k)]=k);
+const groups={};let unmapped=0;
+reports.forEach(r=>{const raw=String(r?.region||'').trim();const key=lookup[norm(raw)];if(!key){unmapped++;return}const g=groups[key]||(groups[key]={name:key,total:0,high:0,medium:0,low:0,types:{}});g.total++;const p=String(r?.priority||'MEDIUM').toUpperCase();if(p==='HIGH'||p==='CRITICAL')g.high++;else if(p==='LOW')g.low++;else g.medium++;const type=String(r?.type||'Other');g.types[type]=(g.types[type]||0)+1;});
+Object.values(groups).forEach(g=>{const xy=project(coords[g.name][0],coords[g.name][1]);const b=document.createElement('button');b.type='button';b.className='tz-dot'+(g.high?' high':g.medium?' medium':'');b.style.left=xy.x+'%';b.style.top=xy.y+'%';b.setAttribute('aria-label',g.name+', ripoti '+g.total);b.title=g.name+' — ripoti '+g.total;b.innerHTML='<span><b>'+g.name+'</b><br>Ripoti: '+g.total+'<br>High/Critical: '+g.high+' · Medium: '+g.medium+' · Low: '+g.low+'</span>';map.appendChild(b);});
+document.getElementById('tzMapTotal').textContent='Ripoti zenye mkoa: '+(reports.length-unmapped);
+document.getElementById('tzMapUnmapped').textContent='Bila mkoa/usiotambulika: '+unmapped;
+if(!Object.keys(groups).length){const empty=document.createElement('div');empty.className='tz-empty';empty.textContent=reports.length?'Hakuna mkoa unaotambulika kwenye ripoti hizi. Kagua majina ya mikoa kwenye ripoti.':'Hakuna ripoti za kuonyesha kwa sasa. Ramani ya Tanzania ipo tayari; alama zitaonekana ripoti zenye mkoa zikihifadhiwa.';map.appendChild(empty);}
+})();
 </script>
 </section>
 </body>
