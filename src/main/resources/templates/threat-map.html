@@ -35,5 +35,16 @@ map.innerHTML='<svg aria-hidden="true" viewBox="0 0 600 500" preserveAspectRatio
 function project(lat,lon){return{x:Math.max(4,Math.min(96,((lon-29.0)/(41.0-29.0))*100)),y:Math.max(4,Math.min(96,((-1.0-lat)/((-1.0)-(-12.0)))*100)}}
 const grouped={};let high=0,med=0,low=0;reports.forEach(r=>{const k=(r.region||'').trim();if(!k)return;grouped[k]??={region:k,total:0,high:0,medium:0,low:0,types:{}};grouped[k].total++;const p=(r.priority||'MEDIUM').toUpperCase();if(p==='HIGH'){grouped[k].high++;high++}else if(p==='LOW'){grouped[k].low++;low++}else{grouped[k].medium++;med++}grouped[k].types[r.type]=(grouped[k].types[r.type]||0)+1});
 Object.values(grouped).forEach(g=>{const key=Object.keys(regions).find(k=>k.toLowerCase()===g.region.toLowerCase() || (k==='Dar es Salaam' && g.region.toLowerCase()==='dar'));const pos=key?regions[key]:null;if(!pos)return;const severity=g.high?'HIGH':g.medium?'MEDIUM':'LOW';const color=severity==='HIGH'?'#dc3b45':severity==='MEDIUM'?'#d99000':'#08a879';const c=document.createElement('button');c.type='button';c.className='map-dot '+(severity==='LOW'?'low':severity==='MEDIUM'?'medium':'');const p=project(pos[0],pos[1]);c.style.cssText='position:absolute;z-index:5;width:15px;height:15px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid #fff;background:'+color+';box-shadow:0 0 8px '+color+';cursor:pointer;left:'+p.x+'%;top:'+p.y+'%;';c.title=g.region+' | Reports: '+g.total;c.innerHTML='<span><b>'+g.region+'</b><br>Reports: '+g.total+'<br>High: '+g.high+' · Medium: '+g.medium+' · Low: '+g.low+'</span>';map.appendChild(c)});
+// Label all configured Tanzanian regions; dots only appear where reports exist.
+Object.entries(regions).forEach(([name,coords])=>{
+  const p=project(coords[0],coords[1]);
+  const label=document.createElement('span');
+  label.className='map-region-label';
+  label.textContent=name;
+  label.style.left=p.x+'%';
+  label.style.top=p.y+'%';
+  label.style.transform='translate(8px, 8px)';
+  map.appendChild(label);
+});
 document.getElementById('totalCount').textContent=reports.filter(r=>(r.region||'').trim()).length;document.getElementById('highCount').textContent=high;document.getElementById('medCount').textContent=med;document.getElementById('lowCount').textContent=low;
 </script></body></html>
