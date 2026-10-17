@@ -33,6 +33,12 @@ public class EvidenceService {
 
     private final EvidenceStorage evidenceStorage;
 
+    @org.springframework.beans.factory.annotation.Value("${app.storage.provider:local}")
+    private String storageProvider;
+
+    @org.springframework.beans.factory.annotation.Value("${app.storage.production-required:true}")
+    private boolean productionStorageRequired;
+
     public EvidenceService(EvidenceRepository evidenceRepository,
                            ChainOfCustodyRepository custodyRepository,
                            CaseFileRepository caseFileRepository,
@@ -64,6 +70,10 @@ public class EvidenceService {
     public Evidence uploadEvidence(Long incidentId, Long caseId, MultipartFile file,
                                    EvidenceDto dto, String username, Long uploadedBy,
                                    String actorRole) throws IOException {
+        // Evidence is forensic material: never accept uploads to an ephemeral local filesystem when production storage is required.
+        if (productionStorageRequired && !"s3".equalsIgnoreCase(storageProvider)) {
+            throw new IllegalStateException("Evidence acquisition is temporarily disabled: configure durable S3-compatible evidence storage before collecting real evidence.");
+        }
         if (file == null || file.isEmpty()) throw new IllegalArgumentException("Evidence file is empty.");
         if (file.getSize() > 50L * 1024L * 1024L) throw new IllegalArgumentException("Evidence file exceeds the 50 MB limit.");
 
