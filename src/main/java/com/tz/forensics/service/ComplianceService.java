@@ -55,14 +55,15 @@ public class ComplianceService {
         report.setPeriodStart(LocalDateTime.now().minusMonths(1));
         report.setPeriodEnd(LocalDateTime.now());
 
-        // Calculate compliance score
+        // Baseline templates are not proof of implemented controls. Until control-level
+        // evidence is collected and reviewed, keep the report explicitly unassessed.
         int totalControls = getTotalControls(normalizedType);
-        int passedControls = calculatePassedControls(normalizedType);
+        int passedControls = 0;
 
         report.setTotalControls(totalControls);
         report.setPassedControls(passedControls);
-        report.setFailedControls(totalControls - passedControls);
-        report.setComplianceScore((passedControls * 100) / totalControls);
+        report.setFailedControls(0);
+        report.setComplianceScore(0);
         report.setTitle(getReportTitle(normalizedType));
         report.setSummary(generateSummary(normalizedType, passedControls, totalControls));
         report.setFindings(generateFindings(normalizedType));
@@ -121,10 +122,10 @@ public class ComplianceService {
                 .count();
         stats.put("resolvedIncidents", resolved);
 
-        // Compliance score (overall)
-        int total = incidents.size() + attacks.size();
-        int score = total > 0 ? Math.min(100, 70 + (int)(resolved * 100 / Math.max(1, total))) : 85;
-        stats.put("overallScore", score);
+        // Do not present an invented score as compliance. A valid score requires
+        // evidence-backed control assessments; until then the dashboard is unassessed.
+        stats.put("overallScore", null);
+        stats.put("complianceAssessmentStatus", "UNASSESSED");
 
         return stats;
     }
@@ -140,15 +141,8 @@ public class ComplianceService {
     }
 
     private int calculatePassedControls(String type) {
-        // Baseline control model for internal readiness assessment; this is not evidence of certification.
-        int base = switch (type) {
-            case "TCRA" -> 20;
-            case "ISO27001" -> 85;
-            case "DATA_PROTECTION" -> 35;
-            case "ANNUAL" -> 40;
-            default -> 25;
-        };
-        return base;
+        // No control is marked passed without recorded evidence and a review decision.
+        return 0;
     }
 
     private String getReportTitle(String type) {
@@ -169,23 +163,18 @@ public class ComplianceService {
     }
 
     private String generateFindings(String type) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("1. Access Control: 2FA inafanya kazi kwa admin. ✅\n");
-        sb.append("2. Audit Logging: Kila kitendo kinarekodiwa. ✅\n");
-        sb.append("3. Evidence Protection: Evidence encryption mechanism ipo; configuration na key management vinahitaji verification. ⚠️\n");
-        sb.append("4. Incident Response: Mfumo wa kuripoti upo. ✅\n");
-        sb.append("5. Data Backup: Backup/restore evidence inahitaji kuthibitishwa kwa mazingira ya production. ⚠️\n");
-        sb.append("6. User Training: Training ya watumiaji inahitajika. ⚠️\n");
-        return sb.toString();
+        return "Hali ya tathmini: HAJATHIBITISHWA. Mfumo haujaunganisha ushahidi wa kila control na matokeo ya review kwa sasa. "
+            + "Hakuna control inayopaswa kuhesabiwa kuwa imefaulu kwa kutumia baseline ya kubuni. "
+            + "Mkusanyaji wa ripoti anatakiwa kukusanya ushahidi unaohusika, kurekodi matokeo na kupata mapitio kabla ya kuweka status ya compliance.";
     }
 
     private String generateRecommendations(String type) {
         StringBuilder sb = new StringBuilder();
-        sb.append("✅ Ongeza 2FA kwa watumiaji wote\n");
-        sb.append("✅ Fanya security awareness training kila miezi 6\n");
-        sb.append("✅ Sasisha security policies kila mwaka\n");
-        sb.append("✅ Fanya penetration testing kila robo mwaka\n");
-        sb.append("✅ Backup data kila siku\n");
+        sb.append("1. Weka scope ya tathmini na control zinazotumika kwa taasisi husika.\n");
+        sb.append("2. Ambatisha ushahidi unaoweza kuthibitishwa kwa kila control; usitumie alama ya pass bila ushahidi.\n");
+        sb.append("3. Rekodi matokeo kama PASS, FAIL, PARTIAL au NOT_ASSESSED, pamoja na reviewer na muda.\n");
+        sb.append("4. Panga hatua za kurekebisha mapungufu, mmiliki wa kazi na tarehe ya mwisho.\n");
+        sb.append("5. Pitia na kuidhinisha ripoti kabla ya kuiweka FINAL; hii si uthibitisho wa certification.\n");
         return sb.toString();
     }
 }
