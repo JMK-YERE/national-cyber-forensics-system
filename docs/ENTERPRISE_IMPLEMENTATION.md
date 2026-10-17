@@ -181,3 +181,17 @@ These are targeted controls, not proof of complete tenant isolation. Legacy reco
 - Until `ReportAttack` records have an approved tenant-ownership mapping, the CSV includes only reports created by or explicitly assigned to the authenticated user.
 - CSV export actions are recorded in the existing audit log, and the response is marked non-cacheable.
 - This is a fail-closed interim control. It does **not** complete tenant isolation for the report list, dashboard metrics, PDF exports, or other report endpoints; those still require tenant ownership, authorization checks, and cross-tenant tests.
+
+## Legacy NULL-tenant access review (2026-10-17)
+
+A focused controller review found that the current compatibility helper in `IncidentController`, `EvidenceController`, and `PDFController` treats `tenantId == null` as accessible before applying the remaining owner/assignment checks. This is **not tenant isolation**: a NULL tenant ID is unknown ownership, not proof that a record belongs to the current tenant.
+
+Release gate:
+- Do not backfill tenant IDs by guessing from creator role, current assignment, or global admin status.
+- Before production rollout, approve a record-by-record ownership mapping with the data owner; quarantine unresolved records.
+- Change legacy-resource authorization to deny cross-tenant access when ownership is unresolved, while preserving explicitly approved migration/admin recovery paths with audit events.
+- Add integration tests showing Tenant A cannot list, search, export, download, mutate, or obtain a PDF for Tenant B records, including records with NULL tenant IDs and mismatched parent/child tenant IDs.
+- Exercise the migration against a production-like restored database and verify backup restoration before any production migration.
+
+This review is a documented risk finding, not a claim that the risk has already been fully remediated. Existing null-tenant compatibility is retained on this branch pending safe ownership mapping; do not interpret this branch as ready for production release.
+
