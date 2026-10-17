@@ -137,49 +137,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 
-/* ===== ACTION FEEDBACK / FORENSICS LOADER ===== */
-(function(){
-    function ensureActionOverlay(){
-        let o=document.getElementById('cftzActionOverlay');
-        if(o)return o;
-        o=document.createElement('div');
-        o.id='cftzActionOverlay';
-        o.className='cftz-action-overlay';
-        o.setAttribute('aria-live','polite');
-        o.innerHTML='<div class="cftz-action-panel"><div class="cftz-action-visual"><img src="/images/forensics-splash.svg" alt="" aria-hidden="true"><span class="cftz-scan-line"></span></div><div class="cftz-action-title" id="cftzActionTitle">Processing…</div><div class="cftz-action-subtitle" id="cftzActionSubtitle">Cyber Forensics TZ is processing your request securely.</div><div class="cftz-action-spinner"></div></div>';
-        document.body.appendChild(o);
-        return o;
-    }
-    function showAction(title,subtitle){
-        const o=ensureActionOverlay();
-        const t=document.getElementById('cftzActionTitle'),s=document.getElementById('cftzActionSubtitle');
-        if(t)t.textContent=title||'Processing…';
-        if(s)s.textContent=subtitle||'Cyber Forensics TZ is processing your request securely.';
-        o.classList.add('show');
-    }
-    window.cftzShowAction=showAction;
-    document.addEventListener('submit',function(e){
-        const form=e.target;
-        if(!(form instanceof HTMLFormElement))return;
-        if(form.dataset.noActionFeedback==='true')return;
-        const submit=form.querySelector('button[type="submit"],input[type="submit"]');
-        if(submit){
-            submit.disabled=true;
-            submit.dataset.originalText=submit.textContent;
-            submit.textContent='Processing…';
-        }
-        showAction(form.dataset.actionTitle||'Processing request…',form.dataset.actionSubtitle||'Please wait while the forensic operation is completed securely.');
-    },true);
-    document.addEventListener('click',function(e){
-        const link=e.target.closest('a');
-        if(!link || link.target==='_blank' || e.ctrlKey || e.metaKey || e.shiftKey || e.defaultPrevented)return;
-        if(link.closest('.app-sidebar') || link.closest('.language-menu')) return;
-        const href=link.getAttribute('href')||'';
-        if(!href || href.startsWith('#') || href.startsWith('javascript:') || link.hasAttribute('download')) return;
-        showAction(link.dataset.actionTitle||'Opening secure workspace…',link.dataset.actionSubtitle||'Loading Cyber Forensics TZ securely.');
-    },true);
-})();
-
+/* Loading overlays intentionally disabled: navigation and authentication should not block the screen. */
 
 /* ===== RESPONSIVE TABLES + MOBILE KEYBOARD SUPPORT ===== */
 (function(){
