@@ -37,7 +37,7 @@ public class CaseIocController {
   return "CLOSED".equals(s)||"ARCHIVED".equals(s);
  }
  private boolean hasTenantAccess(Long tenantId,User u){
-  if(tenantId==null)return true; // Legacy records stay readable pending approved ownership mapping.
+  if(tenantId==null)return false; // Unknown ownership is not authorization; resolve via approved mapping.
   if(u==null||u.getUsername()==null)return false;
   try{tenantAccessService.requireMembership(u.getUsername(),tenantId,java.util.Set.of());return true;}
   catch(org.springframework.web.server.ResponseStatusException denied){return false;}
