@@ -827,3 +827,108 @@ html[data-theme="dark"] .profile-btn{background:#111c2d!important;color:#e5edf7!
 html[data-theme="dark"] table th{background:#17263a!important;color:#e5edf7!important}
 html[data-theme="dark"] .app-btn-outline{background:#111c2d!important;color:#99f6e4!important;border-color:#3d7772!important}
 html[data-theme="dark"] .dropdown-item:hover{background:#203148!important}
+
+
+/* ===== CFTZ RESPONSIVE RELIABILITY PASS =====
+   Mobile-first overflow, readable forms/tables, keyboard focus and touch targets.
+   Keep the neutral white/slate foundation and one semantic teal accent.
+*/
+:root{
+  --cftz-page:#f8fafc;
+  --cftz-text:#1e293b;
+  --cftz-muted:#475569;
+  --cftz-border:#dbe3ec;
+  --cftz-accent:#0f766e;
+  --cftz-accent-hover:#115e59;
+  --cftz-accent-soft:#f0fdfa;
+  --cftz-focus:rgba(15,118,110,.20);
+  --cftz-shadow:0 2px 10px rgba(15,23,42,.04);
+}
+html{scroll-padding-top:76px}
+body{overflow-x:clip}
+img,svg,video,canvas{max-width:100%;height:auto}
+.app-main,.app-container,.app-card,.app-card>*,
+.app-main form,.app-main section,.app-main article,
+.app-main .row,.app-main [class*="col-"]{min-width:0;max-width:100%}
+.app-main h1,.app-main h2,.app-main h3,.app-main p,
+.app-main td,.app-main th,.app-main label,.app-main a,
+.app-sidebar .sidebar-item .label{overflow-wrap:anywhere}
+.app-main a:focus-visible,.app-main button:focus-visible,
+.app-sidebar a:focus-visible,.mobile-toggle:focus-visible,
+.profile-btn:focus-visible,.app-main input:focus-visible,
+.app-main select:focus-visible,.app-main textarea:focus-visible{
+  outline:3px solid rgba(15,118,110,.45)!important;
+  outline-offset:2px!important;
+}
+.app-main input,.app-main select,.app-main textarea{
+  width:auto;max-width:100%;min-height:42px;
+}
+.app-main textarea{min-height:100px;resize:vertical}
+.app-main input[type="checkbox"],.app-main input[type="radio"]{
+  width:18px;min-height:18px;max-width:18px;accent-color:var(--cftz-accent);
+}
+.app-main input[type="file"]{width:100%;min-height:42px;padding:7px}
+.app-main button,.app-main .app-btn{touch-action:manipulation}
+.app-main table{max-width:100%;border-collapse:collapse}
+.app-main th,.app-main td{vertical-align:top;padding:10px 12px}
+.app-main pre,.app-main code{max-width:100%;overflow-wrap:anywhere;white-space:pre-wrap}
+.app-main .form-group,.app-main .form-field,.app-main .field,
+.app-main .mb-3{min-width:0}
+.app-main .form-group label,.app-main .form-field label,
+.app-main .field label{display:block;margin-bottom:5px;color:#334155;font-weight:600}
+.app-main .form-group input,.app-main .form-group select,
+.app-main .form-group textarea,.app-main .form-field input,
+.app-main .form-field select,.app-main .form-field textarea,
+.app-main .field input,.app-main .field select,.app-main .field textarea{
+  width:100%;min-width:0;
+}
+.app-main .actions,.app-main .action-buttons,.app-main .button-group{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0;
+}
+.app-main .actions>* ,.app-main .action-buttons>* ,.app-main .button-group>*{max-width:100%}
+@media(max-width:900px){
+  .app-main{width:100%;min-width:0}
+  .app-sidebar{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  .app-sidebar .sidebar-item{min-height:40px!important;font-size:12.5px!important;line-height:1.35}
+  .app-main .app-table-wrap,.app-main .table-responsive,
+  .app-main .table-wrap,.app-main .overflow-x-auto{
+    display:block;width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .app-main table{min-width:620px}
+  .app-main .app-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .app-main .app-stat-box{min-width:0;padding:12px!important}
+  .app-main form .row{margin-left:0;margin-right:0}
+  .app-main .modal,.app-main .dialog,.app-main [role="dialog"]{
+    max-width:calc(100vw - 20px);max-height:calc(100dvh - 24px);overflow:auto;
+  }
+}
+@media(max-width:560px){
+  .app-header{gap:7px!important}
+  .header-logo{flex:0 1 auto}
+  .header-clock{flex:1;min-width:0}
+  .app-main{padding:12px 10px!important}
+  .app-main .app-card{padding:14px 12px!important;margin-bottom:14px}
+  .app-main .app-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .app-main .app-stat-box .value{font-size:clamp(19px,6vw,25px)!important;overflow-wrap:anywhere}
+  .app-main .app-stat-box .label{font-size:10px!important;line-height:1.4}
+  .app-main .app-btn{min-height:44px;white-space:normal}
+  .app-main form button[type="submit"],.app-main form input[type="submit"]{max-width:100%}
+  .app-main .actions .app-btn,.app-main .action-buttons .app-btn{flex:1 1 auto}
+  .app-main .table-responsive table,.app-main .app-table-wrap table,
+  .app-main .table-wrap table{min-width:580px}
+  .ai-floating{width:68px!important;right:7px!important;bottom:7px!important}
+  .ai-floating svg{width:46px!important;height:46px!important}
+  .ai-floating-label{font-size:9px!important}
+}
+@media(max-width:360px){
+  .app-main .app-stats-grid{grid-template-columns:minmax(0,1fr)}
+  .app-sidebar{width:min(278px,88vw)!important}
+  .app-main .app-card{padding:12px 10px!important}
+  .clock-time{font-size:9px!important}
+  .profile-avatar{width:28px;height:28px}
+}
+@media(prefers-reduced-motion:reduce){
+  html:focus-within{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
