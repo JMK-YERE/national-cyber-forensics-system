@@ -5,12 +5,12 @@
     <title>Users Management</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <style>
-        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; margin: 8px 0; background: rgba(7,84,62,0.03); border-left: 4px solid #07543e; border-radius: 8px; flex-wrap: wrap; gap: 10px; }
-        .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; background: #07543e; margin-left: 8px; }
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; margin: 8px 0; background: #f8fafc; border-left: 3px solid #244f7d; border-radius: 8px; flex-wrap: wrap; gap: 10px; }
+        .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; background: #173b66; margin-left: 8px; }
         .role-ADMIN { background: #dc2626; }
-        .role-CYBER_PRO { background: #eab308; }
-        .role-FORENSICS { background: #8b5cf6; }
-        .role-INDIVIDUAL { background: #1b7a4a; }
+        .role-CYBER_PRO { background: #315b87; }
+        .role-FORENSICS { background: #315b87; }
+        .role-INDIVIDUAL { background: #315b87; }
         .user-btn { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; color: white; }
     </style>
 </head>
@@ -19,25 +19,25 @@
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main"><div class="app-container">
-    <div class="app-card" style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; padding: 25px;">
+    <div class="app-card" style="background: linear-gradient(135deg, #0b1f3a, #244f7d); color: white; padding: 25px;">
         <h1 style="color: white; margin: 0;">👥 Users Management</h1>
         <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">Simamia watumiaji wote wa mfumo</p>
     </div>
 
-    <div class="app-card" th:if="${success}" style="background: rgba(27,122,74,0.1); border-left: 4px solid #1b7a4a; padding: 15px;">
-        <p style="color: #1b7a4a; margin: 0;" th:text="${success}"></p>
+    <div class="app-card" th:if="${success}" style="background: rgba(27,122,74,0.1); border-left: 4px solid #315b87; padding: 15px;">
+        <p style="color: #315b87; margin: 0;" th:text="${success}"></p>
     </div>
 
     <div class="app-card" th:if="${error}" style="background: rgba(220,38,38,0.1); border-left: 4px solid #dc2626; padding: 15px;">
         <p style="color: #dc2626; margin: 0;" th:text="${error}"></p>
     </div>
-    <div class="app-card" th:if="${warning}" style="background:#eff6ff;border-left:4px solid #1d4ed8;padding:15px;">
+    <div class="app-card" th:if="${warning}" style="background:#eff6ff;border-left:4px solid #244f7d;padding:15px;">
         <p style="color:#1e3a8a;margin:0 0 10px;" th:text="${warning}"></p>
         <p style="margin:0 0 8px;"><strong>User:</strong> <span id="manualAccessUsername" th:text="${manualAccessUsername}"></span> · <strong>Code:</strong> <code id="manualAccessCode" th:text="${manualAccessCode}"></code></p>
         <p style="margin:0 0 12px;"><strong>Simu:</strong> <span id="manualAccessPhone" th:text="${manualAccessPhone}"></span> · <strong>Njia:</strong> <span th:text="${manualAccessChannel}"></span></p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button type="button" class="user-btn" style="background:#1d4ed8;" onclick="copyTemporaryAccess()">Copy details</button>
-            <button type="button" class="user-btn" style="background:#075985;" onclick="shareTemporaryAccessWhatsApp()">Open WhatsApp</button>
+            <button type="button" class="user-btn" style="background:#244f7d;" onclick="copyTemporaryAccess()">Copy details</button>
+            <button type="button" class="user-btn" style="background:#173b66;" onclick="shareTemporaryAccessWhatsApp()">Open WhatsApp</button>
         </div>
         <p style="font-size:12px;color:#475569;margin-top:10px;">Code hii inaonekana mara moja tu kwenye ukurasa huu. Mtumiaji atumie mara moja na atengeneze password yake mwenyewe.</p>
     </div>
@@ -45,8 +45,8 @@
     <div class="app-stats-grid">
         <div class="app-stat-box"><div class="stat-value" th:text="${totalUsers}">0</div><div class="stat-label">Total Users</div></div>
         <div class="app-stat-box"><div class="stat-value" style="color: #dc2626;" th:text="${adminCount}">0</div><div class="stat-label">Admins</div></div>
-        <div class="app-stat-box"><div class="stat-value" style="color: #eab308;" th:text="${proCount}">0</div><div class="stat-label">Professionals</div></div>
-        <div class="app-stat-box"><div class="stat-value" style="color: #1b7a4a;" th:text="${individualCount}">0</div><div class="stat-label">Individuals</div></div>
+        <div class="app-stat-box"><div class="stat-value" style="color: #315b87;" th:text="${proCount}">0</div><div class="stat-label">Professionals</div></div>
+        <div class="app-stat-box"><div class="stat-value" style="color: #315b87;" th:text="${individualCount}">0</div><div class="stat-label">Individuals</div></div>
     </div>
 
     <div class="app-card">
@@ -64,7 +64,7 @@
                 <option value="INDIVIDUAL">INDIVIDUAL</option><option value="CYBER_PRO">CYBER_PRO</option>
                 <option value="ANALYST">ANALYST</option><option value="FORENSICS">FORENSICS</option><option value="ADMIN">ADMIN</option>
             </select>
-            <button type="submit" class="user-btn" style="background:#07543e;">Create User</button>
+            <button type="submit" class="user-btn" style="background:#173b66;">Create User</button>
         </form>
     </div>
 
@@ -85,20 +85,20 @@
                 <!-- APPROVAL -->
                 <form th:if="${u.approvalStatus == 'PENDING'}" th:action="@{'/admin/users/' + ${u.id} + '/approve'}" method="post" style="display: inline;">
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <button type="submit" class="user-btn" style="background:#16A34A;">Approve</button>
+                    <button type="submit" class="user-btn" style="background:#244f7d;">Approve</button>
                 </form>
 
                 <!-- ENABLE/DISABLE -->
                 <form th:action="@{'/admin/users/' + ${u.id} + '/toggle'}" method="post" style="display: inline;">
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <button type="submit" class="user-btn" style="background: #07543e;"
+                    <button type="submit" class="user-btn" style="background: #173b66;"
                             th:text="${u.enabled != null && u.enabled ? 'Disable' : 'Enable'}"></button>
                 </form>
 
                 <!-- UNLOCK -->
                 <form th:if="${u.accountLocked}" th:action="@{'/admin/users/' + ${u.id} + '/unlock'}" method="post" style="display: inline;">
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <button type="submit" class="user-btn" style="background: #eab308;">Unlock</button>
+                    <button type="submit" class="user-btn" style="background: #315b87;">Unlock</button>
                 </form>
 
                 <!-- CHANGE ROLE -->
@@ -111,7 +111,7 @@
                         <option value="ANALYST" th:selected="${u.role == 'ANALYST'}">ANALYST</option>
                         <option value="ADMIN" th:selected="${u.role == 'ADMIN'}">ADMIN</option>
                     </select>
-                    <button type="submit" class="user-btn" style="background: #1b7a4a;">Save</button>
+                    <button type="submit" class="user-btn" style="background: #315b87;">Save</button>
                 </form>
 
                 <!-- TEMPORARY ACCESS: sends a one-time code; secret is never displayed in admin page -->
@@ -120,11 +120,11 @@
                     <select name="channel" aria-label="Delivery channel" style="padding:6px;border-radius:6px;border:1px solid #ccc;font-size:12px;">
                         <option value="SMS">SMS</option><option value="WHATSAPP">WhatsApp</option>
                     </select>
-                    <button type="submit" class="user-btn" style="background:#0f766e;">Temporary Access</button>
+                    <button type="submit" class="user-btn" style="background:#244f7d;">Temporary Access</button>
                 </form>
 
                 <!-- VIEW -->
-                <a th:href="@{'/admin/users/' + ${u.id}}" class="user-btn" style="background: #8b5cf6;">View</a>
+                <a th:href="@{'/admin/users/' + ${u.id}}" class="user-btn" style="background: #315b87;">View</a>
 
                 <!-- DELETE -->
                 <form th:if="${u.username != 'admin'}" th:action="@{'/admin/users/' + ${u.id} + '/delete'}" method="post" style="display: inline;"
