@@ -19,7 +19,7 @@
 <p class="note">Temporary password inaonyeshwa mara hii tu. Ishare na mtu sahihi, kisha hakikisha anaibadilisha baada ya kuingia.</p>
 <div class="secret"><code id="temporaryPassword" th:text="${temporaryPassword}">temporary-password</code></div>
 <div class="actions"><button type="button" class="btn" onclick="copyTemporaryPassword()">Copy password</button><a th:if="${whatsappLink != null and !whatsappLink.isBlank()}" class="btn wa" th:href="${whatsappLink}" target="_blank" rel="noopener noreferrer">Share via WhatsApp</a></div>
-<p class="note" th:if="${!whatsappNumberProvided}">WhatsApp number haikuwekwa. Unaweza ku-copy password na kuituma kwa njia salama.</p>
+<p class="note" th:if="${created and !whatsappNumberProvided}">WhatsApp number haikuwekwa. Unaweza ku-copy password na kuituma kwa njia salama.</p>
 <p class="note">Kwa usalama, link ya WhatsApp ina credentials kwenye ujumbe unaotaka kutuma. Hakikisha namba ni ya mtumiaji mwenyewe kabla ya kufungua link.</p>
 </section>
 <section class="panel">
