@@ -136,7 +136,7 @@ public class EmailService {
                 .replace("\n", "\\n");
     }
 
-    public void sendPasswordSetupEmail(String to, String username, String token) {
+    public boolean sendPasswordSetupEmail(String to, String username, String token) {
         String subject = "🔐 Tengeneza password yako - " + appName;
         String body = "Habari " + username + ",\n\n"
                 + "Akaunti yako ya " + appName + " imepokelewa.\n\n"
@@ -145,7 +145,7 @@ public class EmailService {
                 + "Link hii ita-expire ndani ya saa 24.\n\n"
                 + "Kama hukuomba akaunti hii, puuza ujumbe huu.\n\n"
                 + appName + " - Tanzania 🇹🇿";
-        sendEmail(to, subject, body);
+        return sendEmail(to, subject, body);
     }
 
     public void sendVerificationEmail(String to, String username, String token) {
