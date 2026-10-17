@@ -111,10 +111,10 @@ public class AdminUserProvisioningController {
                 "Provisioned role=" + cleanRole + "; forced password change enabled");
 
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-        String message = "Cyber Forensics TZ - Akaunti yako imeundwa.\\n"
-                + "Username: " + cleanUsername + "\\n"
-                + "Temporary password: " + temporaryPassword + "\\n"
-                + "Login: " + baseUrl + "/login\\n"
+        String message = "Cyber Forensics TZ - Akaunti yako imeundwa.\n"
+                + "Username: " + cleanUsername + "\n"
+                + "Temporary password: " + temporaryPassword + "\n"
+                + "Login: " + baseUrl + "/login\n"
                 + "Kwa usalama, badilisha password mara tu utakapoingia. Password hii ni ya matumizi ya kwanza tu.";
         String digits = cleanWhatsApp == null ? "" : cleanWhatsApp.replaceAll("[^0-9]", "");
         String whatsappLink = digits.isBlank() ? "" :
