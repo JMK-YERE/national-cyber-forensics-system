@@ -37,8 +37,8 @@
     <!-- STATS -->
     <div class="app-stats-grid">
         <div class="app-stat-box">
-            <div class="stat-value" th:text="${stats.overallScore} + '%'">0</div>
-            <div class="stat-label">Overall Compliance</div>
+            <div class="stat-value">Not assessed</div>
+            <div class="stat-label">Compliance status — evidence review required</div>
         </div>
         <div class="app-stat-box">
             <div class="stat-value" th:text="${stats.totalIncidents}">0</div>
@@ -57,7 +57,7 @@
     <!-- GENERATE NEW REPORT -->
     <div class="generate-card">
         <h3>🔍 Generate New Compliance Report</h3>
-        <p style="color: rgba(255,255,255,0.8); font-size: 14px;">Chagua aina ya ripoti</p>
+        <p style="color: rgba(255,255,255,0.8); font-size: 14px;">Chagua aina ya ripoti. Ripoti mpya itaonyesha hali isiyothibitishwa mpaka ushahidi wa controls upitiwe.</p>
         <form class="generate-form" th:action="@{/compliance/generate}" method="post">
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <select name="type" required>
