@@ -27,13 +27,14 @@ class ResponsePlaybookExecutionServiceTest {
     @Mock private ResponsePlaybookStepRunRepository steps;
     @Mock private CaseFileService cases;
     @Mock private IncidentService incidents;
+    @Mock private TenantAccessService tenantAccessService;
 
     private ResponsePlaybookExecutionService service;
 
     @BeforeEach
     void setUp() {
         service = new ResponsePlaybookExecutionService(
-            runs, steps, new ResponsePlaybookService(), cases, incidents);
+            runs, steps, new ResponsePlaybookService(), cases, incidents, tenantAccessService);
     }
 
     @Test
@@ -73,8 +74,10 @@ class ResponsePlaybookExecutionServiceTest {
         admin.setId(1L);
         admin.setRole("ADMIN");
         CaseFile caseFile = new CaseFile();
+        caseFile.setIncidentId(44L);
         caseFile.setStatus("OPEN");
         when(cases.getById(5L)).thenReturn(caseFile);
+        when(incidents.getById(44L)).thenReturn(new Incident());
 
         ResponseStatusException error = assertThrows(ResponseStatusException.class,
             () -> service.startRun(5L, "does-not-exist", admin));
@@ -91,7 +94,9 @@ class ResponsePlaybookExecutionServiceTest {
         admin.setRole("ADMIN");
         CaseFile cf = new CaseFile();
         cf.setId(5L);
+        cf.setIncidentId(44L);
         cf.setStatus("INVESTIGATING");
+        when(incidents.getById(44L)).thenReturn(new Incident());
         ResponsePlaybookRun run = new ResponsePlaybookRun();
         ReflectionTestUtils.setField(run, "id", 41L);
         run.setCaseId(5L);
