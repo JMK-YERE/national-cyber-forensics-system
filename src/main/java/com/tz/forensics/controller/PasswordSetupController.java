@@ -58,7 +58,10 @@ public class PasswordSetupController {
         String supplied = phone != null && !phone.isBlank() ? otp : token;
         String hashed = sha256(supplied == null ? "" : supplied.trim());
         if (phone != null && !phone.isBlank() && otp != null && !otp.isBlank()) {
-            user = userRepository.findByPhone(phone.trim()).orElse(null);
+            user = userRepository.findByPhone(phone.trim()).orElseGet(() -> userRepository.findAll().stream()
+                    .filter(candidate -> candidate.getWhatsappNumber() != null
+                            && candidate.getWhatsappNumber().equals(phone.trim()))
+                    .findFirst().orElse(null));
             if (user != null && !hashed.equals(user.getPasswordSetupToken())) {
                 if (user.getPasswordSetupAttempts() >= 5) {
                     user = null;
