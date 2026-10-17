@@ -31,30 +31,4 @@
 <a th:href="@{/admin/announcements}" class="sidebar-item"><span class="icon">✦</span><span class="label" th:text="#{nav.announcements}">Announcements</span></a>
 <a th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label" th:text="#{nav.systemSettings}">System Settings</span></a>
 </div></nav></aside>
-<div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true" onclick="closeSidebar()"></div>
-<script>
-(function(){
-  function closeMobileNavigation(){
-    if(window.innerWidth>900)return;
-    const sidebar=document.getElementById('appSidebar');
-    const overlay=document.getElementById('sidebarOverlay');
-    if(sidebar){sidebar.classList.remove('show');sidebar.setAttribute('aria-hidden','true');}
-    if(overlay){overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');}
-    document.body.classList.remove('sidebar-open');
-    document.documentElement.classList.remove('sidebar-open');
-    const button=document.querySelector('.mobile-toggle');
-    if(button)button.setAttribute('aria-expanded','false');
-  }
-  document.addEventListener('click',function(event){
-    if(window.innerWidth>900)return;
-    const target=event.target instanceof Element?event.target:null;
-    const link=target&&target.closest('#appSidebar a.sidebar-item[href]');
-    if(!link)return;
-    const href=link.getAttribute('href')||'';
-    if(href && href!=='#' && !href.startsWith('javascript:'))closeMobileNavigation();
-  },true);
-  window.addEventListener('pageshow',closeMobileNavigation);
-  window.addEventListener('popstate',closeMobileNavigation);
-})();
-</script>
 </body></html>
