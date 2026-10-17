@@ -1,6 +1,7 @@
 package com.tz.forensics.config;
 
 import com.tz.forensics.service.CustomOAuth2UserService;
+import com.tz.forensics.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
@@ -19,15 +21,18 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oauth2Handler;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final LoginAuthenticationFailureHandler loginFailureHandler;
+    private final UserRepository userRepository;
 
     public SecurityConfig(CustomOAuth2UserService oauth2UserService,
                           OAuth2LoginSuccessHandler oauth2Handler,
                           ClientRegistrationRepository clientRegistrationRepository,
-                          LoginAuthenticationFailureHandler loginFailureHandler) {
+                          LoginAuthenticationFailureHandler loginFailureHandler,
+                          UserRepository userRepository) {
         this.oauth2UserService = oauth2UserService;
         this.oauth2Handler = oauth2Handler;
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.loginFailureHandler = loginFailureHandler;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -143,6 +148,7 @@ public class SecurityConfig {
                 .successHandler(oauth2Handler)
                 .failureUrl("/login?error")
             )
+            .addFilterAfter(new FirstLoginPasswordFilter(userRepository), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(exceptions -> exceptions.accessDeniedPage("/access-denied"))
             .headers(headers -> headers
                 .frameOptions(frame -> frame.deny())

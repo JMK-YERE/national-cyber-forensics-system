@@ -39,6 +39,11 @@
         <div class="app-stat-box"><div class="stat-value" style="color: #1b7a4a;" th:text="${individualCount}">0</div><div class="stat-label">Individuals</div></div>
     </div>
 
+    <div class="app-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div><h2 style="margin:0;">Manage access</h2><p style="margin:5px 0 0;color:#64748b;font-size:12px;">Create a user account and share a one-time temporary password.</p></div>
+        <a th:href="@{/admin/users/new}" class="user-btn" style="background:#07543e;padding:10px 15px;">＋ Add user</a>
+    </div>
+
     <div class="app-card">
         <h2>📋 All Users</h2>
         <div th:each="u : ${users}" class="user-row">

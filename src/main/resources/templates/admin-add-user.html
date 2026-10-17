@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add User | Cyber Forensics TZ</title><link rel="stylesheet" th:href="@{/css/theme.css}">
+<style>
+.provision{max-width:900px;margin:0 auto}.head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}.head h1{margin:0;color:#0f2f27;font-size:24px}.head p{margin:6px 0 0;color:#52645e;font-size:13px}.panel{background:#fff;border:1px solid #dce8e3;border-radius:14px;padding:20px;margin-bottom:14px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field label{display:block;font-size:12px;font-weight:800;color:#294b40;margin-bottom:6px}.field input,.field select{width:100%;min-height:43px;border:1px solid #cbdad3;border-radius:9px;padding:9px 11px;background:#fff;color:#132e25;font:inherit}.field input:focus,.field select:focus{outline:3px solid #0d948822;border-color:#0d9488}.hint{font-size:11px;color:#64756f;margin-top:5px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 15px;border:0;border-radius:9px;text-decoration:none;font-weight:800;cursor:pointer;background:#07543e;color:white}.btn.alt{background:#eef5f2;color:#194638;border:1px solid #d4e3dc}.alert{padding:12px 14px;border-radius:10px;margin-bottom:12px;font-size:13px}.error{background:#fff1f2;color:#a61b29;border:1px solid #fecdd3}.success{background:#edfdf5;color:#065f46;border:1px solid #bbf7d0}.secret{background:#f8fafc;border:1px dashed #94a3b8;padding:14px;border-radius:10px;overflow-wrap:anywhere}.secret code{font-size:17px;font-weight:900;letter-spacing:.04em;color:#0f2f27}.note{font-size:12px;color:#475569;line-height:1.6}.wa{background:#087f5b}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:620px){.formgrid{grid-template-columns:1fr}.panel{padding:15px}.head h1{font-size:21px}.actions .btn{width:100%}}
+</style></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main"><div class="app-container provision">
+<header class="head"><div><h1>＋ Add user</h1><p>Unda akaunti, toa temporary password, na umwelekeze mtumiaji kuibadilisha mara ya kwanza.</p></div><a class="btn alt" th:href="@{/admin/users}">← Users &amp; Access</a></header>
+<div th:if="${error}" class="alert error" th:text="${error}"></div>
+<div th:if="${success}" class="alert success" th:text="${success}"></div>
+<section th:if="${created}" class="panel" aria-live="polite">
+<h2 style="margin-top:0;color:#0f513d">Akaunti imeundwa</h2>
+<p class="note">Username: <strong th:text="${createdUsername}">username</strong></p>
+<p class="note">Temporary password inaonyeshwa mara hii tu. Ishare na mtu sahihi, kisha hakikisha anaibadilisha baada ya kuingia.</p>
+<div class="secret"><code id="temporaryPassword" th:text="${temporaryPassword}">temporary-password</code></div>
+<div class="actions"><button type="button" class="btn" onclick="copyTemporaryPassword()">Copy password</button><a th:if="${whatsappLink != null and !whatsappLink.isBlank()}" class="btn wa" th:href="${whatsappLink}" target="_blank" rel="noopener noreferrer">Share via WhatsApp</a></div>
+<p class="note" th:if="${created and !whatsappNumberProvided}">WhatsApp number haikuwekwa. Unaweza ku-copy password na kuituma kwa njia salama.</p>
+<p class="note">Kwa usalama, link ya WhatsApp ina credentials kwenye ujumbe unaotaka kutuma. Hakikisha namba ni ya mtumiaji mwenyewe kabla ya kufungua link.</p>
+</section>
+<section class="panel">
+<h2 style="margin-top:0;color:#0f513d">User details</h2>
+<form th:action="@{/admin/users/create}" method="post">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<div class="formgrid">
+<div class="field"><label for="fullName">Full name *</label><input id="fullName" name="fullName" maxlength="100" required th:value="${formFullName}"></div>
+<div class="field"><label for="username">Username *</label><input id="username" name="username" minlength="3" maxlength="50" pattern="[A-Za-z0-9._-]{3,50}" autocomplete="off" required th:value="${formUsername}"><div class="hint">Herufi, tarakimu, dot, underscore au hyphen.</div></div>
+<div class="field"><label for="email">Email *</label><input id="email" type="email" name="email" maxlength="100" autocomplete="email" required th:value="${formEmail}"></div>
+<div class="field"><label for="role">Role *</label><select id="role" name="role" required><option value="INDIVIDUAL" th:selected="${formRole == null or formRole == 'INDIVIDUAL'}">INDIVIDUAL</option><option value="ANALYST" th:selected="${formRole == 'ANALYST'}">ANALYST</option><option value="FORENSICS" th:selected="${formRole == 'FORENSICS'}">FORENSICS</option><option value="CYBER_PRO" th:selected="${formRole == 'CYBER_PRO'}">CYBER_PRO</option></select><div class="hint">Admin hawezi kutengeneza admin mwingine kupitia fomu hii.</div></div>
+<div class="field"><label for="organization">Organization</label><input id="organization" name="organization" maxlength="120" th:value="${formOrganization}"></div>
+<div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" autocomplete="tel" th:value="${formPhone}"></div>
+<div class="field"><label for="whatsappNumber">WhatsApp number (country code)</label><input id="whatsappNumber" name="whatsappNumber" type="tel" placeholder="2557XXXXXXXX" th:value="${formWhatsApp}"><div class="hint">Tumia namba yenye country code, mfano 255…</div></div>
+</div>
+<div class="actions"><button class="btn" type="submit">Create account &amp; generate password</button><a class="btn alt" th:href="@{/admin/users}">Cancel</a></div>
+</form></section>
+</div></main><script th:src="@{/js/app.js}"></script>
+<script>
+function copyTemporaryPassword(){const node=document.getElementById('temporaryPassword');if(!node)return;const value=node.textContent.trim();if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(value).then(()=>alert('Password copied.')).catch(()=>fallbackCopy(value));}else fallbackCopy(value);}
+function fallbackCopy(value){const input=document.createElement('textarea');input.value=value;input.style.position='fixed';input.style.opacity='0';document.body.appendChild(input);input.select();try{document.execCommand('copy');alert('Password copied.');}catch(e){alert('Tafadhali copy password kwa mkono.');}input.remove();}
+</script></body></html>

@@ -221,6 +221,7 @@ public class PasswordController {
         }
 
         user.setPassword(passwordEncoder.encode(password));
+        user.setMustChangePassword(false);
         request.changeSessionId();
         user.setFailedAttempts(0);
         user.setAccountLocked(false);
@@ -254,6 +255,10 @@ public class PasswordController {
         return "redirect:/dashboard";
     }
 
+    private boolean isStrongPassword(String value) {\n        return value != null && value.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}");\n    }\n\n    private boolean isStrongPassword(String value) {
+        return value != null && value.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}");
+    }
+
     private void clearPasswordResetOtp(User user) {
         user.setPasswordResetToken(null);
         user.setPasswordResetExpiresAt(null);
@@ -262,10 +267,15 @@ public class PasswordController {
     }
 
     @GetMapping("/change-password")
-    public String changeForm() { return "change-password"; }
+    public String changeForm(@RequestParam(required = false) boolean firstLogin, Authentication auth, Model model) {
+        User user = auth == null ? null : userRepository.findByUsername(auth.getName()).orElse(null);
+        boolean forced = user != null && Boolean.TRUE.equals(user.getMustChangePassword());
+        model.addAttribute("firstLogin", forced || firstLogin);
+        return "change-password";
+    }
 
     @PostMapping("/change-password")
-    public String changeSubmit(@RequestParam String currentPassword,
+    public String changeSubmit(@RequestParam(required = false, defaultValue = "") String currentPassword,
                                @RequestParam String newPassword,
                                @RequestParam String confirmPassword,
                                Authentication auth,
@@ -273,12 +283,13 @@ public class PasswordController {
         if (auth == null) return "redirect:/login";
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+        boolean forcedChange = Boolean.TRUE.equals(user.getMustChangePassword());
+        if (!forcedChange && !passwordEncoder.matches(currentPassword, user.getPassword())) {
             ra.addFlashAttribute("error", "Neno la siri la sasa si sahihi");
             return "redirect:/change-password";
         }
-        if (!newPassword.equals(confirmPassword) || newPassword.length() < 6) {
-            ra.addFlashAttribute("error", "Password mpya iwe na herufi 6+ na zote zifanane.");
+        if (!newPassword.equals(confirmPassword) || !isStrongPassword(newPassword)) {
+            ra.addFlashAttribute("error", "Tumia angalau herufi 12, herufi kubwa na ndogo, tarakimu, alama maalum; password zote zifanane.");
             return "redirect:/change-password";
         }
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
@@ -286,7 +297,12 @@ public class PasswordController {
             return "redirect:/change-password";
         }
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setMustChangePassword(false);
         userRepository.save(user);
+        if (forcedChange) {
+            ra.addFlashAttribute("success", "Password imebadilishwa. Karibu kwenye Cyber Forensics TZ.");
+            return "redirect:/dashboard";
+        }
         ra.addFlashAttribute("success", "✅ Neno la siri limebadilishwa!");
         return "redirect:/change-password";
     }
