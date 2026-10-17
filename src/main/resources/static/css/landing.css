@@ -117,3 +117,88 @@ html[data-theme="dark"] .intro h2,html[data-theme="dark"] .workflow h2,html[data
 html[data-theme="dark"] .feature-grid article,html[data-theme="dark"] .announcement-card,html[data-theme="dark"] .steps div,html[data-theme="dark"] .contact-box{background:#0b261e!important;border-color:#244d3f!important;color:#e5f5ef!important}
 html[data-theme="dark"] .feature-body h3,html[data-theme="dark"] .announcement-card h3{color:#dff7ee!important}html[data-theme="dark"] .feature-body p,html[data-theme="dark"] .announcement-card p,html[data-theme="dark"] .intro p,html[data-theme="dark"] .map-cta p{color:#a8c8bd!important}
 html[data-theme="dark"] .workflow,html[data-theme="dark"] .education{background:#061710!important}
+
+
+/* ===== MOBILE LANDING CTA VISIBILITY FIX — 2026-10-17 ===== */
+@media (max-width: 600px) {
+  .public-nav {
+    min-height: 66px !important;
+    height: auto !important;
+    padding: 10px 14px !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+  .brand { flex: 1 1 auto; min-width: 0; font-size: 11px !important; gap: 6px !important; }
+  .brand span:first-child { font-size: 21px !important; }
+  .public-actions {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 5px !important;
+    margin-left: auto !important;
+  }
+  .public-actions .landing-theme-btn { width: 34px !important; height: 34px !important; margin: 0 !important; }
+  .public-actions .language-switch { padding: 2px !important; gap: 1px !important; margin: 0 !important; }
+  .public-actions .language-switch span { display: none !important; }
+  .public-actions .language-switch a { padding: 6px 5px !important; font-size: 9px !important; }
+  .public-actions > .btn-ghost {
+    display: inline-flex !important;
+    min-height: 36px !important;
+    padding: 7px 9px !important;
+    font-size: 10px !important;
+    white-space: nowrap !important;
+  }
+  .public-actions > .btn-main { display: none !important; }
+  .hero-slider {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+  .hero-slide {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+  .hero-copy {
+    padding: 58px 22px 92px !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .hero-copy .eyebrow { font-size: 9px !important; letter-spacing: 1.4px !important; margin-bottom: 12px !important; }
+  .hero-copy h1 {
+    font-size: clamp(30px, 9vw, 40px) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -1px !important;
+    margin-bottom: 14px !important;
+    overflow-wrap: anywhere;
+  }
+  .hero-copy p { font-size: 14px !important; line-height: 1.6 !important; margin-bottom: 22px !important; }
+  .hero-copy > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .hero-copy .btn-large {
+    display: flex !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    margin: 0 !important;
+    padding: 13px 16px !important;
+    font-size: 13px !important;
+    white-space: normal !important;
+    text-align: center !important;
+  }
+  .slider-dots { left: 22px !important; bottom: 24px !important; gap: 7px !important; }
+  .slider-dots button { width: 25px !important; }
+}
+@media (max-width: 360px) {
+  .brand { font-size: 10px !important; }
+  .public-actions { gap: 3px !important; }
+  .public-actions .landing-theme-btn { width: 30px !important; height: 32px !important; }
+  .public-actions .language-switch a { padding: 5px 4px !important; }
+  .public-actions > .btn-ghost { padding: 6px 7px !important; font-size: 9px !important; }
+  .hero-copy { padding-left: 18px !important; padding-right: 18px !important; }
+}
