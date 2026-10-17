@@ -31,6 +31,41 @@
 .theme-btn{height:34px;width:34px;border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:7px;font-size:16px;font-weight:900;cursor:pointer}.header-language{position:relative;margin-left:8px}.language-btn{height:34px;padding:0 9px;border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:7px;font-size:11px;font-weight:900;cursor:pointer}.language-menu{display:none;position:absolute;right:0;top:40px;min-width:155px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 12px 30px rgba(15,23,42,.12);z-index:99999}.language-menu.show{display:block}.language-menu a{display:block;padding:11px 13px;color:#334155!important;font-size:12px;font-weight:800;text-decoration:none}.language-menu a:hover{background:#eff6ff;color:#1d4ed8!important}@media(max-width:600px){.header-language{margin-left:2px}.language-btn{height:38px;padding:0 8px}.language-menu{right:-42px}}
 </style>
 <script>
+/* Shared mobile navigation fallback: available even on pages that omit app.js. */
+function toggleSidebar(){
+  const sidebar=document.getElementById('appSidebar');
+  const overlay=document.getElementById('sidebarOverlay');
+  if(!sidebar)return;
+  const opening=!sidebar.classList.contains('show');
+  sidebar.classList.toggle('show',opening);
+  sidebar.setAttribute('aria-hidden',String(!opening));
+  if(overlay){overlay.classList.toggle('show',opening);overlay.setAttribute('aria-hidden',String(!opening));}
+  document.body.classList.toggle('sidebar-open',opening);
+  document.documentElement.classList.toggle('sidebar-open',opening);
+  const toggle=document.querySelector('.mobile-toggle');
+  if(toggle)toggle.setAttribute('aria-expanded',String(opening));
+}
+function closeSidebar(){
+  const sidebar=document.getElementById('appSidebar');
+  const overlay=document.getElementById('sidebarOverlay');
+  if(sidebar){sidebar.classList.remove('show');sidebar.setAttribute('aria-hidden','true');}
+  if(overlay){overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');}
+  document.body.classList.remove('sidebar-open');
+  document.documentElement.classList.remove('sidebar-open');
+  const toggle=document.querySelector('.mobile-toggle');
+  if(toggle)toggle.setAttribute('aria-expanded','false');
+}
+document.addEventListener('click',function(event){
+  if(window.innerWidth>900)return;
+  const target=event.target instanceof Element?event.target:null;
+  const link=target&&target.closest('#appSidebar a[href]');
+  if(!link)return;
+  const href=link.getAttribute('href')||'';
+  if(href && href!=='#' && !href.startsWith('javascript:'))closeSidebar();
+},true);
+document.addEventListener('keydown',function(event){if(event.key==='Escape')closeSidebar();});
+window.addEventListener('pageshow',function(){if(window.innerWidth<=900)closeSidebar();});
+window.addEventListener('resize',function(){if(window.innerWidth>900)closeSidebar();});
 function toggleLanguageMenu(){const m=document.getElementById('languageMenu');if(m)m.classList.toggle('show')}
 document.addEventListener('click',e=>{const m=document.getElementById('languageMenu'),b=document.querySelector('.language-btn');if(m&&b&&!m.contains(e.target)&&!b.contains(e.target))m.classList.remove('show')});
 </script>
