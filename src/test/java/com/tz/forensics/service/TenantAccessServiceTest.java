@@ -111,6 +111,45 @@ class TenantAccessServiceTest {
         verifyNoInteractions(tenants, memberships);
     }
 
+    @Test
+    void deniesDisabledAccountBeforeCheckingTenantMembership() {
+        User user = user(12L, "disabled-user");
+        user.setEnabled(false);
+        when(users.findByUsername("disabled-user")).thenReturn(Optional.of(user));
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> access.requireMembership("disabled-user", 7L, Set.of()));
+
+        assertEquals(403, error.getStatusCode().value());
+        verifyNoInteractions(tenants, memberships);
+    }
+
+    @Test
+    void deniesUnapprovedAccountBeforeCheckingTenantMembership() {
+        User user = user(12L, "pending-user");
+        user.setApprovalStatus("PENDING");
+        when(users.findByUsername("pending-user")).thenReturn(Optional.of(user));
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> access.requireMembership("pending-user", 7L, Set.of()));
+
+        assertEquals(403, error.getStatusCode().value());
+        verifyNoInteractions(tenants, memberships);
+    }
+
+    @Test
+    void deniesLockedAccountBeforeCheckingTenantMembership() {
+        User user = user(12L, "locked-user");
+        user.setAccountLocked(true);
+        when(users.findByUsername("locked-user")).thenReturn(Optional.of(user));
+
+        ResponseStatusException error = assertThrows(ResponseStatusException.class,
+            () -> access.requireMembership("locked-user", 7L, Set.of()));
+
+        assertEquals(403, error.getStatusCode().value());
+        verifyNoInteractions(tenants, memberships);
+    }
+
     private User user(Long id, String username) {
         User user = new User();
         user.setId(id);
