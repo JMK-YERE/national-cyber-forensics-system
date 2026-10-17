@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;\nimport org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.net.URLEncoder;
@@ -118,19 +118,15 @@ public class AdminUserProvisioningController {
         String whatsappLink = digits.isBlank() ? "" :
                 "https://wa.me/" + digits + "?text=" + URLEncoder.encode(message, StandardCharsets.UTF_8);
 
-        model.addAttribute("created", true);
-        model.addAttribute("createdUsername", cleanUsername);
-        model.addAttribute("temporaryPassword", temporaryPassword);
-        model.addAttribute("whatsappLink", whatsappLink);
-        model.addAttribute("whatsappNumberProvided", !digits.isBlank());
-        model.addAttribute("success", "Akaunti imeundwa. Hifadhi au share password hii sasa; haitahifadhiwa wazi kwenye database.");
-        model.addAttribute("formUsername", "");
-        model.addAttribute("formEmail", "");
-        model.addAttribute("formFullName", "");
-        model.addAttribute("formOrganization", "");
-        model.addAttribute("formPhone", "");
-        model.addAttribute("formWhatsApp", "");
-        return "admin-add-user";
+        redirectAttributes.addFlashAttribute("created", true);
+        redirectAttributes.addFlashAttribute("createdUsername", cleanUsername);
+        redirectAttributes.addFlashAttribute("temporaryPassword", temporaryPassword);
+        redirectAttributes.addFlashAttribute("whatsappLink", whatsappLink);
+        redirectAttributes.addFlashAttribute("whatsappNumberProvided", !digits.isBlank());
+        redirectAttributes.addFlashAttribute("success", "Akaunti imeundwa. Hifadhi au share password hii sasa; haitahifadhiwa wazi kwenye database.");
+        return "redirect:/admin/users/new";
+    }
+min-add-user";
     }
 
     private boolean isAdmin(Authentication auth) {
