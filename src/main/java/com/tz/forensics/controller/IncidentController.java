@@ -154,9 +154,12 @@ public class IncidentController {
         model.addAttribute("canManageWorkflow", canManageWorkflow(currentUser));
 
         if (canAssign(currentUser)) {
+            // Do not disclose or offer users from another tenant in the assignment UI.
+            // The POST handler independently rechecks membership to prevent forged user IDs.
             List<User> assignableUsers = userRepository.findAll().stream()
                     .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
-                            && (u.isProfessional() || u.isForensics() || u.isAdmin() || u.isAnalyst()))
+                            && (u.isProfessional() || u.isForensics() || u.isAdmin() || u.isAnalyst())
+                            && hasTenantAccess(incident.getTenantId(), u))
                     .toList();
             model.addAttribute("assignableUsers", assignableUsers);
         }
