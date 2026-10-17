@@ -44,13 +44,33 @@
 <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label">System Settings</span></a>
 </nav>
 </aside>
+<div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true" onclick="closeSidebar()"></div>
 
 <a th:href="@{/ai/assistant}" class="ai-floating" aria-label="AI Assistant"><span class="ai-floating-icon">🤖</span><span class="ai-floating-label">AI Assistant</span></a>
 
 <script>
 function toggleSidebar(){
   const sidebar=document.getElementById('appSidebar');
-  if(sidebar) sidebar.classList.toggle('show');
+  const overlay=document.getElementById('sidebarOverlay');
+  if(!sidebar)return;
+  const opening=!sidebar.classList.contains('show');
+  sidebar.classList.toggle('show',opening);
+  sidebar.setAttribute('aria-hidden',String(!opening));
+  if(overlay){overlay.classList.toggle('show',opening);overlay.setAttribute('aria-hidden',String(!opening));}
+  document.body.classList.toggle('sidebar-open',opening);
+  document.documentElement.classList.toggle('sidebar-open',opening);
+  const button=document.querySelector('.mobile-toggle');
+  if(button)button.setAttribute('aria-expanded',String(opening));
+}
+function closeSidebar(){
+  const sidebar=document.getElementById('appSidebar');
+  const overlay=document.getElementById('sidebarOverlay');
+  if(sidebar){sidebar.classList.remove('show');sidebar.setAttribute('aria-hidden','true');}
+  if(overlay){overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');}
+  document.body.classList.remove('sidebar-open');
+  document.documentElement.classList.remove('sidebar-open');
+  const button=document.querySelector('.mobile-toggle');
+  if(button)button.setAttribute('aria-expanded','false');
 }
 function toggleProfileMenu(){
   const menu=document.getElementById('profileDropdown');
@@ -60,7 +80,18 @@ function toggleProfileMenu(){
     if(btn) btn.setAttribute('aria-expanded',String(open));
   }
 }
+/* Capture navigation before other click handlers can swallow it. */
+document.addEventListener('click',function(e){
+  if(window.innerWidth>900)return;
+  const target=e.target instanceof Element?e.target:null;
+  const link=target&&target.closest('#appSidebar a[href]');
+  if(!link)return;
+  const href=link.getAttribute('href')||'';
+  if(href && href!=='#' && !href.startsWith('javascript:')) closeSidebar();
+},true);
+window.addEventListener('pageshow',function(){if(window.innerWidth<=900)closeSidebar();});
 document.addEventListener('DOMContentLoaded',function(){
+  if(window.innerWidth<=900)closeSidebar();
   function tick(){
     const d=new Date();
     const date=d.toLocaleDateString('sw-TZ',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
