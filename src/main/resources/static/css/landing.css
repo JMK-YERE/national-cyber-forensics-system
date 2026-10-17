@@ -202,3 +202,39 @@ html[data-theme="dark"] .workflow,html[data-theme="dark"] .education{background:
   .public-actions > .btn-ghost { padding: 6px 7px !important; font-size: 9px !important; }
   .hero-copy { padding-left: 18px !important; padding-right: 18px !important; }
 }
+
+
+/* ===== LOGIN CTA COLOR STABILITY FIX — 2026-10-17 ===== */
+/* Keep the landing-page Login action visually stable on hover, tap and focus.
+   The link still navigates normally; only decorative color/transform flashes are removed. */
+.public-actions > a.btn-ghost,
+.public-actions > a.btn-ghost:link,
+.public-actions > a.btn-ghost:visited,
+.public-actions > a.btn-ghost:hover,
+.public-actions > a.btn-ghost:active,
+.public-actions > a.btn-ghost:focus {
+  background: rgba(255,255,255,.06) !important;
+  color: #ffffff !important;
+  border-color: rgba(255,255,255,.25) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.public-actions > a.btn-ghost:focus-visible {
+  outline: 2px solid #7df0cf !important;
+  outline-offset: 3px !important;
+}
+/* Avoid a green/blue flash from the hero CTA when navigating to Login. */
+.hero-copy a.btn-main,
+.hero-copy a.btn-main:hover,
+.hero-copy a.btn-main:active,
+.map-cta > a.btn-main,
+.map-cta > a.btn-main:hover,
+.map-cta > a.btn-main:active {
+  background: #075a43 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+}
