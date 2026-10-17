@@ -58,9 +58,12 @@ public class CaseFileService {
         }
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (incident == null) throw new IllegalArgumentException("Incident not found.");
-        if (incident.getTenantId() != null) {
-            tenantAccessService.requireMembership(createdByName, incident.getTenantId(), Set.of());
+        if (incident.getTenantId() == null) {
+            // A case must never be created from a legacy incident whose tenant ownership is unresolved.
+            // Resolve ownership through an approved, audited migration before restoring this workflow.
+            throw new IllegalArgumentException("Incident tenant ownership is unresolved.");
         }
+        tenantAccessService.requireMembership(createdByName, incident.getTenantId(), Set.of());
         String normalizedRole = creatorRole == null ? "" : creatorRole.trim().toUpperCase();
         if (!Set.of("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST").contains(normalizedRole)) {
             throw new IllegalArgumentException("User is not authorized to create a forensic case.");
