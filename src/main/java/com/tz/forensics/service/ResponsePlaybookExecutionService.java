@@ -21,15 +21,17 @@ public class ResponsePlaybookExecutionService {
     private final ResponsePlaybookService catalog;
     private final CaseFileService cases;
     private final IncidentService incidents;
+    private final TenantAccessService tenantAccessService;
 
     public ResponsePlaybookExecutionService(ResponsePlaybookRunRepository runs,
             ResponsePlaybookStepRunRepository steps, ResponsePlaybookService catalog,
-            CaseFileService cases, IncidentService incidents) {
+            CaseFileService cases, IncidentService incidents, TenantAccessService tenantAccessService) {
         this.runs = runs;
         this.steps = steps;
         this.catalog = catalog;
         this.cases = cases;
         this.incidents = incidents;
+        this.tenantAccessService = tenantAccessService;
     }
 
     public record RunDetails(ResponsePlaybookRun run, List<ResponsePlaybookStepRun> steps) {}
@@ -161,10 +163,21 @@ public class ResponsePlaybookExecutionService {
         }
         CaseFile caseFile = cases.getById(caseId);
         if (caseFile == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found.");
+
+        // This service is called by both MVC and REST endpoints, so tenant authorization
+        // must be enforced here rather than relying on a particular controller.
+        if (caseFile.getIncidentId() == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Case access denied.");
+        }
+        Incident incident = incidents.getById(caseFile.getIncidentId());
+        if (incident == null || !java.util.Objects.equals(caseFile.getTenantId(), incident.getTenantId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Case access denied.");
+        }
+        if (caseFile.getTenantId() != null) {
+            tenantAccessService.requireMembership(actor.getUsername(), caseFile.getTenantId(), Set.of());
+        }
         if (actor.isAdmin() || actor.isProfessional() || actor.isForensics()) return caseFile;
 
-        Incident incident = caseFile.getIncidentId() == null ? null : incidents.getById(caseFile.getIncidentId());
-        if (incident == null) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Case access denied.");
         boolean incidentAccess = (incident.getReporterUserId() != null && actor.getId().equals(incident.getReporterUserId()))
             || (incident.getAssignedTo() != null && actor.getId().equals(incident.getAssignedTo()));
         boolean caseAccess = (caseFile.getCreatedBy() != null && actor.getId().equals(caseFile.getCreatedBy()))
