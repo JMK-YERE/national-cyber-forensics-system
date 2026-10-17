@@ -198,8 +198,9 @@ public class PDFController {
     }
 
     private boolean hasTenantAccess(Long tenantId, User user) {
-        // Legacy records remain unmapped pending an approved ownership map.
-        if (tenantId == null) return true;
+        // Unknown legacy ownership must not authorize sensitive evidence or case exports.
+        // Restore access only after an approved tenant ownership mapping is applied.
+        if (tenantId == null) return false;
         if (user == null || user.getUsername() == null) return false;
         try {
             tenantAccessService.requireMembership(user.getUsername(), tenantId, Set.of());
