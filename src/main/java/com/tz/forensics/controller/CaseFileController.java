@@ -71,7 +71,7 @@ public class CaseFileController {
     }
 
     private boolean hasTenantAccess(Long tenantId, User user) {
-        if (tenantId == null) return true; // Legacy records remain unmapped pending approved backfill.
+        if (tenantId == null) return false; // Unknown ownership is not authorization; resolve via approved backfill.
         if (user == null || user.getUsername() == null) return false;
         try { tenantAccessService.requireMembership(user.getUsername(), tenantId, java.util.Set.of()); return true; }
         catch (org.springframework.web.server.ResponseStatusException denied) { return false; }
