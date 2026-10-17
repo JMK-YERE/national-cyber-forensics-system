@@ -3,6 +3,7 @@ package com.tz.forensics.controller;
 import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.AuditService;
+import com.tz.forensics.service.EmailService;
 import com.tz.forensics.service.SmsService;
 import com.tz.forensics.service.WhatsAppService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,13 +23,15 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final EmailService emailService;
     private final SmsService smsService;
     private final WhatsAppService whatsAppService;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminController(UserRepository userRepository, AuditService auditService, SmsService smsService, WhatsAppService whatsAppService, PasswordEncoder passwordEncoder) {
+    public AdminController(UserRepository userRepository, AuditService auditService, EmailService emailService, SmsService smsService, WhatsAppService whatsAppService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.auditService = auditService;
+        this.emailService = emailService;
         this.smsService = smsService;
         this.whatsAppService = whatsAppService;
         this.passwordEncoder = passwordEncoder;
@@ -208,17 +211,56 @@ public class AdminController {
         User admin = auth == null ? null : userRepository.findByUsername(auth.getName()).orElse(null);
         if (admin == null || !admin.isAdmin()) return "redirect:/access-denied";
         User user = userRepository.findById(id).orElse(null);
-        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) { ra.addFlashAttribute("error", "Akaunti haipo au imezimwa."); return "redirect:/admin/users"; }
+        if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
+            ra.addFlashAttribute("error", "Akaunti haipo au imezimwa.");
+            return "redirect:/admin/users";
+        }
+
         String selected = channel == null ? "" : channel.trim().toUpperCase();
+        if ("EMAIL".equals(selected)) {
+            if (user.getEmail() == null || user.getEmail().isBlank()) {
+                ra.addFlashAttribute("error", "Akaunti hii haina email ya kutuma setup link.");
+                return "redirect:/admin/users";
+            }
+            String token = java.util.UUID.randomUUID().toString() + java.util.UUID.randomUUID();
+            user.setPasswordSetupToken(sha256(token));
+            user.setPasswordSetupAttempts(0);
+            user.setPasswordSetupExpiresAt(LocalDateTime.now().plusHours(24));
+            user.setPasswordSetupChannel("EMAIL");
+            userRepository.save(user);
+            boolean sent = emailService.sendPasswordSetupEmail(user.getEmail(), user.getUsername(), token);
+            if (!sent) {
+                user.setPasswordSetupToken(null);
+                user.setPasswordSetupExpiresAt(null);
+                user.setPasswordSetupChannel(null);
+                userRepository.save(user);
+                auditService.log(admin.getId(), admin.getUsername(), "TEMP_ACCESS_SEND_FAILED", "User", user.getUsername(), "Channel=EMAIL; setup token invalidated; secret omitted");
+                ra.addFlashAttribute("error", "Email haikutumwa. Hakuna link iliyoamilishwa. Kagua email provider na ujaribu tena.");
+                return "redirect:/admin/users";
+            }
+            auditService.log(admin.getId(), admin.getUsername(), "TEMP_ACCESS_ISSUED", "User", user.getUsername(), "Channel=EMAIL; expiry=24h; secret omitted");
+            ra.addFlashAttribute("success", "Setup link imetumwa kwa email ya " + user.getUsername() + ". Link inaisha ndani ya saa 24.");
+            return "redirect:/admin/users";
+        }
+
         String destination = "SMS".equals(selected) ? user.getPhone() : ("WHATSAPP".equals(selected) ? (user.getWhatsappNumber() != null && !user.getWhatsappNumber().isBlank() ? user.getWhatsappNumber() : user.getPhone()) : null);
-        if (destination == null || destination.isBlank()) { ra.addFlashAttribute("error", "Namba ya simu/WhatsApp haipo au channel si sahihi."); return "redirect:/admin/users"; }
+        if (!"SMS".equals(selected) && !"WHATSAPP".equals(selected)) {
+            ra.addFlashAttribute("error", "Chagua Email reset link au SMS OTP.");
+            return "redirect:/admin/users";
+        }
+        if (destination == null || destination.isBlank()) {
+            ra.addFlashAttribute("error", "Namba ya simu/WhatsApp haipo.");
+            return "redirect:/admin/users";
+        }
         String code = String.valueOf(100000 + new SecureRandom().nextInt(900000));
-        user.setPasswordSetupToken(sha256(code)); user.setPasswordSetupAttempts(0); user.setPasswordSetupExpiresAt(LocalDateTime.now().plusMinutes(10)); user.setPasswordSetupChannel(selected); userRepository.save(user);
+        user.setPasswordSetupToken(sha256(code));
+        user.setPasswordSetupAttempts(0);
+        user.setPasswordSetupExpiresAt(LocalDateTime.now().plusMinutes(10));
+        user.setPasswordSetupChannel(selected);
+        userRepository.save(user);
         String message = "Cyber Forensics TZ: code ya muda ni " + code + ". Inaisha ndani ya dakika 10. Fungua /set-password, weka namba yako na code, kisha tengeneza password mpya. Usimshirikishe mtu mwingine.";
         boolean sent = "SMS".equals(selected) ? smsService.sendSms(destination, message) : whatsAppService.sendWhatsApp(destination, user.getWhatsappApiKey(), message);
         if (!sent) {
-            // Keep the hashed, expiring code active so an administrator can copy/share it manually.
-            // The plaintext is exposed only once in the authenticated admin flash message, never persisted.
             auditService.log(admin.getId(), admin.getUsername(), "TEMP_ACCESS_SEND_FAILED", "User", user.getUsername(), "Channel=" + selected + "; manual share fallback; secret omitted");
             ra.addFlashAttribute("warning", "Kutuma kupitia " + selected + " kumeshindikana (huduma haijasanidiwa au namba si sahihi). Unaweza kunakili code hii na kuituma mwenyewe. Code inaisha ndani ya dakika 10.");
             ra.addFlashAttribute("manualAccessCode", code);
