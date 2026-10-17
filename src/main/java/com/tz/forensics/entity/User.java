@@ -74,6 +74,9 @@ public class User {
 
     private Boolean enabled = true;
 
+    @Column(name = "must_change_password", nullable = false)
+    private Boolean mustChangePassword = false;
+
     @Column(name = "account_locked")
     private Boolean accountLocked = false;
 
@@ -262,4 +265,7 @@ public class User {
     public void setOauthOtpExpiresAt(LocalDateTime oauthOtpExpiresAt) { this.oauthOtpExpiresAt = oauthOtpExpiresAt; }
     public Integer getOauthOtpAttempts() { return oauthOtpAttempts == null ? 0 : oauthOtpAttempts; }
     public void setOauthOtpAttempts(Integer oauthOtpAttempts) { this.oauthOtpAttempts = oauthOtpAttempts; }
+
+    public Boolean getMustChangePassword() { return mustChangePassword; }
+    public void setMustChangePassword(Boolean mustChangePassword) { this.mustChangePassword = mustChangePassword; }
 }
