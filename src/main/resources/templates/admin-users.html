@@ -28,11 +28,11 @@
         <p style="color: #315b87; margin: 0;" th:text="${success}"></p>
     </div>
 
-    <div class="app-card" th:if="${temporaryPassword}" style="background:#f0fdf4;border-left:4px solid #15803d;padding:15px;">
-        <h3 style="margin:0 0 8px;color:#14532d;">Temporary login password — shown once</h3>
-        <p style="margin:0 0 8px;">Username: <strong th:text="${temporaryUsername}"></strong></p>
+    <div class="app-card" th:if="${temporaryPassword}" style="background:#f8fafc;border-left:4px solid #64748b;padding:15px;">
+        <h3 style="margin:0 0 8px;color:#0f172a;">Temporary login password — shown once</h3>
+        <p style="margin:0 0 8px;">Username: <strong id="temporaryUsernameValue" th:text="${temporaryUsername}"></strong></p>
         <p style="margin:0 0 10px;">Temporary password: <code id="initialTemporaryPassword" th:text="${temporaryPassword}" style="font-size:16px;font-weight:700;user-select:all;"></code></p>
-        <button type="button" class="user-btn" style="background:#166534;" onclick="navigator.clipboard.writeText(document.getElementById(&quot;initialTemporaryPassword&quot;).innerText)">Copy temporary password</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"><button type="button" class="user-btn" style="background:#334155;" onclick="copyInitialTemporaryPassword()">Copy</button><button type="button" class="user-btn" style="background:#166534;" onclick="sendInitialTemporaryPasswordWhatsApp()">Send WhatsApp</button><button type="button" class="user-btn" style="background:#244f7d;" onclick="sendInitialTemporaryPasswordNormally()">Send normally</button></div>
         <p style="font-size:12px;color:#14532d;margin:10px 0 0;">Mpe mtumiaji kwa njia salama. Atalazimika kubadilisha password kabla ya kufungua dashboard. Password hii ya muda itakubaliwa kwa saa 24 pekee.</p>
     </div>
 
@@ -45,7 +45,7 @@
         <p style="margin:0 0 12px;"><strong>Simu:</strong> <span id="manualAccessPhone" th:text="${manualAccessPhone}"></span> · <strong>Njia:</strong> <span th:text="${manualAccessChannel}"></span></p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button type="button" class="user-btn" style="background:#244f7d;" onclick="copyTemporaryAccess()">Copy details</button>
-            <button type="button" class="user-btn" style="background:#173b66;" onclick="shareTemporaryAccessWhatsApp()">Open WhatsApp</button>
+            <button type="button" class="user-btn" style="background:#166534;" onclick="shareTemporaryAccessWhatsApp()">Send WhatsApp</button><button type="button" class="user-btn" style="background:#244f7d;" onclick="sendTemporaryAccessNormally()">Send normally</button>
         </div>
         <p style="font-size:12px;color:#475569;margin-top:10px;">Code hii inaonekana mara moja tu kwenye ukurasa huu. Mtumiaji atumie mara moja na atengeneze password yake mwenyewe.</p>
     </div>
@@ -78,7 +78,7 @@
 
     <div class="app-card">
         <h2>📋 All Users</h2>
-        <div th:each="u : ${users}" class="user-row">
+        <div th:each="u : ${users}" class="user-row" th:attr="data-phone=${u.phone},data-whatsapp=${u.whatsappNumber}">
             <div style="flex: 1;">
                 <strong th:text="${u.username}">username</strong>
                 <span class="role-badge" th:classappend="'role-' + ${u.role}" th:text="${u.role}">ROLE</span>
@@ -155,12 +155,17 @@
     </div>
 </div>
 <script>
-function temporaryAccessText(){
-  const get=id=>{const el=document.getElementById(id);return el?el.textContent.trim():"";};
-  return "Cyber Forensics TZ temporary account setup\nUsername: "+get("manualAccessUsername")+"\nPhone: "+get("manualAccessPhone")+"\nCode: "+get("manualAccessCode")+"\nExpires in 10 minutes. Open Cyber Forensics TZ, choose Set Password, enter your phone and this code, then create your own password. Never share this code with anyone else.";
-}
-function copyTemporaryAccess(){const text=temporaryAccessText();if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(()=>alert("Temporary access details copied.")).catch(()=>window.prompt("Copy temporary access details:",text));}else{window.prompt("Copy temporary access details:",text);}}
-function shareTemporaryAccessWhatsApp(){const phone=(document.getElementById("manualAccessPhone")?.textContent||"").replace(/[^0-9]/g,"");window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(temporaryAccessText()),"_blank","noopener");}
+function elText(id){const el=document.getElementById(id);return el?el.textContent.trim():"";}
+function copyText(text){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).catch(()=>window.prompt("Copy details:",text));}else{window.prompt("Copy details:",text);}}
+function shareNormally(text){if(navigator.share){navigator.share({title:"Cyber Forensics TZ account details",text}).catch(()=>{});return;}window.location.href="mailto:?subject="+encodeURIComponent("Cyber Forensics TZ account details")+"&body="+encodeURIComponent(text);}
+function temporaryAccessText(){return "Cyber Forensics TZ temporary account setup\nUsername: "+elText("manualAccessUsername")+"\nPhone: "+elText("manualAccessPhone")+"\nCode: "+elText("manualAccessCode")+"\nUse the code promptly to set your own password. Never share this code with anyone else.";}
+function copyTemporaryAccess(){copyText(temporaryAccessText());}
+function shareTemporaryAccessWhatsApp(){const phone=(elText("manualAccessPhone")).replace(/[^0-9]/g,"");const url="https://wa.me/"+phone+"?text="+encodeURIComponent(temporaryAccessText());window.open(url,"_blank","noopener,noreferrer");}
+function initialTemporaryText(){return "Cyber Forensics TZ temporary login\nUsername: "+elText("temporaryUsernameValue")+"\nTemporary password: "+elText("initialTemporaryPassword")+"\nThis password expires in 24 hours. Sign in and create a new private password immediately. Do not share it with anyone else.";}
+function copyInitialTemporaryPassword(){copyText(initialTemporaryText());}
+function sendInitialTemporaryPasswordWhatsApp(){const card=document.getElementById("initialTemporaryPassword")?.closest(".app-card");const row=card?.closest(".user-row");let phone=(row?.dataset.whatsapp||row?.dataset.phone||"").replace(/[^0-9]/g,"");if(!phone)phone=prompt("Enter the user's WhatsApp number including country code (e.g. 2557XXXXXXXX):")||"";phone=phone.replace(/[^0-9]/g,"");if(!phone)return;window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(initialTemporaryText()),"_blank","noopener,noreferrer");}
+function sendInitialTemporaryPasswordNormally(){shareNormally(initialTemporaryText());}
+function sendTemporaryAccessNormally(){shareNormally(temporaryAccessText());}
 </script>
 <script th:src="@{/js/app.js}"></script>
 </main></body>
