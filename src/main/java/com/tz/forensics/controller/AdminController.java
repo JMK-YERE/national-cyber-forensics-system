@@ -206,6 +206,40 @@ public class AdminController {
         }
         return "redirect:/admin/users";
     }
+    @PostMapping("/users/{id}/temporary-password")
+    public String resetTemporaryPassword(@PathVariable Long id, Authentication auth, RedirectAttributes ra) {
+        User admin = auth == null ? null : userRepository.findByUsername(auth.getName()).orElse(null);
+        if (admin == null || !admin.isAdmin()) return "redirect:/access-denied";
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            ra.addFlashAttribute("error", "Akaunti haijapatikana.");
+            return "redirect:/admin/users";
+        }
+        if (!Boolean.TRUE.equals(user.getEnabled())) {
+            ra.addFlashAttribute("error", "Akaunti imezimwa. Washa akaunti kwanza kabla ya kutoa temporary password.");
+            return "redirect:/admin/users";
+        }
+        String temporaryPassword = generateTemporaryPassword();
+        user.setPassword(passwordEncoder.encode(temporaryPassword));
+        user.setPasswordSetupChannel("INIT");
+        user.setPasswordSetupExpiresAt(LocalDateTime.now().plusHours(24));
+        user.setPasswordSetupToken(null);
+        user.setPasswordSetupAttempts(0);
+        user.setPasswordResetToken(null);
+        user.setPasswordResetExpiresAt(null);
+        user.setPasswordResetAttempts(0);
+        user.setFailedAttempts(0);
+        user.setAccountLocked(false);
+        user.setApprovalStatus("APPROVED");
+        user.setEmailVerified(true);
+        userRepository.save(user);
+        auditService.log(admin.getId(), admin.getUsername(), "ADMIN_RESET_TEMPORARY_PASSWORD", "User", user.getUsername(), "Temporary password reissued; expiry=24h; secret omitted");
+        ra.addFlashAttribute("success", "Temporary password mpya imetengenezwa kwa " + user.getUsername() + ". Mtumiaji lazima abadilishe kabla ya Dashboard.");
+        ra.addFlashAttribute("temporaryPassword", temporaryPassword);
+        ra.addFlashAttribute("temporaryUsername", user.getUsername());
+        return "redirect:/admin/users";
+    }
+
     @PostMapping("/users/{id}/temporary-access")
     public String issueTemporaryAccess(@PathVariable Long id, @RequestParam String channel, Authentication auth, RedirectAttributes ra) {
         User admin = auth == null ? null : userRepository.findByUsername(auth.getName()).orElse(null);
