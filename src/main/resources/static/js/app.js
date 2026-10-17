@@ -179,3 +179,49 @@ document.addEventListener('DOMContentLoaded',function(){
         showAction(link.dataset.actionTitle||'Opening secure workspace…',link.dataset.actionSubtitle||'Loading Cyber Forensics TZ securely.');
     },true);
 })();
+
+
+/* ===== RESPONSIVE TABLES + MOBILE KEYBOARD SUPPORT ===== */
+(function(){
+  function prepareResponsiveTables(){
+    document.querySelectorAll('.app-main table').forEach(function(table){
+      if(table.closest('.app-table-wrap,.table-responsive,.table-wrap,.overflow-x-auto'))return;
+      const parent=table.parentElement;
+      if(!parent)return;
+      const wrap=document.createElement('div');
+      wrap.className='app-table-wrap';
+      wrap.setAttribute('role','region');
+      wrap.setAttribute('aria-label','Scrollable table');
+      wrap.setAttribute('tabindex','0');
+      parent.insertBefore(wrap,table);
+      wrap.appendChild(table);
+    });
+  }
+  function syncDrawerState(){
+    const sidebar=document.getElementById('appSidebar');
+    const overlay=document.getElementById('sidebarOverlay');
+    const toggle=document.querySelector('.mobile-toggle');
+    const open=!!(sidebar&&sidebar.classList.contains('show')&&window.innerWidth<=900);
+    if(sidebar)sidebar.setAttribute('aria-hidden',String(!open));
+    if(overlay)overlay.setAttribute('aria-hidden',String(!open));
+    if(toggle)toggle.setAttribute('aria-expanded',String(open));
+    document.body.classList.toggle('sidebar-open',open);
+    document.documentElement.classList.toggle('sidebar-open',open);
+  }
+  document.addEventListener('keydown',function(event){
+    if(event.key==='Escape'){
+      closeSidebar();
+      const dropdown=document.getElementById('profileDropdown');
+      if(dropdown)dropdown.classList.remove('show');
+    }
+  });
+  document.addEventListener('DOMContentLoaded',function(){
+    prepareResponsiveTables();
+    syncDrawerState();
+  });
+  window.addEventListener('pageshow',function(){
+    prepareResponsiveTables();
+    if(window.innerWidth<=900)closeSidebar();
+    else syncDrawerState();
+  });
+})();
