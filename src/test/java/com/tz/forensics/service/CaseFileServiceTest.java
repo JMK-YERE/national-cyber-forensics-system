@@ -69,6 +69,19 @@ class CaseFileServiceTest {
     }
 
 
+    @Test void createCaseRejectsIncidentWithUnresolvedTenantOwnership() {
+        Incident incident = new Incident();
+        when(incidents.findById(1L)).thenReturn(Optional.of(incident));
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () ->
+                service.createCase(1L, "Legacy case", "A sufficiently detailed forensic case description.",
+                        "HIGH", 7L, "admin", "ADMIN"));
+
+        assertEquals("Incident tenant ownership is unresolved.", error.getMessage());
+        verify(tenantAccessService, never()).requireMembership(anyString(), anyLong(), any());
+        verify(cases, never()).save(any(CaseFile.class));
+    }
+
     @Test void createCaseInheritsTenantFromParentIncident() {
         Incident incident = new Incident();
         incident.setTenantId(42L);
