@@ -58,7 +58,8 @@ public class DataAnalyticsController {
             statuses.merge(r.getStatus() == null ? "NEW" : r.getStatus(), 1L, Long::sum);
         }
         model.addAttribute("total", all.size());
-        model.addAttribute("users", 0L);\n        model.addAttribute("tenantMetricsAvailable", false);
+        model.addAttribute("users", 0L);
+        model.addAttribute("tenantMetricsAvailable", false);
         model.addAttribute("open", all.stream().filter(r -> r.getStatus() == null || !"CLOSED".equalsIgnoreCase(r.getStatus())).count());
         model.addAttribute("high", all.stream().filter(r -> "HIGH".equalsIgnoreCase(r.getPriority()) || "CRITICAL".equalsIgnoreCase(r.getPriority())).count());
         model.addAttribute("categoryLabels", categories.keySet());
