@@ -26,26 +26,34 @@ public class CaseTaskController {
  private final AuditService audit;
  private final NotificationService notifications;
  private final IncidentService incidentService;
+ private final com.tz.forensics.service.TenantAccessService tenantAccessService;
 
  public CaseTaskController(CaseTaskService t, CaseFileService c, UserRepository u, AuditService a,
-                           NotificationService n, IncidentService incidentService) {
+                           NotificationService n, IncidentService incidentService,
+                           com.tz.forensics.service.TenantAccessService tenantAccessService) {
   taskService=t; caseService=c; users=u; audit=a; notifications=n; this.incidentService=incidentService;
+  this.tenantAccessService=tenantAccessService;
  }
 
  private User current(Authentication a){return a==null?null:users.findByUsername(a.getName()).orElse(null);}
  private boolean staff(User u){return u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics()||"ANALYST".equalsIgnoreCase(u.getRole()));}
- private boolean caseRoleAccess(CaseFile c,User u){
-  return c!=null&&u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics()||
-      ("ANALYST".equalsIgnoreCase(u.getRole())&&u.getId()!=null&&
-       (u.getId().equals(c.getCreatedBy())||u.getId().equals(c.getAssignedTo())||u.getId().equals(c.getLeadInvestigator()))));
+ private boolean hasTenantAccess(Long tenantId,User u){
+  if(tenantId==null)return true; // Legacy records stay unmapped pending approved ownership mapping.
+  if(u==null||u.getUsername()==null)return false;
+  try{tenantAccessService.requireMembership(u.getUsername(),tenantId,java.util.Set.of());return true;}
+  catch(org.springframework.web.server.ResponseStatusException denied){return false;}
  }
  private boolean canView(CaseFile c,User u){
-  if(!caseRoleAccess(c,u)) return false;
-  if(u.isAdmin()||u.isProfessional()||u.isForensics()) return true;
-  if(c.getIncidentId()==null) return false;
+  if(c==null||u==null||!hasTenantAccess(c.getTenantId(),u)||c.getIncidentId()==null)return false;
   Incident incident=incidentService.getById(c.getIncidentId());
-  return incident!=null&&(u.getId().equals(incident.getReporterUserId())||u.getId().equals(incident.getAssignedTo()));
+  if(incident==null||!java.util.Objects.equals(c.getTenantId(),incident.getTenantId()))return false;
+  if(u.isAdmin()||u.isProfessional()||u.isForensics())return true;
+  if(!"ANALYST".equalsIgnoreCase(u.getRole())||u.getId()==null)return false;
+  boolean caseAccess=u.getId().equals(c.getCreatedBy())||u.getId().equals(c.getAssignedTo())||u.getId().equals(c.getLeadInvestigator());
+  boolean incidentAccess=u.getId().equals(incident.getReporterUserId())||u.getId().equals(incident.getAssignedTo());
+  return caseAccess&&incidentAccess;
  }
+
  private boolean manager(User u){return u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics());}
  private boolean closed(CaseFile c){
   String s=c==null||c.getStatus()==null?"OPEN":c.getStatus().trim().toUpperCase(Locale.ROOT);
@@ -67,8 +75,13 @@ public class CaseTaskController {
   if(!manager(actor)||!canView(c,actor))return "redirect:/access-denied";
   if(closed(c)){audit.log("REJECT_CASE_TASK_CREATE","CaseFile",String.valueOf(caseId),"Task creation attempted after case closure");return "redirect:/cases/"+caseId;}
   User assignee=users.findById(assignedTo).orElse(null);
-  if(assignee==null||!Boolean.TRUE.equals(assignee.getEnabled())||!assignee.isApproved()||
-     !(assignee.isAnalyst()||assignee.isForensics()||assignee.isProfessional()))return "redirect:/cases/"+caseId;
+  if(assignee==null||!Boolean.TRUE.equals(assignee.getEnabled())||!assignee.isApproved()
+     ||Boolean.TRUE.equals(assignee.getAccountLocked())
+     ||!(assignee.isAnalyst()||assignee.isForensics()||assignee.isProfessional())
+     ||!hasTenantAccess(c.getTenantId(),assignee)) {
+   audit.log("REJECT_CASE_TASK_ASSIGNMENT","CaseFile",String.valueOf(caseId),"Invalid or cross-tenant task assignee: "+assignedTo);
+   return "redirect:/cases/"+caseId;
+  }
   LocalDateTime due=null;
   try{if(dueDate!=null&&!dueDate.isBlank())due=LocalDateTime.parse(dueDate);}
   catch(Exception e){return "redirect:/cases/"+caseId;}
