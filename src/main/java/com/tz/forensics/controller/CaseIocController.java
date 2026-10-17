@@ -23,25 +23,36 @@ public class CaseIocController {
  private final UserRepository userRepository;
  private final AuditService auditService;
  private final IncidentService incidentService;
+ private final com.tz.forensics.service.TenantAccessService tenantAccessService;
 
  public CaseIocController(CaseFileService c, CaseIocService i, UserRepository u,
-                          AuditService a, IncidentService incidentService) {
+                          AuditService a, IncidentService incidentService,
+                          com.tz.forensics.service.TenantAccessService tenantAccessService) {
   caseFileService=c;iocService=i;userRepository=u;auditService=a;this.incidentService=incidentService;
+  this.tenantAccessService=tenantAccessService;
  }
  private User user(Authentication a){return a==null||a.getName()==null?null:userRepository.findByUsername(a.getName()).orElse(null);}
  private boolean closed(CaseFile c){
   String s=c==null||c.getStatus()==null?"OPEN":c.getStatus().trim().toUpperCase(Locale.ROOT);
   return "CLOSED".equals(s)||"ARCHIVED".equals(s);
  }
+ private boolean hasTenantAccess(Long tenantId,User u){
+  if(tenantId==null)return true; // Legacy records stay readable pending approved ownership mapping.
+  if(u==null||u.getUsername()==null)return false;
+  try{tenantAccessService.requireMembership(u.getUsername(),tenantId,java.util.Set.of());return true;}
+  catch(org.springframework.web.server.ResponseStatusException denied){return false;}
+ }
  private boolean allowed(User u,CaseFile c){
-  if(u==null||c==null)return false;
+  if(u==null||c==null||!hasTenantAccess(c.getTenantId(),u)||c.getIncidentId()==null)return false;
+  Incident incident=incidentService.getById(c.getIncidentId());
+  if(incident==null||!java.util.Objects.equals(c.getTenantId(),incident.getTenantId()))return false;
   if(u.isAdmin()||u.isProfessional()||u.isForensics())return true;
   if(!"ANALYST".equalsIgnoreCase(u.getRole())||u.getId()==null)return false;
   boolean caseAccess=u.getId().equals(c.getCreatedBy())||u.getId().equals(c.getAssignedTo())||u.getId().equals(c.getLeadInvestigator());
-  if(!caseAccess||c.getIncidentId()==null)return false;
-  Incident incident=incidentService.getById(c.getIncidentId());
-  return incident!=null&&(u.getId().equals(incident.getReporterUserId())||u.getId().equals(incident.getAssignedTo()));
+  boolean incidentAccess=u.getId().equals(incident.getReporterUserId())||u.getId().equals(incident.getAssignedTo());
+  return caseAccess&&incidentAccess;
  }
+
  @PostMapping("/{caseId}/iocs")
  public String add(@PathVariable Long caseId,@RequestParam String iocType,@RequestParam String value,
                    @RequestParam(required=false)String confidence,@RequestParam(required=false)String source,
