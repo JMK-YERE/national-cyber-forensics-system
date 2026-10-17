@@ -158,3 +158,18 @@ Each route resolves the authenticated username to the existing user record, veri
 - Migration rehearsal against both empty PostgreSQL and a restored production-like database is still required.
 - Do not merge this draft or deploy it to production until the tenant authorization audit, cross-tenant denial tests, evidence-storage staging checks, backup/restore rehearsal, and explicit release approval are complete.
 
+
+## Tenant security hardening (incremental; not a release approval)
+
+The current feature branch now adds defense-in-depth checks to several case operations:
+
+- Tenant access is denied when the account is disabled, unapproved, or locked, even if an old session still exists. Tenant discovery and tenant membership checks share this account-state guard.
+- Case detail access fails closed when the case is orphaned or its tenant ID disagrees with its parent incident.
+- Case assignment candidate lists are limited to active users who can access the case tenant.
+- IOC mutations and case-task create/status/queue paths now verify tenant membership and parent-incident ownership consistency. Task assignees must be active members of the case tenant.
+- Case communications and escalation notifications enforce the same tenant boundary, so a case number/message is not broadcast to staff from unrelated tenants.
+- Playbook execution rechecks tenant membership and case/incident tenant consistency in the service layer, protecting both MVC and REST entry points. Tests cover membership denial and mismatched parent ownership.
+- Tenant membership tests now cover disabled, unapproved, and locked accounts.
+
+These are targeted controls, not proof of complete tenant isolation. Legacy records with NULL tenant IDs retain compatibility behavior until an approved ownership mapping is supplied. Other legacy reporting models, dashboard aggregates, search/download/export paths, notification flows, and global in-memory list queries still need a systematic tenant-by-tenant authorization review and integration tests. Do not merge or deploy based only on these unit tests.
+
