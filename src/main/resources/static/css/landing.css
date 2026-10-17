@@ -238,3 +238,34 @@ html[data-theme="dark"] .workflow,html[data-theme="dark"] .education{background:
   transform: none !important;
   transition: none !important;
 }
+
+
+/* HOTFIX: stabilize all landing-page Login links, including navbar and hero CTA.
+   Keep a single institutional teal color through hover/press/focus; no color tween. */
+a[href$="/login"].btn-ghost,
+a[href$="/login"].btn-ghost:link,
+a[href$="/login"].btn-ghost:visited,
+a[href$="/login"].btn-ghost:hover,
+a[href$="/login"].btn-ghost:active,
+a[href$="/login"].btn-ghost:focus,
+a[href$="/login"].btn-main,
+a[href$="/login"].btn-main:link,
+a[href$="/login"].btn-main:visited,
+a[href$="/login"].btn-main:hover,
+a[href$="/login"].btn-main:active,
+a[href$="/login"].btn-main:focus {
+  background: #075a43 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid #075a43 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+a[href$="/login"].btn-ghost:focus-visible,
+a[href$="/login"].btn-main:focus-visible {
+  outline: 2px solid #075a43 !important;
+  outline-offset: 3px !important;
+}
