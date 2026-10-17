@@ -216,7 +216,17 @@ public class AdminController {
         user.setPasswordSetupToken(sha256(code)); user.setPasswordSetupAttempts(0); user.setPasswordSetupExpiresAt(LocalDateTime.now().plusMinutes(10)); user.setPasswordSetupChannel(selected); userRepository.save(user);
         String message = "Cyber Forensics TZ: code ya muda ni " + code + ". Inaisha ndani ya dakika 10. Fungua /set-password, weka namba yako na code, kisha tengeneza password mpya. Usimshirikishe mtu mwingine.";
         boolean sent = "SMS".equals(selected) ? smsService.sendSms(destination, message) : whatsAppService.sendWhatsApp(destination, user.getWhatsappApiKey(), message);
-        if (!sent) { user.setPasswordSetupToken(null); user.setPasswordSetupExpiresAt(null); user.setPasswordSetupAttempts(0); user.setPasswordSetupChannel(null); userRepository.save(user); auditService.log(admin.getId(), admin.getUsername(), "TEMP_ACCESS_SEND_FAILED", "User", user.getUsername(), "Channel=" + selected + "; secret omitted"); ra.addFlashAttribute("error", "Ujumbe haukutumwa. Kagua namba na mipangilio ya SMS/WhatsApp."); return "redirect:/admin/users"; }
+        if (!sent) {
+            // Keep the hashed, expiring code active so an administrator can copy/share it manually.
+            // The plaintext is exposed only once in the authenticated admin flash message, never persisted.
+            auditService.log(admin.getId(), admin.getUsername(), "TEMP_ACCESS_SEND_FAILED", "User", user.getUsername(), "Channel=" + selected + "; manual share fallback; secret omitted");
+            ra.addFlashAttribute("warning", "Kutuma kupitia " + selected + " kumeshindikana (huduma haijasanidiwa au namba si sahihi). Unaweza kunakili code hii na kuituma mwenyewe. Code inaisha ndani ya dakika 10.");
+            ra.addFlashAttribute("manualAccessCode", code);
+            ra.addFlashAttribute("manualAccessPhone", destination);
+            ra.addFlashAttribute("manualAccessUsername", user.getUsername());
+            ra.addFlashAttribute("manualAccessChannel", selected);
+            return "redirect:/admin/users";
+        }
         auditService.log(admin.getId(), admin.getUsername(), "TEMP_ACCESS_ISSUED", "User", user.getUsername(), "Channel=" + selected + "; expiry=10m; secret omitted");
         ra.addFlashAttribute("success", "Code ya muda imetumwa kwa " + user.getUsername() + " kupitia " + selected + ". Inaisha ndani ya dakika 10.");
         return "redirect:/admin/users";
