@@ -932,3 +932,43 @@ img,svg,video,canvas{max-width:100%;height:auto}
   html:focus-within{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* Mobile interaction hardening: preserve vertical scrolling while making menu targets reliable. */
+.app-sidebar{
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
+}
+.app-sidebar .sidebar-nav a.sidebar-item{
+  min-height:44px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(92,224,180,.18);
+}
+.sidebar-overlay{
+  touch-action:manipulation;
+}
+.mobile-toggle,
+.profile-btn,
+.language-btn,
+.theme-btn,
+.app-btn,
+.quick-btn{
+  touch-action:manipulation;
+}
+@media(max-width:900px){
+  .app-sidebar{
+    width:min(280px,86vw);
+    max-width:86vw;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .app-sidebar .sidebar-nav{
+    padding-bottom:calc(90px + env(safe-area-inset-bottom));
+  }
+  body.sidebar-open{
+    overflow:hidden;
+    overscroll-behavior:none;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .app-sidebar{transition:none}
+}
