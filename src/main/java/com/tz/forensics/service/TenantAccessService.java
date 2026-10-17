@@ -34,6 +34,7 @@ public class TenantAccessService {
         }
         User user = users.findByUsername(username)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated user record not found."));
+        requireActiveAccount(user);
         Tenant tenant = tenants.findById(tenantId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found."));
         if (!"ACTIVE".equalsIgnoreCase(tenant.getStatus())) {
@@ -50,6 +51,18 @@ public class TenantAccessService {
         return membership;
     }
 
+    /**
+     * Re-check account state at the tenant boundary as well as at login. This prevents
+     * a disabled, locked, or unapproved account with a stale session from continuing
+     * to use tenant-scoped endpoints.
+     */
+    private void requireActiveAccount(User user) {
+        if (!Boolean.TRUE.equals(user.getEnabled()) || !user.isApproved()
+                || Boolean.TRUE.equals(user.getAccountLocked())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is not active.");
+        }
+    }
+
     @Transactional(readOnly = true)
     public List<Tenant> listMyActiveTenants(String username) {
         if (username == null || username.isBlank()) {
@@ -57,6 +70,7 @@ public class TenantAccessService {
         }
         User user = users.findByUsername(username)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated user record not found."));
+        requireActiveAccount(user);
         return memberships.findAllByUserIdAndStatus(user.getId(), "ACTIVE").stream()
             .map(m -> tenants.findById(m.getTenantId()).orElse(null))
             .filter(t -> t != null && "ACTIVE".equalsIgnoreCase(t.getStatus()))
