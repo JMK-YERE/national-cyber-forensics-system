@@ -262,7 +262,10 @@ public class PasswordController {
     }
 
     @GetMapping("/change-password")
-    public String changeForm() { return "change-password"; }
+    public String changeForm(@RequestParam(required = false) String required, Model model) {
+        if (required != null) model.addAttribute("requiredChange", true);
+        return "change-password";
+    }
 
     @PostMapping("/change-password")
     public String changeSubmit(@RequestParam String currentPassword,
@@ -286,6 +289,12 @@ public class PasswordController {
             return "redirect:/change-password";
         }
         user.setPassword(passwordEncoder.encode(newPassword));
+        if ("INIT".equalsIgnoreCase(user.getPasswordSetupChannel())) {
+            user.setPasswordSetupChannel(null);
+            user.setPasswordSetupExpiresAt(null);
+            user.setPasswordSetupToken(null);
+            user.setPasswordSetupAttempts(0);
+        }
         userRepository.save(user);
         ra.addFlashAttribute("success", "✅ Neno la siri limebadilishwa!");
         return "redirect:/change-password";
