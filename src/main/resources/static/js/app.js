@@ -55,12 +55,25 @@ document.addEventListener('click', function(e) {
     }
 });
 
-document.addEventListener('click', function(e) {
-    if (window.innerWidth <= 900) {
-        const link = e.target.closest('#appSidebar a.sidebar-item');
-        if (link) window.setTimeout(closeSidebar, 80);
-    }
-}, false);
+/* Close the mobile drawer for every real navigation link, even when
+   another component stops bubbling or a label/icon is the clicked target. */
+function handleMobileSidebarNavigation(e) {
+    if (window.innerWidth > 900) return;
+    const target = e.target instanceof Element ? e.target : null;
+    if (!target) return;
+    const link = target.closest('#appSidebar a.sidebar-item, .app-sidebar .sidebar-nav a[href]');
+    if (!link) return;
+    const href = link.getAttribute('href') || '';
+    if (!href || href === '#' || href.startsWith('javascript:')) return;
+    closeSidebar();
+}
+document.addEventListener('click', handleMobileSidebarNavigation, true);
+document.addEventListener('touchend', function(e) {
+    if (window.innerWidth > 900) return;
+    const target = e.target instanceof Element ? e.target : null;
+    const link = target && target.closest('#appSidebar a.sidebar-item, .app-sidebar .sidebar-nav a[href]');
+    if (link) window.setTimeout(closeSidebar, 0);
+}, {passive: true});
 window.addEventListener('resize', function() {
     if (window.innerWidth > 900) closeSidebar();
     else forceMobileSidebarClosed();
