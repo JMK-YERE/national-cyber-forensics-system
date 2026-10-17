@@ -95,7 +95,9 @@ class ResponsePlaybookExecutionServiceTest {
         CaseFile cf = new CaseFile();
         cf.setId(5L);
         cf.setIncidentId(44L);
+        cf.setIncidentId(44L);
         cf.setStatus("INVESTIGATING");
+        when(incidents.getById(44L)).thenReturn(new Incident());
         when(incidents.getById(44L)).thenReturn(new Incident());
         ResponsePlaybookRun run = new ResponsePlaybookRun();
         ReflectionTestUtils.setField(run, "id", 41L);
@@ -126,7 +128,9 @@ class ResponsePlaybookExecutionServiceTest {
         admin.setRole("ADMIN");
         CaseFile cf = new CaseFile();
         cf.setId(5L);
+        cf.setIncidentId(44L);
         cf.setStatus("INVESTIGATING");
+        when(incidents.getById(44L)).thenReturn(new Incident());
         ResponsePlaybookRun run = new ResponsePlaybookRun();
         ReflectionTestUtils.setField(run, "id", 41L);
         run.setCaseId(5L);
@@ -161,7 +165,9 @@ class ResponsePlaybookExecutionServiceTest {
         admin.setRole("ADMIN");
         CaseFile cf = new CaseFile();
         cf.setId(5L);
+        cf.setIncidentId(44L);
         cf.setStatus("INVESTIGATING");
+        when(incidents.getById(44L)).thenReturn(new Incident());
         ResponsePlaybookRun run = new ResponsePlaybookRun();
         ReflectionTestUtils.setField(run, "id", 41L);
         run.setCaseId(5L);
@@ -186,7 +192,9 @@ class ResponsePlaybookExecutionServiceTest {
         admin.setRole("ADMIN");
         CaseFile cf = new CaseFile();
         cf.setId(5L);
+        cf.setIncidentId(44L);
         cf.setStatus("INVESTIGATING");
+        when(incidents.getById(44L)).thenReturn(new Incident());
         ResponsePlaybookRun run = new ResponsePlaybookRun();
         ReflectionTestUtils.setField(run, "id", 41L);
         run.setCaseId(5L);
@@ -213,7 +221,9 @@ class ResponsePlaybookExecutionServiceTest {
         admin.setRole("ADMIN");
         CaseFile cf = new CaseFile();
         cf.setId(5L);
+        cf.setIncidentId(44L);
         cf.setStatus("INVESTIGATING");
+        when(incidents.getById(44L)).thenReturn(new Incident());
         ResponsePlaybookRun run = new ResponsePlaybookRun();
         ReflectionTestUtils.setField(run, "id", 41L);
         run.setCaseId(5L);
