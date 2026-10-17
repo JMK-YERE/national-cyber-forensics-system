@@ -13,10 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 
-import java.time.Duration;
-import java.util.Locale;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -50,11 +47,4 @@ public class WebConfig implements WebMvcConfigurer {
         });
     }
 
-    @Bean
-    public LocaleResolver localeResolver() {
-        CookieLocaleResolver resolver = new CookieLocaleResolver("lang");
-        resolver.setDefaultLocale(Locale.ENGLISH);
-        resolver.setCookieMaxAge(Duration.ofDays(365));
-        return resolver;
-    }
 }
