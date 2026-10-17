@@ -44,17 +44,24 @@
 <div th:if="${isAnalyst}"><h2>🔎 Cyber Analyst Workspace</h2><div class="sub">Analyze assigned cases, identify indicators and support incident investigation with evidence-based findings.</div></div>
 <div th:unless="${isStaff}"><h2>👤 Personal Security Workspace</h2><div class="sub">Manage your own reports, notifications, downloads and security checks.</div></div>
 </section>
-<!-- Admin-only workspace directory: lets administrators inspect the real role workflows without impersonating users. -->
+<!-- Admin-only module directory: shortcuts to operational areas the administrator is authorized to inspect. -->
 <section th:if="${isAdmin}" class="card admin-workspace-directory" style="margin-bottom:14px">
-  <h2>👁 Role dashboards & workspace access</h2>
-  <div class="sub">Open each role's operational area from your administrator account. Access checks still apply; this does not sign you in as another user or bypass permissions.</div>
+  <h2>Administrator workspace directory</h2>
+  <div class="sub">Open operational modules and review role workflows. User permissions and assignment rules remain enforced by the server; this directory does not impersonate other accounts.</div>
   <div class="actions">
-    <a class="action" th:href="@{/incidents}"><b>🛡 Cyber Professional</b><small>Incidents, report triage, tasks and response coordination.</small></a>
-    <a class="action" th:href="@{/cases}"><b>🧪 Forensic Investigator</b><small>Case workspace, evidence records and forensic examination.</small></a>
-    <a class="action" th:href="@{/incidents}"><b>🔎 Cyber Analyst</b><small>Incident analysis and permitted investigation records.</small></a>
-    <a class="action" th:href="@{/report-attack}"><b>👤 Individual user journey</b><small>Open the incident-reporting experience used by individual users.</small></a>
-    <a class="action" th:href="@{/downloads}"><b>⬇ Downloads</b><small>Check available exports and report downloads.</small></a>
-    <a class="action" th:href="@{/admin/users}"><b>👥 Users & role assignments</b><small>Review users and their assigned access roles.</small></a>
+    <a class="action" th:href="@{/incidents}"><b>Cyber Professional — Incidents</b><small>Review authorized incident records and response activity.</small></a>
+    <a class="action" th:href="@{/report-attack/admin}"><b>Reports for Examination</b><small>Review submitted reports through the operational workflow.</small></a>
+    <a class="action" th:href="@{/cases}"><b>Forensic Investigator — Cases</b><small>Open the case workspace.</small></a>
+    <a class="action" th:href="@{/evidence}"><b>Evidence Register</b><small>Inspect evidence records subject to access controls.</small></a>
+    <a class="action" th:href="@{/case-tasks}"><b>Assignments & Tasks</b><small>Review work allocation and task status.</small></a>
+    <a class="action" th:href="@{/analytics}"><b>Operational Analytics</b><small>View system-level operational summaries.</small></a>
+    <a class="action" th:href="@{/admin/users}"><b>Users & Access</b><small>Manage user accounts and role assignments.</small></a>
+    <a class="action" th:href="@{/whistleblower/admin}"><b>Anonymous Reports</b><small>Open the restricted confidential-report workflow.</small></a>
+    <a class="action" th:href="@{/audit}"><b>Audit & Security Log</b><small>Review recorded security and accountability events.</small></a>
+    <a class="action" th:href="@{/compliance}"><b>Compliance</b><small>Review available governance controls.</small></a>
+    <a class="action" th:href="@{/threat-map}"><b>Incident Intelligence Map</b><small>View available incident intelligence.</small></a>
+    <a class="action" th:href="@{/admin/announcements}"><b>Announcements</b><small>Manage platform announcements.</small></a>
+    <a class="action" th:href="@{/admin/settings}"><b>System Settings</b><small>Open administrator configuration.</small></a>
   </div>
 </section>
 <div class="work">
