@@ -31,6 +31,16 @@
     <div class="app-card" th:if="${error}" style="background: rgba(220,38,38,0.1); border-left: 4px solid #dc2626; padding: 15px;">
         <p style="color: #dc2626; margin: 0;" th:text="${error}"></p>
     </div>
+    <div class="app-card" th:if="${warning}" style="background:#eff6ff;border-left:4px solid #1d4ed8;padding:15px;">
+        <p style="color:#1e3a8a;margin:0 0 10px;" th:text="${warning}"></p>
+        <p style="margin:0 0 8px;"><strong>User:</strong> <span id="manualAccessUsername" th:text="${manualAccessUsername}"></span> · <strong>Code:</strong> <code id="manualAccessCode" th:text="${manualAccessCode}"></code></p>
+        <p style="margin:0 0 12px;"><strong>Simu:</strong> <span id="manualAccessPhone" th:text="${manualAccessPhone}"></span> · <strong>Njia:</strong> <span th:text="${manualAccessChannel}"></span></p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="user-btn" style="background:#1d4ed8;" onclick="copyTemporaryAccess()">Copy details</button>
+            <button type="button" class="user-btn" style="background:#075985;" onclick="shareTemporaryAccessWhatsApp()">Open WhatsApp</button>
+        </div>
+        <p style="font-size:12px;color:#475569;margin-top:10px;">Code hii inaonekana mara moja tu kwenye ukurasa huu. Mtumiaji atumie mara moja na atengeneze password yake mwenyewe.</p>
+    </div>
 
     <div class="app-stats-grid">
         <div class="app-stat-box"><div class="stat-value" th:text="${totalUsers}">0</div><div class="stat-label">Total Users</div></div>
@@ -130,6 +140,14 @@
         <a th:href="@{/dashboard}" class="app-btn app-btn-outline" style="text-decoration: none;">← Back to Dashboard</a>
     </div>
 </div>
+<script>
+function temporaryAccessText(){
+  const get=id=>{const el=document.getElementById(id);return el?el.textContent.trim():"";};
+  return "Cyber Forensics TZ temporary account setup\nUsername: "+get("manualAccessUsername")+"\nPhone: "+get("manualAccessPhone")+"\nCode: "+get("manualAccessCode")+"\nExpires in 10 minutes. Open Cyber Forensics TZ, choose Set Password, enter your phone and this code, then create your own password. Never share this code with anyone else.";
+}
+function copyTemporaryAccess(){const text=temporaryAccessText();if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(()=>alert("Temporary access details copied.")).catch(()=>window.prompt("Copy temporary access details:",text));}else{window.prompt("Copy temporary access details:",text);}}
+function shareTemporaryAccessWhatsApp(){const phone=(document.getElementById("manualAccessPhone")?.textContent||"").replace(/[^0-9]/g,"");window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(temporaryAccessText()),"_blank","noopener");}
+</script>
 <script th:src="@{/js/app.js}"></script>
 </main></body>
 </html>
