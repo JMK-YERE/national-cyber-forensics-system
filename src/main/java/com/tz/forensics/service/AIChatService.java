@@ -11,6 +11,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Locale;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class AIChatService {
@@ -34,7 +36,11 @@ public class AIChatService {
     }
 
     public String chat(String userMessage, String context, String lang) {
-        log.info("=== AI REQUEST (lang: {}) ===", lang);
+        return chat(userMessage, context, lang, java.util.Collections.emptyList());
+    }
+
+    public String chat(String userMessage, String context, String lang, List<Map<String, String>> history) {
+        log.info("AI request received (lang: {})", lang);
 
         if (!isConfigured()) {
             return getErrorResponse(lang, "AI not configured");
@@ -43,15 +49,28 @@ public class AIChatService {
         try {
             String systemPrompt = buildSystemPrompt(lang, context);
 
-            String jsonBody = "{"
-                + "\"model\":\"" + model + "\","
-                + "\"messages\":["
-                + "{\"role\":\"system\",\"content\":\"" + escapeJson(systemPrompt) + "\"},"
-                + "{\"role\":\"user\",\"content\":\"" + escapeJson(userMessage) + "\"}"
-                + "],"
-                + "\"temperature\":0.7,"
-                + "\"max_tokens\":1024"
-                + "}";
+            StringBuilder body = new StringBuilder("{");
+            body.append("\"model\":\"").append(escapeJson(model)).append("\",");
+            body.append("\"messages\":[{\"role\":\"system\",\"content\":\"")
+                    .append(escapeJson(systemPrompt)).append("\"}");
+            if (history != null) {
+                int start = Math.max(0, history.size() - 12);
+                for (int i = start; i < history.size(); i++) {
+                    Map<String, String> item = history.get(i);
+                    if (item == null) continue;
+                    String type = item.get("type");
+                    String role = "user".equals(type) ? "user"
+                            : (("ai".equals(type) || "assistant".equals(type)) ? "assistant" : null);
+                    String content = item.get("text");
+                    if (role == null || content == null || content.isBlank()) continue;
+                    if (content.length() > 4000) content = content.substring(0, 4000);
+                    body.append(",{\"role\":\"").append(role)
+                            .append("\",\"content\":\"").append(escapeJson(content)).append("\"}");
+                }
+            }
+            body.append(",{\"role\":\"user\",\"content\":\"").append(escapeJson(userMessage))
+                    .append("\"}],\"temperature\":0.4,\"max_tokens\":1600}");
+            String jsonBody = body.toString();
 
             HttpClient client = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(20))
