@@ -268,8 +268,7 @@ public class PasswordController {
     }
 
     @PostMapping("/change-password")
-    public String changeSubmit(@RequestParam(required = false, defaultValue = "") String currentPassword,
-                               @RequestParam String newPassword,
+    public String changeSubmit(@RequestParam String newPassword,
                                @RequestParam String confirmPassword,
                                Authentication auth,
                                RedirectAttributes ra) {
@@ -282,13 +281,6 @@ public class PasswordController {
                 || user.getPasswordSetupExpiresAt().isBefore(LocalDateTime.now()))) {
             ra.addFlashAttribute("error", "Temporary password imeisha muda. Tumia Forgot Password kupata njia mpya.");
             return "redirect:/forgot-password?temporaryExpired=true";
-        }
-        // First-login users have just authenticated with the temporary password,
-        // so do not ask them to type it again. Normal password changes still require it.
-        if (!firstLogin && (currentPassword.isBlank()
-                || !passwordEncoder.matches(currentPassword, user.getPassword()))) {
-            ra.addFlashAttribute("error", "Thibitisha password yako ya sasa.");
-            return "redirect:/change-password";
         }
         if (!newPassword.equals(confirmPassword) || newPassword.length() < 8) {
             ra.addFlashAttribute("error", "Password mpya iwe na angalau herufi 8 na zote zifanane.");
