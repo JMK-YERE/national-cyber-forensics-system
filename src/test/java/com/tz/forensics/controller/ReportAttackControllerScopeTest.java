@@ -72,7 +72,7 @@ class ReportAttackControllerScopeTest {
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
         when(service.getById(3L)).thenReturn(other);
 
-        String result = controller.updateStatus(3L, "UNDER_REVIEW", null, null, null, null, authentication);
+        String result = controller.updateStatus(3L, "UNDER_REVIEW", null, null, null, authentication);
 
         assertEquals("redirect:/access-denied", result);
         verify(service, never()).updateStatus(anyLong(), anyString(), any(), any(), any(), any(), any(), anyString());
