@@ -100,7 +100,7 @@ public class PasswordSetupController {
         user.setPasswordSetupAttempts(user.getPasswordSetupAttempts() + 1);
         user.setPassword(passwordEncoder.encode(password));
         user.setEmailVerified(true);
-        user.setApprovalStatus("PENDING");
+        if (!user.isApproved()) user.setApprovalStatus("PENDING");
         user.setPasswordSetupToken(null);
         user.setPasswordSetupAttempts(0);
         user.setPasswordSetupExpiresAt(null);
