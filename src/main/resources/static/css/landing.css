@@ -320,3 +320,73 @@ html[data-theme="dark"] .theme-btn,html[data-theme="dark"] .language-switch{back
  .hero-slide,.slider-dots button,.slider-arrow{transition:none!important}
  html{scroll-behavior:auto}
 }
+
+
+/* MOBILE SLIDESHOW VISIBILITY FIX — 2026-10-17
+   The previous mobile CTA rule set height:auto and min-height:0 with !important,
+   which overrode the later slideshow sizing and collapsed the absolutely positioned slides. */
+@media (max-width: 600px) {
+  #heroSlider.hero-slider {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 560px !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    isolation: isolate;
+  }
+  #heroSlider .hero-slide {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 560px !important;
+    background-position: center center !important;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+  }
+  #heroSlider .hero-slide:not(.active) {
+    pointer-events: none;
+  }
+  #heroSlider .hero-slide.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  #heroSlider .hero-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+  }
+  #heroSlider .hero-copy {
+    position: relative !important;
+    z-index: 2 !important;
+    width: 100% !important;
+    min-height: 560px !important;
+    padding: 58px 22px 104px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  #heroSlider .hero-copy > div {
+    position: relative;
+    z-index: 3;
+  }
+  #heroSlider .slider-dots {
+    z-index: 6 !important;
+    bottom: 24px !important;
+    left: 20px !important;
+  }
+  #heroSlider .slider-controls {
+    z-index: 6 !important;
+    bottom: 12px !important;
+    right: 16px !important;
+  }
+}
+@media (max-width: 360px) {
+  #heroSlider.hero-slider,
+  #heroSlider .hero-slide,
+  #heroSlider .hero-copy {
+    min-height: 580px !important;
+  }
+}
