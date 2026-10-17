@@ -681,7 +681,7 @@ html[data-theme="dark"] .cftz-role,html[data-theme="dark"] .cftz-tag{background:
     font-weight: 500 !important;
   }
   .app-sidebar .sidebar-item .icon { width: 18px !important; flex: 0 0 18px !important; font-size: 14px !important; }
-  .sidebar-overlay { z-index: 1400 !important; top: 60px !important; }
+  .sidebar-overlay { z-index: 1100 !important; top: 60px !important; }
   .app-header { z-index: 1450 !important; }
 }
 @media (max-width: 380px) {
