@@ -1,5 +1,46 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Downloads</title><link rel="stylesheet" th:href="@{/css/theme.css}"></head><body>
-<div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div><main class="app-main"><div class="app-container"><h1 class="page-title">↓ Downloads</h1>
-<div class="app-card"><h2>Reports & Evidence</h2><p style="color:#61736d">Downloads are connected to the case you are authorized to access. Open a case to download its incident PDF, case PDF or authorized evidence.</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><a th:href="@{/downloads/reports.csv}" class="app-btn app-btn-primary">⬇ Ripoti Zangu (CSV)</a><a th:href="@{/incidents}" class="app-btn app-btn-outline">▣ Open Investigations</a><a th:href="@{/report-attack}" class="app-btn app-btn-outline">⚠ My Reports</a></div></div>
-<div class="app-card"><h2>Download flow</h2><div class="app-list-item"><span>1. Open an authorized incident/case</span><span>→</span></div><div class="app-list-item"><span>2. Open the evidence or report section</span><span>→</span></div><div class="app-list-item"><span>3. Download only the files permitted by your role</span><span>✓</span></div></div>
-</div></main><script th:src="@{/js/app.js}"></script></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Downloads | Cyber Forensics TZ</title>
+  <link rel="stylesheet" th:href="@{/css/theme.css}">
+  <style>
+    .downloads-intro{max-width:760px;color:#475569;line-height:1.65;margin:-4px 0 22px}
+    .download-panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:clamp(16px,3vw,24px);margin:0 0 16px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+    .download-panel h2{font-size:17px;color:#1e293b;margin:0 0 8px}
+    .download-panel p{color:#475569;line-height:1.6;margin:0}
+    .download-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .download-actions a{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;text-decoration:none}
+    .download-note{border-left:3px solid #0f766e;padding:10px 13px;background:#f8fafc;border-radius:0 8px 8px 0;margin-top:16px;color:#475569;font-size:13px;line-height:1.5}
+    @media(max-width:600px){.download-actions{display:grid;grid-template-columns:1fr}.download-actions a{width:100%;box-sizing:border-box}.downloads-intro{font-size:14px}}
+  </style>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<main class="app-main"><div class="app-container">
+  <h1 class="page-title">↓ Downloads</h1>
+  <p class="downloads-intro">Pakua ripoti unazoruhusiwa kuona. Faili za ushahidi na ripoti za uchunguzi zinapatikana ndani ya incident au case husika kulingana na ruhusa zako.</p>
+
+  <section class="download-panel">
+    <h2>My reports export</h2>
+    <p>Pakua orodha ya ripoti zinazohusiana na akaunti yako katika CSV inayoweza kufunguliwa kwa spreadsheet. Watumiaji wa kawaida hupata ripoti zao tu; watumishi hupata rekodi kulingana na majukumu na ruhusa zao.</p>
+    <div class="download-actions">
+      <a th:href="@{/downloads/reports.csv}" class="app-btn app-btn-primary" download>↓ Pakua ripoti (CSV)</a>
+      <a sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')" th:href="@{/report-attack/my-reports}" class="app-btn app-btn-outline">Ona ripoti zangu</a>
+      <a sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_ANALYST','ROLE_FORENSICS')" th:href="@{/incidents}" class="app-btn app-btn-outline">Fungua incidents</a>
+    </div>
+    <div class="download-note">Usalama: export inahitajika kupitia akaunti iliyoingia. CSV ina data ya ripoti tu; haibebi faili za ushahidi wala haibadilishi chain of custody.</div>
+  </section>
+
+  <section class="download-panel" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_ANALYST','ROLE_FORENSICS')">
+    <h2>Investigation files</h2>
+    <p>Fungua incident au case husika ili kuona ripoti, ushahidi na nyaraka ambazo role yako inaruhusiwa kupakua. Hakuna faili ya mfano inayowasilishwa kama ushahidi halisi.</p>
+    <div class="download-actions">
+      <a th:href="@{/cases}" class="app-btn app-btn-outline">Fungua cases</a>
+      <a th:href="@{/evidence}" class="app-btn app-btn-outline" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_ANALYST','ROLE_FORENSICS')">Fungua evidence</a>
+    </div>
+  </section>
+</div></main>
+<script th:src="@{/js/app.js}"></script>
+</body></html>
