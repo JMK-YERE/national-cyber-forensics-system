@@ -173,3 +173,11 @@ The current feature branch now adds defense-in-depth checks to several case oper
 
 These are targeted controls, not proof of complete tenant isolation. Legacy records with NULL tenant IDs retain compatibility behavior until an approved ownership mapping is supplied. Other legacy reporting models, dashboard aggregates, search/download/export paths, notification flows, and global in-memory list queries still need a systematic tenant-by-tenant authorization review and integration tests. Do not merge or deploy based only on these unit tests.
 
+
+
+## Additional export hardening (2026-10-17)
+
+- The legacy `/downloads/reports.csv` endpoint no longer grants global report export merely because a user has an ADMIN, CYBER_PRO, or FORENSICS role.
+- Until `ReportAttack` records have an approved tenant-ownership mapping, the CSV includes only reports created by or explicitly assigned to the authenticated user.
+- CSV export actions are recorded in the existing audit log, and the response is marked non-cacheable.
+- This is a fail-closed interim control. It does **not** complete tenant isolation for the report list, dashboard metrics, PDF exports, or other report endpoints; those still require tenant ownership, authorization checks, and cross-tenant tests.
