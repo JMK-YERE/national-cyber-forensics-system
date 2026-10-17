@@ -54,7 +54,7 @@ public class IncidentController {
     private boolean canAssign(User u) { return isAdmin(u) || isCyberPro(u); }
 
     private boolean hasTenantAccess(Long tenantId, User user) {
-        if (tenantId == null) return true; // Legacy records remain unmapped pending approved backfill.
+        if (tenantId == null) return false; // Unknown ownership is not tenant authorization; resolve via approved backfill.
         if (user == null || user.getUsername() == null) return false;
         try { tenantAccessService.requireMembership(user.getUsername(), tenantId, Set.of()); return true; }
         catch (org.springframework.web.server.ResponseStatusException denied) { return false; }
