@@ -79,12 +79,14 @@ public class CaseFileController {
 
     private boolean canViewCase(CaseFile cf, User user) {
         if (cf == null || user == null || !hasTenantAccess(cf.getTenantId(), user)) return false;
+
+        // Fail closed if a case is orphaned or its ownership disagrees with its parent.
+        // This protects against legacy/manual data corruption as well as cross-tenant links.
+        Incident incident = cf.getIncidentId() == null ? null : incidentService.getById(cf.getIncidentId());
+        if (incident == null || !java.util.Objects.equals(cf.getTenantId(), incident.getTenantId())) return false;
         if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
         if (!"ANALYST".equalsIgnoreCase(user.getRole())) return false;
 
-        // Analyst case access must remain tied to the underlying incident as well.
-        Incident incident = cf.getIncidentId() == null ? null : incidentService.getById(cf.getIncidentId());
-        if (incident == null) return false;
         boolean incidentAccess =
                 (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
                 || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
@@ -182,8 +184,11 @@ public class CaseFileController {
         model.addAttribute("responsePlaybooks", responsePlaybooks.list());
         model.addAttribute("playbookRuns", playbookExecutions.listRuns(cf.getId(), user));
         if (canAssignCases(user)) {
+            // Only disclose assignment candidates who are active members of this case's tenant.
             model.addAttribute("eligibleInvestigators", userRepository.findByRoleInAndEnabledTrueAndApprovalStatusIgnoreCase(
-                    List.of("ANALYST", "FORENSICS", "CYBER_PRO"), "APPROVED"));
+                    List.of("ANALYST", "FORENSICS", "CYBER_PRO"), "APPROVED").stream()
+                    .filter(candidate -> hasTenantAccess(cf.getTenantId(), candidate))
+                    .toList());
         }
         return "case-detail";
     }
