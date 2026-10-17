@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashMap;
 
 @Controller
 public class DashboardController {
@@ -57,11 +58,10 @@ public class DashboardController {
 
         try {
             if (isStaff) {
-                // Analysts must never receive the global report population. Their dashboard,
-                // map and analytics are limited to reports assigned to them.
-                List<ReportAttack> visibleReports = isPrivilegedStaff
-                        ? reportRepo.findAllByOrderByCreatedAtDesc()
-                        : reportRepo.findByAssignedToOrderByCreatedAtDesc(user.getId());
+                // ReportAttack records do not yet have an approved legacy-to-tenant ownership
+                // mapping. Fail closed: until tenant-aware report queries exist, staff dashboards
+                // show only reports created by or assigned to the signed-in user.
+                List<ReportAttack> visibleReports = findUserScopedReports(user.getId());
 
                 long totalReports = visibleReports.size();
                 long newReports = visibleReports.stream()
@@ -70,8 +70,11 @@ public class DashboardController {
 
                 model.addAttribute("totalReports", totalReports);
                 model.addAttribute("newReports", newReports);
-                model.addAttribute("totalWb", isPrivilegedStaff ? wbRepo.count() : 0L);
-                model.addAttribute("totalUsers", isPrivilegedStaff ? userRepository.count() : 0L);
+                // These counts are global legacy data, not tenant scoped. Do not expose them as
+                // if they represented the active tenant; tenant-aware metrics are still pending.
+                model.addAttribute("totalWb", 0L);
+                model.addAttribute("totalUsers", 0L);
+                model.addAttribute("tenantMetricsAvailable", false);
 
                 List<com.tz.forensics.entity.CaseTask> myTasks = caseTaskService.findMyTasks(user.getId());
                 model.addAttribute("myTaskCount", myTasks.size());
@@ -111,8 +114,8 @@ public class DashboardController {
                         : new ArrayList<>(visibleReports);
                 model.addAttribute("recentReports", recent);
 
-                // Geographic intelligence is scoped to the same report population as the dashboard.
-                // Reporter identity is never exposed in map points.
+                // Geographic intelligence uses the same user-scoped population; reporter
+                // identity is never exposed in map points.
                 List<Map<String,Object>> mapPoints = new ArrayList<>();
                 for (ReportAttack r : visibleReports) {
                     Map<String,Object> point = new LinkedHashMap<>();
@@ -181,6 +184,20 @@ public class DashboardController {
         if (isForensics) return "dashboard-forensics";
         if (isAnalyst) return "dashboard-analyst";
         return "dashboard-individual";
+    }
+
+    private List<ReportAttack> findUserScopedReports(Long userId) {
+        Map<Long, ReportAttack> unique = new LinkedHashMap<>();
+        for (ReportAttack report : reportRepo.findByUserIdOrderByCreatedAtDesc(userId)) {
+            if (report != null && report.getId() != null) unique.put(report.getId(), report);
+        }
+        for (ReportAttack report : reportRepo.findByAssignedToOrderByCreatedAtDesc(userId)) {
+            if (report != null && report.getId() != null) unique.put(report.getId(), report);
+        }
+        List<ReportAttack> reports = new ArrayList<>(unique.values());
+        reports.sort(Comparator.comparing(ReportAttack::getCreatedAt,
+                Comparator.nullsLast(Comparator.reverseOrder())));
+        return reports;
     }
 
     private long countStatus(List<ReportAttack> reports, String status) {
