@@ -139,6 +139,36 @@ document.addEventListener('DOMContentLoaded',function(){
 
 /* Loading overlays intentionally disabled: navigation and authentication should not block the screen. */
 
+/* Live unread-notification badge; polling is quiet and never blocks navigation. */
+(function(){
+  async function refreshUnreadNotifications(){
+    const link=document.querySelector('.app-sidebar a[href$="/notifications"]');
+    if(!link)return;
+    try{
+      const response=await fetch('/notifications/unread-count',{credentials:'same-origin',headers:{'Accept':'application/json'}});
+      if(!response.ok)return;
+      const payload=await response.json();
+      const count=Math.max(0,Number(payload.count)||0);
+      let badge=link.querySelector('.notification-count');
+      if(count>0&&!badge){
+        badge=document.createElement('span');
+        badge.className='notification-count';
+        badge.setAttribute('aria-label','Unread notifications');
+        link.appendChild(badge);
+      }
+      if(!badge)return;
+      badge.textContent=count>99?'99+':String(count);
+      badge.style.display=count>0?'inline-flex':'none';
+      badge.title=count+' unread notification'+(count===1?'':'s');
+      link.setAttribute('aria-label',count>0?'Notifications, '+count+' unread':'Notifications');
+    }catch(_){/* keep the current page usable if polling is temporarily unavailable */}
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    refreshUnreadNotifications();
+    window.setInterval(refreshUnreadNotifications,30000);
+  });
+})();
+ 
 /* ===== RESPONSIVE TABLES + MOBILE KEYBOARD SUPPORT ===== */
 (function(){
   function prepareResponsiveTables(){
