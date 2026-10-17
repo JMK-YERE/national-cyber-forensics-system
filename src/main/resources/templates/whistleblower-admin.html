@@ -10,7 +10,7 @@
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <main class="app-main"><div class="app-container">
-    <div class="app-card" style="background: linear-gradient(135deg, #07543e, #0aa879); color: white; padding: 25px;">
+    <div class="app-card" style="background: linear-gradient(135deg, #0b1f3a, #244f7d); color: white; padding: 25px;">
         <h1 style="color: white; margin: 0;">🕵️ Whistleblower Reports</h1>
         <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">All anonymous reports</p>
     </div>
@@ -26,10 +26,10 @@
         <div th:if="${reports.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
             Hakuna reports bado.
         </div>
-        <div th:each="r : ${reports}" style="padding: 15px; margin: 10px 0; background: rgba(15,37,87,0.03); border-left: 4px solid #07543e; border-radius: 8px;">
+        <div th:each="r : ${reports}" style="padding: 15px; margin: 10px 0; background: rgba(36,79,125,0.04); border-left: 3px solid #244f7d; border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
-                    <strong style="color: #c9a227; font-family: monospace;" th:text="${r.trackingCode}"></strong>
+                    <strong style="color: #244f7d; font-family: monospace;" th:text="${r.trackingCode}"></strong>
                     <span style="margin-left: 10px;" th:text="${r.categoryLabel}"></span>
                     <br>
                     <span th:text="${r.title}"></span>
