@@ -63,7 +63,7 @@ public class ComplianceService {
         report.setTotalControls(totalControls);
         report.setPassedControls(passedControls);
         report.setFailedControls(0);
-        report.setComplianceScore(0);
+        report.setComplianceScore(null);
         report.setTitle(getReportTitle(normalizedType));
         report.setSummary(generateSummary(normalizedType, passedControls, totalControls));
         report.setFindings(generateFindings(normalizedType));
@@ -156,10 +156,10 @@ public class ComplianceService {
     }
 
     private String generateSummary(String type, int passed, int total) {
-        return "Ripoti hii ni internal readiness assessment ya mfumo, si cheti cha compliance wala legal opinion. " +
-               "Imefanya tathmini ya controls " + total + ", ambapo " + passed + " zime-markiwa kama baseline controls. " +
-               "Internal readiness score ni " + ((passed * 100) / total) + "%. " +
-               "Kwa " + type + ", matokeo lazima yathibitishwe dhidi ya mahitaji rasmi, scope ya organization, risk assessment na ushahidi wa utekelezaji.";
+        return "Hali: HAJATATHMINIWA (UNASSESSED). Ripoti hii ni internal readiness worksheet, si cheti cha compliance wala legal opinion. " +
+               "Idadi ya controls (" + total + ") ni inventory ya kuanzia tu; si idadi ya controls zilizokaguliwa. " +
+               "Controls zilizopitiwa kwa ushahidi: " + passed + ". Hakuna compliance score inayotolewa mpaka kila control iwe na ushahidi, matokeo na reviewer aliyerekodiwa. " +
+               "Kwa " + type + ", tathmini inahitaji scope rasmi, risk assessment, ushahidi wa utekelezaji na mapitio ya mtu aliyeidhinishwa.";
     }
 
     private String generateFindings(String type) {
