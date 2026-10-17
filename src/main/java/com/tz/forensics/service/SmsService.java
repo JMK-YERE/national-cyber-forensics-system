@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Tanzania-friendly SMS adapter using Africa's Talking.
- * Configure AT_USERNAME, AT_API_KEY and optionally AT_SENDER_ID on Render.
+ * Configure AT_USERNAME, AT_API_KEY and optionally AT_SENDER_ID in the hosting app's environment variables.
  */
 @Service
 public class SmsService {
