@@ -211,3 +211,5 @@ The same NULL-tenant deny-by-default behavior is now applied in `CaseFileControl
 
 This is a compatibility-breaking security measure for unresolved legacy rows. Do not remove it merely to make old data visible; complete the approved ownership mapping and add cross-tenant regression tests first. CI success alone does not establish complete isolation across every application endpoint.
 
+Case creation is also guarded at the service layer: `CaseFileService.createCase` rejects incidents whose `tenantId` is unresolved and always requires active membership for a resolved tenant. This avoids relying exclusively on controller checks and prevents alternate callers from creating tenant-less forensic cases. A regression test covers the unresolved-ownership rejection.
+
