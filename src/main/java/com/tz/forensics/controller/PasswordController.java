@@ -255,7 +255,7 @@ public class PasswordController {
         return "redirect:/dashboard";
     }
 
-    private void clearPasswordResetOtp(User user) {
+    private boolean isStrongPassword(String value) {\n        return value != null && value.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}");\n    }\n\n    private void clearPasswordResetOtp(User user) {
         user.setPasswordResetToken(null);
         user.setPasswordResetExpiresAt(null);
         user.setPasswordResetAttempts(0);
