@@ -221,6 +221,7 @@ public class PasswordController {
         }
 
         user.setPassword(passwordEncoder.encode(password));
+        user.setMustChangePassword(false);
         request.changeSessionId();
         user.setFailedAttempts(0);
         user.setAccountLocked(false);
@@ -262,10 +263,15 @@ public class PasswordController {
     }
 
     @GetMapping("/change-password")
-    public String changeForm() { return "change-password"; }
+    public String changeForm(@RequestParam(required = false) boolean firstLogin, Authentication auth, Model model) {
+        User user = auth == null ? null : userRepository.findByUsername(auth.getName()).orElse(null);
+        boolean forced = user != null && Boolean.TRUE.equals(user.getMustChangePassword());
+        model.addAttribute("firstLogin", forced || firstLogin);
+        return "change-password";
+    }
 
     @PostMapping("/change-password")
-    public String changeSubmit(@RequestParam String currentPassword,
+    public String changeSubmit(@RequestParam(required = false, defaultValue = "") String currentPassword,
                                @RequestParam String newPassword,
                                @RequestParam String confirmPassword,
                                Authentication auth,
@@ -273,7 +279,8 @@ public class PasswordController {
         if (auth == null) return "redirect:/login";
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+        boolean forcedChange = Boolean.TRUE.equals(user.getMustChangePassword());
+        if (!forcedChange && !passwordEncoder.matches(currentPassword, user.getPassword())) {
             ra.addFlashAttribute("error", "Neno la siri la sasa si sahihi");
             return "redirect:/change-password";
         }
@@ -286,7 +293,12 @@ public class PasswordController {
             return "redirect:/change-password";
         }
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setMustChangePassword(false);
         userRepository.save(user);
+        if (forcedChange) {
+            ra.addFlashAttribute("success", "Password imebadilishwa. Karibu kwenye Cyber Forensics TZ.");
+            return "redirect:/dashboard";
+        }
         ra.addFlashAttribute("success", "✅ Neno la siri limebadilishwa!");
         return "redirect:/change-password";
     }
