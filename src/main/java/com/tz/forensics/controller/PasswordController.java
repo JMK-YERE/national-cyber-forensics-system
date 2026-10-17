@@ -255,7 +255,11 @@ public class PasswordController {
         return "redirect:/dashboard";
     }
 
-    private boolean isStrongPassword(String value) {\n        return value != null && value.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}");\n    }\n\n    private void clearPasswordResetOtp(User user) {
+    private boolean isStrongPassword(String value) {\n        return value != null && value.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}");\n    }\n\n    private boolean isStrongPassword(String value) {
+        return value != null && value.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}");
+    }
+
+    private void clearPasswordResetOtp(User user) {
         user.setPasswordResetToken(null);
         user.setPasswordResetExpiresAt(null);
         user.setPasswordResetAttempts(0);
@@ -284,8 +288,8 @@ public class PasswordController {
             ra.addFlashAttribute("error", "Neno la siri la sasa si sahihi");
             return "redirect:/change-password";
         }
-        if (!newPassword.equals(confirmPassword) || newPassword.length() < 6) {
-            ra.addFlashAttribute("error", "Password mpya iwe na herufi 6+ na zote zifanane.");
+        if (!newPassword.equals(confirmPassword) || !isStrongPassword(newPassword)) {
+            ra.addFlashAttribute("error", "Tumia angalau herufi 12, herufi kubwa na ndogo, tarakimu, alama maalum; password zote zifanane.");
             return "redirect:/change-password";
         }
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
