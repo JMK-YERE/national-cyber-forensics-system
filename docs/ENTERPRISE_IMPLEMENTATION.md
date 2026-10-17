@@ -195,3 +195,13 @@ Release gate:
 
 This review is a documented risk finding, not a claim that the risk has already been fully remediated. Existing null-tenant compatibility is retained on this branch pending safe ownership mapping; do not interpret this branch as ready for production release.
 
+### Interim enforcement for unresolved legacy records (2026-10-17)
+
+The incident, evidence, and PDF controller tenant-access helpers now deny access when a record has a NULL tenant ID. Unknown ownership no longer counts as authorization for sensitive incident lists, evidence operations, or case/incident PDF exports. This is intentionally fail-closed and may temporarily hide legacy records until their ownership is verified and tenant IDs are populated through an approved migration.
+
+Operational follow-up required before release:
+- Produce and approve a legacy ownership map; do not infer ownership from a global staff role.
+- Provide a restricted, audited recovery/migration procedure for unresolved records.
+- Verify normal tenant-owned workflows and regression tests after the deny-by-default change.
+- Do not apply this feature branch to production until the above are rehearsed and explicitly approved.
+
