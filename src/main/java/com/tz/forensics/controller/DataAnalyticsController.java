@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Controller
 public class DataAnalyticsController {
@@ -36,9 +39,16 @@ public class DataAnalyticsController {
         if (user == null) return "redirect:/login";
 
         boolean privileged = user.isAdmin() || user.isProfessional() || user.isForensics();
-        var all = privileged ? reports.findAllByOrderByCreatedAtDesc()
-                : user.isAnalyst() ? reportService.getAssignedTo(user.getId())
-                : reportService.getMine(user.getId());
+        // ReportAttack has no approved tenant ownership mapping yet. Even privileged roles
+        // must not see global analytics; use only reports owned by or assigned to this user.
+        Map<Long, ReportAttack> visible = new LinkedHashMap<>();
+        reports.findByUserIdOrderByCreatedAtDesc(user.getId())
+                .forEach(report -> visible.put(report.getId(), report));
+        reports.findByAssignedToOrderByCreatedAtDesc(user.getId())
+                .forEach(report -> visible.put(report.getId(), report));
+        List<ReportAttack> all = new ArrayList<>(visible.values());
+        all.sort(Comparator.comparing(ReportAttack::getCreatedAt,
+                Comparator.nullsLast(Comparator.reverseOrder())));
         Map<String,Long> categories = new LinkedHashMap<>();
         Map<String,Long> regions = new LinkedHashMap<>();
         Map<String,Long> statuses = new LinkedHashMap<>();
@@ -48,7 +58,8 @@ public class DataAnalyticsController {
             statuses.merge(r.getStatus() == null ? "NEW" : r.getStatus(), 1L, Long::sum);
         }
         model.addAttribute("total", all.size());
-        model.addAttribute("users", privileged ? users.count() : 0L);
+        model.addAttribute("users", 0L);
+        model.addAttribute("tenantMetricsAvailable", false);
         model.addAttribute("open", all.stream().filter(r -> r.getStatus() == null || !"CLOSED".equalsIgnoreCase(r.getStatus())).count());
         model.addAttribute("high", all.stream().filter(r -> "HIGH".equalsIgnoreCase(r.getPriority()) || "CRITICAL".equalsIgnoreCase(r.getPriority())).count());
         model.addAttribute("categoryLabels", categories.keySet());

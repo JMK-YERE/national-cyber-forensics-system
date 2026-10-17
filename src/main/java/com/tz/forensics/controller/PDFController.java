@@ -14,6 +14,7 @@ import com.tz.forensics.service.CaseIocService;
 import com.tz.forensics.service.AuditService;
 import com.tz.forensics.service.EvidenceService;
 import com.tz.forensics.service.IncidentService;
+import com.tz.forensics.service.TenantAccessService;
 import com.tz.forensics.service.PDFReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/reports")
@@ -41,6 +43,7 @@ public class PDFController {
     private final CaseIocService caseIocService;
     private final AuditService auditService;
     private final ChainOfCustodyRepository custodyRepository;
+    private final TenantAccessService tenantAccessService;
 
     public PDFController(IncidentService incidentService,
                          EvidenceService evidenceService,
@@ -49,7 +52,8 @@ public class PDFController {
                          UserRepository userRepository,
                          CaseIocService caseIocService,
                          AuditService auditService,
-                         ChainOfCustodyRepository custodyRepository) {
+                         ChainOfCustodyRepository custodyRepository,
+                         TenantAccessService tenantAccessService) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.caseFileService = caseFileService;
@@ -58,6 +62,7 @@ public class PDFController {
         this.caseIocService = caseIocService;
         this.auditService = auditService;
         this.custodyRepository = custodyRepository;
+        this.tenantAccessService = tenantAccessService;
     }
 
     @GetMapping("/incident/{id}/pdf")
@@ -192,14 +197,31 @@ public class PDFController {
                 || "ANALYST".equalsIgnoreCase(role);
     }
 
-    private boolean canAccessCase(CaseFile caseFile, User user) {
-        if (caseFile == null || user == null) return false;
-        if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
-        if (!"ANALYST".equalsIgnoreCase(user.getRole()) || user.getId() == null) return false;
+    private boolean hasTenantAccess(Long tenantId, User user) {
+        // Unknown legacy ownership must not authorize sensitive evidence or case exports.
+        // Restore access only after an approved tenant ownership mapping is applied.
+        if (tenantId == null) return false;
+        if (user == null || user.getUsername() == null) return false;
+        try {
+            tenantAccessService.requireMembership(user.getUsername(), tenantId, Set.of());
+            return true;
+        } catch (org.springframework.web.server.ResponseStatusException denied) {
+            return false;
+        }
+    }
 
-        // Analysts must have access to both the case and its underlying incident.
+    private boolean canAccessCase(CaseFile caseFile, User user) {
+        if (caseFile == null || user == null || !hasTenantAccess(caseFile.getTenantId(), user)) return false;
+
+        // A privileged global role does not bypass tenant membership.
         Incident incident = caseFile.getIncidentId() == null ? null : incidentService.getById(caseFile.getIncidentId());
-        if (incident == null) return false;
+        if (caseFile.getTenantId() != null && (incident == null
+                || !caseFile.getTenantId().equals(incident.getTenantId()))) return false;
+        if (incident != null && !hasTenantAccess(incident.getTenantId(), user)) return false;
+
+        if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
+        if (!"ANALYST".equalsIgnoreCase(user.getRole()) || user.getId() == null || incident == null) return false;
+
         boolean incidentAccess =
                 (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
                 || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
@@ -211,7 +233,8 @@ public class PDFController {
     }
 
     private boolean canAccessIncident(Incident incident, User user) {
-        if (incident == null || user == null || user.getId() == null) return false;
+        if (incident == null || user == null || user.getId() == null
+                || !hasTenantAccess(incident.getTenantId(), user)) return false;
         return user.isAdmin() || user.isProfessional() || user.isForensics()
                 || (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
                 || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));

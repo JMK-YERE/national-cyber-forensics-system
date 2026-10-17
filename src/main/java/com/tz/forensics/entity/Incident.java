@@ -12,6 +12,10 @@ public class Incident {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Nullable until legacy records are assigned using an approved ownership map.
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @Column(name = "incident_id", unique = true, nullable = false, length = 50)
     private String incidentId;
 
@@ -130,6 +134,9 @@ public class Incident {
     }
 
     // ===== GETTERS & SETTERS =====
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getIncidentId() { return incidentId; }

@@ -25,12 +25,14 @@ public class IncidentController {
     private final WhatsAppService whatsAppService;
     private final UserRepository userRepository;
     private final CaseFileService caseFileService;
+    private final TenantAccessService tenantAccessService;
 
     public IncidentController(IncidentService incidentService, EvidenceService evidenceService,
                               AuditService auditService, NotificationService notificationService,
                               EmailService emailService, WhatsAppService whatsAppService,
                               UserRepository userRepository,
-                              CaseFileService caseFileService) {
+                              CaseFileService caseFileService,
+                              TenantAccessService tenantAccessService) {
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
         this.auditService = auditService;
@@ -39,6 +41,7 @@ public class IncidentController {
         this.whatsAppService = whatsAppService;
         this.userRepository = userRepository;
         this.caseFileService = caseFileService;
+        this.tenantAccessService = tenantAccessService;
     }
 
     private boolean isAdmin(User u) { return u != null && u.isAdmin(); }
@@ -50,8 +53,15 @@ public class IncidentController {
     private boolean canManageWorkflow(User u) { return isAdmin(u) || isCyberPro(u) || isForensics(u); }
     private boolean canAssign(User u) { return isAdmin(u) || isCyberPro(u); }
 
+    private boolean hasTenantAccess(Long tenantId, User user) {
+        if (tenantId == null) return false; // Unknown ownership is not tenant authorization; resolve via approved backfill.
+        if (user == null || user.getUsername() == null) return false;
+        try { tenantAccessService.requireMembership(user.getUsername(), tenantId, Set.of()); return true; }
+        catch (org.springframework.web.server.ResponseStatusException denied) { return false; }
+    }
+
     private boolean canAccess(Incident incident, User user) {
-        if (incident == null || user == null) return false;
+        if (incident == null || user == null || !hasTenantAccess(incident.getTenantId(), user)) return false;
         if (canViewAll(user)) return true;
         return (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
                 || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
@@ -62,8 +72,8 @@ public class IncidentController {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
         model.addAttribute("incidents", canViewAll(user)
-                ? incidentService.getAllIncidents()
-                : incidentService.getMyIncidents(user.getId()));
+                ? incidentService.getAllIncidents().stream().filter(i -> canAccess(i, user)).toList()
+                : incidentService.getMyIncidents(user.getId()).stream().filter(i -> canAccess(i, user)).toList());
         model.addAttribute("user", user);
         model.addAttribute("isAdmin", isAdmin(user));
         model.addAttribute("isCyberPro", isCyberPro(user));
@@ -88,10 +98,13 @@ public class IncidentController {
     }
 
     @PostMapping("/new")
-    public String createIncident(@ModelAttribute("incident") IncidentDto dto, Authentication auth, Model model) {
+    public String createIncident(@ModelAttribute("incident") IncidentDto dto, Authentication auth, Model model,
+                                 jakarta.servlet.http.HttpSession session) {
         Incident saved;
         try {
-            saved = incidentService.createIncident(dto, auth.getName());
+            Object activeTenant = session.getAttribute("ACTIVE_TENANT_ID");
+            Long tenantId = activeTenant instanceof Long id ? id : null;
+            saved = incidentService.createIncident(dto, auth.getName(), tenantId);
         } catch (IllegalArgumentException e) {
             auditService.log("REJECT_CREATE_INCIDENT", "Incident", "NEW", e.getMessage());
             model.addAttribute("error", e.getMessage());
@@ -141,9 +154,12 @@ public class IncidentController {
         model.addAttribute("canManageWorkflow", canManageWorkflow(currentUser));
 
         if (canAssign(currentUser)) {
+            // Do not disclose or offer users from another tenant in the assignment UI.
+            // The POST handler independently rechecks membership to prevent forged user IDs.
             List<User> assignableUsers = userRepository.findAll().stream()
                     .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
-                            && (u.isProfessional() || u.isForensics() || u.isAdmin() || u.isAnalyst()))
+                            && (u.isProfessional() || u.isForensics() || u.isAdmin() || u.isAnalyst())
+                            && hasTenantAccess(incident.getTenantId(), u))
                     .toList();
             model.addAttribute("assignableUsers", assignableUsers);
         }
@@ -159,7 +175,7 @@ public class IncidentController {
         User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
         User assignedUser = userRepository.findById(assignedTo).orElse(null);
         Incident incident = incidentService.getById(id);
-        if (!canAssign(currentUser) || incident == null || assignedUser == null) return "redirect:/access-denied";
+        if (!canAssign(currentUser) || incident == null || !hasTenantAccess(incident.getTenantId(), currentUser) || assignedUser == null || !hasTenantAccess(incident.getTenantId(), assignedUser)) return "redirect:/access-denied";
 
         try {
             incidentService.assignIncident(id, assignedTo, assignedUser.getUsername(), currentUser.getId(), priority, dueDate);
@@ -230,7 +246,7 @@ public class IncidentController {
         User currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
         if (!(isAdmin(currentUser) || isCyberPro(currentUser) || isForensics(currentUser))) return "redirect:/access-denied";
         if (incidentId != null && !incidentId.isBlank()) {
-            model.addAttribute("results", incidentService.searchByIncidentId(incidentId));
+            model.addAttribute("results", incidentService.searchByIncidentId(incidentId).stream().filter(i -> canAccess(i, currentUser)).toList());
             model.addAttribute("searchId", incidentId);
         }
         model.addAttribute("user", currentUser);

@@ -19,26 +19,34 @@ public class CaseCommunicationController{
  private final AuditService audit;
  private final NotificationService notifications;
  private final IncidentService incidentService;
+ private final com.tz.forensics.service.TenantAccessService tenantAccessService;
 
  public CaseCommunicationController(CaseCommunicationService c,CaseFileService cs,UserRepository u,AuditService a,
-                                    NotificationService n,IncidentService incidentService){
+                                    NotificationService n,IncidentService incidentService,
+                                    com.tz.forensics.service.TenantAccessService tenantAccessService){
   communicationService=c;caseService=cs;users=u;audit=a;notifications=n;this.incidentService=incidentService;
+  this.tenantAccessService=tenantAccessService;
  }
 
  private User current(Authentication a){return a==null?null:users.findByUsername(a.getName()).orElse(null);}
  private boolean staff(User u){return u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics()||u.isAnalyst());}
- private boolean caseRoleAccess(CaseFile c,User u){
-  return c!=null&&u!=null&&(u.isAdmin()||u.isProfessional()||u.isForensics()||
-      ("ANALYST".equalsIgnoreCase(u.getRole())&&u.getId()!=null&&
-       (u.getId().equals(c.getCreatedBy())||u.getId().equals(c.getAssignedTo())||u.getId().equals(c.getLeadInvestigator()))));
+ private boolean hasTenantAccess(Long tenantId,User u){
+  if(tenantId==null)return false; // Unknown ownership is not authorization; resolve via approved mapping.
+  if(u==null||u.getUsername()==null)return false;
+  try{tenantAccessService.requireMembership(u.getUsername(),tenantId,java.util.Set.of());return true;}
+  catch(org.springframework.web.server.ResponseStatusException denied){return false;}
  }
  private boolean canView(CaseFile c,User u){
-  if(!caseRoleAccess(c,u))return false;
-  if(u.isAdmin()||u.isProfessional()||u.isForensics())return true;
-  if(c.getIncidentId()==null)return false;
+  if(c==null||u==null||!hasTenantAccess(c.getTenantId(),u)||c.getIncidentId()==null)return false;
   Incident incident=incidentService.getById(c.getIncidentId());
-  return incident!=null&&(u.getId().equals(incident.getReporterUserId())||u.getId().equals(incident.getAssignedTo()));
+  if(incident==null||!java.util.Objects.equals(c.getTenantId(),incident.getTenantId()))return false;
+  if(u.isAdmin()||u.isProfessional()||u.isForensics())return true;
+  if(!u.isAnalyst()||u.getId()==null)return false;
+  boolean caseAccess=u.getId().equals(c.getCreatedBy())||u.getId().equals(c.getAssignedTo())||u.getId().equals(c.getLeadInvestigator());
+  boolean incidentAccess=u.getId().equals(incident.getReporterUserId())||u.getId().equals(incident.getAssignedTo());
+  return caseAccess&&incidentAccess;
  }
+
  private boolean closed(CaseFile c){
   String s=c==null||c.getStatus()==null?"OPEN":c.getStatus().trim().toUpperCase(Locale.ROOT);
   return "CLOSED".equals(s)||"ARCHIVED".equals(s);
@@ -86,7 +94,9 @@ public class CaseCommunicationController{
   String current=u.getRole()==null?"":u.getRole().toUpperCase(Locale.ROOT);
   String next=switch(current){case "ANALYST"->"FORENSICS";case "FORENSICS"->"CYBER_PRO";case "CYBER_PRO"->"ADMIN";default->null;};
   if(next!=null){
-   users.findAll().stream().filter(x->next.equalsIgnoreCase(x.getRole())&&Boolean.TRUE.equals(x.getEnabled())&&x.isApproved())
+   // Escalation notices must not disclose a case to staff in another tenant.
+   users.findAll().stream().filter(x->next.equalsIgnoreCase(x.getRole())&&Boolean.TRUE.equals(x.getEnabled())
+       &&x.isApproved()&&!Boolean.TRUE.equals(x.getAccountLocked())&&hasTenantAccess(c.getTenantId(),x))
        .forEach(x->notifications.createNotification(x.getId(),"Case escalation","Case "+c.getCaseNumber()+" escalated by "+a.getName(),
            "CASE_ESCALATION","/cases/"+caseId));
    audit.log("ESCALATE_CASE","CaseFile",String.valueOf(caseId),current+" → "+next);

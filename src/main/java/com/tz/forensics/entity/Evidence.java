@@ -10,6 +10,10 @@ public class Evidence {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Keep nullable until the evidence ownership map is approved and reconciled.
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @Version
     @Column(name = "version", nullable = false, columnDefinition = "bigint default 0")
     private Long version = 0L;
@@ -118,6 +122,7 @@ public class Evidence {
         return String.format("%.2f GB", fileSize / (1024.0 * 1024 * 1024));
     }
 
+    public Long getTenantId(){return tenantId;} public void setTenantId(Long v){tenantId=v;}
     public Long getId(){return id;} public void setId(Long v){id=v;}
     public Long getVersion(){return version;} public void setVersion(Long v){version=v;}
     public Long getIncidentId(){return incidentId;} public void setIncidentId(Long v){incidentId=v;}

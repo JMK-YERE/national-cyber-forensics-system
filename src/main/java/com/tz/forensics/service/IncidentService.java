@@ -26,26 +26,36 @@ public class IncidentService {
     private final CaseFileRepository caseFileRepository;
     private final EvidenceRepository evidenceRepository;
     private final AuditService auditService;
+    private final TenantAccessService tenantAccessService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public IncidentService(IncidentRepository incidentRepository, UserRepository userRepository,
                            CaseFileRepository caseFileRepository, EvidenceRepository evidenceRepository,
-                           AuditService auditService) {
+                           AuditService auditService, TenantAccessService tenantAccessService) {
         this.incidentRepository = incidentRepository;
         this.userRepository = userRepository;
         this.caseFileRepository = caseFileRepository;
         this.evidenceRepository = evidenceRepository;
         this.auditService = auditService;
+        this.tenantAccessService = tenantAccessService;
     }
 
     @Transactional
     public Incident createIncident(IncidentDto dto, String username) {
+        return createIncident(dto, username, null);
+    }
+
+    @Transactional
+    public Incident createIncident(IncidentDto dto, String username, Long tenantId) {
         validateIncident(dto, username);
+        if (tenantId != null) tenantAccessService.requireMembership(username, tenantId, Set.of());
         User reporterUser = userRepository.findByUsername(username).orElse(null);
         Incident incident = new Incident();
 
         String incidentId = generateIncidentId();
         incident.setIncidentId(incidentId);
+        // The tenant comes from the authenticated session's validated membership, never the submitted form.
+        incident.setTenantId(tenantId);
         incident.setTitle(dto.getTitle());
         incident.setDescription(dto.getDescription());
         String reporterName = reporterUser != null && reporterUser.getFullName() != null && !reporterUser.getFullName().isBlank()

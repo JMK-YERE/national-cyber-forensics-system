@@ -10,6 +10,8 @@ import com.tz.forensics.service.NotificationService;
 import com.tz.forensics.service.CaseTaskService;
 import com.tz.forensics.service.IncidentService;
 import com.tz.forensics.service.EvidenceService;
+import com.tz.forensics.service.ResponsePlaybookService;
+import com.tz.forensics.service.ResponsePlaybookExecutionService;
 import com.tz.forensics.entity.Incident;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -30,12 +32,18 @@ public class CaseFileController {
     private final CaseTaskService caseTaskService;
     private final IncidentService incidentService;
     private final EvidenceService evidenceService;
+    private final ResponsePlaybookService responsePlaybooks;
+    private final ResponsePlaybookExecutionService playbookExecutions;
+    private final com.tz.forensics.service.TenantAccessService tenantAccessService;
 
     public CaseFileController(CaseFileService caseFileService,
                               UserRepository userRepository,
                               AuditService auditService, CaseIocService caseIocService,
                               NotificationService notificationService, CaseTaskService caseTaskService,
-                              IncidentService incidentService, EvidenceService evidenceService) {
+                              IncidentService incidentService, EvidenceService evidenceService,
+                              ResponsePlaybookService responsePlaybooks,
+                              ResponsePlaybookExecutionService playbookExecutions,
+                              com.tz.forensics.service.TenantAccessService tenantAccessService) {
         this.caseFileService = caseFileService;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -44,6 +52,9 @@ public class CaseFileController {
         this.caseTaskService = caseTaskService;
         this.incidentService = incidentService;
         this.evidenceService = evidenceService;
+        this.responsePlaybooks = responsePlaybooks;
+        this.playbookExecutions = playbookExecutions;
+        this.tenantAccessService = tenantAccessService;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -59,14 +70,23 @@ public class CaseFileController {
         return user != null && (user.isAdmin() || user.isProfessional() || user.isForensics());
     }
 
+    private boolean hasTenantAccess(Long tenantId, User user) {
+        if (tenantId == null) return false; // Unknown ownership is not authorization; resolve via approved backfill.
+        if (user == null || user.getUsername() == null) return false;
+        try { tenantAccessService.requireMembership(user.getUsername(), tenantId, java.util.Set.of()); return true; }
+        catch (org.springframework.web.server.ResponseStatusException denied) { return false; }
+    }
+
     private boolean canViewCase(CaseFile cf, User user) {
-        if (cf == null || user == null) return false;
+        if (cf == null || user == null || !hasTenantAccess(cf.getTenantId(), user)) return false;
+
+        // Fail closed if a case is orphaned or its ownership disagrees with its parent.
+        // This protects against legacy/manual data corruption as well as cross-tenant links.
+        Incident incident = cf.getIncidentId() == null ? null : incidentService.getById(cf.getIncidentId());
+        if (incident == null || !java.util.Objects.equals(cf.getTenantId(), incident.getTenantId())) return false;
         if (user.isAdmin() || user.isProfessional() || user.isForensics()) return true;
         if (!"ANALYST".equalsIgnoreCase(user.getRole())) return false;
 
-        // Analyst case access must remain tied to the underlying incident as well.
-        Incident incident = cf.getIncidentId() == null ? null : incidentService.getById(cf.getIncidentId());
-        if (incident == null) return false;
         boolean incidentAccess =
                 (incident.getReporterUserId() != null && user.getId().equals(incident.getReporterUserId()))
                 || (incident.getAssignedTo() != null && user.getId().equals(incident.getAssignedTo()));
@@ -101,7 +121,11 @@ public class CaseFileController {
         if (!canManageCases(user)) return "redirect:/access-denied";
 
         CaseFile cf = new CaseFile();
-        if (incidentId != null) cf.setIncidentId(incidentId);
+        if (incidentId != null) {
+            Incident incident = incidentService.getById(incidentId);
+            if (incident == null || !hasTenantAccess(incident.getTenantId(), user)) return "redirect:/access-denied";
+            cf.setIncidentId(incidentId);
+        }
         model.addAttribute("caseFile", cf);
         return "case-form";
     }
@@ -113,7 +137,7 @@ public class CaseFileController {
 
         if (caseFile.getIncidentId() == null) return "redirect:/cases";
         Incident incident = incidentService.getById(caseFile.getIncidentId());
-        if (incident == null) return "redirect:/access-denied";
+        if (incident == null || !hasTenantAccess(incident.getTenantId(), user)) return "redirect:/access-denied";
 
         if ("ANALYST".equalsIgnoreCase(user.getRole())) {
             boolean ownsOrAssigned =
@@ -152,12 +176,72 @@ public class CaseFileController {
         model.addAttribute("timeline", caseFileService.getTimeline(cf.getId()));
         model.addAttribute("iocs", caseIocService.findByCaseId(cf.getId()));
         model.addAttribute("caseTasks", caseTaskService.findByCaseId(cf.getId()));
-        model.addAttribute("caseEvidence", evidenceService.getEvidenceByCase(cf.getId()));
+        Incident parentIncident = cf.getIncidentId() == null ? null : incidentService.getById(cf.getIncidentId());
+        model.addAttribute("caseEvidence", evidenceService.getEvidenceByCase(cf.getId()).stream()
+                .filter(e -> parentIncident != null && hasTenantAccess(e.getTenantId(), user)
+                        && hasTenantAccess(parentIncident.getTenantId(), user)
+                        && java.util.Objects.equals(e.getTenantId(), cf.getTenantId())).toList());
+        model.addAttribute("responsePlaybooks", responsePlaybooks.list());
+        model.addAttribute("playbookRuns", playbookExecutions.listRuns(cf.getId(), user));
         if (canAssignCases(user)) {
+            // Only disclose assignment candidates who are active members of this case's tenant.
             model.addAttribute("eligibleInvestigators", userRepository.findByRoleInAndEnabledTrueAndApprovalStatusIgnoreCase(
-                    List.of("ANALYST", "FORENSICS", "CYBER_PRO"), "APPROVED"));
+                    List.of("ANALYST", "FORENSICS", "CYBER_PRO"), "APPROVED").stream()
+                    .filter(candidate -> hasTenantAccess(cf.getTenantId(), candidate))
+                    .toList());
         }
         return "case-detail";
+    }
+
+    @PostMapping("/{id}/response-playbooks")
+    public String startResponsePlaybook(@PathVariable Long id, @RequestParam String playbookSlug,
+                                        Authentication auth) {
+        User actor = getCurrentUser(auth);
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, actor)) return "redirect:/access-denied";
+        try {
+            playbookExecutions.startRun(id, playbookSlug, actor);
+        } catch (org.springframework.web.server.ResponseStatusException e) {
+            auditService.log("REJECT_PLAYBOOK_START", "CaseFile", String.valueOf(id), e.getReason());
+            return "redirect:/cases/" + id + "?playbookError=1";
+        }
+        auditService.log("START_RESPONSE_PLAYBOOK", "CaseFile", cf.getCaseNumber(), "Playbook started: " + playbookSlug);
+        return "redirect:/cases/" + id + "#response-playbooks";
+    }
+
+    @PostMapping("/{id}/response-playbooks/{runId}/steps/{stepId}")
+    public String updateResponsePlaybookStep(@PathVariable Long id, @PathVariable Long runId,
+            @PathVariable Long stepId, @RequestParam String status,
+            @RequestParam(required = false) String notes, Authentication auth) {
+        User actor = getCurrentUser(auth);
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, actor)) return "redirect:/access-denied";
+        try {
+            var run = playbookExecutions.getRun(runId, actor);
+            if (!id.equals(run.run().getCaseId())) return "redirect:/access-denied";
+            playbookExecutions.updateStep(runId, stepId, status, notes, actor);
+        } catch (org.springframework.web.server.ResponseStatusException e) {
+            auditService.log("REJECT_PLAYBOOK_STEP", "CaseFile", String.valueOf(id), e.getReason());
+            return "redirect:/cases/" + id + "?playbookError=1#response-playbooks";
+        }
+        return "redirect:/cases/" + id + "#response-playbooks";
+    }
+
+    @PostMapping("/{id}/response-playbooks/{runId}/cancel")
+    public String cancelResponsePlaybook(@PathVariable Long id, @PathVariable Long runId,
+            @RequestParam String reason, Authentication auth) {
+        User actor = getCurrentUser(auth);
+        CaseFile cf = caseFileService.getById(id);
+        if (!canViewCase(cf, actor)) return "redirect:/access-denied";
+        try {
+            var run = playbookExecutions.getRun(runId, actor);
+            if (!id.equals(run.run().getCaseId())) return "redirect:/access-denied";
+            playbookExecutions.cancelRun(runId, reason, actor);
+        } catch (org.springframework.web.server.ResponseStatusException e) {
+            auditService.log("REJECT_PLAYBOOK_CANCEL", "CaseFile", String.valueOf(id), e.getReason());
+            return "redirect:/cases/" + id + "?playbookError=1#response-playbooks";
+        }
+        return "redirect:/cases/" + id + "#response-playbooks";
     }
 
     @PostMapping("/{id}/assign")
@@ -174,13 +258,15 @@ public class CaseFileController {
                 && !"EXAMINATION".equals(current) && !"REVIEW".equals(current)) return "redirect:/cases/" + id;
         User investigator = userRepository.findById(investigatorId).orElse(null);
         if (investigator == null || !Boolean.TRUE.equals(investigator.getEnabled()) || !investigator.isApproved()
-                || !(investigator.isAnalyst() || investigator.isForensics() || investigator.isProfessional())) {
+                || !(investigator.isAnalyst() || investigator.isForensics() || investigator.isProfessional())
+                || !hasTenantAccess(cf.getTenantId(), investigator)) {
             auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Invalid investigator: " + investigatorId);
             return "redirect:/cases/" + id;
         }
         User lead = leadInvestigatorId == null ? investigator : userRepository.findById(leadInvestigatorId).orElse(null);
         if (lead == null || !Boolean.TRUE.equals(lead.getEnabled()) || !lead.isApproved()
-                || !(lead.isAnalyst() || lead.isForensics() || lead.isProfessional())) {
+                || !(lead.isAnalyst() || lead.isForensics() || lead.isProfessional())
+                || !hasTenantAccess(cf.getTenantId(), lead)) {
             auditService.log("REJECT_CASE_ASSIGNMENT", "CaseFile", cf.getCaseNumber(), "Invalid lead investigator: " + leadInvestigatorId);
             return "redirect:/cases/" + id;
         }

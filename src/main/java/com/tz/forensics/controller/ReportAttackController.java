@@ -69,10 +69,20 @@ public class ReportAttackController {
     }
 
     private boolean canSeeAllReports(User user) {
-        if (user == null) return false;
-        String role = user.getRole();
-        if (role == null) return false;
-        return "ADMIN".equalsIgnoreCase(role) || "CYBER_PRO".equalsIgnoreCase(role) || "FORENSICS".equalsIgnoreCase(role);
+        // ReportAttack has no approved tenant ownership mapping yet. A global role
+        // alone must not grant cross-tenant access to legacy reports.
+        return false;
+    }
+
+    private List<ReportAttack> findScopedReports(User user) {
+        if (user == null || user.getId() == null) return List.of();
+        Map<Long, ReportAttack> unique = new LinkedHashMap<>();
+        service.getMine(user.getId()).forEach(r -> { if (r != null && r.getId() != null) unique.put(r.getId(), r); });
+        service.getAssignedTo(user.getId()).forEach(r -> { if (r != null && r.getId() != null) unique.put(r.getId(), r); });
+        List<ReportAttack> visible = new ArrayList<>(unique.values());
+        visible.sort(Comparator.comparing(ReportAttack::getCreatedAt,
+                Comparator.nullsLast(Comparator.reverseOrder())));
+        return visible;
     }
 
     private boolean canInteractWithReport(User user, ReportAttack report) {
@@ -114,7 +124,7 @@ public class ReportAttackController {
         model.addAttribute("allFields", DynamicFieldConfig.getAllFields());
 
         if (canSeeAllReports(user)) {
-            model.addAttribute("allReports", service.getAll());
+            model.addAttribute("allReports", findScopedReports(user));
         }
         return "report-attack-form";
     }
@@ -425,19 +435,18 @@ public class ReportAttackController {
     @GetMapping("/admin")
     public String adminList(Authentication auth, Model model) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        // Examination workspace: privileged staff review all reports; analysts only see reports assigned to them.
+        // Until ReportAttack tenant ownership is approved, all roles are limited to
+        // reports they own or are assigned. This deliberately narrows the legacy queue.
         if (user == null || !(user.isAdmin() || user.isProfessional() || user.isForensics() || user.isAnalyst())) return "redirect:/access-denied";
 
-        boolean privileged = user.isAdmin() || user.isProfessional() || user.isForensics();
-        model.addAttribute("reports", privileged ? service.getAll() : service.getAssignedTo(user.getId()));
+        List<ReportAttack> visible = findScopedReports(user);
+        model.addAttribute("reports", visible);
         model.addAttribute("user", user);
-        model.addAttribute("newCount", privileged ? service.countNew() : service.countNewAssignedTo(user.getId()));
-        model.addAttribute("todayCount", privileged ? service.countToday() : service.countTodayAssignedTo(user.getId()));
-        model.addAttribute("totalCount", privileged ? service.countTotal() : service.countTotalAssignedTo(user.getId()));
-        model.addAttribute("assignableUsers", privileged ? userRepository.findAll().stream()
-                .filter(u -> Boolean.TRUE.equals(u.getEnabled()) && u.isApproved()
-                        && (u.isProfessional() || u.isForensics() || u.isAnalyst())).toList()
-                : List.of());
+        model.addAttribute("newCount", visible.stream().filter(r -> "NEW".equalsIgnoreCase(r.getStatus())).count());
+        LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+        model.addAttribute("todayCount", visible.stream().filter(r -> r.getCreatedAt() != null && !r.getCreatedAt().isBefore(startOfDay)).count());
+        model.addAttribute("totalCount", visible.size());
+        model.addAttribute("assignableUsers", List.of());
         return "report-attack-admin";
     }
 
@@ -449,19 +458,23 @@ public class ReportAttackController {
                                 @RequestParam(required = false) String policeCaseNumber,
                                 Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        // Privileged staff may manage any report. Analysts may update only reports assigned to them.
+        // No role can mutate an unowned/unassigned legacy report until tenant mapping
+        // is approved and tenant-aware authorization is wired through this workflow.
         if (user == null || !(user.isAdmin() || user.isProfessional() || user.isForensics() || user.isAnalyst())) return "redirect:/access-denied";
         ReportAttack target = service.getById(id);
         if (target == null) return "redirect:/report-attack/admin";
-        boolean privileged = user.isAdmin() || user.isProfessional() || user.isForensics();
-        if (!privileged && (target.getAssignedTo() == null || !target.getAssignedTo().equals(user.getId()))) {
-            auditService.log("REJECT_UPDATE_REPORT", "ReportAttack", String.valueOf(id), "Analyst attempted to update an unassigned report.");
+        boolean ownsOrAssigned = (target.getUserId() != null && target.getUserId().equals(user.getId()))
+                || (target.getAssignedTo() != null && target.getAssignedTo().equals(user.getId()));
+        if (!ownsOrAssigned) {
+            auditService.log("REJECT_UPDATE_REPORT", "ReportAttack", String.valueOf(id),
+                    "Staff attempted to update a report outside their owner/assignment scope.");
             return "redirect:/access-denied";
         }
 
-        // Analysts cannot reassign reports; assignment is a privileged operation.
-        if (!privileged && assignedTo != null && !assignedTo.equals(target.getAssignedTo())) {
-            auditService.log("REJECT_REASSIGN_REPORT", "ReportAttack", String.valueOf(id), "Analyst attempted to reassign a report.");
+        // Until tenant-scoped assignment is implemented, do not reassign reports.
+        if (assignedTo != null && !assignedTo.equals(target.getAssignedTo())) {
+            auditService.log("REJECT_REASSIGN_REPORT", "ReportAttack", String.valueOf(id),
+                    "Attempted reassignment while tenant ownership mapping is pending.");
             return "redirect:/access-denied";
         }
 

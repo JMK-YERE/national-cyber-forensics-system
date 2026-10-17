@@ -11,6 +11,10 @@ public class CaseFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Null legacy ownership must not be inferred from free-text fields.
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @Column(name = "case_number", unique = true, nullable = false, length = 50)
     private String caseNumber;
 
@@ -82,6 +86,9 @@ public class CaseFile {
     }
 
     // Getters & Setters
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getCaseNumber() { return caseNumber; }

@@ -26,15 +26,18 @@ public class CaseFileService {
     private final CaseTaskRepository caseTaskRepository;
     private final EvidenceRepository evidenceRepository;
     private final IncidentRepository incidentRepository;
+    private final TenantAccessService tenantAccessService;
 
     public CaseFileService(CaseFileRepository caseFileRepository, CaseTimelineRepository timelineRepository,
                            CaseTaskRepository caseTaskRepository, EvidenceRepository evidenceRepository,
-                           IncidentRepository incidentRepository) {
+                           IncidentRepository incidentRepository,
+                           TenantAccessService tenantAccessService) {
         this.caseFileRepository = caseFileRepository;
         this.timelineRepository = timelineRepository;
         this.caseTaskRepository = caseTaskRepository;
         this.evidenceRepository = evidenceRepository;
         this.incidentRepository = incidentRepository;
+        this.tenantAccessService = tenantAccessService;
     }
 
     public List<CaseTimeline> getTimeline(Long caseId) {
@@ -55,6 +58,12 @@ public class CaseFileService {
         }
         Incident incident = incidentRepository.findById(incidentId).orElse(null);
         if (incident == null) throw new IllegalArgumentException("Incident not found.");
+        if (incident.getTenantId() == null) {
+            // A case must never be created from a legacy incident whose tenant ownership is unresolved.
+            // Resolve ownership through an approved, audited migration before restoring this workflow.
+            throw new IllegalArgumentException("Incident tenant ownership is unresolved.");
+        }
+        tenantAccessService.requireMembership(createdByName, incident.getTenantId(), Set.of());
         String normalizedRole = creatorRole == null ? "" : creatorRole.trim().toUpperCase();
         if (!Set.of("ADMIN", "CYBER_PRO", "FORENSICS", "ANALYST").contains(normalizedRole)) {
             throw new IllegalArgumentException("User is not authorized to create a forensic case.");
@@ -85,6 +94,8 @@ public class CaseFileService {
         caseFile.setCaseNumber("CASE-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         caseFile.setIncidentId(incidentId);
+        // Tenant ownership is inherited from the parent incident, never selected by the client.
+        caseFile.setTenantId(incident.getTenantId());
         caseFile.setTitle(normalizedTitle);
         caseFile.setDescription(normalizedDescription);
         caseFile.setPriority(normalizedPriority);
