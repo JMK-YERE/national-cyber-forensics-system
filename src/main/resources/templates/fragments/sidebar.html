@@ -1,34 +1,57 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"><body>
-<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar"><nav class="sidebar-nav">
-<a th:href="@{/dashboard}" class="sidebar-item"><span class="icon">⌂</span><span class="label" th:text="#{nav.dashboard}">Dashboard</span></a>
-<div sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')" class="sidebar-section" th:text="#{nav.workspace}">Workspace</div>
-<div><a th:href="@{/notifications}" class="sidebar-item" aria-label="Notifications"><span class="icon">🔔</span><span class="label" th:text="#{nav.notifications}">Notifications</span><span class="notification-count" th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}" th:text="${unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}" aria-label="Unread notifications"></span></a></div><style>.notification-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:#dc3545;color:#fff;font-size:10px;font-weight:900;line-height:1;box-shadow:0 0 0 2px rgba(255,255,255,.08)}.notification-count:empty{display:none}</style>
-<div sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')">
-<a th:href="@{/report-attack}" class="sidebar-item"><span class="icon">⚠</span><span class="label" th:text="#{nav.report}">Report Incident</span></a>
-<a th:href="@{/report-attack/my-reports}" class="sidebar-item"><span class="icon">📋</span><span class="label" th:text="#{nav.myReports}">My Reports</span></a>
-<a th:href="@{/downloads}" class="sidebar-item"><span class="icon">↓</span><span class="label" th:text="#{nav.downloads}">Downloads</span></a>
-<a th:href="@{/ai/assistant}" class="sidebar-item"><span class="icon">🤖</span><span class="label" th:text="#{nav.ai}">AI Assistant</span></a>
-<a th:href="@{/tools/security-center}" class="sidebar-item"><span class="icon">⌘</span><span class="label" th:text="#{nav.securityCenter}">Security Tools</span></a></div>
-<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')" class="sidebar-section" th:text="#{nav.investigations}">Operations</div>
-<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')">
-<a th:href="@{/incidents}" class="sidebar-item"><span class="icon">▣</span><span class="label" th:text="#{nav.allIncidents}">Incidents</span></a>
-<a th:href="@{/cases}" class="sidebar-item"><span class="icon">🧪</span><span class="label" th:text="#{nav.forensicsCases}">Cases</span></a>
-<a th:href="@{/evidence}" class="sidebar-item"><span class="icon">🔐</span><span class="label" th:text="#{nav.evidence}">Evidence</span></a>
-<a th:href="@{/case-tasks}" class="sidebar-item"><span class="icon">📌</span><span class="label" th:text="#{nav.responseTasks}">Tasks</span></a>
-<a th:href="@{/threat-map}" class="sidebar-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS','ROLE_ANALYST')"><span class="icon">◉</span><span class="label" th:text="#{nav.incidentMap}">Incident Intelligence</span></a>
-<a th:href="@{/analytics}" class="sidebar-item"><span class="icon">▥</span><span class="label" th:text="#{nav.analytics}">Analytics</span></a>
-<a th:href="@{/report-attack/admin}" class="sidebar-item"><span class="icon">✓</span><span class="label" th:text="#{nav.reportsForExamination}">Reports for Examination</span></a>
-</div>
-<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" class="sidebar-section">Governance</div>
-<div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')">
-<a th:href="@{/audit}" class="sidebar-item"><span class="icon">≡</span><span class="label" th:text="#{nav.auditSecurity}">Audit &amp; Security</span></a>
-<a th:href="@{/compliance}" class="sidebar-item"><span class="icon">◇</span><span class="label" th:text="#{nav.compliance}">Compliance</span></a>
-</div>
-<div sec:authorize="hasAuthority('ROLE_ADMIN')" class="sidebar-section" th:text="#{nav.administration}">Administration</div>
-<div sec:authorize="hasAuthority('ROLE_ADMIN')">
-<a th:href="@{/admin/users}" class="sidebar-item"><span class="icon">♙</span><span class="label" th:text="#{nav.usersAccess}">Users &amp; Access</span></a>
-<a th:href="@{/whistleblower/admin}" class="sidebar-item"><span class="icon">🕵</span><span class="label" th:text="#{nav.anonymousReports}">Anonymous Reports</span></a>
-<a th:href="@{/admin/announcements}" class="sidebar-item"><span class="icon">✦</span><span class="label" th:text="#{nav.announcements}">Announcements</span></a>
-<a th:href="@{/admin/settings}" class="sidebar-item"><span class="icon">⚙</span><span class="label" th:text="#{nav.systemSettings}">System Settings</span></a>
-</div></nav></aside>
-</body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<aside class="app-sidebar" th:fragment="sidebar" id="appSidebar">
+  <nav class="sidebar-nav" aria-label="Main navigation">
+    <a th:href="@{/dashboard}" class="sidebar-item"><span class="icon" aria-hidden="true">⌂</span><span class="label" th:text="#{nav.dashboard}">Dashboard</span></a>
+
+    <a th:href="@{/notifications}" class="sidebar-item" aria-label="Notifications">
+      <span class="icon" aria-hidden="true">♧</span><span class="label" th:text="#{nav.notifications}">Notifications</span>
+      <span class="notification-count" th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}" th:text="${unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}" aria-label="Unread notifications"></span>
+    </a>
+
+    <div sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')" class="sidebar-section" th:text="#{nav.workspace}">My workspace</div>
+    <div sec:authorize="hasAnyAuthority('ROLE_INDIVIDUAL','ROLE_USER')">
+      <a th:href="@{/report-attack}" class="sidebar-item"><span class="icon" aria-hidden="true">＋</span><span class="label" th:text="#{nav.report}">Report an incident</span></a>
+      <a th:href="@{/report-attack/my-reports}" class="sidebar-item"><span class="icon" aria-hidden="true">▤</span><span class="label" th:text="#{nav.myReports}">My reports</span></a>
+      <a th:href="@{/downloads}" class="sidebar-item"><span class="icon" aria-hidden="true">↓</span><span class="label" th:text="#{nav.downloads}">Downloads</span></a>
+      <a th:href="@{/tools/security-center}" class="sidebar-item"><span class="icon" aria-hidden="true">⌘</span><span class="label" th:text="#{nav.securityCenter}">Security tools</span></a>
+      <a th:href="@{/ai/assistant}" class="sidebar-item"><span class="icon" aria-hidden="true">✧</span><span class="label" th:text="#{nav.ai}">AI assistant</span></a>
+    </div>
+
+    <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_ANALYST','ROLE_FORENSICS')" class="sidebar-section" th:text="#{nav.investigations}">Incident response</div>
+    <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_ANALYST','ROLE_FORENSICS')">
+      <a th:href="@{/incidents}" class="sidebar-item"><span class="icon" aria-hidden="true">◉</span><span class="label" th:text="#{nav.allIncidents}">Incidents</span></a>
+      <a th:href="@{/cases}" class="sidebar-item"><span class="icon" aria-hidden="true">▣</span><span class="label" th:text="#{nav.forensicsCases}">Investigation cases</span></a>
+      <a th:href="@{/case-tasks}" class="sidebar-item"><span class="icon" aria-hidden="true">☷</span><span class="label" th:text="#{nav.responseTasks}">Response tasks</span></a>
+      <a th:href="@{/evidence}" class="sidebar-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_FORENSICS','ROLE_ANALYST')"><span class="icon" aria-hidden="true">◇</span><span class="label" th:text="#{nav.evidence}">Evidence</span></a>
+      <a th:href="@{/report-attack/admin}" class="sidebar-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')"><span class="icon" aria-hidden="true">✓</span><span class="label" th:text="#{nav.reportsForExamination}">Reports for examination</span></a>
+      <a th:href="@{/threat-map}" class="sidebar-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_ANALYST')"><span class="icon" aria-hidden="true">◎</span><span class="label" th:text="#{nav.incidentMap}">Incident map</span></a>
+      <a th:href="@{/analytics}" class="sidebar-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_ANALYST')"><span class="icon" aria-hidden="true">▥</span><span class="label" th:text="#{nav.analytics}">Analytics</span></a>
+    </div>
+
+    <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')" class="sidebar-section">Governance</div>
+    <div sec:authorize="hasAnyAuthority('ROLE_ADMIN','ROLE_CYBER_PRO','ROLE_FORENSICS')">
+      <a th:href="@{/audit}" class="sidebar-item"><span class="icon" aria-hidden="true">≡</span><span class="label" th:text="#{nav.auditSecurity}">Audit &amp; security</span></a>
+      <a th:href="@{/compliance}" class="sidebar-item"><span class="icon" aria-hidden="true">◇</span><span class="label" th:text="#{nav.compliance}">Compliance register</span></a>
+    </div>
+
+    <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="sidebar-section" th:text="#{nav.administration}">Administration</div>
+    <div sec:authorize="hasAuthority('ROLE_ADMIN')">
+      <a th:href="@{/admin/users}" class="sidebar-item"><span class="icon" aria-hidden="true">♙</span><span class="label" th:text="#{nav.usersAccess}">Users &amp; access</span></a>
+      <a th:href="@{/whistleblower/admin}" class="sidebar-item"><span class="icon" aria-hidden="true">◌</span><span class="label" th:text="#{nav.anonymousReports}">Anonymous reports</span></a>
+      <a th:href="@{/admin/announcements}" class="sidebar-item"><span class="icon" aria-hidden="true">✦</span><span class="label" th:text="#{nav.announcements}">Announcements</span></a>
+      <a th:href="@{/admin/settings}" class="sidebar-item"><span class="icon" aria-hidden="true">⚙</span><span class="label" th:text="#{nav.systemSettings}">System settings</span></a>
+    </div>
+  </nav>
+  <style>
+    .notification-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:#b42318;color:#fff;font-size:10px;font-weight:800;line-height:1}
+    .notification-count:empty{display:none}
+    .app-sidebar .sidebar-section{margin-top:18px;margin-bottom:6px;padding-inline:14px;font-size:10px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;opacity:.78}
+    .app-sidebar .sidebar-item{min-height:40px}
+    .app-sidebar .sidebar-item .label{overflow-wrap:anywhere}
+    @media(max-width:767px){.app-sidebar{max-height:100dvh;overflow-y:auto;overscroll-behavior:contain}.app-sidebar .sidebar-nav{padding-bottom:24px}.app-sidebar .sidebar-item{min-height:42px}}
+  </style>
+</aside>
+</body>
+</html>
