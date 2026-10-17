@@ -61,7 +61,7 @@ class ReportAttackControllerScopeTest {
         assertTrue(visible.stream().anyMatch(r -> r.getId().equals(1L)));
         assertTrue(visible.stream().anyMatch(r -> r.getId().equals(2L)));
         verify(service, never()).getAll();
-        assertEquals(0L, model.getAttribute("totalCount") instanceof Number n ? n.longValue() : -1L);
+        assertEquals(2L, model.getAttribute("totalCount") instanceof Number n ? n.longValue() : -1L);
     }
 
     @Test
