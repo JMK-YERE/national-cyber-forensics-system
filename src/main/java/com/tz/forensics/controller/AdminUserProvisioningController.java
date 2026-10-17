@@ -4,14 +4,15 @@ import com.tz.forensics.entity.User;
 import com.tz.forensics.repository.UserRepository;
 import com.tz.forensics.service.AuditService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;\nimport org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -50,7 +51,7 @@ public class AdminUserProvisioningController {
                              @RequestParam(required = false) String organization,
                              @RequestParam(required = false) String phone,
                              @RequestParam(required = false) String whatsappNumber,
-                             Authentication auth, Model model) {
+                             Authentication auth, Model model, RedirectAttributes redirectAttributes) {
         if (!isAdmin(auth)) return "redirect:/access-denied";
 
         String cleanUsername = username == null ? "" : username.trim();
@@ -89,7 +90,7 @@ public class AdminUserProvisioningController {
         user.setEmail(cleanEmail);
         user.setFullName(cleanName);
         user.setRole(cleanRole);
-        user.setOrganization(blankToNull(organization));
+        user.setOrganization(clean(organization));
         user.setPhone(cleanPhone);
         user.setWhatsappNumber(cleanWhatsApp);
         user.setPassword(passwordEncoder.encode(temporaryPassword));
@@ -109,10 +110,11 @@ public class AdminUserProvisioningController {
         auditService.log("ADMIN_CREATE_USER", "User", user.getUsername(),
                 "Provisioned role=" + cleanRole + "; forced password change enabled");
 
-        String message = "Cyber Forensics TZ - Akaunti yako imeundwa.\n"
-                + "Username: " + cleanUsername + "\n"
-                + "Temporary password: " + temporaryPassword + "\n"
-                + "Login: " + "https://cyber-forensics-tz.cyber.blitz.cloud/login" + "\n"
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String message = "Cyber Forensics TZ - Akaunti yako imeundwa.\\n"
+                + "Username: " + cleanUsername + "\\n"
+                + "Temporary password: " + temporaryPassword + "\\n"
+                + "Login: " + baseUrl + "/login\\n"
                 + "Kwa usalama, badilisha password mara tu utakapoingia. Password hii ni ya matumizi ya kwanza tu.";
         String digits = cleanWhatsApp == null ? "" : cleanWhatsApp.replaceAll("[^0-9]", "");
         String whatsappLink = digits.isBlank() ? "" :
@@ -125,8 +127,6 @@ public class AdminUserProvisioningController {
         redirectAttributes.addFlashAttribute("whatsappNumberProvided", !digits.isBlank());
         redirectAttributes.addFlashAttribute("success", "Akaunti imeundwa. Hifadhi au share password hii sasa; haitahifadhiwa wazi kwenye database.");
         return "redirect:/admin/users/new";
-    }
-min-add-user";
     }
 
     private boolean isAdmin(Authentication auth) {
@@ -142,9 +142,5 @@ min-add-user";
 
     private String clean(String value) {
         return value == null || value.isBlank() ? null : value.trim();
-    }
-
-    private String blankToNull(String value) {
-        return clean(value);
     }
 }
