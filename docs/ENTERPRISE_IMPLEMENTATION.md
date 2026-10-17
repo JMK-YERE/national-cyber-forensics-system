@@ -205,3 +205,9 @@ Operational follow-up required before release:
 - Verify normal tenant-owned workflows and regression tests after the deny-by-default change.
 - Do not apply this feature branch to production until the above are rehearsed and explicitly approved.
 
+### Expanded fail-closed coverage for case workflows (2026-10-17)
+
+The same NULL-tenant deny-by-default behavior is now applied in `CaseFileController`, `CaseIocController`, `CaseTaskController`, and `CaseCommunicationController`. This closes additional legacy compatibility paths where unknown tenant ownership was previously treated as sufficient tenant access. Together with the incident, evidence, and PDF controller changes above, case detail, IOC/task operations, case communications, and related evidence/export paths require a resolved tenant ID and active membership.
+
+This is a compatibility-breaking security measure for unresolved legacy rows. Do not remove it merely to make old data visible; complete the approved ownership mapping and add cross-tenant regression tests first. CI success alone does not establish complete isolation across every application endpoint.
+
