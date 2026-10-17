@@ -28,6 +28,14 @@
         <p style="color: #315b87; margin: 0;" th:text="${success}"></p>
     </div>
 
+    <div class="app-card" th:if="${temporaryPassword}" style="background:#f0fdf4;border-left:4px solid #15803d;padding:15px;">
+        <h3 style="margin:0 0 8px;color:#14532d;">Temporary login password — shown once</h3>
+        <p style="margin:0 0 8px;">Username: <strong th:text="${temporaryUsername}"></strong></p>
+        <p style="margin:0 0 10px;">Temporary password: <code id="initialTemporaryPassword" th:text="${temporaryPassword}" style="font-size:16px;font-weight:700;user-select:all;"></code></p>
+        <button type="button" class="user-btn" style="background:#166534;" onclick="navigator.clipboard.writeText(document.getElementById(&quot;initialTemporaryPassword&quot;).innerText)">Copy temporary password</button>
+        <p style="font-size:12px;color:#14532d;margin:10px 0 0;">Mpe mtumiaji kwa njia salama. Atalazimika kubadilisha password kabla ya kufungua dashboard. Password hii ya muda itakubaliwa kwa saa 24 pekee.</p>
+    </div>
+
     <div class="app-card" th:if="${error}" style="background: rgba(220,38,38,0.1); border-left: 4px solid #dc2626; padding: 15px;">
         <p style="color: #dc2626; margin: 0;" th:text="${error}"></p>
     </div>
@@ -51,7 +59,7 @@
 
     <div class="app-card">
         <h2>➕ Add User</h2>
-        <p>Unda akaunti mpya. Kisha tumia Temporary Access kutuma code ya mara moja ya kuanzisha password.</p>
+        <p>Unda akaunti mpya. Mfumo utaonyesha temporary password mara moja; mtumiaji ataingia nayo na kulazimishwa kubadilisha password kabla ya kutumia mfumo.</p>
         <form th:action="@{/admin/users/create}" method="post" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <input name="username" required maxlength="50" placeholder="Username">
