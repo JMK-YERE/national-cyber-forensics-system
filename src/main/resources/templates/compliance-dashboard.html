@@ -33,6 +33,9 @@
     <div class="app-card" th:if="${success}" style="background: rgba(27,122,74,0.1); border-left: 4px solid #0aa879;">
         <p style="color: #0aa879; margin: 0;" th:text="${success}"></p>
     </div>
+    <div class="app-card" th:if="${error}" style="background: rgba(185,28,28,0.08); border-left: 4px solid #b91c1c;">
+        <p style="color: #b91c1c; margin: 0;" th:text="${error}"></p>
+    </div>
 
     <!-- STATS -->
     <div class="app-stats-grid">
@@ -92,8 +95,9 @@
                 </p>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <div class="score-circle" th:style="'background: ' + (${r.complianceScore} >= 80 ? '#0aa879' : (${r.complianceScore} >= 60 ? '#d97706' : '#8b1a1a')) + '; color: white;'"
+                <div th:if="${r.complianceScore != null}" class="score-circle" th:style="'background: ' + (${r.complianceScore} >= 80 ? '#0aa879' : (${r.complianceScore} >= 60 ? '#d97706' : '#8b1a1a')) + '; color: white;'"
                      th:text="${r.complianceScore} + '%'"></div>
+                <div th:unless="${r.complianceScore != null}" class="score-circle" style="background: #64748b; color: white; font-size: 10px; text-align: center; padding: 4px;">Not assessed</div>
                 <a th:href="@{'/compliance/view/' + ${r.id}}" class="app-btn app-btn-primary">👁️ View</a>
             </div>
         </div>
