@@ -211,6 +211,10 @@ public class AdminController {
         User admin = auth == null ? null : userRepository.findByUsername(auth.getName()).orElse(null);
         if (admin == null || !admin.isAdmin()) return "redirect:/access-denied";
         User user = userRepository.findById(id).orElse(null);
+        if (user != null && "INIT".equalsIgnoreCase(user.getPasswordSetupChannel())) {
+            ra.addFlashAttribute("error", "Mtumiaji huyu lazima aingie kwa temporary password na abadilishe password kwanza kabla ya kutoa reset link/OTP mpya.");
+            return "redirect:/admin/users";
+        }
         if (user == null || !Boolean.TRUE.equals(user.getEnabled())) {
             ra.addFlashAttribute("error", "Akaunti haipo au imezimwa.");
             return "redirect:/admin/users";
@@ -282,9 +286,17 @@ public class AdminController {
         if (name.isBlank() || mail.isBlank() || userRepository.existsByUsername(name) || userRepository.existsByEmail(mail)) { ra.addFlashAttribute("error", "Username/email haijajazwa au tayari inatumika."); return "redirect:/admin/users"; }
         if ((phone == null || phone.isBlank()) && (whatsappNumber == null || whatsappNumber.isBlank())) { ra.addFlashAttribute("error", "Weka namba ya simu au WhatsApp ili kutuma code."); return "redirect:/admin/users"; }
         if (!java.util.Set.of("INDIVIDUAL", "CYBER_PRO", "FORENSICS", "ANALYST", "ADMIN").contains(selectedRole)) { ra.addFlashAttribute("error", "Role si sahihi."); return "redirect:/admin/users"; }
-        User user = new User(); user.setUsername(name); user.setEmail(mail); user.setFullName(fullName == null ? "" : fullName.trim()); user.setPhone(phone == null ? "" : phone.trim()); user.setWhatsappNumber(whatsappNumber == null ? "" : whatsappNumber.trim()); user.setOrganization(organization == null ? "" : organization.trim()); user.setRole(selectedRole); user.setPassword(passwordEncoder.encode(java.util.UUID.randomUUID().toString())); user.setEnabled(true); user.setEmailVerified(true); user.setApprovalStatus("APPROVED"); user.setCreatedAt(LocalDateTime.now()); userRepository.save(user);
+        String temporaryPassword = generateTemporaryPassword(); User user = new User(); user.setUsername(name); user.setEmail(mail); user.setFullName(fullName == null ? "" : fullName.trim()); user.setPhone(phone == null ? "" : phone.trim()); user.setWhatsappNumber(whatsappNumber == null ? "" : whatsappNumber.trim()); user.setOrganization(organization == null ? "" : organization.trim()); user.setRole(selectedRole); user.setPassword(passwordEncoder.encode(temporaryPassword)); user.setPasswordSetupChannel("INIT"); user.setPasswordSetupExpiresAt(LocalDateTime.now().plusHours(24)); user.setPasswordSetupAttempts(0); user.setEnabled(true); user.setEmailVerified(true); user.setApprovalStatus("APPROVED"); user.setCreatedAt(LocalDateTime.now()); userRepository.save(user);
         auditService.log(admin.getId(), admin.getUsername(), "ADMIN_CREATE_USER", "User", user.getUsername(), "Role=" + selectedRole + "; initial setup code not yet sent");
-        ra.addFlashAttribute("success", "Akaunti imetengenezwa. Chagua SMS au WhatsApp kwenye akaunti hiyo, kisha bonyeza Temporary Access."); return "redirect:/admin/users";
+        ra.addFlashAttribute("success", "Akaunti imetengenezwa. Tumia temporary password iliyoonyeshwa hapa chini kuingia; mfumo utakulazimisha kuweka password yako ndani ya saa 24."); ra.addFlashAttribute("temporaryPassword", temporaryPassword); ra.addFlashAttribute("temporaryUsername", user.getUsername()); return "redirect:/admin/users";
+    }
+
+    private String generateTemporaryPassword() {
+        final String alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#$%";
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder(14);
+        for (int i = 0; i < 14; i++) password.append(alphabet.charAt(random.nextInt(alphabet.length())));
+        return password.toString();
     }
 
     private String sha256(String value) { try { byte[] digest = java.security.MessageDigest.getInstance("SHA-256").digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8)); StringBuilder out = new StringBuilder(64); for (byte b : digest) out.append(String.format("%02x", b)); return out.toString(); } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException("SHA-256 unavailable", e); } }
