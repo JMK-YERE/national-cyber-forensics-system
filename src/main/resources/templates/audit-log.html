@@ -7,23 +7,12 @@
 </head>
 <body><div th:replace="~{fragments/header :: header}"></div><div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-    <div class="nav-links">
-        <a th:href="@{/dashboard}">🏠 Dashboard</a>
-        <a th:href="@{/incidents}">📋 Incidents</a>
-        <a th:href="@{/cases}">📁 Cases</a>
-        <a th:href="@{/audit}">📊 Audit</a>
-        <a th:href="@{/admin/users}" th:if="${currentUser != null && currentUser.isAdmin()}">👥 Users</a>
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="logout-btn">🚪 Logout</button>
-        </form>
-    </div>
-</div>
 
 <main class="app-main"><div class="app-container">
     <div class="app-card">
         <h1>📊 Audit Log</h1>
         <p>Kila kitendo kwenye mfumo kinarekodiwa kwa uwazi na usalama.</p>
-        <div style="margin-top:10px; padding:10px; background:rgba(255,200,0,0.1); border-left:3px solid #ffc800; font-size:12px;">
+        <div style="margin-top:10px; padding:10px; background:#eff6ff; border-left:3px solid #244f7d; font-size:12px;">
             🔒 <strong>Restricted Access:</strong> Audit log inaonekana kwa <strong>Admin, Cyber Professionals, na Forensics Analysts</strong> pekee.
         </div>
     </div>
