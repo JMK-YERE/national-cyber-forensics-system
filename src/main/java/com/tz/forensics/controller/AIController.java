@@ -57,8 +57,9 @@ public class AIController {
         String currentLang = LocaleContextHolder.getLocale().getLanguage();
         String context = buildContext(user);
 
-        // Pass language kwenye AI
-        String response = aiChatService.chat(normalizedMessage, context, currentLang);
+        // Include recent history from this user's own session for conversational continuity.
+        List<Map<String, String>> priorHistory = new ArrayList<>(getSessionHistory(session));
+        String response = aiChatService.chat(normalizedMessage, context, currentLang, priorHistory);
 
         List<Map<String, String>> history = getSessionHistory(session);
         history.add(createChatEntry("user", normalizedMessage));
