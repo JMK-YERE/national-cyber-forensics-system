@@ -268,7 +268,7 @@ public class PasswordController {
     }
 
     @PostMapping("/change-password")
-    public String changeSubmit(@RequestParam String currentPassword,
+    public String changeSubmit(@RequestParam(required = false, defaultValue = "") String currentPassword,
                                @RequestParam String newPassword,
                                @RequestParam String confirmPassword,
                                Authentication auth,
@@ -276,27 +276,37 @@ public class PasswordController {
         if (auth == null) return "redirect:/login";
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) return "redirect:/login";
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            ra.addFlashAttribute("error", "Neno la siri la sasa si sahihi");
+
+        boolean firstLogin = "INIT".equalsIgnoreCase(user.getPasswordSetupChannel());
+        if (firstLogin && (user.getPasswordSetupExpiresAt() == null
+                || user.getPasswordSetupExpiresAt().isBefore(LocalDateTime.now()))) {
+            ra.addFlashAttribute("error", "Temporary password imeisha muda. Tumia Forgot Password kupata njia mpya.");
+            return "redirect:/forgot-password?temporaryExpired=true";
+        }
+        // First-login users have just authenticated with the temporary password,
+        // so do not ask them to type it again. Normal password changes still require it.
+        if (!firstLogin && (currentPassword.isBlank()
+                || !passwordEncoder.matches(currentPassword, user.getPassword()))) {
+            ra.addFlashAttribute("error", "Thibitisha password yako ya sasa.");
             return "redirect:/change-password";
         }
-        if (!newPassword.equals(confirmPassword) || newPassword.length() < 6) {
-            ra.addFlashAttribute("error", "Password mpya iwe na herufi 6+ na zote zifanane.");
-            return "redirect:/change-password";
+        if (!newPassword.equals(confirmPassword) || newPassword.length() < 8) {
+            ra.addFlashAttribute("error", "Password mpya iwe na angalau herufi 8 na zote zifanane.");
+            return firstLogin ? "redirect:/change-password?required=true" : "redirect:/change-password";
         }
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
             ra.addFlashAttribute("error", "Password mpya lazima iwe tofauti na password ya sasa.");
-            return "redirect:/change-password";
+            return firstLogin ? "redirect:/change-password?required=true" : "redirect:/change-password";
         }
         user.setPassword(passwordEncoder.encode(newPassword));
-        if ("INIT".equalsIgnoreCase(user.getPasswordSetupChannel())) {
+        if (firstLogin) {
             user.setPasswordSetupChannel(null);
             user.setPasswordSetupExpiresAt(null);
             user.setPasswordSetupToken(null);
             user.setPasswordSetupAttempts(0);
         }
         userRepository.save(user);
-        ra.addFlashAttribute("success", "✅ Neno la siri limebadilishwa!");
+        ra.addFlashAttribute("success", "Neno la siri limebadilishwa.");
         return "redirect:/change-password";
     }
 }
