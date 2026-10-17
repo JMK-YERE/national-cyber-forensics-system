@@ -550,3 +550,56 @@ body { -webkit-text-size-adjust:100%; }
   #heroSlider .hero-copy { padding-left:16px !important; padding-right:16px !important; }
   .steps { grid-template-columns:minmax(0,1fr) !important; }
 }
+
+
+/* ===== RESPONSIVE HERO PROPORTION + MOBILE STRUCTURE REFINEMENT =====
+   Keep the hero compact enough that users can see the next section sooner.
+   The same layout rules work from narrow phones through desktop widths. */
+#heroSlider.hero-slider {
+  height: clamp(430px, 68svh, 620px) !important;
+  min-height: 430px !important;
+  max-height: 620px !important;
+}
+#heroSlider .hero-copy {
+  width: min(100%, 820px);
+  padding-top: clamp(52px, 9vh, 100px);
+  padding-bottom: 88px;
+}
+#heroSlider .hero-copy h1 {
+  max-width: 760px;
+  text-wrap: balance;
+}
+#heroSlider .hero-copy p { max-width: 560px; }
+@media (min-width: 601px) and (max-width: 1024px) {
+  #heroSlider.hero-slider { height: clamp(450px, 64svh, 570px) !important; min-height: 450px !important; }
+  #heroSlider .hero-copy { padding-left: clamp(28px, 5vw, 58px) !important; padding-right: clamp(24px, 5vw, 58px) !important; }
+  #heroSlider .hero-copy h1 { font-size: clamp(34px, 5vw, 52px) !important; }
+}
+@media (max-width: 600px) {
+  #heroSlider.hero-slider { height: 460px !important; min-height: 460px !important; }
+  #heroSlider .hero-slide { height: 100% !important; min-height: 460px !important; }
+  #heroSlider .hero-copy {
+    min-height: 460px !important;
+    padding: 34px 18px 82px !important;
+    justify-content: center !important;
+  }
+  #heroSlider .hero-copy .eyebrow { font-size: 9px !important; letter-spacing: 1.1px !important; margin-bottom: 9px !important; }
+  #heroSlider .hero-copy h1 { font-size: clamp(27px, 7.7vw, 34px) !important; line-height: 1.08 !important; letter-spacing: -.5px !important; margin-bottom: 10px !important; }
+  #heroSlider .hero-copy p { font-size: 13px !important; line-height: 1.45 !important; margin-bottom: 14px !important; max-width: 100% !important; }
+  #heroSlider .hero-copy > div { gap: 7px !important; }
+  #heroSlider .hero-copy .btn-large { min-height: 40px !important; padding: 10px 12px !important; font-size: 12px !important; }
+  #heroSlider .slider-dots { bottom: 16px !important; left: 16px !important; }
+  #heroSlider .slider-controls { bottom: 7px !important; right: 12px !important; }
+  #heroSlider .slider-arrow { width: 34px !important; height: 34px !important; }
+}
+@media (max-width: 380px) {
+  #heroSlider.hero-slider, #heroSlider .hero-slide, #heroSlider .hero-copy { min-height: 440px !important; }
+  #heroSlider.hero-slider { height: 440px !important; }
+  #heroSlider .hero-copy { padding: 28px 14px 76px !important; }
+  #heroSlider .hero-copy h1 { font-size: 27px !important; }
+  #heroSlider .hero-copy p { font-size: 12px !important; }
+}
+@media (max-height: 700px) and (min-width: 601px) {
+  #heroSlider.hero-slider { height: 520px !important; min-height: 440px !important; }
+  #heroSlider .hero-copy { padding-top: 50px !important; }
+}
