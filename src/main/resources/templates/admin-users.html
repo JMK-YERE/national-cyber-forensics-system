@@ -7,7 +7,7 @@
     <style>
         .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; margin: 8px 0; background: #f8fafc; border-left: 3px solid #244f7d; border-radius: 8px; flex-wrap: wrap; gap: 10px; }
         .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; background: #173b66; margin-left: 8px; }
-        .role-ADMIN { background: #dc2626; }
+        .role-ADMIN { background: #173b66; }
         .role-CYBER_PRO { background: #315b87; }
         .role-FORENSICS { background: #315b87; }
         .role-INDIVIDUAL { background: #315b87; }
@@ -44,7 +44,7 @@
 
     <div class="app-stats-grid">
         <div class="app-stat-box"><div class="stat-value" th:text="${totalUsers}">0</div><div class="stat-label">Total Users</div></div>
-        <div class="app-stat-box"><div class="stat-value" style="color: #dc2626;" th:text="${adminCount}">0</div><div class="stat-label">Admins</div></div>
+        <div class="app-stat-box"><div class="stat-value" style="color: #173b66;" th:text="${adminCount}">0</div><div class="stat-label">Admins</div></div>
         <div class="app-stat-box"><div class="stat-value" style="color: #315b87;" th:text="${proCount}">0</div><div class="stat-label">Professionals</div></div>
         <div class="app-stat-box"><div class="stat-value" style="color: #315b87;" th:text="${individualCount}">0</div><div class="stat-label">Individuals</div></div>
     </div>
